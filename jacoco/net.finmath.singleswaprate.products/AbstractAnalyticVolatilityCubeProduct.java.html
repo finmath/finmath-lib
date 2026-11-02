@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractAnalyticVolatilityCubeProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.products</a> &gt; <span class="el_source">AbstractAnalyticVolatilityCubeProduct.java</span></div><h1>AbstractAnalyticVolatilityCubeProduct.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.products;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.modelling.Model;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+
+/**
+ * Abstract layer between interface and implementation, which ensures compatibility of model and product.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+<span class="fc" id="L14">public abstract class AbstractAnalyticVolatilityCubeProduct implements AnalyticVolatilityCubeProduct {</span>
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="nc" id="L18">		throw new IllegalArgumentException(&quot;The product &quot; + this.getClass()</span>
+<span class="nc" id="L19">		+ &quot; cannot be valued against a model &quot; + model.getClass() + &quot;.&quot;</span>
+		+ &quot;It requires a model of type &quot; + VolatilityCubeModel.class + &quot;.&quot;);
+	}
+
+	@Override
+	public Object getValue(final double evaluationTime, final Model model) {
+<span class="nc" id="L25">		throw new IllegalArgumentException(&quot;The product &quot; + this.getClass()</span>
+<span class="nc" id="L26">		+ &quot; cannot be valued against a model &quot; + model.getClass() + &quot;.&quot;</span>
+		+ &quot;It requires a model of type &quot; + VolatilityCubeModel.class + &quot;.&quot;);
+	}
+
+	/**
+	 * Return the valuation of the product at time 0 using the given model.
+	 * The model has to implement the modes of {@link VolatilityCubeModel}.
+	 *
+	 * @param model The model under which the product is valued.
+	 * @return The value of the product using the given model.
+	 */
+	public double getValue(final VolatilityCubeModel model) {
+<span class="nc" id="L38">		return getValue(0.0, model);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

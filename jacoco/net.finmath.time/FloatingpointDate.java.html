@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FloatingpointDate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">FloatingpointDate.java</span></div><h1>FloatingpointDate.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 16.05.2017
+ */
+package net.finmath.time;
+
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import net.finmath.time.daycount.DayCountConvention;
+import net.finmath.time.daycount.DayCountConvention_ACT_365;
+
+/**
+ * This class provides the library wide conversion from a floating point number to a LocalDate.
+ *
+ * While in practical applications a date or time should always be represented with a proper
+ * date class, e.g. &lt;code&gt;LocalDate&lt;/code&gt; or &lt;code&gt;LocalDateTime&lt;/code&gt;. In financial applications the measurement
+ * of time distances has to be based on a solid definition, e.g., daycount conventions to calculate
+ * daycount fractions.
+ *
+ * However, many mathematical models described in text books rely on time being modeled as some
+ * real value \( t \).
+ *
+ * To allow for both approaches to co-exists this class fixes the interpretation of a floating
+ * point number representing time, &lt;i&gt;unless otherwise specified&lt;/i&gt;.
+ *
+ * So it still possible that models use their own &quot;conversion&quot;.
+ *
+ * Examples where the specification of this contract is important:
+ * - the way of measuring time in an NSS curve determines the interpretation of the NSS parameters.
+ * - in the textbook Black-Scholes models, multiplying volatility by W(t), changing from an ACT/365 to ACT/360 would represent a re-scaling of the volatilities.
+ *
+ * The specification of this internal time representation is to some extend just a convention which defines the unit of internal model parameters.
+ * A constant volatility measured against a floating point time ACT/365 corresponds 1:1: to a constant volatility measure again a floating point time ACT/360
+ * with a conversion factor of 360/365. However, the situation is not always trivial, since a constant volatility measured against a floating point time ACT/365
+ * would correspond to a weakly time-dependent volatility volatility measured against ACT/ACT.
+ *
+ * Such nuances represent differences in the model, a model calibration will ensure that the parameters are choosen such that the model matches observed quantities
+ * independent from the convention used to express internal model parameters.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class FloatingpointDate {
+
+	private static final long SECONDS_PER_DAY = 365*24*60*60;
+
+<span class="fc" id="L51">	private static DayCountConvention	internalDayCounting = new DayCountConvention_ACT_365();</span>
+
+	private FloatingpointDate() {
+	}
+
+	/**
+	 * Convert a floating point date to a LocalDateTime.
+	 *
+	 * Note: This method currently performs a rounding to the next second.
+	 *
+	 * If referenceDate is null, the method returns null.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param floatingPointDate The value to the time offset \( t \).
+	 * @return The date resulting from adding Math.round(fixingTime*SECONDS_PER_DAY) seconds to referenceDate, where one day has SECONDS_PER_DAY seconds and SECONDS_PER_DAY is a constant 365*24*60*60
+	 */
+	public static LocalDateTime getDateFromFloatingPointDate(final LocalDateTime referenceDate, final double floatingPointDate) {
+<span class="pc bpc" id="L68" title="1 of 2 branches missed.">		if(referenceDate == null) {</span>
+<span class="nc" id="L69">			return null;</span>
+		}
+
+<span class="fc" id="L72">		final Duration duration = Duration.ofSeconds(Math.round(floatingPointDate * SECONDS_PER_DAY));</span>
+<span class="fc" id="L73">		return referenceDate.plus(duration);</span>
+	}
+
+	/**
+	 * Convert a given date to a floating point date using a given reference date.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param date The given date to be associated with the return value \( T \).
+	 * @return The value T measuring the distance of reference date and date by ACT/365 with SECONDS_PER_DAY seconds used as the smallest time unit and SECONDS_PER_DAY is a constant 365*24*60*60.
+	 */
+	public static double getFloatingPointDateFromDate(final LocalDateTime referenceDate, final LocalDateTime date) {
+<span class="fc" id="L84">		final Duration duration = Duration.between(referenceDate, date);</span>
+<span class="fc" id="L85">		return ((double)duration.getSeconds()) / SECONDS_PER_DAY;</span>
+	}
+
+	/**
+	 * Convert a floating point date to a LocalDate.
+	 *
+	 * Note: This method currently performs a rounding to the next day.
+	 * In a future extension intra-day time offsets may be considered.
+	 *
+	 * If referenceDate is null, the method returns null.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param floatingPointDate The value to the time offset \( t \).
+	 * @return The date resulting from adding Math.round(fixingTime*365.0) days to referenceDate.
+	 */
+	public static LocalDate getDateFromFloatingPointDate(final LocalDate referenceDate, final double floatingPointDate) {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		if(referenceDate == null) {</span>
+<span class="fc" id="L102">			return null;</span>
+		}
+<span class="fc" id="L104">		return referenceDate.plusDays((int)Math.round(floatingPointDate*365.0));</span>
+	}
+
+	/**
+	 * Convert a given date to a floating point date using a given reference date.
+	 *
+	 * @param referenceDate The reference date associated with \( t=0 \).
+	 * @param date The given daten to be associated with the return value \( T \).
+	 * @return The value T measuring the distance of reference date and date by ACT/365.
+	 */
+	public static double getFloatingPointDateFromDate(final LocalDate referenceDate, final LocalDate date) {
+<span class="fc" id="L115">		return internalDayCounting.getDaycountFraction(referenceDate, date);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

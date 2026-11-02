@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractPeriod.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">AbstractPeriod.java</span></div><h1>AbstractPeriod.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.interestrate.products.components;
+
+import java.time.LocalDateTime;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Base class for a period. A period has references to the index (coupon) and the notional.
+ * It provides the fixing date for the index, the period length, and the payment date.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public abstract class AbstractPeriod extends AbstractProductComponent {
+
+	private static final long serialVersionUID = 8035860121112226049L;
+
+	private final LocalDateTime referenceDate;
+
+	private final double periodStart;
+	private final double periodEnd;
+	private final double fixingDate;
+	private final double paymentDate;
+
+	private final Notional				notional;
+	private final AbstractProductComponent		index;
+	private final double						daycountFraction;
+
+	@Override
+	public abstract RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
+
+	public abstract RandomVariable getCoupon(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
+
+	/**
+	 * Initialize basic properties of the period.
+	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
+	 * @param index The index (used for coupon calculation) associated with this period.
+	 * @param daycountFraction The daycount fraction (&lt;code&gt;coupon = index(fixingDate) * daycountFraction&lt;/code&gt;).
+	 */
+	public AbstractPeriod(final LocalDateTime referenceDate, final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index, final double daycountFraction) {
+<span class="fc" id="L52">		super();</span>
+<span class="fc" id="L53">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L54">		this.periodStart = periodStart;</span>
+<span class="fc" id="L55">		this.periodEnd = periodEnd;</span>
+<span class="fc" id="L56">		this.fixingDate = fixingDate;</span>
+<span class="fc" id="L57">		this.paymentDate = paymentDate;</span>
+<span class="fc" id="L58">		this.notional = notional;</span>
+<span class="fc" id="L59">		this.index = index;</span>
+<span class="fc" id="L60">		this.daycountFraction = daycountFraction;</span>
+<span class="fc" id="L61">	}</span>
+
+	/**
+	 * Initialize basic properties of the period.
+	 *
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
+	 * @param index The index (used for coupon calculation) associated with this period.
+	 * @param daycountFraction The daycount fraction (&lt;code&gt;coupon = index(fixingDate) * daycountFraction&lt;/code&gt;).
+	 */
+	public AbstractPeriod(final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index, final double daycountFraction) {
+<span class="nc" id="L77">		this(null, periodStart, periodEnd, fixingDate, paymentDate, notional, index, daycountFraction);</span>
+<span class="nc" id="L78">	}</span>
+
+	/**
+	 * Initialize basic properties of the period using the idealized
+	 * daycount faction &lt;code&gt;periodEnd-periodStart&lt;/code&gt;.
+	 *
+	 * @param periodStart The period start.
+	 * @param periodEnd The period end.
+	 * @param fixingDate The fixing date (as double).
+	 * @param paymentDate The payment date (as double).
+	 * @param notional The notional object relevant for this period.
+	 * @param index The index (coupon) associated with this period.
+	 */
+	public AbstractPeriod(final double periodStart, final double periodEnd,
+			final double fixingDate, final double paymentDate, final Notional notional,
+			final AbstractProductComponent index) {
+<span class="nc" id="L94">		this(periodStart, periodEnd, fixingDate, paymentDate, notional, index, periodEnd - periodStart);</span>
+<span class="nc" id="L95">	}</span>
+
+	@Override
+	public String getCurrency() {
+<span class="nc" id="L99">		return notional.getCurrency();</span>
+	}
+
+	/**
+	 * @return the reference date
+	 */
+	public LocalDateTime getReferenceDate() {
+<span class="fc" id="L106">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the period start
+	 */
+	public double getPeriodStart() {
+<span class="fc" id="L113">		return periodStart;</span>
+	}
+
+	/**
+	 * @return the period end
+	 */
+	public double getPeriodEnd() {
+<span class="fc" id="L120">		return periodEnd;</span>
+	}
+
+	/**
+	 * @return the fixing date
+	 */
+	public double getFixingDate() {
+<span class="fc" id="L127">		return fixingDate;</span>
+	}
+
+	/**
+	 * @return the payment date
+	 */
+	public double getPaymentDate() {
+<span class="fc" id="L134">		return paymentDate;</span>
+	}
+
+	/**
+	 * @return the notional associated with this period.
+	 */
+	public Notional getNotional() {
+<span class="fc" id="L141">		return notional;</span>
+	}
+
+	/**
+	 * @return the index associated with this period.
+	 */
+	public AbstractProductComponent getIndex() {
+<span class="fc" id="L148">		return index;</span>
+	}
+
+	/**
+	 * @return the daycount fraction used in this period.
+	 */
+	public double getDaycountFraction() {
+<span class="fc" id="L155">		return daycountFraction;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L160">		return getIndex().queryUnderlyings();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L165">		return &quot;AbstractPeriod [periodStart=&quot; + periodStart + &quot;, periodEnd=&quot;</span>
+				+ periodEnd + &quot;, fixingDate=&quot; + fixingDate + &quot;, paymentDate=&quot;
+				+ paymentDate + &quot;, notional=&quot; + notional + &quot;, index=&quot; + index
+				+ &quot;, daycountFraction=&quot; + daycountFraction + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

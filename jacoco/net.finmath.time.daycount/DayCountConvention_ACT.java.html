@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_ACT.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_ACT.java</span></div><h1>DayCountConvention_ACT.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.time.LocalDate;
+
+/**
+ * Base class which calculates the day count by calculating the actual number of days between startDate and endDate.
+ *
+ * A fractional day is rounded to the approximately nearest day.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class DayCountConvention_ACT implements DayCountConvention {
+
+	/**
+	 * Create an ACT day count convention.
+	 */
+<span class="fc" id="L24">	public DayCountConvention_ACT() {</span>
+<span class="fc" id="L25">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L33">			return -getDaycount(endDate,startDate);</span>
+		}
+
+<span class="fc" id="L36">		return daysBetween(startDate, endDate);</span>
+	}
+
+	/**
+	 * Returns the number of days, between two dates.
+	 *
+	 * A fractional day is rounded to the approximately nearest day.
+	 *
+	 * The formula implemented is
+	 * &lt;code&gt;
+	 *
+	 * (endDate.toEpochDay() - startDate.toEpochDay());
+	 * &lt;/code&gt;
+	 *
+	 * @param startDate The start date of the interval.
+	 * @param endDate The end date of the interval.
+	 * @return Number of days between startDate and endDate.
+	 */
+	public static double daysBetween(final LocalDate startDate, final LocalDate endDate) {
+<span class="fc" id="L55">		return (endDate.toEpochDay() - startDate.toEpochDay());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

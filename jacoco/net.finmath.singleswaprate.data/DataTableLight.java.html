@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataTableLight.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.data</a> &gt; <span class="el_source">DataTableLight.java</span></div><h1>DataTableLight.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.data;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
+
+import net.finmath.time.SchedulePrototype;
+
+
+/**
+ * A basic implementation of DataTable, which only allows access to data via int and provides no means of inter- or extrapolation.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class DataTableLight implements DataTable, Cloneable {
+
+	private static final long serialVersionUID = -8655513677146846285L;
+	private final String name;
+	private final TableConvention convention;
+
+<span class="fc" id="L25">	private final TreeSet&lt;Integer&gt; maturitySet = new TreeSet&lt;&gt;();</span>
+<span class="fc" id="L26">	private final TreeSet&lt;Integer&gt; terminationSet = new TreeSet&lt;&gt;();</span>
+<span class="fc" id="L27">	private final HashMap&lt;DataKey, Double&gt; entries = new HashMap&lt;&gt;();</span>
+
+
+	/**
+	 * Create an empty table.
+	 *
+	 * @param name The name of the table.
+	 * @param tableConvention The convention of the table.
+	 */
+<span class="fc" id="L36">	public DataTableLight(final String name, final TableConvention tableConvention){</span>
+<span class="fc" id="L37">		this.name = name;</span>
+<span class="fc" id="L38">		this.convention = tableConvention;</span>
+<span class="fc" id="L39">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param tableConvention The convention of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableLight(final String name, final TableConvention tableConvention, final int[] maturities, final int[] terminations, final double[] values){
+<span class="fc" id="L51">		this(name, tableConvention);</span>
+
+<span class="pc bpc" id="L53" title="2 of 4 branches missed.">		if(maturities.length != terminations.length || maturities.length != values.length ) {</span>
+<span class="nc" id="L54">			throw new IllegalArgumentException(&quot;Number of entries need to match. Input was maturities: &quot;+maturities.length +&quot;, terminations: &quot;+</span>
+					terminations.length +&quot;,values: &quot; +values.length+&quot;. &quot;);
+		}
+
+<span class="fc bfc" id="L58" title="All 2 branches covered.">		for(int index = 0; index &lt; maturities.length; index++) {</span>
+<span class="fc" id="L59">			entries.put(new DataKey(maturities[index], terminations[index]), values[index]);</span>
+<span class="fc" id="L60">			maturitySet.add(maturities[index]);</span>
+<span class="fc" id="L61">			terminationSet.add(terminations[index]);</span>
+		}
+<span class="fc" id="L63">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param tableConvention The convention of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableLight(final String name, final TableConvention tableConvention, final List&lt;Integer&gt; maturities, final List&lt;Integer&gt; terminations, final List&lt;Double&gt; values) {
+<span class="fc" id="L75">		this(name, tableConvention);</span>
+
+<span class="pc bpc" id="L77" title="2 of 4 branches missed.">		if(maturities.size() != terminations.size() || maturities.size() != values.size() ) {</span>
+<span class="nc" id="L78">			throw new IllegalArgumentException(&quot;Number of entries need to match. Input was maturities: &quot;+maturities.size() +&quot;, terminations: &quot;+</span>
+<span class="nc" id="L79">					terminations.size() +&quot;,values: &quot; +values.size()+&quot;. &quot;);</span>
+		}
+
+<span class="fc bfc" id="L82" title="All 2 branches covered.">		for(int index = 0; index &lt; maturities.size(); index++) {</span>
+<span class="fc" id="L83">			final int mat = maturities.get(index);</span>
+<span class="fc" id="L84">			final int term = terminations.get(index);</span>
+<span class="fc" id="L85">			final double val =values.get(index);</span>
+
+<span class="fc" id="L87">			entries.put(new DataKey(mat, term), val);</span>
+<span class="fc" id="L88">			maturitySet.add(mat);</span>
+<span class="fc" id="L89">			terminationSet.add(term);</span>
+		}
+<span class="fc" id="L91">	}</span>
+
+	@Override
+	public DataTableLight addPoint(final int maturity, final int termination, final double value) {
+<span class="nc" id="L95">		final DataTableLight newTable = clone();</span>
+<span class="nc" id="L96">		newTable.entries.put(new DataKey(maturity, termination),value);</span>
+<span class="nc" id="L97">		newTable.maturitySet.add(maturity);</span>
+<span class="nc" id="L98">		newTable.terminationSet.add(termination);</span>
+<span class="nc" id="L99">		return newTable;</span>
+	}
+
+	@Override
+	public DataTableLight addPoints(final int[] maturities, final int[] terminations, final double[] values) {
+<span class="nc" id="L104">		final DataTableLight newTable = clone();</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">		for(int index = 0; index &lt; maturities.length; index++) {</span>
+<span class="nc" id="L106">			newTable.entries.put(new DataKey(maturities[index], terminations[index]), values[index]);</span>
+<span class="nc" id="L107">			newTable.maturitySet.add(maturities[index]);</span>
+<span class="nc" id="L108">			newTable.terminationSet.add(terminations[index]);</span>
+		}
+<span class="nc" id="L110">		return newTable;</span>
+	}
+
+	@Override
+	public double getValue(final int maturity, final int termination) {
+<span class="fc" id="L115">		final DataKey key = new DataKey(maturity, termination);</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		if(entries.containsKey(key)) {</span>
+<span class="fc" id="L117">			return entries.get(new DataKey(maturity,termination));</span>
+		} else {
+<span class="fc" id="L119">			throw new NullPointerException(&quot;Key &quot;+key.toString()+&quot; not found in table &quot; +name);</span>
+		}
+	}
+
+	@Override
+	public boolean containsEntryFor(final int maturity, final int termination) {
+<span class="fc" id="L125">		return entries.containsKey(new DataKey(maturity, termination));</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getMaturities(){
+<span class="fc" id="L130">		return new TreeSet&lt;&gt;(maturitySet);</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getTerminations(){
+<span class="fc" id="L135">		return new TreeSet&lt;&gt;(terminationSet);</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getTerminationsForMaturity(final int maturity){
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		if(maturitySet.contains(maturity)) {</span>
+<span class="fc" id="L141">			final TreeSet&lt;Integer&gt; returnSet = new TreeSet&lt;&gt;();</span>
+<span class="fc bfc" id="L142" title="All 2 branches covered.">			for(final int termination:terminationSet) {</span>
+<span class="pc bpc" id="L143" title="1 of 2 branches missed.">				if(entries.containsKey(new DataKey(maturity,termination))) {</span>
+<span class="fc" id="L144">					returnSet.add(termination);</span>
+				}
+<span class="fc" id="L146">			}</span>
+<span class="fc" id="L147">			return returnSet;</span>
+		}
+		//		else throw new IllegalArgumentException(&quot;This data table does not contain entries for maturity &quot;+maturity);
+<span class="nc" id="L150">		return new TreeSet&lt;&gt;();</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getMaturitiesForTermination(final int termination) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if(terminationSet.contains(termination)) {</span>
+<span class="nc" id="L156">			final TreeSet&lt;Integer&gt; returnSet = new TreeSet&lt;&gt;();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			for(final int maturity: maturitySet) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">				if(entries.containsKey(new DataKey(maturity,termination))) {</span>
+<span class="nc" id="L159">					returnSet.add(maturity);</span>
+				}
+<span class="nc" id="L161">			}</span>
+<span class="nc" id="L162">			return returnSet;</span>
+		}
+		//		else throw new IllegalArgumentException(&quot;This data table does not contain entries for termination &quot; +termination);
+<span class="nc" id="L165">		return new TreeSet&lt;&gt;();</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L170">		return name;</span>
+	}
+
+	@Override
+	public TableConvention getConvention() {
+<span class="fc" id="L175">		return convention;</span>
+	}
+
+	@Override
+	public DataTableLight clone() {
+<span class="nc" id="L180">		final DataTableLight newTable = new DataTableLight(name, convention);</span>
+<span class="nc" id="L181">		newTable.entries.putAll(entries);</span>
+<span class="nc" id="L182">		newTable.maturitySet.addAll(maturitySet);</span>
+<span class="nc" id="L183">		newTable.terminationSet.addAll(terminationSet);</span>
+<span class="nc" id="L184">		return newTable;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L189">		return toString(1.0);</span>
+	}
+
+	/**
+	 * Transforms the table into a human readable String.
+	 *
+	 * @param unit A value with which each entry of the table is multiplied before displaying.
+	 * @return A String representation of the table.
+	 */
+	public String toString(final double unit) {
+<span class="fc" id="L199">		final StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L200">		builder.append(&quot;Name: &quot; +name+ &quot;, TableConvention: &quot; +convention+ &quot;,\n&quot;);</span>
+<span class="fc bfc" id="L201" title="All 2 branches covered.">		for(final int termination : terminationSet) {</span>
+<span class="fc" id="L202">			builder.append(&quot;\t&quot;+termination);</span>
+<span class="fc" id="L203">		}</span>
+<span class="fc bfc" id="L204" title="All 2 branches covered.">		for(final int maturity: maturitySet) {</span>
+<span class="fc" id="L205">			builder.append(&quot;\n&quot;+maturity);</span>
+<span class="fc bfc" id="L206" title="All 2 branches covered.">			for(final int termination:terminationSet) {</span>
+<span class="fc" id="L207">				final DataKey key = new DataKey(maturity, termination);</span>
+<span class="fc" id="L208">				builder.append('\t');</span>
+<span class="fc bfc" id="L209" title="All 2 branches covered.">				if(entries.containsKey(key)) {</span>
+<span class="fc" id="L210">					builder.append(entries.get(key) * unit);</span>
+				}
+<span class="fc" id="L212">			}</span>
+<span class="fc" id="L213">		}</span>
+
+<span class="fc" id="L215">		return builder.toString();</span>
+	}
+
+	@Override
+	public int size() {
+<span class="fc" id="L220">		return entries.size();</span>
+	}
+
+	/**
+	 * Nested class to use as key in values map.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class DataKey implements Serializable {
+
+		private static final long serialVersionUID = 3391432439373885684L;
+		private final int maturity;
+		private final int termination;
+
+		/**
+		 * Create key from int.
+		 *
+		 * @param maturity
+		 * @param termination
+		 */
+<span class="fc" id="L242">		DataKey(final int maturity, final int termination){</span>
+<span class="fc" id="L243">			this.maturity = maturity;</span>
+<span class="fc" id="L244">			this.termination = termination;</span>
+<span class="fc" id="L245">		}</span>
+
+		@Override
+		public boolean equals(final Object other) {
+<span class="pc bpc" id="L249" title="1 of 2 branches missed.">			if(this == other) {</span>
+<span class="nc" id="L250">				return true;</span>
+			}
+
+<span class="pc bpc" id="L253" title="2 of 6 branches missed.">			if((other == null) || (other.getClass() != getClass()) || (maturity 	!= ((DataKey) other).maturity) ) {</span>
+<span class="fc" id="L254">				return false;</span>
+			}
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">			return termination == ((DataKey) other).termination;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L261">			return maturity*termination;</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="fc" id="L266">			return &quot;DataKey [maturity=&quot; + maturity + &quot;, termination=&quot; + termination + &quot;]&quot;;</span>
+		}
+	}
+
+	@Override
+	public double getValue(final double maturity, final double termination) {
+<span class="fc" id="L272">		throw new UnsupportedOperationException(&quot;Table &quot; +getName()+ &quot; of class &quot;+getClass()+&quot; does not support access via double.&quot;);</span>
+	}
+
+	@Override
+	public boolean containsEntryFor(final double maturity, final double termination) {
+<span class="nc" id="L277">		throw new UnsupportedOperationException(&quot;Table &quot; +getName()+ &quot; of class &quot;+getClass()+&quot; does not support access via double.&quot;);</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L282">		return null;</span>
+	}
+
+	@Override
+	public SchedulePrototype getScheduleMetaData() {
+<span class="nc" id="L287">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

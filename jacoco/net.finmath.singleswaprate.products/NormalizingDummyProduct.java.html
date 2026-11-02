@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NormalizingDummyProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.products</a> &gt; <span class="el_source">NormalizingDummyProduct.java</span></div><h1>NormalizingDummyProduct.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.products;
+
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
+import net.finmath.singleswaprate.annuitymapping.NormalizingFunction;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.time.Schedule;
+
+/**
+ * A dummy product that only evaluates the value of a {@link NormalizingFunction}. This can be used to calibrate the function.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class NormalizingDummyProduct extends AbstractSingleSwapRateProduct {
+
+	private final NormalizingFunction normalizer;
+
+	/**
+	 * Create the dummy product for a normalizer.
+	 *
+	 * @param fixSchedule The fix schedule of the product that is going to use this normalizer.
+	 * @param floatSchedule The float schedule of the product that is going to use this normalizer.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 * @param normalizer The normalizer of this dummy.
+	 */
+	public NormalizingDummyProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final NormalizingFunction normalizer) {
+<span class="fc" id="L31">		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);</span>
+<span class="fc" id="L32">		this.normalizer = normalizer;</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	protected double payoffFunction(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
+<span class="fc" id="L38">		return normalizer.getValue(swapRate);</span>
+	}
+
+	@Override
+	protected double hedgeWeight(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
+<span class="fc" id="L44">		return normalizer.getSecondDerivative(swapRate);</span>
+	}
+
+	@Override
+	protected double singularAddon(final double swapRate, final AnnuityMapping annuityMapping,
+			final VolatilityCubeModel model) {
+<span class="fc" id="L50">		return 0;</span>
+	}
+
+	@Override
+	protected AnnuityMapping buildAnnuityMapping(final VolatilityCubeModel model) {
+<span class="fc" id="L55">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

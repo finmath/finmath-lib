@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DisplacedLognormalARMAGARCH.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.timeseries.models.parametric</a> &gt; <span class="el_source">DisplacedLognormalARMAGARCH.java</span></div><h1>DisplacedLognormalARMAGARCH.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.07.2012
+ */
+
+package net.finmath.timeseries.models.parametric;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optim.SimplePointChecker;
+import org.apache.commons.math3.random.MersenneTwister;
+
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.SolverException;
+import net.finmath.timeseries.HistoricalSimulationModel;
+import net.finmath.timeseries.TimeSeries;
+import net.finmath.timeseries.TimeSeriesModelParametric;
+import net.finmath.timeseries.TimeSeriesView;
+
+/**
+ * Displaced log-normal process with ARMAGARCH(1,1) volatility.
+ *
+ * This class estimate the process
+ * \[
+ *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
+ * \]
+ * where \( a &amp;gt; -min(X(t_{i}) \) and thus \( X+a &amp;gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
+ * \( \sigma \) is given by a ARMAGARCH(1,1) process.
+ *
+ * The choice of b ensures that b+a &amp;ge; 1.
+ * For a=0 we have a log-normal process with volatility &amp;sigma;/(b + a).
+ * For a=infinity we have a normal process with volatility &amp;sigma;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DisplacedLognormalARMAGARCH implements TimeSeriesModelParametric, HistoricalSimulationModel {
+
+	private final TimeSeries timeSeries;
+
+	private final double lowerBoundDisplacement;
+<span class="nc" id="L48">	private double upperBoundDisplacement = 10000000;</span>
+
+<span class="nc" id="L50">	private final int maxIterations = 10000000;</span>
+
+	/*
+	 * Model properties
+	 */
+<span class="nc" id="L55">	private final String[] parameterNames	= new String[] { &quot;omega&quot;, &quot;alpha&quot;, &quot;beta&quot;, &quot;displacement&quot;, &quot;theta&quot;, &quot;mu&quot; };</span>
+<span class="nc" id="L56">	private final double[] parameterGuess	= new double[] { 0.10, 0.2, 0.2, 10.0, 0.0, 0.0 };</span>
+<span class="nc" id="L57">	private final double[] parameterStep	= new double[] { 0.01, 0.1, 0.1, 5.0, 0.1, 0.1 };</span>
+	private final double[] lowerBound;
+	private final double[] upperBound;
+
+	public DisplacedLognormalARMAGARCH(final TimeSeries timeSeries) {
+<span class="nc" id="L62">		this(timeSeries, -Double.MAX_VALUE);</span>
+<span class="nc" id="L63">	}</span>
+
+<span class="nc" id="L65">	public DisplacedLognormalARMAGARCH(final TimeSeries timeSeries, final double lowerBoundDisplacement) {</span>
+<span class="nc" id="L66">		this.timeSeries = timeSeries;</span>
+
+<span class="nc" id="L68">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for(final double value : timeSeries.getValues()) {</span>
+<span class="nc" id="L70">			valuesMin = Math.min(value, valuesMin);</span>
+<span class="nc" id="L71">		}</span>
+<span class="nc" id="L72">		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);</span>
+
+<span class="nc" id="L74">		lowerBound = new double[] { 0, 							0, 0, this.lowerBoundDisplacement, Double.NEGATIVE_INFINITY, Double.NEGATIVE_INFINITY };</span>
+<span class="nc" id="L75">		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1, upperBoundDisplacement, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY };</span>
+<span class="nc" id="L76">	}</span>
+
+<span class="nc" id="L78">	public DisplacedLognormalARMAGARCH(final TimeSeries timeSeries, final double lowerBoundDisplacement, final double upperBoundDisplacement) {</span>
+<span class="nc" id="L79">		this.timeSeries = timeSeries;</span>
+
+<span class="nc" id="L81">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		for(final double value : timeSeries.getValues()) {</span>
+<span class="nc" id="L83">			valuesMin = Math.min(value, valuesMin);</span>
+<span class="nc" id="L84">		}</span>
+<span class="nc" id="L85">		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);</span>
+<span class="nc" id="L86">		this.upperBoundDisplacement = Math.max(this.lowerBoundDisplacement,upperBoundDisplacement);</span>
+
+<span class="nc" id="L88">		lowerBound = new double[] { 0, 							0, 0, 							0, 							0, this.lowerBoundDisplacement };</span>
+<span class="nc" id="L89">		upperBound = new double[] { Double.POSITIVE_INFINITY,	1, 1,	 Double.POSITIVE_INFINITY, 	 Double.POSITIVE_INFINITY, this.upperBoundDisplacement };</span>
+<span class="nc" id="L90">	}</span>
+
+	public double getLogLikelihoodForParameters(final double[] parameters)
+	{
+<span class="nc" id="L94">		final double omega		= parameters[0];</span>
+<span class="nc" id="L95">		final double alpha		= parameters[1];</span>
+<span class="nc" id="L96">		final double beta			= parameters[2];</span>
+<span class="nc" id="L97">		final double displacement	= parameters[3];</span>
+<span class="nc" id="L98">		final double theta		= parameters[4];</span>
+<span class="nc" id="L99">		final double mu			= parameters[5];</span>
+
+<span class="nc" id="L101">		double logLikelihood = 0.0;</span>
+
+<span class="nc" id="L103">		final double volScaling	= (1+Math.abs(displacement));</span>
+<span class="nc" id="L104">		double evalPrev		= 0.0;</span>
+<span class="nc" id="L105">		double eval			= volScaling * (Math.log((timeSeries.getValue(1)+displacement)/(timeSeries.getValue(0)+displacement)));</span>
+<span class="nc" id="L106">		double h			= omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L107">		double m			= 0.0; // xxx how to init?</span>
+
+<span class="nc" id="L109">		final int length = timeSeries.getNumberOfTimePoints();</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		for (int i = 1; i &lt; length-1; i++) {</span>
+<span class="nc" id="L112">			m = -theta * m + eval - mu * evalPrev;</span>
+<span class="nc" id="L113">			h = (omega + alpha * m * m) + beta * h;</span>
+
+<span class="nc" id="L115">			final double value1 = timeSeries.getValue(i);</span>
+<span class="nc" id="L116">			final double value2 = timeSeries.getValue(i+1);</span>
+
+<span class="nc" id="L118">			final double evalNext	= volScaling * (Math.log((value2+displacement)/(value1+displacement)));</span>
+<span class="nc" id="L119">			final double mNext =  -theta * m + evalNext - mu * eval;</span>
+<span class="nc" id="L120">			logLikelihood += - Math.log(h) - 2 * Math.log((value2+displacement)/volScaling) -  mNext* mNext / h;</span>
+
+<span class="nc" id="L122">			evalPrev = eval;</span>
+<span class="nc" id="L123">			eval = evalNext;</span>
+		}
+<span class="nc" id="L125">		logLikelihood += - Math.log(2 * Math.PI) * (length);</span>
+<span class="nc" id="L126">		logLikelihood *= 0.5;</span>
+
+<span class="nc" id="L128">		return logLikelihood;</span>
+	}
+
+	public double getLastResidualForParameters(final double[] parameters) {
+<span class="nc" id="L132">		final double omega		= parameters[0];</span>
+<span class="nc" id="L133">		final double alpha		= parameters[1];</span>
+<span class="nc" id="L134">		final double beta			= parameters[2];</span>
+<span class="nc" id="L135">		final double displacement	= parameters[3];</span>
+<span class="nc" id="L136">		final double theta		= parameters[4];</span>
+<span class="nc" id="L137">		final double mu			= parameters[5];</span>
+
+<span class="nc" id="L139">		double evalPrev		= 0.0;</span>
+<span class="nc" id="L140">		final double volScaling	= (1+Math.abs(displacement));</span>
+<span class="nc" id="L141">		double h			= omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L142">		double m			= 0.0; // xxx how to init?</span>
+
+<span class="nc" id="L144">		final int length = timeSeries.getNumberOfTimePoints();</span>
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		for (int i = 1; i &lt; length-1; i++) {</span>
+<span class="nc" id="L146">			final double eval	= volScaling * (Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement)));</span>
+
+<span class="nc" id="L148">			m = -theta * m + eval - mu * evalPrev;</span>
+<span class="nc" id="L149">			h = (omega + alpha * m * m) + beta * h;</span>
+
+<span class="nc" id="L151">			evalPrev = eval;</span>
+		}
+
+<span class="nc" id="L154">		return h;</span>
+	}
+
+	public double[] getSzenarios(final double[] parameters) {
+<span class="nc" id="L158">		final double omega		= parameters[0];</span>
+<span class="nc" id="L159">		final double alpha		= parameters[1];</span>
+<span class="nc" id="L160">		final double beta			= parameters[2];</span>
+<span class="nc" id="L161">		final double displacement	= parameters[3];</span>
+<span class="nc" id="L162">		final double theta		= parameters[4];</span>
+<span class="nc" id="L163">		final double mu			= parameters[5];</span>
+
+<span class="nc" id="L165">		final double[] szenarios = new double[timeSeries.getNumberOfTimePoints()-1];</span>
+
+<span class="nc" id="L167">		final double volScaling	= (1+Math.abs(displacement));</span>
+<span class="nc" id="L168">		double evalPrev		= 0.0;</span>
+<span class="nc" id="L169">		double h			= omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L170">		double m			= 0.0;</span>
+<span class="nc" id="L171">		double vol = Math.sqrt(h) / volScaling;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		for (int i = 1; i &lt;= timeSeries.getNumberOfTimePoints()-1; i++) {</span>
+<span class="nc" id="L173">			final double y = Math.log((timeSeries.getValue(i)+displacement)/(timeSeries.getValue(i-1)+displacement));</span>
+
+<span class="nc" id="L175">			final double eval	= volScaling * y;</span>
+<span class="nc" id="L176">			m = eval - theta * m - mu * evalPrev;</span>
+
+<span class="nc" id="L178">			szenarios[i-1]	= m / vol / volScaling;</span>
+
+<span class="nc" id="L180">			h = (omega + alpha * m * m) + beta * h;</span>
+<span class="nc" id="L181">			vol = Math.sqrt(h) / volScaling;</span>
+<span class="nc" id="L182">			evalPrev = eval;</span>
+		}
+<span class="nc" id="L184">		java.util.Arrays.sort(szenarios);</span>
+
+<span class="nc" id="L186">		return szenarios;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters() {
+<span class="nc" id="L191">		return getBestParameters(null);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
+	 */
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters(final Map&lt;String, Object&gt; guess) {
+
+		// Create the objective function for the solver
+<span class="nc" id="L201">		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {</span>
+
+			private static final long serialVersionUID = 7072187082052755854L;
+
+			@Override
+			public double value(final double[] variables) {
+
+<span class="nc" id="L208">				final double omega	= variables[0];</span>
+<span class="nc" id="L209">				final double alpha	= variables[1];</span>
+<span class="nc" id="L210">				final double beta		= variables[2];</span>
+<span class="nc" id="L211">				final double displacement = variables[3];</span>
+<span class="nc" id="L212">				final double theta	= variables[4];</span>
+<span class="nc" id="L213">				final double mu		= variables[5];</span>
+
+<span class="nc" id="L215">				double logLikelihood = getLogLikelihoodForParameters(variables);</span>
+
+				// Penalty to prevent solver from hitting the bounds
+<span class="nc" id="L218">				logLikelihood -= Math.max(1E-30-omega,0)/1E-30;</span>
+<span class="nc" id="L219">				logLikelihood -= Math.max(1E-30-alpha,0)/1E-30;</span>
+<span class="nc" id="L220">				logLikelihood -= Math.max((alpha-1)+1E-30,0)/1E-30;</span>
+<span class="nc" id="L221">				logLikelihood -= Math.max(1E-30-beta,0)/1E-30;</span>
+<span class="nc" id="L222">				logLikelihood -= Math.max((beta-1)+1E-30,0)/1E-30;</span>
+
+<span class="nc" id="L224">				return logLikelihood;</span>
+			}
+
+		}
+<span class="nc" id="L228">		final GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();</span>
+
+		// Create a guess for the solver
+<span class="nc" id="L231">		final double[] guessParameters = new double[6];</span>
+<span class="nc" id="L232">		System.arraycopy(parameterGuess, 0, guessParameters, 0, parameterGuess.length);</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if(guess != null) {</span>
+			// A guess was provided, use that one
+<span class="nc" id="L236">			guessParameters[0]	= (Double)guess.get(&quot;Omega&quot;);</span>
+<span class="nc" id="L237">			guessParameters[1]	= (Double)guess.get(&quot;Alpha&quot;);</span>
+<span class="nc" id="L238">			guessParameters[2]	= (Double)guess.get(&quot;Beta&quot;);</span>
+<span class="nc" id="L239">			guessParameters[3]	= (Double)guess.get(&quot;Displacement&quot;);</span>
+<span class="nc" id="L240">			guessParameters[4]	= (Double)guess.get(&quot;Theta&quot;);</span>
+<span class="nc" id="L241">			guessParameters[5]	= (Double)guess.get(&quot;Mu&quot;);</span>
+		}
+
+
+		// Seek optimal parameter configuration
+<span class="nc" id="L246">		final Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000.0 }, maxIterations*100, 2) {</span>
+			private static final long serialVersionUID = -8844232820888815090L;
+
+			@Override
+			public void setValues(final double[] arg0, final double[] arg1) {
+<span class="nc" id="L251">				arg1[0] = objectiveFunction.value(arg0);</span>
+<span class="nc" id="L252">			}</span>
+		};
+
+<span class="nc" id="L255">		double[] bestParameters = null;</span>
+
+<span class="nc" id="L257">		final boolean isUseLM = false;</span>
+
+		if(isUseLM) {
+			try {
+				lm.run();
+			} catch (final SolverException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			bestParameters = lm.getBestFitParameters();
+		}
+		else {
+<span class="nc" id="L269">			final org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, Double.POSITIVE_INFINITY, true, 0, 0, new MersenneTwister(), false, new SimplePointChecker&lt;org.apache.commons.math3.optim.PointValuePair&gt;(0, 0))</span>
+<span class="nc" id="L270">			{</span>
+				@Override
+				public double computeObjectiveValue(final double[] params) {
+<span class="nc" id="L273">					return objectiveFunction.value(params);</span>
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.nonlinear.scalar.MultivariateOptimizer#getGoalType()
+				 */
+				@Override
+				public org.apache.commons.math3.optim.nonlinear.scalar.GoalType getGoalType() {
+					// TODO Auto-generated method stub
+<span class="nc" id="L282">					return org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MAXIMIZE;</span>
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getStartPoint()
+				 */
+				@Override
+				public double[] getStartPoint() {
+<span class="nc" id="L290">					return guessParameters;</span>
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getLowerBound()
+				 */
+				@Override
+				public double[] getLowerBound() {
+<span class="nc" id="L298">					return lowerBound;</span>
+				}
+
+				/* (non-Javadoc)
+				 * @see org.apache.commons.math3.optim.BaseMultivariateOptimizer#getUpperBound()
+				 */
+				@Override
+				public double[] getUpperBound() {
+<span class="nc" id="L306">					return upperBound;</span>
+				}
+			};
+
+			try {
+<span class="nc" id="L311">				final org.apache.commons.math3.optim.PointValuePair result = optimizer2.optimize(</span>
+<span class="nc" id="L312">						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(guessParameters.length))),</span>
+						new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(parameterStep)
+						);
+<span class="nc" id="L315">				bestParameters = result.getPoint();</span>
+<span class="nc" id="L316">			} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {</span>
+<span class="nc" id="L317">				System.out.println(&quot;Solver failed&quot;);</span>
+<span class="nc" id="L318">				bestParameters = guessParameters;</span>
+<span class="nc" id="L319">			}</span>
+		}
+
+		// Transform parameters to GARCH parameters
+<span class="nc" id="L323">		final double omega		= bestParameters[0];</span>
+<span class="nc" id="L324">		final double alpha		= bestParameters[1];</span>
+<span class="nc" id="L325">		final double beta			= bestParameters[2];</span>
+<span class="nc" id="L326">		final double displacement	= bestParameters[3];</span>
+<span class="nc" id="L327">		final double theta		= bestParameters[4];</span>
+<span class="nc" id="L328">		final double mu			= bestParameters[5];</span>
+
+<span class="nc" id="L330">		final Map&lt;String, Object&gt; results = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L331">		results.put(&quot;parameters&quot;, bestParameters);</span>
+<span class="nc" id="L332">		results.put(&quot;Omega&quot;, omega);</span>
+<span class="nc" id="L333">		results.put(&quot;Alpha&quot;, alpha);</span>
+<span class="nc" id="L334">		results.put(&quot;Beta&quot;, beta);</span>
+<span class="nc" id="L335">		results.put(&quot;Theta&quot;, theta);</span>
+<span class="nc" id="L336">		results.put(&quot;Mu&quot;, mu);</span>
+<span class="nc" id="L337">		results.put(&quot;Displacement&quot;, displacement);</span>
+<span class="nc" id="L338">		results.put(&quot;Szenarios&quot;, this.getSzenarios(bestParameters));</span>
+<span class="nc" id="L339">		results.put(&quot;Likelihood&quot;, this.getLogLikelihoodForParameters(bestParameters));</span>
+<span class="nc" id="L340">		results.put(&quot;Vol&quot;, Math.sqrt(this.getLastResidualForParameters(bestParameters)));</span>
+<span class="nc" id="L341">		System.out.println(results.get(&quot;Likelihood&quot;) + &quot;\t&quot; + Arrays.toString(bestParameters));</span>
+<span class="nc" id="L342">		return results;</span>
+	}
+
+	private static double restrictToOpenSet(double value, final double lowerBond, final double upperBound) {
+<span class="nc" id="L346">		value = Math.max(value, lowerBond  * (1.0+Math.signum(lowerBond)*1E-15) + 1E-15);</span>
+<span class="nc" id="L347">		value = Math.min(value, upperBound * (1.0-Math.signum(upperBound)*1E-15) - 1E-15);</span>
+<span class="nc" id="L348">		return value;</span>
+	}
+
+	@Override
+	public TimeSeriesModelParametric getCloneCalibrated(final TimeSeries timeSeries) {
+<span class="nc" id="L353">		return new DisplacedLognormalARMAGARCH(timeSeries);</span>
+	}
+
+	@Override
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
+<span class="nc" id="L358">		return new DisplacedLognormalARMAGARCH(new TimeSeriesView(timeSeries, windowIndexStart, windowIndexEnd));</span>
+	}
+
+	@Override
+	public double[] getParameters() {
+<span class="nc" id="L363">		return (double[])getBestParameters().get(&quot;parameters&quot;);</span>
+	}
+
+	@Override
+	public String[] getParameterNames() {
+<span class="nc" id="L368">		return parameterNames;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

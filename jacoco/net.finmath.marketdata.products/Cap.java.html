@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.products</a> &gt; <span class="el_source">Cap.java</span></div><h1>Cap.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 22.06.2014
+ */
+
+package net.finmath.marketdata.products;
+
+import java.io.IOException;
+import java.lang.ref.SoftReference;
+import java.util.ArrayList;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.volatilities.CapletVolatilities;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.optimizer.GoldenSectionSearch;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
+
+/**
+ * Implements the valuation of a cap via an analytic model,
+ * i.e. the specification of a forward curve, discount curve and volatility surface.
+ *
+ * A cap is a portfolio of Caplets with a common strike, i.e., the strike is the same for all Caplets.
+ *
+ * The class can value a caplet with a given strike or given moneyness. If moneyness is given,
+ * the class calculates the ATM forward. Note that this is done by omitting the first (fixed) period,
+ * see {@link #getATMForward(AnalyticModel, boolean)}.
+ *
+ * Note: A fixing in arrears is not handled correctly since a convexity adjustment is currently not applied.
+ *
+ * @TODO Support convexity adjustment if fixing is in arrears.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Cap extends AbstractAnalyticProduct {
+
+	private final Schedule			schedule;
+	private final String					forwardCurveName;
+	private final double					strike;
+	private final boolean					isStrikeMoneyness;
+	private final String					discountCurveName;
+	private final String					volatiltiySufaceName;
+
+	private final VolatilitySurface.QuotingConvention quotingConvention;
+
+<span class="fc" id="L53">	private transient double cachedATMForward = Double.NaN;</span>
+	private transient SoftReference&lt;AnalyticModel&gt; cacheStateModel;
+	private transient boolean cacheStateIsFirstPeriodIncluded;
+
+	/**
+	 * Create a Caplet with a given schedule, strike on a given forward curve (by name)
+	 * with a given discount curve and volatility surface (by name).
+	 *
+	 * The valuation is performed using analytic valuation formulas for the underlying caplets.
+	 *
+	 * @param schedule A given payment schedule, i.e., a collection of &lt;code&gt;Period&lt;/code&gt;s with fixings, payments and period length.
+	 * @param forwardCurveName The forward curve to be used for the forward of the index.
+	 * @param strike The given strike (or moneyness).
+	 * @param isStrikeMoneyness If true, then the strike argument is interpreted as moneyness, i.e. we calculate an ATM forward from the schedule.
+	 * @param discountCurveName The discount curve to be used for discounting.
+	 * @param volatilitySurfaceName The volatility surface to be used.
+	 * @param quotingConvention The quoting convention of the value returned by the {@link #getValue}-method.
+	 */
+	public Cap(final Schedule schedule, final String forwardCurveName, final double strike, final boolean isStrikeMoneyness, final String discountCurveName, final String volatilitySurfaceName, final QuotingConvention quotingConvention) {
+<span class="fc" id="L72">		super();</span>
+<span class="fc" id="L73">		this.schedule = schedule;</span>
+<span class="fc" id="L74">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L75">		this.strike = strike;</span>
+<span class="fc" id="L76">		this.isStrikeMoneyness = isStrikeMoneyness;</span>
+<span class="fc" id="L77">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L78">		volatiltiySufaceName = volatilitySurfaceName;</span>
+<span class="fc" id="L79">		this.quotingConvention = quotingConvention;</span>
+<span class="fc" id="L80">	}</span>
+
+	/**
+	 * Create a Caplet with a given schedule, strike on a given forward curve (by name)
+	 * with a given discount curve and volatility surface (by name).
+	 *
+	 * The valuation is performed using analytic valuation formulas for the underlying caplets.
+	 *
+	 * @param schedule A given payment schedule, i.e., a collection of &lt;code&gt;Period&lt;/code&gt;s with fixings, payments and period length.
+	 * @param forwardCurveName The forward curve to be used for the forward of the index.
+	 * @param strike The given strike (or moneyness).
+	 * @param isStrikeMoneyness If true, then the strike argument is interpreted as moneyness, i.e. we calculate an ATM forward from the schedule.
+	 * @param discountCurveName The discount curve to be used for discounting.
+	 * @param volatilitySurfaceName The volatility surface to be used.
+	 */
+	public Cap(final Schedule schedule, final String forwardCurveName, final double strike, final boolean isStrikeMoneyness, final String discountCurveName, final String volatilitySurfaceName) {
+<span class="fc" id="L96">		this(schedule, forwardCurveName, strike, isStrikeMoneyness, discountCurveName, volatilitySurfaceName, QuotingConvention.PRICE);</span>
+<span class="fc" id="L97">	}</span>
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="fc bfc" id="L101" title="All 2 branches covered.">		if(quotingConvention == QuotingConvention.PRICE) {</span>
+<span class="fc" id="L102">			return getValueAsPrice(evaluationTime, model);</span>
+		} else {
+<span class="fc" id="L104">			return getImpliedVolatility(evaluationTime, model, quotingConvention);</span>
+		}
+	}
+
+	/**
+	 * Returns the value of this product under the given model.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param model The model.
+	 * @return Value of this product und the given model.
+	 */
+	public double getValueAsPrice(final double evaluationTime, final AnalyticModel model) {
+<span class="fc" id="L116">		final ForwardCurve	forwardCurve	= model.getForwardCurve(forwardCurveName);</span>
+<span class="fc" id="L117">		final DiscountCurve	discountCurve	= model.getDiscountCurve(discountCurveName);</span>
+
+<span class="fc" id="L119">		DiscountCurve	discountCurveForForward = null;</span>
+<span class="pc bpc" id="L120" title="5 of 6 branches missed.">		if(forwardCurve == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+			// User might like to get forward from discount curve.
+<span class="nc" id="L122">			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);</span>
+
+<span class="nc bnc" id="L124" title="All 2 branches missed.">			if(discountCurveForForward == null) {</span>
+				// User specified a name for the forward curve, but no curve was found.
+<span class="nc" id="L126">				throw new IllegalArgumentException(&quot;No curve of the name &quot; + forwardCurveName + &quot; was found in the model.&quot;);</span>
+			}
+		}
+
+<span class="fc" id="L130">		double value = 0.0;</span>
+<span class="fc bfc" id="L131" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L132">			final double fixingDate	= schedule.getFixing(periodIndex);</span>
+<span class="fc" id="L133">			final double paymentDate	= schedule.getPayment(periodIndex);</span>
+<span class="fc" id="L134">			final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+
+			/*
+			 * We do not count empty periods.
+			 * Since empty periods are an indication for a ill-specified product,
+			 * it might be reasonable to throw an illegal argument exception instead.
+			 */
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">			if(periodLength == 0) {</span>
+<span class="nc" id="L142">				continue;</span>
+			}
+
+<span class="fc" id="L145">			double forward = 0.0;</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">			if(forwardCurve != null) {</span>
+<span class="fc" id="L147">				forward			+= forwardCurve.getForward(model, fixingDate, paymentDate-fixingDate);</span>
+			}
+<span class="nc bnc" id="L149" title="All 2 branches missed.">			else if(discountCurveForForward != null) {</span>
+				/*
+				 * Classical single curve case: using a discount curve as a forward curve.
+				 * This is only implemented for demonstration purposes (an exception would also be appropriate :-)
+				 */
+<span class="nc bnc" id="L154" title="All 2 branches missed.">				if(fixingDate != paymentDate) {</span>
+<span class="nc" id="L155">					forward			+= (discountCurveForForward.getDiscountFactor(fixingDate) / discountCurveForForward.getDiscountFactor(paymentDate) - 1.0) / (paymentDate-fixingDate);</span>
+				}
+			}
+
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">			final double discountFactor	= paymentDate &gt; evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;</span>
+<span class="fc" id="L160">			final double payoffUnit = discountFactor * periodLength;</span>
+
+<span class="fc" id="L162">			double effektiveStrike = strike;</span>
+<span class="fc bfc" id="L163" title="All 2 branches covered.">			if(isStrikeMoneyness) {</span>
+<span class="fc" id="L164">				effektiveStrike += getATMForward(model, true);</span>
+			}
+
+<span class="fc" id="L167">			final VolatilitySurface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);</span>
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">			if(volatilitySurface == null) {</span>
+<span class="nc" id="L169">				throw new IllegalArgumentException(&quot;Volatility surface not found in model: &quot; + volatiltiySufaceName);</span>
+			}
+<span class="fc bfc" id="L171" title="All 2 branches covered.">			if(volatilitySurface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {</span>
+<span class="fc" id="L172">				final double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurface.QuotingConvention.VOLATILITYLOGNORMAL);</span>
+<span class="fc" id="L173">				value += AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);</span>
+<span class="fc" id="L174">			}</span>
+			else {
+				// Default to normal volatility as quoting convention
+<span class="fc" id="L177">				final double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, VolatilitySurface.QuotingConvention.VOLATILITYNORMAL);</span>
+<span class="fc" id="L178">				value += AnalyticFormulas.bachelierOptionValue(forward, volatility, fixingDate, effektiveStrike, payoffUnit);</span>
+			}
+		}
+
+<span class="fc" id="L182">		return value / discountCurve.getDiscountFactor(model, evaluationTime);</span>
+	}
+
+	/**
+	 * Return the ATM forward for this cap.
+	 * The ATM forward is the fixed rate K such that the value of the payoffs
+	 * \( F(t_i) - K \)
+	 * is zero, where \( F(t_i) \) is the ATM forward of the i-th caplet.
+	 * Note however that the is a convention to determine the ATM forward of a cap
+	 * from the payoffs excluding the first one. The reason here is that for non-forward starting
+	 * cap, the first period is already fixed, i.e. it has no vega.
+	 *
+	 * @param model The model to retrieve the forward curve from (by name).
+	 * @param isFirstPeriodIncluded If true, the forward will be determined by considering the periods after removal of the first periods (except, if the Cap consists only of 1 period).
+	 * @return The ATM forward of this cap.
+	 */
+	public double getATMForward(final AnalyticModel model, final boolean isFirstPeriodIncluded) {
+<span class="pc bpc" id="L199" title="1 of 6 branches missed.">		if(!Double.isNaN(cachedATMForward) &amp;&amp; cacheStateModel.get() == model &amp;&amp; cacheStateIsFirstPeriodIncluded == isFirstPeriodIncluded) {</span>
+<span class="fc" id="L200">			return cachedATMForward;</span>
+		}
+
+<span class="fc" id="L203">		Schedule remainderSchedule = schedule;</span>
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">		if(!isFirstPeriodIncluded) {</span>
+<span class="nc" id="L205">			final ArrayList&lt;Period&gt; periods = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L206">			periods.addAll(schedule.getPeriods());</span>
+
+<span class="nc bnc" id="L208" title="All 2 branches missed.">			if(periods.size() &gt; 1) {</span>
+<span class="nc" id="L209">				periods.remove(0);</span>
+			}
+<span class="nc" id="L211">			remainderSchedule = new ScheduleFromPeriods(schedule.getReferenceDate(), periods, schedule.getDaycountconvention());</span>
+		}
+
+<span class="fc" id="L214">		final SwapLeg floatLeg = new SwapLeg(remainderSchedule, forwardCurveName, 0.0, discountCurveName, false);</span>
+<span class="fc" id="L215">		final SwapLeg annuityLeg = new SwapLeg(remainderSchedule, null, 1.0, discountCurveName, false);</span>
+
+<span class="fc" id="L217">		cachedATMForward = floatLeg.getValue(model) / annuityLeg.getValue(model);</span>
+<span class="fc" id="L218">		cacheStateModel = new SoftReference&lt;&gt;(model);</span>
+<span class="fc" id="L219">		cacheStateIsFirstPeriodIncluded = isFirstPeriodIncluded;</span>
+
+<span class="fc" id="L221">		return cachedATMForward;</span>
+	}
+
+	/**
+	 * Returns the value of this cap in terms of an implied volatility (of a flat caplet surface).
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param model The model under which the product is valued.
+	 * @param quotingConvention The quoting convention requested for the return value.
+	 * @return The value of the product using the given model in terms of a implied volatility.
+	 */
+	public double getImpliedVolatility(final double evaluationTime, final AnalyticModel model, final VolatilitySurface.QuotingConvention quotingConvention) {
+<span class="fc" id="L233">		double lowerBound = Double.MAX_VALUE;</span>
+<span class="fc" id="L234">		double upperBound = -Double.MAX_VALUE;</span>
+<span class="fc bfc" id="L235" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L236">			final double fixingDate	= schedule.getFixing(periodIndex);</span>
+<span class="fc" id="L237">			final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+
+<span class="pc bpc" id="L239" title="1 of 2 branches missed.">			if(periodLength == 0) {</span>
+<span class="nc" id="L240">				continue;</span>
+			}
+
+<span class="fc" id="L243">			double effektiveStrike = strike;</span>
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">			if(isStrikeMoneyness) {</span>
+<span class="fc" id="L245">				effektiveStrike += getATMForward(model, true);</span>
+			}
+
+<span class="fc" id="L248">			final VolatilitySurface volatilitySurface	= model.getVolatilitySurface(volatiltiySufaceName);</span>
+<span class="fc" id="L249">			final double volatility = volatilitySurface.getValue(model, fixingDate, effektiveStrike, quotingConvention);</span>
+<span class="fc" id="L250">			lowerBound = Math.min(volatility, lowerBound);</span>
+<span class="fc" id="L251">			upperBound = Math.max(volatility, upperBound);</span>
+		}
+
+<span class="fc" id="L254">		final double value = getValueAsPrice(evaluationTime, model);</span>
+
+<span class="fc" id="L256">		final int		maxIterations	= 100;</span>
+<span class="fc" id="L257">		final double	maxAccuracy		= 0.0;</span>
+<span class="fc" id="L258">		final GoldenSectionSearch solver = new GoldenSectionSearch(lowerBound, upperBound);</span>
+<span class="fc bfc" id="L259" title="All 6 branches covered.">		while(solver.getAccuracy() &gt; maxAccuracy &amp;&amp; !solver.isDone() &amp;&amp; solver.getNumberOfIterations() &lt; maxIterations) {</span>
+<span class="fc" id="L260">			final double volatility = solver.getNextPoint();</span>
+<span class="fc" id="L261">			final double[] maturities		= { 1.0 };</span>
+<span class="fc" id="L262">			final double[] strikes		= { 0.0 };</span>
+<span class="fc" id="L263">			final double[] volatilities	= { volatility };</span>
+<span class="fc" id="L264">			final VolatilitySurface flatSurface = new CapletVolatilities(model.getVolatilitySurface(volatiltiySufaceName).getName(), model.getVolatilitySurface(volatiltiySufaceName).getReferenceDate(), model.getForwardCurve(forwardCurveName), maturities, strikes, volatilities, quotingConvention, model.getDiscountCurve(discountCurveName));</span>
+<span class="fc" id="L265">			AnalyticModel flatModel = model.clone();</span>
+<span class="fc" id="L266">			flatModel = flatModel.addVolatilitySurfaces(flatSurface);</span>
+<span class="fc" id="L267">			final double flatModelValue = this.getValueAsPrice(evaluationTime, flatModel);</span>
+<span class="fc" id="L268">			final double error = value-flatModelValue;</span>
+<span class="fc" id="L269">			solver.setValue(error*error);</span>
+<span class="fc" id="L270">		}</span>
+<span class="fc" id="L271">		return solver.getBestPoint();</span>
+	}
+
+	/**
+	 * Returns the name of the forward curve references by this cap.
+	 *
+	 * @return the forward curve name.
+	 */
+	public String getForwardCurveName() {
+<span class="nc" id="L280">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * Returns the strike of this caplet.
+	 *
+	 * @return the strike
+	 */
+	public double getStrike() {
+<span class="nc" id="L289">		return strike;</span>
+	}
+
+	/**
+	 * Returns the name of the discount curve referenced by this cap.
+	 *
+	 * @return the discount curve name
+	 */
+	public String getDiscountCurveName() {
+<span class="nc" id="L298">		return discountCurveName;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L303">		return &quot;Cap [schedule=&quot; + schedule + &quot;, forwardCurveName=&quot;</span>
+				+ forwardCurveName + &quot;, strike=&quot; + strike
+				+ &quot;, discountCurveName=&quot; + discountCurveName
+				+ &quot;, volatiltiySufaceName=&quot; + volatiltiySufaceName + &quot;]&quot;;
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L310">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L312">		cachedATMForward = Double.NaN;</span>
+<span class="nc" id="L313">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

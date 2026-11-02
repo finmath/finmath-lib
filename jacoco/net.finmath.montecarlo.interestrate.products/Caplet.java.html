@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Caplet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">Caplet.java</span></div><h1>Caplet.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements the pricing of a Caplet using a given &lt;code&gt;TermStructureMonteCarloSimulationModel&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Caplet extends AbstractTermStructureMonteCarloProduct {
+
+<span class="fc" id="L21">	public enum ValueUnit {</span>
+<span class="fc" id="L22">		VALUE,</span>
+		/**
+		 * @deprecated Use INTEGRATEDLOGNORMALVARIANCE
+		 */
+<span class="fc" id="L26">		@Deprecated</span>
+		INTEGRATEDVARIANCE,
+		/**
+		 * @deprecated Use LOGNORMALVOLATILITY
+		 */
+<span class="fc" id="L31">		@Deprecated</span>
+		VOLATILITY,
+<span class="fc" id="L33">		INTEGRATEDLOGNORMALVARIANCE,</span>
+<span class="fc" id="L34">		LOGNORMALVOLATILITY,</span>
+<span class="fc" id="L35">		INTEGRATEDNORMALVARIANCE,</span>
+<span class="fc" id="L36">		NORMALVOLATILITY</span>
+	}
+
+	private final double	maturity;
+	private final double	periodLength;
+	private final double	strike;
+	private final double	daycountFraction;
+	private final boolean	isFloorlet;
+	private final ValueUnit					valueUnit;
+
+	/**
+	 * Create a caplet or a floorlet.
+	 *
+	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 *
+	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 *
+	 * @param maturity The fixing date given as double. The payment is at the period end.
+	 * @param periodLength The length of the forward rate period.
+	 * @param strike The strike given as double.
+	 * @param daycountFraction The daycount fraction used in the payout function.
+	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
+	 * @param valueUnit The unit of the value returned by the &lt;code&gt;getValue&lt;/code&gt; method.
+	 */
+	public Caplet(final double maturity, final double periodLength, final double strike, final double daycountFraction, final boolean isFloorlet, final ValueUnit valueUnit) {
+<span class="fc" id="L63">		super();</span>
+<span class="fc" id="L64">		this.maturity = maturity;</span>
+<span class="fc" id="L65">		this.periodLength = periodLength;</span>
+<span class="fc" id="L66">		this.strike = strike;</span>
+<span class="fc" id="L67">		this.daycountFraction = daycountFraction;</span>
+<span class="fc" id="L68">		this.isFloorlet = isFloorlet;</span>
+<span class="fc" id="L69">		this.valueUnit = valueUnit;</span>
+<span class="fc" id="L70">	}</span>
+
+	/**
+	 * Create a caplet or a floorlet.
+	 *
+	 * A caplet pays \( max(L-K,0) * daycountFraction \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 *
+	 * A floorlet pays \( -min(L-K,0) * daycountFraction \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 *
+	 * This simplified constructor uses daycountFraction = periodLength.
+	 *
+	 * @param maturity The fixing date given as double. The payment is at the period end.
+	 * @param periodLength The length of the forward rate period in ACT/365 convention.
+	 * @param strike The strike given as double.
+	 * @param isFloorlet If true, this object will represent a floorlet, otherwise a caplet.
+	 */
+	public Caplet(final double maturity, final double periodLength, final double strike, final boolean isFloorlet) {
+<span class="fc" id="L89">		this(maturity, periodLength, strike, periodLength, isFloorlet, ValueUnit.VALUE);</span>
+<span class="fc" id="L90">	}</span>
+
+	/**
+	 * Create a caplet.
+	 *
+	 * A caplet pays \( max(L-K,0) * periodLength \) at maturity+periodLength
+	 * where L is fixed at maturity.
+	 *
+	 * @param maturity The fixing date given as double. The payment is at the period end.
+	 * @param periodLength The length of the forward rate period.
+	 * @param strike The strike given as double.
+	 */
+	public Caplet(final double maturity, final double periodLength, final double strike) {
+<span class="fc" id="L103">		this(maturity, periodLength, strike, false);</span>
+<span class="fc" id="L104">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+		// This is on the LIBOR discretization
+<span class="fc" id="L119">		final double	paymentDate	= maturity+periodLength;</span>
+
+		// Get random variables
+<span class="fc" id="L122">		final RandomVariable	forwardRate				= model.getForwardRate(maturity, maturity, maturity+periodLength);</span>
+<span class="fc" id="L123">		final RandomVariable	numeraire				= model.getNumeraire(paymentDate);</span>
+<span class="fc" id="L124">		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentDate);</span>
+
+		/*
+		 * Calculate the payoff, which is
+		 *    max(L-K,0) * periodLength         for caplet or
+		 *   -min(L-K,0) * periodLength         for floorlet.
+		 */
+<span class="fc" id="L131">		RandomVariable values = forwardRate;</span>
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		if(!isFloorlet) {</span>
+<span class="fc" id="L133">			values = values.sub(strike).floor(0.0).mult(daycountFraction);</span>
+		} else {
+<span class="nc" id="L135">			values = values.sub(strike).cap(0.0).mult(-1.0 * daycountFraction);</span>
+		}
+
+<span class="fc" id="L138">		values = values.div(numeraire).mult(monteCarloProbabilities);</span>
+
+<span class="fc" id="L140">		final RandomVariable	numeraireAtValuationTime				= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L141">		final RandomVariable	monteCarloProbabilitiesAtValuationTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L142">		values = values.mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime);</span>
+
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">		if(valueUnit == ValueUnit.VALUE) {</span>
+<span class="fc" id="L145">			return values;</span>
+		}
+<span class="nc bnc" id="L147" title="All 4 branches missed.">		else if(valueUnit == ValueUnit.LOGNORMALVOLATILITY || valueUnit == ValueUnit.VOLATILITY) {</span>
+			/*
+			 * This calculation makes sense only if the value is an unconditional one.
+			 */
+<span class="nc" id="L151">			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();</span>
+<span class="nc" id="L152">			final double forward = forwardRate.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;</span>
+<span class="nc" id="L153">			final double optionMaturity = maturity-evaluationTime;</span>
+<span class="nc" id="L154">			final double optionStrike = strike;</span>
+<span class="nc" id="L155">			final double payoffUnit = daycountFraction * discountFactor;</span>
+<span class="nc" id="L156">			return model.getRandomVariableForConstant(AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));</span>
+		}
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		else if(valueUnit == ValueUnit.NORMALVOLATILITY) {</span>
+			/*
+			 * This calculation makes sense only if the value is an unconditional one.
+			 */
+<span class="nc" id="L162">			final double discountFactor = monteCarloProbabilities.div(numeraire).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage();</span>
+<span class="nc" id="L163">			final double forward = forwardRate.div(numeraire).mult(monteCarloProbabilities).mult(numeraireAtValuationTime).div(monteCarloProbabilitiesAtValuationTime).getAverage() / discountFactor;</span>
+<span class="nc" id="L164">			final double optionMaturity = maturity-evaluationTime;</span>
+<span class="nc" id="L165">			final double optionStrike = strike;</span>
+<span class="nc" id="L166">			final double payoffUnit = daycountFraction * discountFactor;</span>
+<span class="nc" id="L167">			return model.getRandomVariableForConstant(AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, values.getAverage()));</span>
+		}
+		else {
+<span class="nc" id="L170">			throw new IllegalArgumentException(&quot;Value unit &quot; + valueUnit + &quot; unsupported.&quot;);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

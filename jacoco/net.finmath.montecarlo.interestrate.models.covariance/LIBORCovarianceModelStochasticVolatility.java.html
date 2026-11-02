@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCovarianceModelStochasticVolatility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCovarianceModelStochasticVolatility.java</span></div><h1>LIBORCovarianceModelStochasticVolatility.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 15 Jan 2015
+ */
+
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.BrownianMotionView;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Simple stochastic volatility model, using a process
+ * \[
+ * 	d\lambda(t) = \nu \lambda(t) \left( \rho \mathrm{d} W_{1}(t) + \sqrt{1-\rho^{2}} \mathrm{d} W_{2}(t) \right) \text{,}
+ * \]
+ * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
+ *
+ * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
+ * the (Euler discretization of the) above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
+ * from the given covariance model.
+ *
+ * The process uses the first two factors of the Brownian motion provided by an object implementing
+ * {@link net.finmath.montecarlo.BrownianMotion}. This can be used to generate correlations to
+ * other objects. If you like to reuse a factor of another Brownian motion use a
+ * {@link net.finmath.montecarlo.BrownianMotionView}
+ * to delegate \( ( \mathrm{d} W_{1}(t) , \mathrm{d} W_{2}(t) ) \) to a different object.
+ *
+ * The parameter of this model is a joint parameter vector, consisting
+ * of the parameter vector of the given base covariance model and
+ * appending the parameters &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; at the end.
+ *
+ * If this model is not calibrateable, its parameter vector is that of the
+ * covariance model, i.e., &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; will be not
+ * part of the calibration.
+ *
+ * For an illustration of its usage see the associated unit test.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LIBORCovarianceModelStochasticVolatility extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = -559341617850035368L;
+	private AbstractLIBORCovarianceModelParametric covarianceModel;
+	private final BrownianMotion brownianMotion;
+	private	RandomVariable rho, nu;
+
+<span class="fc" id="L59">	private boolean isCalibrateable = false;</span>
+
+<span class="fc" id="L61">	private MonteCarloProcess stochasticVolatilityScalings = null;</span>
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
+	 * @param nu The initial value for &lt;i&gt;&amp;nu;&lt;/i&gt;, the volatility of the volatility.
+	 * @param rho The initial value for &lt;i&gt;&amp;rho;&lt;/i&gt; the correlation to the first factor.
+	 * @param isCalibrateable If true, the parameters &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; are parameters. Note that the covariance model (&lt;code&gt;covarianceModel&lt;/code&gt;) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticVolatility(final AbstractLIBORCovarianceModelParametric covarianceModel, final BrownianMotion brownianMotion, final RandomVariable nu, final RandomVariable rho, final boolean isCalibrateable) {
+<span class="fc" id="L73">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="fc" id="L75">		this.covarianceModel = covarianceModel;</span>
+<span class="fc" id="L76">		this.brownianMotion = brownianMotion;</span>
+<span class="fc" id="L77">		this.nu		= nu;</span>
+<span class="fc" id="L78">		this.rho		= rho;</span>
+
+<span class="fc" id="L80">		this.isCalibrateable = isCalibrateable;</span>
+<span class="fc" id="L81">	}</span>
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link BrownianMotionView} to change this.
+	 * @param nu The initial value for &lt;i&gt;&amp;nu;&lt;/i&gt;, the volatility of the volatility.
+	 * @param rho The initial value for &lt;i&gt;&amp;rho;&lt;/i&gt; the correlation to the first factor.
+	 * @param isCalibrateable If true, the parameters &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; are parameters. Note that the covariance model (&lt;code&gt;covarianceModel&lt;/code&gt;) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticVolatility(final AbstractLIBORCovarianceModelParametric covarianceModel, final BrownianMotion brownianMotion, final double nu, final double rho, final boolean isCalibrateable) {
+<span class="fc" id="L93">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="fc" id="L95">		this.covarianceModel = covarianceModel;</span>
+<span class="fc" id="L96">		this.brownianMotion = brownianMotion;</span>
+<span class="fc" id="L97">		this.nu		= new Scalar(nu);</span>
+<span class="fc" id="L98">		this.rho	= new Scalar(rho);</span>
+
+<span class="fc" id="L100">		this.isCalibrateable = isCalibrateable;</span>
+<span class="fc" id="L101">	}</span>
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L106">			return covarianceModel.getParameter();</span>
+		}
+
+<span class="fc" id="L109">		final RandomVariable[] covarianceParameters = covarianceModel.getParameter();</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		if(covarianceParameters == null) {</span>
+<span class="nc" id="L111">			return new RandomVariable[] { nu, rho };</span>
+		}
+
+		// Append nu and rho to the end of covarianceParameters
+<span class="fc" id="L115">		final RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+2];</span>
+<span class="fc" id="L116">		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);</span>
+<span class="fc" id="L117">		jointParameters[covarianceParameters.length+0] = nu;</span>
+<span class="fc" id="L118">		jointParameters[covarianceParameters.length+1] = rho;</span>
+
+<span class="fc" id="L120">		return jointParameters;</span>
+	}
+
+	//	@Override
+	private void setParameter(final RandomVariable[] parameter) {
+<span class="pc bpc" id="L125" title="2 of 4 branches missed.">		if(parameter == null || parameter.length == 0) {</span>
+<span class="nc" id="L126">			return;</span>
+		}
+
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L130">			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);</span>
+<span class="nc" id="L131">			return;</span>
+		}
+
+<span class="fc" id="L134">		final RandomVariable[] covarianceParameters = new RandomVariable[parameter.length-2];</span>
+<span class="fc" id="L135">		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);</span>
+
+<span class="fc" id="L137">		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);</span>
+
+<span class="fc" id="L139">		nu	= parameter[covarianceParameters.length + 0];</span>
+<span class="fc" id="L140">		rho	= parameter[covarianceParameters.length + 1];</span>
+
+<span class="fc" id="L142">		stochasticVolatilityScalings = null;</span>
+<span class="fc" id="L143">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="fc" id="L147">		final LIBORCovarianceModelStochasticVolatility newModel = new LIBORCovarianceModelStochasticVolatility((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), brownianMotion, nu, rho, isCalibrateable);</span>
+<span class="fc" id="L148">		return newModel;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="fc" id="L153">		final LIBORCovarianceModelStochasticVolatility model = (LIBORCovarianceModelStochasticVolatility)this.clone();</span>
+<span class="fc" id="L154">		model.setParameter(parameters);</span>
+<span class="fc" id="L155">		return model;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="fc" id="L160">		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="fc" id="L165">		final RandomVariable[] parameters = getParameter();</span>
+<span class="fc" id="L166">		final double[] parametersAsDouble = new double[parameters.length];</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="fc" id="L168">			parametersAsDouble[i] = parameters[i].doubleValue();</span>
+		}
+<span class="fc" id="L170">		return parametersAsDouble;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+
+<span class="fc" id="L176">		synchronized (this) {</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">			if(stochasticVolatilityScalings == null) {</span>
+<span class="fc" id="L178">				final ProcessModel model = new ProcessModel() {</span>
+
+					@Override
+					public LocalDateTime getReferenceDate() {
+<span class="nc" id="L182">						throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+					}
+
+					@Override
+					public RandomVariable getNumeraire(final MonteCarloProcess process, double time) {
+<span class="nc" id="L187">						throw new UnsupportedOperationException();</span>
+					}
+
+					@Override
+					public int getNumberOfFactors() {
+<span class="nc" id="L192">						return 2;</span>
+					}
+
+					@Override
+					public int getNumberOfComponents() {
+<span class="fc" id="L197">						return 1;</span>
+					}
+
+					@Override
+					public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="fc" id="L202">						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(0.0) };</span>
+					}
+
+					@Override
+					public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="fc" id="L207">						return new RandomVariable[] { nu.squared().mult(-0.5) };</span>
+					}
+
+					@Override
+					public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L212">						return new RandomVariable[] { rho.mult(nu) , rho.squared().sub(1).mult(-1).sqrt().mult(nu) };</span>
+					}
+					@Override
+					public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L216">						return randomVariable.exp();</span>
+					}
+
+					@Override
+					public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L221">						return randomVariable.log();</span>
+					}
+
+					@Override
+					public RandomVariable getRandomVariableForConstant(double value) {
+<span class="nc" id="L226">						throw new UnsupportedOperationException(&quot;Method not implemented&quot;);</span>
+					}
+
+					@Override
+					public ProcessModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="nc" id="L231">						throw new UnsupportedOperationException(&quot;Method not implemented&quot;);</span>
+					}
+				};
+<span class="fc" id="L234">				stochasticVolatilityScalings = new EulerSchemeFromProcessModel(model, brownianMotion);</span>
+			}
+<span class="fc" id="L236">		}</span>
+
+<span class="fc" id="L238">		RandomVariable stochasticVolatilityScaling = null;</span>
+		try {
+<span class="fc" id="L240">			stochasticVolatilityScaling = stochasticVolatilityScalings.getProcessValue(timeIndex,0);</span>
+<span class="nc" id="L241">		} catch (final CalculationException e) {</span>
+			// Exception is not handled explicitly, we just return null
+<span class="fc" id="L243">		}</span>
+
+<span class="fc" id="L245">		RandomVariable[] factorLoading = null;</span>
+
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">		if(stochasticVolatilityScaling != null) {</span>
+<span class="fc" id="L248">			factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">			for(int i=0; i&lt;factorLoading.length; i++) {</span>
+<span class="fc" id="L250">				factorLoading[i] = factorLoading[i].mult(stochasticVolatilityScaling);</span>
+			}
+		}
+
+<span class="fc" id="L254">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L259">		return null;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L265">		BrownianMotion brownianMotion = this.brownianMotion;</span>
+<span class="nc" id="L266">		RandomVariable nu = this.nu;</span>
+<span class="nc" id="L267">		RandomVariable rho = this.rho;</span>
+<span class="nc" id="L268">		boolean isCalibrateable = this.isCalibrateable;</span>
+<span class="nc" id="L269">		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;</span>
+<span class="nc" id="L270">		RandomVariableFactory randomVariableFactory = null;</span>
+
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			if(dataModified.containsKey(&quot;randomVariableFactory&quot;)) {</span>
+<span class="nc" id="L274">				randomVariableFactory = (RandomVariableFactory)dataModified.get(&quot;randomVariableFactory&quot;);</span>
+<span class="nc" id="L275">				nu = randomVariableFactory.createRandomVariable(nu.doubleValue());</span>
+<span class="nc" id="L276">				rho = randomVariableFactory.createRandomVariable(rho.doubleValue());</span>
+			}
+<span class="nc bnc" id="L278" title="All 2 branches missed.">			if (!dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="nc" id="L279">				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);</span>
+			}
+
+			// Explicitly passed covarianceModel has priority
+<span class="nc" id="L283">			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault(&quot;covarianceModel&quot;, covarianceModel);</span>
+<span class="nc" id="L284">			isCalibrateable = (boolean)dataModified.getOrDefault(&quot;isCalibrateable&quot;, isCalibrateable);</span>
+<span class="nc" id="L285">			brownianMotion = (BrownianMotion)dataModified.getOrDefault(&quot;brownianMotion&quot;, brownianMotion);</span>
+
+<span class="nc bnc" id="L287" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;nu&quot;, nu) instanceof RandomVariable) {</span>
+<span class="nc" id="L288">				nu = (RandomVariable)dataModified.getOrDefault(&quot;nu&quot;, nu);</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">			}else if(randomVariableFactory == null){</span>
+<span class="nc" id="L290">				nu = new Scalar((double)dataModified.get(&quot;nu&quot;));</span>
+			}else {
+<span class="nc" id="L292">				nu = randomVariableFactory.createRandomVariable((double)dataModified.get(&quot;nu&quot;));</span>
+			}
+<span class="nc bnc" id="L294" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;rho&quot;, rho) instanceof RandomVariable) {</span>
+<span class="nc" id="L295">				rho = (RandomVariable)dataModified.getOrDefault(&quot;rho&quot;, rho);</span>
+<span class="nc bnc" id="L296" title="All 2 branches missed.">			}else if(randomVariableFactory == null){</span>
+<span class="nc" id="L297">				rho = new Scalar((double)dataModified.get(&quot;rho&quot;));</span>
+			}else {
+<span class="nc" id="L299">				rho = randomVariableFactory.createRandomVariable((double)dataModified.get(&quot;rho&quot;));</span>
+			}
+		}
+
+<span class="nc" id="L303">		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticVolatility(covarianceModel, brownianMotion, nu, rho, isCalibrateable);</span>
+<span class="nc" id="L304">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

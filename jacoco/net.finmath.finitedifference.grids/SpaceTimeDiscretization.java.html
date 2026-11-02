@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SpaceTimeDiscretization.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.grids</a> &gt; <span class="el_source">SpaceTimeDiscretization.java</span></div><h1>SpaceTimeDiscretization.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.grids;
+
+import java.util.HashMap;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Encapsulates the space-time discretization used in a finite difference
+ * scheme.
+ *
+ * &lt;p&gt;
+ * The class contains:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;A possibly multi-dimensional spatial grid, stored as a collection of
+ *       {@link Grid} objects indexed by their dimension (index {@code 0}
+ *       corresponds to the one-dimensional case).&lt;/li&gt;
+ *   &lt;li&gt;A {@link TimeDiscretization}, interpreted as a discretization of
+ *       time-to-maturity. In the finite difference framework, the PDE is
+ *       solved backward in time, so {@code 0} corresponds to maturity.&lt;/li&gt;
+ *   &lt;li&gt;The parameter {@code theta}, controlling the theta-method
+ *       (explicit, implicit, or Crank–Nicolson).&lt;/li&gt;
+ *   &lt;li&gt;A center point per spatial dimension.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class SpaceTimeDiscretization {
+
+	/**
+	 * The space grids.
+	 */
+<span class="fc" id="L33">	private final HashMap&lt;Integer, Grid&gt; spaceGrids = new HashMap&lt;&gt;();</span>
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public HashMap&lt;Integer, Grid&gt; getSpaceGrids() {
+<span class="nc" id="L40">		return spaceGrids;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double[] getCenter() {
+<span class="nc" id="L49">		return center;</span>
+	}
+
+	/**
+	 * The time discretization.
+	 */
+	private final TimeDiscretization timeDiscretization;
+	/**
+	 * The theta.
+	 */
+	private final double theta;
+	/**
+	 * The center.
+	 */
+	private final double[] center;
+
+	/**
+	 * Constructs a one-dimensional space-time discretization.
+	 *
+	 * @param spaceGrid         The spatial grid.
+	 * @param timeDiscretization The time discretization (time-to-maturity).
+	 * @param theta             The theta parameter of the theta-method.
+	 * @param center            The center point of the spatial grid.
+	 */
+	public SpaceTimeDiscretization(
+			final Grid spaceGrid,
+			final TimeDiscretization timeDiscretization,
+			final double theta,
+<span class="fc" id="L77">			final double[] center) {</span>
+
+<span class="fc" id="L79">		spaceGrids.put(0, spaceGrid);</span>
+<span class="fc" id="L80">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L81">		this.theta = theta;</span>
+<span class="fc" id="L82">		this.center = center;</span>
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * Constructs a multi-dimensional space-time discretization.
+	 *
+	 * &lt;p&gt;
+	 * The {@code i}-th grid in the array is stored under key {@code i}.
+	 * &lt;/p&gt;
+	 *
+	 * @param spaceGrids         Array of grids, one per spatial dimension.
+	 * @param timeDiscretization The time discretization (time-to-maturity).
+	 * @param theta              The theta parameter of the theta-method.
+	 * @param center Center point per dimension (same length as {@code
+	 *     spaceGrids}).
+	 */
+	public SpaceTimeDiscretization(
+			final Grid[] spaceGrids,
+			final TimeDiscretization timeDiscretization,
+			final double theta,
+<span class="fc" id="L102">			final double[] center) {</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		for (int i = 0; i &lt; spaceGrids.length; i++) {</span>
+<span class="fc" id="L105">			this.spaceGrids.put(i, spaceGrids[i]);</span>
+		}
+
+<span class="fc" id="L108">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L109">		this.theta = theta;</span>
+<span class="fc" id="L110">		this.center = center;</span>
+<span class="fc" id="L111">	}</span>
+
+	/**
+	 * Returns the spatial grid corresponding to the given dimension.
+	 *
+	 * @param dimension The spatial dimension index.
+	 * @return The corresponding {@link Grid}.
+	 */
+	public Grid getSpaceGrid(final int dimension) {
+<span class="fc" id="L120">		return spaceGrids.get(dimension);</span>
+	}
+
+	/**
+	 * Returns the time discretization.
+	 *
+	 * @return The {@link TimeDiscretization}.
+	 */
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L129">		return timeDiscretization;</span>
+	}
+
+	/**
+	 * Returns the theta parameter of the theta-method.
+	 *
+	 * @return The theta parameter.
+	 */
+	public double getTheta() {
+<span class="fc" id="L138">		return theta;</span>
+	}
+
+	/**
+	 * Returns the center coordinate for the specified spatial dimension.
+	 *
+	 * @param dimension The spatial dimension index.
+	 * @return The center value for the given dimension.
+	 */
+	public double getCenter(final int dimension) {
+<span class="nc" id="L148">		return center[dimension];</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public int getNumberOfSpaceGrids() {
+<span class="fc" id="L157">		return spaceGrids.size();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

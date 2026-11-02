@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bond.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.bond</a> &gt; <span class="el_source">Bond.java</span></div><h1>Bond.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright finmath.net, Germany. Contact: info@finmath.net.
+ *
+ * Created on 01.06.2018
+ */
+package net.finmath.marketdata.model.bond;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.products.AbstractAnalyticProduct;
+import net.finmath.marketdata.products.AnalyticProduct;
+import net.finmath.optimizer.GoldenSectionSearch;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Implements the valuation of a bond (zero-coupon, fixed coupon or floating coupon)
+ * with unit notional of 1 using curves:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;a forward curve, if the bond has floating rate coupons&lt;/li&gt;
+ * 	&lt;li&gt;a discount curve as a base curve for discounting&lt;/li&gt;
+ * 	&lt;li&gt;a survival probability curve for additional credit risk related discount factor&lt;/li&gt;
+ * 	&lt;li&gt;a basis factor curve for additional bond related discount factor&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Support for day counting is provided via the class implementing
+ * &lt;code&gt;Schedule&lt;/code&gt;.
+ *
+ * The effective bond curve is a combination of the discount curve (risk free curve), the basis factor curve
+ * (which could be considers as an additional industry specific factor) and the issuer specific
+ * survival probalbilty. The effective discount factor is the product of the three:
+ * discountFactor * survivalProbabilityFactor * basisFactorFactor
+ *
+ * You may set the arguments for the survival probability curve and the basis factor curve to null.
+ *
+ * @author Moritz Scherrmann
+ * @author Chrisitan Fries
+ * @version 1.1
+ */
+public class Bond extends AbstractAnalyticProduct implements AnalyticProduct {
+
+	private final Schedule	schedule;
+	private final String discountCurveName;
+	private final String forwardCurveName; //Set null if fixed- or zero-coupon bond
+	private final String survivalProbabilityCurveName;
+	private final String basisFactorCurveName;
+	private final double fixedCoupon; //Set equal zero if floating rate note
+	private final double floatingSpread;
+	private final double recoveryRate;
+
+
+	/**
+	 * Creates a bond.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param basisFactorCurveName Name of the basis factor curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
+	 * @param recoveryRate The recovery rate of the bond.
+	 */
+	public Bond(final Schedule                    schedule,
+			final String             discountCurveName,
+			final String              forwardCurveName,
+			final String  survivalProbabilityCurveName,
+			final String          basisFactorCurveName,
+			final double                   fixedCoupon,
+			final double                floatingSpread,
+			final double                  recoveryRate) {
+<span class="fc" id="L79">		super();</span>
+<span class="fc" id="L80">		this.schedule = schedule;</span>
+<span class="fc" id="L81">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L82">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L83">		this.survivalProbabilityCurveName = survivalProbabilityCurveName;</span>
+<span class="fc" id="L84">		this.basisFactorCurveName=basisFactorCurveName;</span>
+<span class="fc" id="L85">		this.fixedCoupon=fixedCoupon;</span>
+<span class="fc" id="L86">		this.floatingSpread=floatingSpread;</span>
+<span class="fc" id="L87">		this.recoveryRate=recoveryRate;</span>
+<span class="fc" id="L88">	}</span>
+
+	/**
+	 * Creates a fixed coupon bond with recovery rate.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param basisFactorCurveName Name of the basis factor curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 * @param recoveryRate The recovery rate of the bond.
+	 */
+	public Bond(final Schedule schedule, final String discountCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon, final double recoveryRate) {
+<span class="nc" id="L101">		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, recoveryRate);</span>
+<span class="nc" id="L102">	}</span>
+
+	/**
+	 * Creates a fixed or floating bond without recovery rate.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix coupon bond or a zero-coupon bond.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param basisFactorCurveName Name of the basis factor curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 * @param floatingSpread The floating spread of the bond expressed as absolute value.
+	 */
+	public Bond(final Schedule schedule, final String discountCurveName,final String forwardCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon, final double floatingSpread) {
+<span class="nc" id="L116">		this(schedule, discountCurveName, forwardCurveName,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,floatingSpread, 0);</span>
+<span class="nc" id="L117">	}</span>
+
+	/**
+	 * Creates a fixed coupon bond without recovery rate.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param basisFactorCurveName Name of the basis factor curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 */
+	public Bond(final Schedule schedule, final String discountCurveName, final String survivalProbabilityCurveName ,final String basisFactorCurveName, final double fixedCoupon) {
+<span class="nc" id="L129">		this(schedule, discountCurveName, null,survivalProbabilityCurveName, basisFactorCurveName, fixedCoupon,0, 0);</span>
+<span class="nc" id="L130">	}</span>
+
+	/**
+	 * Creates a fixed coupon bond using a single discount curve only.
+	 *
+	 * @param schedule ScheduleFromPeriods of the bond.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param fixedCoupon The fixed coupon of the bond expressed as absolute value.
+	 */
+	public Bond(final Schedule schedule, final String discountCurveName, final double fixedCoupon) {
+<span class="fc" id="L140">		this(schedule, discountCurveName, null,null, null, fixedCoupon,0, 0);</span>
+<span class="fc" id="L141">	}</span>
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">		final boolean positiveRecoveryRate = recoveryRate&gt;0;</span>
+
+<span class="pc bpc" id="L148" title="1 of 2 branches missed.">		if(model==null) {</span>
+<span class="nc" id="L149">			throw new IllegalArgumentException(&quot;model==null&quot;);</span>
+		}
+
+<span class="fc" id="L152">		final ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);</span>
+<span class="pc bpc" id="L153" title="4 of 6 branches missed.">		if(forwardCurve == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+<span class="nc" id="L154">			throw new IllegalArgumentException(&quot;No forward curve with name '&quot; + forwardCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="fc" id="L157">		final DiscountCurve discountCurve = model.getDiscountCurve(discountCurveName);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">		if(discountCurve == null) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;No discount curve with name '&quot; + discountCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="fc" id="L162">		final Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);</span>
+<span class="fc" id="L163">		final Curve basisFactorCurve = model.getCurve(basisFactorCurveName);</span>
+
+<span class="fc" id="L165">		double value = 0.0;</span>
+<span class="fc bfc" id="L166" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L167">			final double paymentDate	= schedule.getPayment(periodIndex);</span>
+<span class="fc" id="L168">			final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+
+<span class="pc bpc" id="L170" title="1 of 2 branches missed.">			final double discountFactor	= paymentDate &gt; evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;</span>
+
+<span class="pc bpc" id="L172" title="3 of 4 branches missed.">			final double survivalProbabilityFactor	= survivalProbabilityCurve != null ? (paymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0) : 1.0;</span>
+
+<span class="pc bpc" id="L174" title="3 of 4 branches missed.">			final double basisFactorFactor	= basisFactorCurve != null ? (paymentDate &gt; evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0) : 1.0;</span>
+
+<span class="fc" id="L176">			double couponPayment=fixedCoupon ;</span>
+<span class="pc bpc" id="L177" title="1 of 2 branches missed.">			if(forwardCurve != null ) {</span>
+<span class="nc" id="L178">				couponPayment = floatingSpread+forwardCurve.getForward(model, schedule.getFixing(periodIndex));</span>
+			}
+
+<span class="fc" id="L181">			value += couponPayment * periodLength * discountFactor * survivalProbabilityFactor * basisFactorFactor;</span>
+
+			// Consider notional payments if required
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">			if(positiveRecoveryRate) {</span>
+<span class="nc" id="L185">				double previousPaymentDate = 0	;</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">				if(periodIndex&gt;0) {</span>
+<span class="nc" id="L187">					previousPaymentDate	= schedule.getPayment(periodIndex-1);</span>
+				}
+
+<span class="nc bnc" id="L190" title="All 2 branches missed.">				final double previousSurvivalProbabilityFactor	= previousPaymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(model, previousPaymentDate) : 1.0;</span>
+
+<span class="nc" id="L192">				value += recoveryRate * discountFactor * (previousSurvivalProbabilityFactor- survivalProbabilityFactor) *  basisFactorFactor;</span>
+			}
+		}
+
+<span class="fc" id="L196">		final double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);</span>
+
+<span class="pc bpc" id="L198" title="1 of 2 branches missed.">		final double discountFactor	= paymentDate &gt; evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;</span>
+
+<span class="pc bpc" id="L200" title="3 of 4 branches missed.">		final double survivalProbabilityFactor	= survivalProbabilityCurve != null ? (paymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0) : 1.0;</span>
+
+<span class="pc bpc" id="L202" title="3 of 4 branches missed.">		final double basisFactorFactor	= basisFactorCurve != null ? (paymentDate &gt; evaluationTime ? basisFactorCurve.getValue(model, paymentDate) : 0.0) : 1.0;</span>
+
+<span class="fc" id="L204">		value +=  discountFactor * survivalProbabilityFactor * basisFactorFactor;</span>
+
+		// @TODO The forward value should use division of all curves
+<span class="fc" id="L207">		return value / discountCurve.getDiscountFactor(model, evaluationTime);</span>
+	}
+
+	/**
+	 * Returns the coupon payment of the period with the given index. The analytic model is needed in case of floating bonds.
+	 *
+	 * @param periodIndex The index of the period of interest.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the coupon payment in the given period.
+	 */
+	public double getCouponPayment(final int periodIndex, final AnalyticModel model) {
+
+<span class="nc" id="L219">		final ForwardCurve forwardCurve = model.getForwardCurve(forwardCurveName);</span>
+<span class="nc bnc" id="L220" title="All 6 branches missed.">		if(forwardCurve == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+<span class="nc" id="L221">			throw new IllegalArgumentException(&quot;No forward curve with name '&quot; + forwardCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="nc" id="L224">		final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L225">		double couponPayment=fixedCoupon ;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		if(forwardCurve != null ) {</span>
+<span class="nc" id="L227">			couponPayment = floatingSpread+forwardCurve.getForward(model, schedule.getFixing(periodIndex));</span>
+		}
+<span class="nc" id="L229">		return couponPayment*periodLength;</span>
+	}
+
+	/**
+	 * Returns the value of the sum of discounted cash flows of the bond where
+	 * the discounting is done with the given reference curve and an additional spread.
+	 * This method can be used for optimizer.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param referenceCurve The reference curve used for discounting the coupon payments.
+	 * @param spread The spread which should be added to the discount curve.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the bond for the given curve and spread.
+	 */
+	public double getValueWithGivenSpreadOverCurve(final double evaluationTime,final Curve referenceCurve, final double spread, final AnalyticModel model) {
+<span class="nc" id="L244">		double value=0;</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods();periodIndex++) {</span>
+<span class="nc" id="L246">			final double paymentDate	= schedule.getPayment(periodIndex);</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">			value+= paymentDate&gt;evaluationTime ? getCouponPayment(periodIndex,model)*Math.exp(-spread*paymentDate)*referenceCurve.getValue(paymentDate): 0.0;</span>
+		}
+
+<span class="nc" id="L250">		final double paymentDate	= schedule.getPayment(schedule.getNumberOfPeriods()-1);</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">		return paymentDate&gt;evaluationTime ? value+Math.exp(-spread*paymentDate)*referenceCurve.getValue(paymentDate):0.0;</span>
+	}
+
+	/**
+	 * Returns the value of the sum of discounted cash flows of the bond where
+	 * the discounting is done with the given yield curve.
+	 * This method can be used for optimizer.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param rate The yield which is used for discounted the coupon payments.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the bond for the given yield.
+	 */
+	public double getValueWithGivenYield(final double evaluationTime, final double rate, final AnalyticModel model) {
+<span class="nc" id="L265">		final DiscountCurve referenceCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(&quot;referenceCurve&quot;, new double[] {0.0, 1.0}, new double[]  {1.0, 1.0});</span>
+<span class="nc" id="L266">		return getValueWithGivenSpreadOverCurve(evaluationTime, referenceCurve, rate, model);</span>
+	}
+
+	/**
+	 * Returns the spread value such that the sum of cash flows of the bond discounted with a given reference curve
+	 * with the additional spread coincides with a given price.
+	 *
+	 * @param bondPrice The target price as double.
+	 * @param referenceCurve The reference curve used for discounting the coupon payments.
+	 * @param model The model under which the product is valued.
+	 * @return The optimal spread value.
+	 */
+	public double getSpread(final double bondPrice, final Curve referenceCurve, final AnalyticModel model) {
+<span class="nc" id="L279">		final GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);</span>
+<span class="nc bnc" id="L280" title="All 4 branches missed.">		while(search.getAccuracy() &gt; 1E-11 &amp;&amp; !search.isDone()) {</span>
+<span class="nc" id="L281">			final double x = search.getNextPoint();</span>
+<span class="nc" id="L282">			final double fx=getValueWithGivenSpreadOverCurve(0.0,referenceCurve,x,model);</span>
+<span class="nc" id="L283">			final double y = (bondPrice-fx)*(bondPrice-fx);</span>
+
+<span class="nc" id="L285">			search.setValue(y);</span>
+<span class="nc" id="L286">		}</span>
+<span class="nc" id="L287">		return search.getBestPoint();</span>
+	}
+
+	/**
+	 * Returns the yield value such that the sum of cash flows of the bond discounted with the yield curve
+	 * coincides with a given price.
+	 *
+	 * @param bondPrice The target price as double.
+	 * @param model The model under which the product is valued.
+	 * @return The optimal yield value.
+	 */
+	public double getYield(final double bondPrice, final AnalyticModel model) {
+<span class="nc" id="L299">		final GoldenSectionSearch search = new GoldenSectionSearch(-2.0, 2.0);</span>
+<span class="nc bnc" id="L300" title="All 4 branches missed.">		while(search.getAccuracy() &gt; 1E-11 &amp;&amp; !search.isDone()) {</span>
+<span class="nc" id="L301">			final double x = search.getNextPoint();</span>
+<span class="nc" id="L302">			final double fx=getValueWithGivenYield(0.0,x,model);</span>
+<span class="nc" id="L303">			final double y = (bondPrice-fx)*(bondPrice-fx);</span>
+
+<span class="nc" id="L305">			search.setValue(y);</span>
+<span class="nc" id="L306">		}</span>
+<span class="nc" id="L307">		return search.getBestPoint();</span>
+	}
+
+	/**
+	 * Returns the accrued interest of the bond for a given date.
+	 *
+	 * @param date The date of interest.
+	 * @param model The model under which the product is valued.
+	 * @return The accrued interest.
+	 */
+	public double getAccruedInterest(final LocalDate date, final AnalyticModel model) {
+<span class="nc" id="L318">		final int periodIndex=schedule.getPeriodIndex(date);</span>
+<span class="nc" id="L319">		final Period period=schedule.getPeriod(periodIndex);</span>
+<span class="nc" id="L320">		final DayCountConvention dcc= schedule.getDaycountconvention();</span>
+<span class="nc" id="L321">		final double accruedInterest=getCouponPayment(periodIndex,model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L322">		return accruedInterest;</span>
+	}
+
+	/**
+	 * Returns the accrued interest of the bond for a given time.
+	 *
+	 * @param time The time of interest as double.
+	 * @param model The model under which the product is valued.
+	 * @return The accrued interest.
+	 */
+	public double getAccruedInterest(final double time, final AnalyticModel model) {
+<span class="nc" id="L333">		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);</span>
+<span class="nc" id="L334">		return getAccruedInterest(date, model);</span>
+	}
+
+	public Schedule getSchedule() {
+<span class="nc" id="L338">		return schedule;</span>
+	}
+
+
+	public String getDiscountCurveName() {
+<span class="nc" id="L343">		return discountCurveName;</span>
+	}
+
+	public String getForwardCurveName() {
+<span class="nc" id="L347">		return forwardCurveName;</span>
+	}
+
+	public String getSurvivalProbabilityCurveName() {
+<span class="nc" id="L351">		return survivalProbabilityCurveName;</span>
+	}
+
+	public String getBasisFactorCurveName() {
+<span class="nc" id="L355">		return basisFactorCurveName;</span>
+	}
+
+	public double getFixedCoupon() {
+<span class="nc" id="L359">		return fixedCoupon;</span>
+	}
+
+	public double getFloatingSpread() {
+<span class="nc" id="L363">		return floatingSpread;</span>
+	}
+
+	public double getRecoveryRate() {
+<span class="nc" id="L367">		return recoveryRate;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L372">		return &quot;CouponBond [ScheduleFromPeriods=&quot; + schedule</span>
+				+ &quot;, discountCurveName=&quot; + discountCurveName
+				+ &quot;, forwardtCurveName=&quot; + forwardCurveName
+				+ &quot;, survivalProbabilityCurveName=&quot; + survivalProbabilityCurveName
+				+ &quot;, basisFactorCurveName=&quot; + basisFactorCurveName
+				+ &quot;, fixedCoupon=&quot; + fixedCoupon
+				+ &quot;, floatingSpread=&quot; + floatingSpread
+				+ &quot;, recoveryRate=&quot; + recoveryRate + &quot;]&quot;;
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractExercise.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling</a> &gt; <span class="el_source">AbstractExercise.java</span></div><h1>AbstractExercise.java</h1><pre class="source lang-java linenums">package net.finmath.modelling;
+
+import java.util.Arrays;
+
+/**
+ * Base class for exercise specifications.
+ *
+ * @author Alessandro Gnoatto
+ */
+public abstract class AbstractExercise implements Exercise {
+
+	/**
+	 * The time tolerance.
+	 */
+	protected static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The exercise times.
+	 */
+	private final double[] exerciseTimes;
+
+	/**
+	 * Creates an exercise specification.
+	 *
+	 * @param maturity The maturity.
+	 * @param exerciseTimes The exercise times in running time.
+	 */
+<span class="fc" id="L32">	protected AbstractExercise(final double maturity, final double[] exerciseTimes) {</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L34">			throw new IllegalArgumentException(&quot;Maturity must be non-negative.&quot;);</span>
+		}
+<span class="pc bpc" id="L36" title="2 of 4 branches missed.">		if (exerciseTimes == null || exerciseTimes.length == 0) {</span>
+<span class="nc" id="L37">			throw new IllegalArgumentException(&quot;Exercise times must not be null or empty.&quot;);</span>
+		}
+
+<span class="fc" id="L40">		this.maturity = maturity;</span>
+<span class="fc" id="L41">		this.exerciseTimes = exerciseTimes.clone();</span>
+<span class="fc" id="L42">		Arrays.sort(this.exerciseTimes);</span>
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">		for (final double exerciseTime : this.exerciseTimes) {</span>
+<span class="pc bpc" id="L45" title="2 of 4 branches missed.">			if (exerciseTime &lt; -TIME_TOLERANCE || exerciseTime &gt; maturity + TIME_TOLERANCE) {</span>
+<span class="nc" id="L46">				throw new IllegalArgumentException(&quot;Exercise time out of range: &quot; + exerciseTime);</span>
+			}
+		}
+<span class="fc" id="L49">	}</span>
+
+	@Override
+	public double getMaturity() {
+<span class="fc" id="L53">		return maturity;</span>
+	}
+
+	@Override
+	public double[] getExerciseTimes() {
+<span class="nc" id="L58">		return exerciseTimes.clone();</span>
+	}
+
+	/**
+	 * Helper to test whether a time coincides with one of the scheduled
+	 * exercise times.
+	 *
+	 * @param time The running time.
+	 * @return True if the time matches one of the scheduled exercise times.
+	 */
+	protected boolean isScheduledExerciseTime(final double time) {
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for (final double exerciseTime : exerciseTimes) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			if (Math.abs(exerciseTime - time) &lt; TIME_TOLERANCE) {</span>
+<span class="nc" id="L71">				return true;</span>
+			}
+		}
+<span class="nc" id="L74">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductFactoryCascade.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.productfactory</a> &gt; <span class="el_source">ProductFactoryCascade.java</span></div><h1>ProductFactoryCascade.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.productfactory;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
+
+/**
+ * Implements a product factory based on a cascade of given factories. When invoking &lt;code&gt;getProductFromDescriptor(ProductDescriptor productDescriptor)&lt;/code&gt;
+ * the cascade will query all its individual factories until one builds the product. When querying the factories the cascade will start at index 0.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ * @param &lt;T&gt; The base class of the product descriptors which can be handled by this &lt;code&gt;ProductFactory&lt;/code&gt;.
+ * @version 1.0
+ */
+public class ProductFactoryCascade&lt;T extends ProductDescriptor&gt; implements ProductFactory&lt;T&gt; {
+
+	private final ArrayList&lt;ProductFactory&lt;? extends T&gt;&gt; factories;
+
+	/**
+	 * Construct an empty factory cascade. This will build no products until amended.
+	 */
+	public ProductFactoryCascade() {
+<span class="nc" id="L28">		super();</span>
+<span class="nc" id="L29">		factories = new ArrayList&lt;&gt;(0);</span>
+<span class="nc" id="L30">	}</span>
+
+	/**
+	 * Construct a factory cascade from an ordered list of product factories. When querying the factories the cascade will start at index 0.
+	 *
+	 * @param factories A list of product factories, i.e. object implementing &lt;code&gt;ProductFactory&lt;/code&gt; for the product descriptor &lt;code&gt;T&lt;/code&gt;.
+	 */
+	public ProductFactoryCascade(final List&lt;ProductFactory&lt;? extends T&gt;&gt; factories) {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">		this.factories = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L40">		this.factories.addAll(factories);</span>
+<span class="nc" id="L41">	}</span>
+
+	/**
+	 * Add a given factory to the list of factories at the BEGINNING.
+	 *
+	 * @param factory The factory to be added.
+	 * @return Cascade with amended factory list.
+	 */
+	public ProductFactoryCascade&lt;T&gt; addFactoryBefore(final ProductFactory&lt;? extends T&gt; factory) {
+<span class="nc" id="L50">		final ArrayList&lt;ProductFactory&lt;? extends T&gt;&gt; factories = new ArrayList&lt;&gt;(this.factories.size()+1);</span>
+<span class="nc" id="L51">		factories.addAll(this.factories);</span>
+<span class="nc" id="L52">		factories.add(0, factory);</span>
+<span class="nc" id="L53">		return new ProductFactoryCascade&lt;&gt;(factories);</span>
+	}
+
+	/**
+	 * Add a given factory to the list of factories at the END.
+	 *
+	 * @param factory The factory to be added.
+	 * @return Cascade with amended factory list.
+	 */
+	public ProductFactoryCascade&lt;T&gt; addFactoryAfter(final ProductFactory&lt;? extends T&gt; factory) {
+<span class="nc" id="L63">		final ArrayList&lt;ProductFactory&lt;? extends T&gt;&gt; factories = new ArrayList&lt;&gt;(this.factories.size()+1);</span>
+<span class="nc" id="L64">		factories.addAll(this.factories);</span>
+<span class="nc" id="L65">		factories.add(factory);</span>
+<span class="nc" id="L66">		return new ProductFactoryCascade&lt;&gt;(factories);</span>
+	}
+
+	@Override
+	public DescribedProduct&lt;? extends T&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="nc" id="L71">		DescribedProduct&lt;? extends T&gt; product = null;</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		for(final ProductFactory&lt;? extends T&gt; factory : factories) {</span>
+			try {
+<span class="nc" id="L74">				product = factory.getProductFromDescriptor(productDescriptor);</span>
+<span class="nc" id="L75">			} catch ( final IllegalArgumentException e) {continue;}</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">			if(product != null) {</span>
+<span class="nc" id="L77">				return product;</span>
+			}
+<span class="nc" id="L79">		}</span>
+
+		// Product not found
+<span class="nc" id="L82">		throw new IllegalArgumentException(&quot;Unsupported product type &quot; + productDescriptor.name());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

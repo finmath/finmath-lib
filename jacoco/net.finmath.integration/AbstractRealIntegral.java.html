@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractRealIntegral.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.integration</a> &gt; <span class="el_source">AbstractRealIntegral.java</span></div><h1>AbstractRealIntegral.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+
+package net.finmath.integration;
+
+import java.util.function.DoubleUnaryOperator;
+
+/**
+ * A real integral with lower and upper integration bounds.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractRealIntegral implements RealIntegral {
+
+	private final double lowerBound;
+	private final double upperBound;
+
+
+	/**
+	 * Create a real integral with lower and upper integration bounds.
+	 *
+	 * @param lowerBound Lower integration bound.
+	 * @param upperBound Upper integration bound.
+	 */
+	public AbstractRealIntegral(final double lowerBound, final double upperBound) {
+<span class="fc" id="L30">		super();</span>
+<span class="fc" id="L31">		this.lowerBound = lowerBound;</span>
+<span class="fc" id="L32">		this.upperBound = upperBound;</span>
+<span class="fc" id="L33">	}</span>
+
+
+	/**
+	 * Get the lower integration bound.
+	 *
+	 * @return the lower integration bound.
+	 */
+	public double getLowerBound() {
+<span class="fc" id="L42">		return lowerBound;</span>
+	}
+
+	/**
+	 * Get the upper integration bound.
+	 *
+	 * @return the upper integration bound.
+	 */
+	public double getUpperBound() {
+<span class="fc" id="L51">		return upperBound;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.integration.RealIntegral#integrate(java.util.function.DoubleUnaryOperator)
+	 */
+	@Override
+	public abstract double integrate(DoubleUnaryOperator integrand);
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TrapezoidalRealIntegrator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.integration</a> &gt; <span class="el_source">TrapezoidalRealIntegrator.java</span></div><h1>TrapezoidalRealIntegrator.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28.05.2004
+ */
+package net.finmath.integration;
+
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.lang3.Validate;
+
+/**
+ * A simple integrator using the trapezoidal rule.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class TrapezoidalRealIntegrator extends AbstractRealIntegral{
+
+	private int			numberOfEvaluationPoints;
+	private double[]	evaluationPoints;
+
+	/**
+	 * Create an integrator using the trapezoidal rule.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param evaluationPoints An ordered array of the inner evaluation points to use.
+	 */
+	public TrapezoidalRealIntegrator(final double lowerBound, final double upperBound, final double[] evaluationPoints) {
+<span class="fc" id="L31">		super(lowerBound, upperBound);</span>
+<span class="fc" id="L32">		this.evaluationPoints = evaluationPoints;</span>
+<span class="fc" id="L33">	}</span>
+
+	/**
+	 * Create an integrator using the trapezoidal rule and an equi-distant grid of evaluation points.
+	 * The minimum number of evaluation points (&lt;code&gt;numberOfEvaluationPoints&lt;/code&gt;) is 2, since the
+	 * trapezoidal rule operates on intervals. That is, lowerBound and upperBound are always evaluated. For
+	 * &lt;code&gt;numberOfEvaluationPoints &amp;gt; 2&lt;/code&gt; additional inner points will be evaluated.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Number of evaluation points (that is calls to the applyAsDouble of integrand). Has to be &amp;gt; 2;
+	 */
+	public TrapezoidalRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="nc" id="L46">		super(lowerBound, upperBound);</span>
+<span class="nc" id="L47">		Validate.exclusiveBetween(2, Integer.MAX_VALUE, numberOfEvaluationPoints, &quot;Parameter numberOfEvaluationPoints required to be &gt; 2.&quot;);</span>
+<span class="nc" id="L48">		this.numberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="nc" id="L49">	}</span>
+
+	@Override
+	public double integrate(final DoubleUnaryOperator integrand) {
+<span class="fc" id="L53">		final double	lowerBound			= getLowerBound();</span>
+<span class="fc" id="L54">		final double	upperBound			= getUpperBound();</span>
+
+<span class="fc" id="L56">		double sum = 0.0;</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if(evaluationPoints != null) {</span>
+			/*
+			 * Trapezoidal integration on a possibly non-equi-distant grid.
+			 */
+<span class="fc" id="L61">			int i = 0;</span>
+<span class="pc bpc" id="L62" title="1 of 4 branches missed.">			while(i&lt;evaluationPoints.length &amp;&amp; evaluationPoints[i] &lt; lowerBound) {</span>
+<span class="fc" id="L63">				i++;</span>
+			}
+
+<span class="fc" id="L66">			double pointLeft = lowerBound;</span>
+<span class="fc" id="L67">			double valueLeft = integrand.applyAsDouble(lowerBound);</span>
+
+<span class="pc bpc" id="L69" title="1 of 4 branches missed.">			for(;i&lt;evaluationPoints.length &amp;&amp; evaluationPoints[i]&lt;upperBound; i++) {</span>
+<span class="fc" id="L70">				final double pointRight = evaluationPoints[i];</span>
+<span class="fc" id="L71">				final double valueRight = integrand.applyAsDouble(pointRight);</span>
+
+<span class="fc" id="L73">				sum += (valueRight + valueLeft) * (pointRight - pointLeft);</span>
+
+<span class="fc" id="L75">				pointLeft = pointRight;</span>
+<span class="fc" id="L76">				valueLeft = valueRight;</span>
+			}
+<span class="fc" id="L78">			final double pointRight = upperBound;</span>
+<span class="fc" id="L79">			final double valueRight = integrand.applyAsDouble(pointRight);</span>
+
+<span class="fc" id="L81">			sum += (valueRight + valueLeft) * (pointRight - pointLeft);</span>
+
+<span class="fc" id="L83">			sum /= 2.0;</span>
+<span class="fc" id="L84">		}</span>
+		else {
+			/*
+			 * Trapezoidal integration on an equi-distant grid.
+			 */
+
+<span class="nc" id="L90">			final double interval = (upperBound-lowerBound) / (numberOfEvaluationPoints-1);</span>
+			// Sum of inner points
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			for(int i=1; i&lt;numberOfEvaluationPoints-1; i++) {</span>
+<span class="nc" id="L93">				final double point = lowerBound + i * interval;</span>
+<span class="nc" id="L94">				sum += integrand.applyAsDouble(point) * interval;</span>
+			}
+			// Sum of boundary points
+<span class="nc" id="L97">			sum += (integrand.applyAsDouble(lowerBound) + integrand.applyAsDouble(upperBound)) / 2.0 * interval;</span>
+
+		}
+<span class="fc" id="L100">		return sum;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractFourierTransformProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.products</a> &gt; <span class="el_source">AbstractFourierTransformProduct.java</span></div><h1>AbstractFourierTransformProduct.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+
+package net.finmath.fouriermethod.products;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.integration.RealIntegral;
+import net.finmath.integration.SimpsonRealIntegrator;
+import net.finmath.modelling.Model;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+<span class="fc" id="L27">public abstract class AbstractFourierTransformProduct implements CharacteristicFunction, FourierTransformProduct {</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValue(double, net.finmath.modelling.Model)
+	 */
+	@Override
+	public Double getValue(final double evaluationTime, final Model model) {
+<span class="nc" id="L34">		Double value = null;</span>
+		try {
+<span class="nc" id="L36">			value = getValue((CharacteristicFunctionModel) model);</span>
+<span class="nc" id="L37">		} catch (final CalculationException e) {</span>
+<span class="nc" id="L38">		}</span>
+
+<span class="nc" id="L40">		return value;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValues(double, net.finmath.modelling.Model)
+	 */
+	@Override
+	public Map&lt;String, Object&gt; getValues(final double evaluationTime, final Model model) {
+<span class="fc" id="L48">		final Map&lt;String, Object&gt;  result = new HashMap&lt;&gt;();</span>
+
+		try {
+<span class="fc" id="L51">			final double value = getValue((CharacteristicFunctionModel) model);</span>
+<span class="fc" id="L52">			result.put(&quot;value&quot;, value);</span>
+<span class="nc" id="L53">		} catch (final CalculationException e) {</span>
+<span class="nc" id="L54">			result.put(&quot;exception&quot;, e);</span>
+<span class="fc" id="L55">		}</span>
+
+<span class="fc" id="L57">		return result;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getValue(net.finmath.fouriermethod.models.CharacteristicFunctionModel)
+	 */
+	@Override
+	public double getValue(final CharacteristicFunctionModel model) throws CalculationException {
+
+<span class="fc" id="L66">		final CharacteristicFunction modelCF = model.apply(getMaturity());</span>
+
+<span class="fc" id="L68">		final double lineOfIntegration = 0.5 * getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound();</span>
+<span class="fc" id="L69">		final DoubleUnaryOperator integrand = new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double real) {
+<span class="fc" id="L72">				final Complex z = new Complex(real,lineOfIntegration);</span>
+<span class="fc" id="L73">				return modelCF.apply(z.negate()).multiply(AbstractFourierTransformProduct.this.apply(z)).getReal();</span>
+			}
+		};
+
+<span class="fc" id="L77">		final RealIntegral integrator = new SimpsonRealIntegrator(-100.0, 100.0, 20000, true);</span>
+
+<span class="fc" id="L79">		return integrator.integrate(integrand) / 2.0 / Math.PI;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getMaturity()
+	 */
+	@Override
+	public abstract double getMaturity();
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getIntegrationDomainImagLowerBound()
+	 */
+	@Override
+	public abstract double getIntegrationDomainImagLowerBound();
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.products.FourierTransformProduct#getIntegrationDomainImagUpperBound()
+	 */
+	@Override
+	public abstract double getIntegrationDomainImagUpperBound();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

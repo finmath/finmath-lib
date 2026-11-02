@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwapAnnuity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.products</a> &gt; <span class="el_source">SwapAnnuity.java</span></div><h1>SwapAnnuity.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.products;
+
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.time.Schedule;
+
+/**
+ * Utility methods for swap annuities in the finite-difference interest-rate
+ * framework.
+ *
+ * &lt;p&gt;
+ * The reduced-scope swap annuity at time {@code t} is defined as
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * A(t,x) = \sum_{i} \delta_i P(t,T_i;x),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where the sum runs over the fixed-leg periods which have not yet started,
+ * i.e. periods with {@code periodStart &gt;= t}. This is consistent with the
+ * remaining forward-looking interpretation used by {@link SwapLeg} and
+ * {@link Swap}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class SwapAnnuity {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	private SwapAnnuity() {
+	}
+
+	/**
+	 * Returns the reduced-scope swap annuity at the given evaluation time and
+	 * state.
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param schedule The fixed-leg schedule.
+	 * @param model The finite-difference interest-rate model.
+	 * @param stateVariables The current state variables.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(
+			final double evaluationTime,
+			final Schedule schedule,
+			final FiniteDifferenceInterestRateModel model,
+			final double... stateVariables) {
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (schedule == null) {</span>
+<span class="nc" id="L56">			throw new IllegalArgumentException(&quot;schedule must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L61" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 1) {</span>
+<span class="nc" id="L62">			throw new IllegalArgumentException(&quot;Exactly one state variable is required.&quot;);</span>
+		}
+
+<span class="nc" id="L65">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L68">			final double periodStart = schedule.getPeriodStart(periodIndex);</span>
+<span class="nc" id="L69">			final double paymentDate = schedule.getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L71" title="All 4 branches missed.">			if ((periodStart &lt; evaluationTime - TIME_TOLERANCE) || (paymentDate &lt;= evaluationTime + TIME_TOLERANCE)) {</span>
+<span class="nc" id="L72">				continue;</span>
+			}
+
+<span class="nc" id="L75">			value += schedule.getPeriodLength(periodIndex)</span>
+<span class="nc" id="L76">					* model.getDiscountBond(</span>
+							evaluationTime,
+							paymentDate,
+							stateVariables[0]
+							);
+		}
+
+<span class="nc" id="L83">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

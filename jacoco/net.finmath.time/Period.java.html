@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Period.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">Period.java</span></div><h1>Period.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+/**
+ * A period, i.e. a time interval suitable for securities with regular payment schedules.
+ *
+ * For example, the accrual period is usually given by the interval periodStart, periodEnd, where as fixing date and payment date
+ * can be adjusted versions of periodStart and periodsEnd, e.g. via fixing offsets and payment offsets.
+ *
+ * Period implement the &lt;code&gt;Comparable&lt;/code&gt; interface by simply using getPeriodEnd().compareTo(), i.e., the ordering is
+ * determined by periodEnd only.
+ *
+ * For a list of subsequent (sorted) periods it is often assumed that periodStart agrees with the periodEnd of the preceeding period,
+ * resulting in a time-discretization.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Period implements Comparable&lt;Period&gt;, Serializable {
+
+	private static final long serialVersionUID = 4622662040390651119L;
+
+	private final LocalDate fixing;
+	private final LocalDate payment;
+	private final LocalDate periodStart;
+	private final LocalDate periodEnd;
+
+	public Period(final LocalDate fixing,  final LocalDate payment,
+			final LocalDate periodStart, final LocalDate periodEnd) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.fixing = fixing;</span>
+<span class="fc" id="L40">		this.payment = payment;</span>
+<span class="fc" id="L41">		this.periodStart = periodStart;</span>
+<span class="fc" id="L42">		this.periodEnd = periodEnd;</span>
+<span class="fc" id="L43">	}</span>
+
+	public LocalDate getFixing() {
+<span class="fc" id="L46">		return fixing;</span>
+	}
+
+	public LocalDate getPayment() {
+<span class="fc" id="L50">		return payment;</span>
+	}
+
+	public LocalDate getPeriodStart() {
+<span class="fc" id="L54">		return periodStart;</span>
+	}
+
+	public LocalDate getPeriodEnd() {
+<span class="fc" id="L58">		return periodEnd;</span>
+	}
+
+	@Override
+	public int compareTo(final Period o) {
+<span class="fc" id="L63">		return getPeriodEnd().compareTo(o.getPeriodEnd());</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L68">		final int prime = 31;</span>
+<span class="nc" id="L69">		int result = 1;</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		result = prime * result + ((fixing == null) ? 0 : fixing.hashCode());</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		result = prime * result + ((payment == null) ? 0 : payment.hashCode());</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		result = prime * result + ((periodEnd == null) ? 0 : periodEnd.hashCode());</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		result = prime * result + ((periodStart == null) ? 0 : periodStart.hashCode());</span>
+<span class="nc" id="L74">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">		if (this == obj) {</span>
+<span class="nc" id="L80">			return true;</span>
+		}
+<span class="pc bpc" id="L82" title="2 of 4 branches missed.">		if ((obj == null) || (getClass() != obj.getClass())) {</span>
+<span class="nc" id="L83">			return false;</span>
+		}
+<span class="fc" id="L85">		final Period other = (Period) obj;</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if (fixing == null) {</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">			if (other.fixing != null) {</span>
+<span class="nc" id="L88">				return false;</span>
+			}
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		} else if (!fixing.equals(other.fixing)) {</span>
+<span class="nc" id="L91">			return false;</span>
+		}
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (payment == null) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">			if (other.payment != null) {</span>
+<span class="nc" id="L95">				return false;</span>
+			}
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">		} else if (!payment.equals(other.payment)) {</span>
+<span class="nc" id="L98">			return false;</span>
+		}
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		if (periodEnd == null) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">			if (other.periodEnd != null) {</span>
+<span class="nc" id="L102">				return false;</span>
+			}
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">		} else if (!periodEnd.equals(other.periodEnd)) {</span>
+<span class="nc" id="L105">			return false;</span>
+		}
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		if (periodStart == null) {</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">			return other.periodStart == null;</span>
+		} else {
+<span class="fc" id="L110">			return periodStart.equals(other.periodStart);</span>
+		}
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L116">		return &quot;Period [start=&quot; + periodStart + &quot;, end=&quot; + periodEnd + &quot;, fixing=&quot; + fixing + &quot;, payment=&quot; + payment + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

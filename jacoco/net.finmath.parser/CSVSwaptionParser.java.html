@@ -1,0 +1,481 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CSVSwaptionParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.parser</a> &gt; <span class="el_source">CSVSwaptionParser.java</span></div><h1>CSVSwaptionParser.java</h1><pre class="source lang-java linenums">package net.finmath.parser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice.QuotingConvention;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Provides options to parse {@link SwaptionDataLattice} from csv files.
+ *
+ * @author Roland Bachl
+ */
+public class CSVSwaptionParser {
+
+	/**
+	 * Value of volatility in file in multiplied by fileQuotingUnit to achieve a mathematical annualized volatility.
+	 * If volatility in file is in percent (1.0 -&gt; 0.01), then set this number to 0.01.
+	 */
+<span class="fc" id="L42">	private double fileQuotingUnit						= 0.01;</span>
+<span class="fc" id="L43">	private double fileQuotingUnitForDisplacement		= 0.01;</span>
+<span class="fc" id="L44">	private QuotingConvention fileQuotingConvention		= QuotingConvention.PAYERVOLATILITYLOGNORMAL;</span>
+
+<span class="fc" id="L46">	private final String swaptionCode = &quot;SWOPT&quot;;</span>
+<span class="fc" id="L47">	private final String csvSplitBy	= &quot;;&quot;;</span>
+
+	private final Set&lt;String&gt; maturities;
+	private final Set&lt;String&gt; tenors;
+
+	private final SchedulePrototype fixMetaSchedule;
+	private final SchedulePrototype floatMetaSchedule;
+
+
+	/**
+	 * Create the parser with no filter on the maturities and tenors.
+	 *
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 */
+	public CSVSwaptionParser(final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule) {
+<span class="fc" id="L63">		super();</span>
+<span class="fc" id="L64">		maturities 		= Collections.&lt;String&gt;emptySet();</span>
+<span class="fc" id="L65">		tenors				= Collections.&lt;String&gt;emptySet();</span>
+<span class="fc" id="L66">		this.fixMetaSchedule 	= fixMetaSchedule;</span>
+<span class="fc" id="L67">		this.floatMetaSchedule	= floatMetaSchedule;</span>
+<span class="fc" id="L68">	}</span>
+
+	/**
+	 * Create the parser with filter on maturities and tenors.
+	 *
+	 * @param maturities The maturities, which the parser should consider.
+	 * @param tenors The tenors, which the parser should consider.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 */
+	public CSVSwaptionParser(final String[] maturities, final String[] tenors, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule) {
+<span class="fc" id="L79">		super();</span>
+<span class="fc" id="L80">		this.maturities 		= Arrays.stream(maturities).map(String::toUpperCase).collect(Collectors.toCollection(HashSet::new));</span>
+<span class="fc" id="L81">		this.tenors 			= Arrays.stream(tenors).map(String::toUpperCase).collect(Collectors.toCollection(HashSet::new));</span>
+<span class="fc" id="L82">		this.fixMetaSchedule 	= fixMetaSchedule;</span>
+<span class="fc" id="L83">		this.floatMetaSchedule	= floatMetaSchedule;</span>
+<span class="fc" id="L84">	}</span>
+
+	/**
+	 * Set the quoting convention used in the files, together with their unit and the unit of the displacement.
+	 * Values and shifts parsed are multiplied by this unit.
+	 *
+	 * @param fileQuotingConvention The quoting convention.
+	 * @param fileQuotingUnit The quoting unit (a scaling factor).
+	 * @param fileQuotingUnitForDisplacement The unit of the displacement (a scaling factor).
+	 */
+	public void setFileQuotingConvention(final QuotingConvention fileQuotingConvention, final double fileQuotingUnit, final double fileQuotingUnitForDisplacement) {
+<span class="fc" id="L95">		this.fileQuotingConvention			= fileQuotingConvention;</span>
+<span class="fc" id="L96">		this.fileQuotingUnit				= fileQuotingUnit;</span>
+<span class="fc" id="L97">		this.fileQuotingUnitForDisplacement	= fileQuotingUnitForDisplacement;</span>
+<span class="fc" id="L98">	}</span>
+
+	/**
+	 * Extract a single lattice from the pair of csv files. The parser will not check that the files are aligned for the same reference date.
+	 *
+	 * @param atmFile The file containing data on atm swpations.
+	 * @param otmFile The file containing data on otm swaptions.
+	 * @param referenceDate The reference date the swaptions should be created with respect to.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 *
+	 * @return The lattice containing the data from the files.
+	 *
+	 * @throws IOException Thrown upon io error with File.
+	 */
+	public SwaptionDataLattice parseCSV(final File atmFile, final File otmFile, final LocalDate referenceDate, final String currency, final String index, final String discountCurveName) throws IOException {
+
+<span class="fc" id="L116">		final InputStream atmStream 			= new FileInputStream(atmFile);</span>
+<span class="fc" id="L117">		final InputStream otmStream			= new FileInputStream(otmFile);</span>
+<span class="fc" id="L118">		final SwaptionDataLattice data		= parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName);</span>
+<span class="fc" id="L119">		atmStream.close();</span>
+<span class="fc" id="L120">		otmStream.close();</span>
+
+<span class="fc" id="L122">		return data;</span>
+	}
+
+	/**
+	 * Extract an array of SwaptionDataLattice from the zip files.
+	 * The reference dates will be taken from the names of the files inside the archives.
+	 * The order of the files must be aligned inside the archives.
+	 *
+	 * @param atmFile The archive containing data on atm swpations.
+	 * @param otmFile The archive containing data on otm swaptions.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 *
+	 * @return An array of lattices for each reference date.
+	 *
+	 * @throws IOException Thrown upon io error with File.
+	 */
+	public SwaptionDataLattice[] parseZIP(final File atmFile, final File otmFile, final String currency, final String index, final String discountCurveName) throws IOException {
+
+<span class="fc" id="L142">		final ZipFile atmZip = new ZipFile(atmFile);</span>
+<span class="fc" id="L143">		final ZipFile otmZip = new ZipFile(otmFile);</span>
+
+<span class="fc" id="L145">		final List&lt;SwaptionDataLattice&gt; lattices = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L147">		final Enumeration&lt;? extends ZipEntry&gt; atmEntries = atmZip.entries();</span>
+<span class="fc" id="L148">		final Enumeration&lt;? extends ZipEntry&gt; otmEntries = otmZip.entries();</span>
+
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">		while(atmEntries.hasMoreElements() &amp;&amp; otmEntries.hasMoreElements()) {</span>
+<span class="fc" id="L151">			final ZipEntry atmEntry = atmEntries.nextElement();</span>
+<span class="fc" id="L152">			final ZipEntry otmEntry = otmEntries.nextElement();</span>
+
+<span class="fc" id="L154">			final LocalDate referenceDate = LocalDate.parse(atmEntry.getName().replaceAll(&quot;\\D&quot;, &quot;&quot;), DateTimeFormatter.ofPattern(&quot;yyyyMMdd&quot;));</span>
+<span class="fc bfc" id="L155" title="All 2 branches covered.">			if(! referenceDate.equals(LocalDate.parse(otmEntry.getName().replaceAll(&quot;\\D&quot;, &quot;&quot;), DateTimeFormatter.ofPattern(&quot;yyyyMMdd&quot;)))) {</span>
+<span class="fc" id="L156">				atmZip.close();</span>
+<span class="fc" id="L157">				otmZip.close();</span>
+<span class="fc" id="L158">				throw new IllegalArgumentException(&quot;Files in zip archive not aligned for reference date.&quot;);</span>
+			}
+
+			// TODO Add logging in case stream fails.
+<span class="fc" id="L162">			try(InputStream atmStream = atmZip.getInputStream(atmEntry)) {</span>
+<span class="fc" id="L163">				try(InputStream otmStream = otmZip.getInputStream(otmEntry)) {</span>
+<span class="fc" id="L164">					lattices.add(parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName));</span>
+				}
+			}
+<span class="fc" id="L167">		}</span>
+
+<span class="fc" id="L169">		atmZip.close();</span>
+<span class="fc" id="L170">		otmZip.close();</span>
+
+<span class="fc" id="L172">		return lattices.toArray(new SwaptionDataLattice[0]);</span>
+	}
+
+	/**
+	 * Parse a single lattice from streams. The parser will not check that the files are aligned for the same reference date.
+	 *
+	 * @param atmStream The stream containing data on atm swpations.
+	 * @param otmStream The stream containing data on otm swaptions.
+	 * @param referenceDate The reference date the swaptions should be created with respect to.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 *
+	 * @return The lattice containing the data from the files.
+	 *
+	 * @throws IOException Thrown upon io error with InputStream.
+	 */
+	private SwaptionDataLattice parseStreams(final InputStream atmStream, final InputStream otmStream, final LocalDate referenceDate, final String currency, final String index, final String discountCurveName)
+			throws IOException {
+
+<span class="fc" id="L192">		final BufferedReader atmReader = new BufferedReader(new InputStreamReader(atmStream));</span>
+<span class="fc" id="L193">		final BufferedReader otmReader = new BufferedReader(new InputStreamReader(otmStream));</span>
+
+<span class="fc" id="L195">		double shift					= 0;</span>
+<span class="fc" id="L196">		final ArrayList&lt;String&gt; codes			= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L197">		final ArrayList&lt;Integer&gt; moneynesss	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L198">		final ArrayList&lt;Double&gt; values		= new ArrayList&lt;&gt;();</span>
+		String line;
+
+		//Process atm file
+<span class="fc" id="L202">		int i = -1;</span>
+<span class="fc bfc" id="L203" title="All 2 branches covered.">		while((line = atmReader.readLine()) != null) {</span>
+
+<span class="fc" id="L205">			i = i + 1;</span>
+
+<span class="fc" id="L207">			final String[] inputs = line.split(csvSplitBy);</span>
+
+<span class="fc" id="L209">			final String maturity = inputs[4].toUpperCase();</span>
+<span class="fc" id="L210">			final String tenor	= inputs[3].toUpperCase();</span>
+
+			//Eliminate unnecessary lines.
+<span class="fc bfc" id="L213" title="All 4 branches covered.">			if(! (inputs[0].equalsIgnoreCase(currency) &amp;&amp; inputs[2].split(&quot;_&quot;)[0].equalsIgnoreCase(swaptionCode))) {</span>
+<span class="fc" id="L214">				continue;</span>
+			}
+<span class="pc bpc" id="L216" title="2 of 8 branches missed.">			if((!maturities.isEmpty() &amp;&amp; ! maturities.contains(maturity)) || (!tenors.isEmpty() &amp;&amp; ! tenors.contains(tenor))) {</span>
+<span class="nc" id="L217">				continue;</span>
+			}
+
+			//Check if this line contains a shift.
+<span class="fc bfc" id="L221" title="All 2 branches covered.">			if(inputs[1].equalsIgnoreCase(&quot;SHIFT&quot;) ) {</span>
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">				if(shift == 0) {</span>
+<span class="fc" id="L223">					shift = Double.parseDouble(inputs[5]) * fileQuotingUnitForDisplacement;</span>
+<span class="fc" id="L224">					continue;</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">				} else if(shift != (Double.parseDouble(inputs[5]) * fileQuotingUnitForDisplacement)) {</span>
+<span class="nc" id="L226">					System.out.println(i);</span>
+<span class="nc" id="L227">					System.out.println(line);</span>
+<span class="nc" id="L228">					throw new IllegalArgumentException(&quot;Shift not alligned for all filtered tenors at reference date &quot; + referenceDate + &quot;.&quot;);</span>
+				}
+			}
+
+			//Otherwise check index.
+<span class="fc bfc" id="L233" title="All 2 branches covered.">			if(! inputs[1].equalsIgnoreCase(index)) {</span>
+<span class="fc" id="L234">				continue;</span>
+			}
+
+			//Extract volatility.
+<span class="fc" id="L238">			codes.add(maturity + tenor);</span>
+<span class="fc" id="L239">			moneynesss.add(0);</span>
+<span class="fc" id="L240">			values.add(Double.parseDouble(inputs[5]) * fileQuotingUnit);</span>
+<span class="fc" id="L241">		}</span>
+
+		//Process otm file
+<span class="fc bfc" id="L244" title="All 2 branches covered.">		while((line = otmReader.readLine()) != null) {</span>
+<span class="fc" id="L245">			final String[] inputs = line.split(csvSplitBy);</span>
+
+<span class="fc bfc" id="L247" title="All 2 branches covered.">			if(inputs.length &lt; 10) {</span>
+<span class="fc" id="L248">				continue;</span>
+			}
+
+<span class="fc" id="L251">			final String[] tokens = inputs[3].split(&quot;/&quot;);</span>
+
+			//Ignore puts, being mirror of calls.
+<span class="fc bfc" id="L254" title="All 4 branches covered.">			if((tokens.length &lt; 8) || tokens[7].equalsIgnoreCase(&quot;P&quot;)) {</span>
+<span class="fc" id="L255">				continue;</span>
+			}
+
+<span class="fc" id="L258">			final String maturity = inputs[8].toUpperCase();</span>
+<span class="fc" id="L259">			final String tenor	= tokens[6].toUpperCase();</span>
+<span class="fc" id="L260">			final int moneyness	= (int) Double.parseDouble(inputs[4]);</span>
+
+			//Eliminate unnecessary lines.
+<span class="fc bfc" id="L263" title="All 8 branches covered.">			if(! (tokens[1].equalsIgnoreCase(currency) &amp;&amp; tokens[2].equalsIgnoreCase(index) &amp;&amp; tokens[3].equalsIgnoreCase(swaptionCode) &amp;&amp; moneyness != 0)) {</span>
+<span class="fc" id="L264">				continue;</span>
+			}
+<span class="fc bfc" id="L266" title="All 8 branches covered.">			if((!maturities.isEmpty() &amp;&amp; ! maturities.contains(maturity)) || (!tenors.isEmpty() &amp;&amp; ! tenors.contains(tenor))) {</span>
+<span class="fc" id="L267">				continue;</span>
+			}
+
+			//Extract volatility.
+<span class="fc" id="L271">			codes.add(maturity + tenor);</span>
+<span class="fc" id="L272">			moneynesss.add(moneyness);</span>
+<span class="fc" id="L273">			values.add(Double.parseDouble(inputs[9]) * fileQuotingUnit);</span>
+<span class="fc" id="L274">		}</span>
+
+<span class="fc" id="L276">		return new SwaptionDataLattice(referenceDate, fileQuotingConvention, shift, &quot;Forward_&quot; + currency+&quot;_&quot;+index, discountCurveName, floatMetaSchedule, fixMetaSchedule,</span>
+<span class="fc" id="L277">				codes.toArray(new String[0]),</span>
+<span class="fc" id="L278">				moneynesss.stream().mapToInt(Integer::intValue).toArray(),</span>
+<span class="fc" id="L279">				values.stream().mapToDouble(Double::doubleValue).toArray());</span>
+	}
+
+	/**
+	 * Extract an array of SwaptionDataLattice from the zip files.
+	 * The data in the zip file will be converted to the given quoting convention before storing.
+	 * The reference dates will be taken from the names of the files inside the archives.
+	 * The order of the files must be aligned inside the archives.
+	 * Only the data sets for which a model with matching reference date is provided will be evaluated.
+	 *
+	 * @param atmFile The archive containing data on atm swpations.
+	 * @param otmFile The archive containing data on otm swaptions.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 * @param convention The quoting convention to store the data in.
+	 * @param displacement The displacement to use, if storing in convention VOLATILITYLOGNORMAL
+	 * @param models The models for context to use for each data set top convert to convention.
+	 *
+	 * @return An array of lattices for each reference date.
+	 *
+	 * @throws IOException Thrown upon io error with File.
+	 */
+	public SwaptionDataLattice[] parseZIPToConvention(final File atmFile, final File otmFile, final String currency, final String index, final String discountCurveName,
+			final QuotingConvention convention, final double displacement, final AnalyticModel... models) throws IOException {
+
+		//Convert array of model to map for lookup.
+<span class="fc" id="L306">		final Map&lt;LocalDate, AnalyticModel&gt; modelMap = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">		for(final AnalyticModel model : models) {</span>
+<span class="fc bfc" id="L308" title="All 2 branches covered.">			if(((AnalyticModelFromCurvesAndVols) model).getReferenceDate()==null) {</span>
+<span class="fc" id="L309">				throw new IllegalArgumentException(&quot;No reference date assigned to &quot; + model.toString());</span>
+			}
+<span class="fc" id="L311">			modelMap.put(((AnalyticModelFromCurvesAndVols) model).getReferenceDate(), model);</span>
+		}
+
+<span class="fc" id="L314">		final ZipFile atmZip = new ZipFile(atmFile);</span>
+<span class="fc" id="L315">		final ZipFile otmZip = new ZipFile(otmFile);</span>
+
+<span class="fc" id="L317">		final List&lt;SwaptionDataLattice&gt; lattices = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L319">		final Enumeration&lt;? extends ZipEntry&gt; atmEntries = atmZip.entries();</span>
+<span class="fc" id="L320">		final Enumeration&lt;? extends ZipEntry&gt; otmEntries = otmZip.entries();</span>
+
+<span class="pc bpc" id="L322" title="1 of 4 branches missed.">		while(atmEntries.hasMoreElements() &amp;&amp; otmEntries.hasMoreElements()) {</span>
+<span class="fc" id="L323">			final ZipEntry atmEntry = atmEntries.nextElement();</span>
+<span class="fc" id="L324">			final ZipEntry otmEntry = otmEntries.nextElement();</span>
+
+<span class="fc" id="L326">			final LocalDate referenceDate = LocalDate.parse(atmEntry.getName().replaceAll(&quot;\\D&quot;, &quot;&quot;), DateTimeFormatter.ofPattern(&quot;yyyyMMdd&quot;));</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">			if(! referenceDate.equals(LocalDate.parse(otmEntry.getName().replaceAll(&quot;\\D&quot;, &quot;&quot;), DateTimeFormatter.ofPattern(&quot;yyyyMMdd&quot;)))) {</span>
+<span class="fc" id="L328">				atmZip.close();</span>
+<span class="fc" id="L329">				otmZip.close();</span>
+<span class="fc" id="L330">				throw new IllegalArgumentException(&quot;Files in zip archive not aligned for reference date.&quot;);</span>
+			}
+
+			//check if there is a model for these entries
+<span class="fc bfc" id="L334" title="All 2 branches covered.">			if(! modelMap.containsKey(referenceDate)) {</span>
+<span class="fc" id="L335">				continue;</span>
+			}
+
+<span class="fc" id="L338">			lattices.add(parseStreamsToConvention(atmZip, atmEntry, otmZip, otmEntry, referenceDate, currency, index, discountCurveName, convention, displacement,</span>
+<span class="fc" id="L339">					modelMap.get(referenceDate)));</span>
+<span class="fc" id="L340">		}</span>
+
+<span class="fc" id="L342">		atmZip.close();</span>
+<span class="fc" id="L343">		otmZip.close();</span>
+
+<span class="fc" id="L345">		return lattices.toArray(new SwaptionDataLattice[0]);</span>
+	}
+
+	/**
+	 * Parse a single lattice from streams and save the data in the given convention.
+	 * The parser will not check that the files are aligned for the same reference date.
+	 *
+	 * @param atmZip The zip file containing data on atm swpations.
+	 * @param atmEntry The entry to use from the atmZip.
+	 * @param otmZip The zip file containing data on otm swaptions.
+	 * @param otmEntry The entry to use from the otmZip.
+	 * @param referenceDate The reference date the swaptions should be created with respect to.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 * @param convention The quoting convention to store the data in.
+	 * @param displacement The displacement to use, if storing in convention VOLATILITYLOGNORMAL
+	 * @param model The model for context to use when converting data to convention.
+	 *
+	 * @return The lattice containing the data from the files.
+	 *
+	 * @throws IOException Thrown upon io error with ZipFile.
+	 */
+	private SwaptionDataLattice parseStreamsToConvention(final ZipFile atmZip, final ZipEntry atmEntry, final ZipFile otmZip, final ZipEntry otmEntry, final LocalDate referenceDate,
+			final String currency, final String index, final String discountCurveName, final QuotingConvention convention, final double displacement, final AnalyticModel model)
+					throws IOException {
+
+		//Prepare empty lattice
+<span class="fc" id="L373">		SwaptionDataLattice data = new SwaptionDataLattice(referenceDate, convention, displacement, &quot;Forward_&quot;+currency+&quot;_&quot;+index, discountCurveName, floatMetaSchedule, fixMetaSchedule,</span>
+				new String[0], new int[0], new double[0]);
+
+		//Add each individual node on the requested maturity x tenor grid.
+<span class="fc bfc" id="L377" title="All 2 branches covered.">		for(final String maturity : maturities) {</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">			for(final String tenor : tenors) {</span>
+<span class="fc" id="L379">				final CSVSwaptionParser partialParser = new CSVSwaptionParser(new String[] {maturity}, new String[] {tenor}, fixMetaSchedule, floatMetaSchedule);</span>
+<span class="fc" id="L380">				partialParser.setFileQuotingConvention(fileQuotingConvention, fileQuotingUnit, fileQuotingUnitForDisplacement);</span>
+<span class="fc" id="L381">				try(InputStream atmStream = atmZip.getInputStream(atmEntry)) {</span>
+<span class="fc" id="L382">					try(InputStream otmStream = otmZip.getInputStream(otmEntry)) {</span>
+<span class="fc" id="L383">						data = data.append(partialParser.parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName), model);</span>
+					}
+				}
+<span class="fc" id="L386">			}</span>
+<span class="fc" id="L387">		}</span>
+
+<span class="fc" id="L389">		return data;</span>
+	}
+
+	/**
+	 * Extract a set of lattices from the pair of csv files.
+	 * Each lattice contains data for matching displacements.
+	 * The parser will not check that the files are alligned for the same reference date.
+	 *
+	 * @param atmFile The file containing data on atm swpations.
+	 * @param otmFile The file containing data on otm swaptions.
+	 * @param referenceDate The reference date the swaptions should be created with respect to.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @param index The index, which should be parsed from the files.
+	 * @param discountCurveName The name of the discount curve, which should be used by the swaptions.
+	 *
+	 * @return The lattices containing the data from the files.
+	 *
+	 * @throws IOException Thrown upon io error with atmFile.
+	 */
+	public Set&lt;SwaptionDataLattice&gt; parseCSVMultiShift(final File atmFile, final File otmFile, final LocalDate referenceDate, final String currency, final String index, final String discountCurveName)
+			throws IOException {
+
+<span class="fc" id="L411">		final Set&lt;SwaptionDataLattice&gt; lattices	= new HashSet&lt;&gt;();</span>
+<span class="fc" id="L412">		final Map&lt;Double, Set&lt;String&gt;&gt; tenorMap	= parseTenorsPerShift(atmFile, currency);</span>
+
+<span class="fc bfc" id="L414" title="All 2 branches covered.">		for(final Set&lt;String&gt; tenors : tenorMap.values()) {</span>
+<span class="fc" id="L415">			final CSVSwaptionParser partialParser = new CSVSwaptionParser(maturities.toArray(new String[0]), tenors.toArray(new String[0]), fixMetaSchedule, floatMetaSchedule);</span>
+<span class="fc" id="L416">			partialParser.setFileQuotingConvention(fileQuotingConvention, fileQuotingUnit, fileQuotingUnitForDisplacement);</span>
+
+<span class="fc" id="L418">			lattices.add(partialParser.parseCSV(atmFile, otmFile, referenceDate, currency, index, discountCurveName));</span>
+<span class="fc" id="L419">		}</span>
+
+<span class="fc" id="L421">		return lattices;</span>
+	}
+
+	/**
+	 * Create a map overview of which tenors in the given csv file share the same displacement.
+	 *
+	 * @param atmFile The file containing data on atm swpations.
+	 * @param currency The currency, which should be parsed from the files.
+	 * @return A map overview of tenors per displacement.
+	 *
+	 * @throws IOException Thrown upon io error with atmFile.
+	 */
+	public Map&lt;Double, Set&lt;String&gt;&gt; parseTenorsPerShift(final File atmFile, final String currency) throws IOException {
+
+<span class="fc" id="L435">		final BufferedReader atmReader = new BufferedReader(new FileReader(atmFile));</span>
+
+		String line;
+<span class="fc" id="L438">		final Map&lt;Double, Set&lt;String&gt;&gt; map = new HashMap&lt;&gt;();</span>
+
+		//Process atm file
+<span class="fc bfc" id="L441" title="All 2 branches covered.">		while((line = atmReader.readLine()) != null) {</span>
+
+<span class="fc" id="L443">			final String[] inputs = line.split(csvSplitBy);</span>
+
+<span class="fc" id="L445">			final String maturity = inputs[4].toUpperCase();</span>
+<span class="fc" id="L446">			final String tenor	= inputs[3].toUpperCase();</span>
+
+			//Eliminate unnecessary lines.
+<span class="fc bfc" id="L449" title="All 4 branches covered.">			if(! (inputs[0].equalsIgnoreCase(currency) &amp;&amp; inputs[2].split(&quot;_&quot;)[0].equalsIgnoreCase(swaptionCode))) {</span>
+<span class="fc" id="L450">				continue;</span>
+			}
+<span class="fc bfc" id="L452" title="All 8 branches covered.">			if((!maturities.isEmpty() &amp;&amp; ! maturities.contains(maturity)) || (!tenors.isEmpty() &amp;&amp; ! tenors.contains(tenor))) {</span>
+<span class="fc" id="L453">				continue;</span>
+			}
+
+			//Check if this line contains a shift.
+<span class="fc bfc" id="L457" title="All 2 branches covered.">			if(inputs[1].equalsIgnoreCase(&quot;SHIFT&quot;) ) {</span>
+<span class="fc" id="L458">				final double shift = Double.parseDouble(inputs[5]) * fileQuotingUnitForDisplacement;</span>
+
+<span class="fc bfc" id="L460" title="All 2 branches covered.">				if(!map.containsKey(shift)) {</span>
+<span class="fc" id="L461">					map.put(shift, new HashSet&lt;&gt;());</span>
+				}
+<span class="fc" id="L463">				map.get(shift).add(tenor);</span>
+			}
+<span class="fc" id="L465">		}</span>
+
+<span class="fc" id="L467">		atmReader.close();</span>
+<span class="fc" id="L468">		return Collections.unmodifiableMap(map);</span>
+	}
+
+	/**
+	 * Extract the reference date of each SwaptionDataLattice in an array.
+	 *
+	 * @param lattices The array of lattices.
+	 * @return Array of the respective reference dates.
+	 */
+	public static LocalDate[] getReferenceDates(final SwaptionDataLattice[] lattices) {
+<span class="fc" id="L478">		return Arrays.stream(lattices).map(SwaptionDataLattice::getReferenceDate).toArray(LocalDate[]::new);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

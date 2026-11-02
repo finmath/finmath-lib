@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SABRShiftedSmileCalibration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.calibration</a> &gt; <span class="el_source">SABRShiftedSmileCalibration.java</span></div><h1>SABRShiftedSmileCalibration.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.calibration;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
+import net.finmath.singleswaprate.data.DataTable;
+import net.finmath.singleswaprate.data.DataTable.TableConvention;
+import net.finmath.singleswaprate.data.DataTableExtrapolated;
+import net.finmath.singleswaprate.data.DataTableLight;
+import net.finmath.singleswaprate.data.DataTableLinear;
+import net.finmath.singleswaprate.model.volatilities.SABRVolatilityCube;
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Calibration of a {@link SABRVolatilityCube} by shifting increments in the market data of cash settled swaptions onto physically settled swaptions and calibrating a SABR model
+ * on the resulting smiles. The calibration happens per node and is thus much faster than a calibration of the whole cube at once.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SABRShiftedSmileCalibration {
+
+	private final LocalDate referenceDate;
+
+	private final AnalyticModel model;
+
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
+	private final SwaptionDataLattice physicalPremiumsATM;
+
+	private final SchedulePrototype fixMetaSchedule;
+	private final SchedulePrototype floatMetaSchedule;
+	private final String discountCurveName;
+	private final String forwardCurveName;
+
+	private final double sabrDisplacement;
+	private final double sabrBeta;
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
+
+	private Map&lt;Integer, DataTableLight&gt; physicalVolatilities;
+	private Map&lt;Integer, DataTableLight&gt; cashPayerVolatilities;
+	private Map&lt;Integer, DataTableLight&gt; cashReceiverVolatilities;
+
+	private DataTableLight interpolationNodes;
+<span class="fc" id="L59">	private boolean useLinearInterpolation		= true;</span>
+
+	private DataTable swapRateTable;
+	private DataTable rhoTable;
+	private DataTable baseVolTable;
+	private DataTable volvolTable;
+
+<span class="fc" id="L66">	private int maxIterations = 500;</span>
+<span class="fc" id="L67">	private int numberOfThreads = Runtime.getRuntime().availableProcessors();</span>
+
+
+	/**
+	 * Calibrate a cube via shifting cash settled swaption smiles onto physically settled swaption atm volatility.
+	 * Using the default calibration parameters.
+	 *
+	 * @param name The name of the calibrated cube.
+	 * @param referenceDate The reference date of the tables.
+	 * @param cashPayerPremiums Lattice containing cash settled payer swaption premiums.
+	 * @param cashReceiverPremiums Lattice containing cash settled receiver swaption premiums.
+	 * @param physicalPremiumsATM Table containing physical settled swaption atm premiums.
+	 * @param model The model for context.
+	 * @param sabrDisplacement The displacement parameter the SABR smiles of the cube is supposed to have.
+	 * @param sabrBeta The beta parameter the SABR smiles of the cubes are supposed to have.
+	 * @param correlationDecay The correlation decay parameter the cube is supposed to have.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter the calibrated cube is sipposed to have.
+	 *
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
+	 */
+	public static SABRVolatilityCube createSABRVolatilityCube(final String name, final LocalDate referenceDate,
+			final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final AnalyticModel model, final double sabrDisplacement, final double sabrBeta,	final double correlationDecay, final double iborOisDecorrelation) throws SolverException {
+
+<span class="nc" id="L93">		final SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,</span>
+				model, sabrDisplacement, sabrBeta, correlationDecay, iborOisDecorrelation);
+
+<span class="nc" id="L96">		return factory.build(name);</span>
+	}
+
+	/**
+	 * Return all data points as volatilities that serve as calibration targets. Points are sorted into maps according to their strike in moneyness.
+	 *
+	 * @param name The name of the tables. Will be amended by their strike in moneyness.
+	 * @param referenceDate The reference date of the tables.
+	 * @param cashPayerPremiums Lattice containing cash settled payer swaption premiums.
+	 * @param cashReceiverPremiums Lattice containing cash settled receiver swaption premiums.
+	 * @param physicalPremiumsATM Table containing physical settled swaption atm premiums.
+	 * @param model The model for context.
+	 * @return The set of maps containing market data volatility points.
+	 */
+	public static Map&lt;Integer, DataTable&gt; createVolatilityCubeLattice(final String name, final LocalDate referenceDate,
+			final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM, final AnalyticModel model) {
+
+<span class="nc" id="L113">		final SABRShiftedSmileCalibration factory = new SABRShiftedSmileCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM,</span>
+				model, 0, 0, 0, 0);
+
+		try {
+<span class="nc" id="L117">			factory.build(name);</span>
+<span class="nc" id="L118">		} catch (final SolverException e) {</span>
+			// ignore this, lattice doesn't use calibrated cube
+<span class="nc" id="L120">		}</span>
+
+<span class="nc" id="L122">		final TreeMap&lt;Integer, DataTable&gt; returnMap = new TreeMap&lt;&gt;();</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		for(final Map.Entry&lt;Integer, DataTableLight&gt; entry : factory.physicalVolatilities.entrySet()) {</span>
+<span class="nc" id="L124">			returnMap.put(entry.getKey(), entry.getValue().clone());</span>
+<span class="nc" id="L125">		}</span>
+<span class="nc" id="L126">		return returnMap;</span>
+	}
+
+	/**
+	 * Create the calibrator to be able to modify calibration parameters before building the cube.
+	 *
+	 * @param referenceDate The reference date of the calibrated cube.
+	 * @param cashPayerPremiums Lattice containing cash settled payer swaption premiums.
+	 * @param cashReceiverPremiums Lattice containing cash settled receiver swaption premiums.
+	 * @param physicalPremiumsATM Table containing physical settled swaption atm premiums.
+	 * @param model The model providing context.
+	 * @param sabrDisplacement The displacement parameter the SABR smiles of the cube is supposed to have.
+	 * @param sabrBeta The beta parameter the SABR smiles of the cubes are supposed to have.
+	 * @param correlationDecay The correlation decay parameter the cube is supposed to have.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter the calibrated cube is supposed to have.
+	 */
+	public SABRShiftedSmileCalibration(final LocalDate referenceDate,	final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final SwaptionDataLattice physicalPremiumsATM, final AnalyticModel model,
+			final double sabrDisplacement, final double sabrBeta, final double correlationDecay, final double iborOisDecorrelation) {
+<span class="fc" id="L145">		super();</span>
+<span class="fc" id="L146">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L147">		this.physicalPremiumsATM = physicalPremiumsATM;</span>
+<span class="fc" id="L148">		this.cashPayerPremiums = cashPayerPremiums;</span>
+<span class="fc" id="L149">		this.cashReceiverPremiums = cashReceiverPremiums;</span>
+<span class="fc" id="L150">		this.model = model;</span>
+<span class="fc" id="L151">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="fc" id="L152">		this.sabrBeta = sabrBeta;</span>
+<span class="fc" id="L153">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L154">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+
+<span class="fc" id="L156">		fixMetaSchedule		= cashPayerPremiums.getFixMetaSchedule();</span>
+<span class="fc" id="L157">		floatMetaSchedule	= cashPayerPremiums.getFloatMetaSchedule();</span>
+<span class="fc" id="L158">		discountCurveName	= cashPayerPremiums.getDiscountCurveName();</span>
+<span class="fc" id="L159">		forwardCurveName	= cashPayerPremiums.getForwardCurveName();</span>
+<span class="fc" id="L160">	}</span>
+
+	/**
+	 * Perform the calibrations and build the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
+	 */
+	public SABRVolatilityCube build(final String name) throws SolverException {
+
+<span class="fc" id="L172">		findInterpolationNodes();</span>
+<span class="fc" id="L173">		makeSwapRateTable();</span>
+
+<span class="fc" id="L175">		findPayerVolatilities();</span>
+<span class="fc" id="L176">		findReceiverVolatilities();</span>
+
+<span class="fc" id="L178">		makePhysicalVolatilities();</span>
+<span class="fc" id="L179">		calibrateSmilesOnNodes();</span>
+
+<span class="fc" id="L181">		return new SABRVolatilityCube(name, referenceDate, swapRateTable, sabrDisplacement, sabrBeta, rhoTable, baseVolTable, volvolTable,</span>
+				correlationDecay, iborOisDecorrelation);
+	}
+
+
+
+
+	/**
+	 * Calibrate the SABR smiles on each node.
+	 *
+	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
+	 */
+	private void calibrateSmilesOnNodes() throws SolverException {
+
+		// lists for all parameter maps
+<span class="fc" id="L196">		final ArrayList&lt;Integer&gt; maturities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L197">		final ArrayList&lt;Integer&gt; terminations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L198">		final ArrayList&lt;Double&gt; sabrRhos = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L199">		final ArrayList&lt;Double&gt; sabrBaseVols = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L200">		final ArrayList&lt;Double&gt; sabrVolvols = new ArrayList&lt;&gt;();</span>
+
+		// calibrate a SABR smile on each node of the grid
+<span class="fc" id="L203">		double[] initialParameters = new double[]{ 0.01, 0.15, 0.3 }; // baseVol, volVol, rho</span>
+
+<span class="fc" id="L205">		final int[] maturityArray = new int[interpolationNodes.getMaturities().size()];</span>
+<span class="fc" id="L206">		final int[] terminationArray = new int[interpolationNodes.getTerminations().size()];</span>
+
+		// going through nodes in reverse, because we want to use results from longer tenors for calibration of shorter ones
+<span class="fc" id="L209">		int index = maturityArray.length-1;</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">		for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc" id="L211">			maturityArray[index--] = maturity;</span>
+<span class="fc" id="L212">		}</span>
+<span class="fc" id="L213">		index = terminationArray.length-1;</span>
+<span class="fc bfc" id="L214" title="All 2 branches covered.">		for(final int termination : interpolationNodes.getTerminations()) {</span>
+<span class="fc" id="L215">			terminationArray[index--] = termination;</span>
+<span class="fc" id="L216">		}</span>
+
+<span class="fc bfc" id="L218" title="All 2 branches covered.">		for(final int maturity :  maturityArray) {</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">			for(final int termination : terminationArray) {</span>
+<span class="fc" id="L220">				final double parSwapRate = swapRateTable.getValue(maturity, termination);</span>
+<span class="fc" id="L221">				final double sabrMaturity = floatMetaSchedule.generateSchedule(referenceDate, referenceDate.plusMonths(maturity),</span>
+<span class="fc" id="L222">						referenceDate.plusMonths(maturity+termination)).getFixing(0);</span>
+
+				// gather smile points
+<span class="fc" id="L225">				int count = 0;</span>
+<span class="fc bfc" id="L226" title="All 2 branches covered.">				for(final int moneyness : physicalVolatilities.keySet()) {</span>
+<span class="fc bfc" id="L227" title="All 2 branches covered.">					if(physicalVolatilities.get(moneyness).containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L228">						count++;</span>
+					}
+<span class="fc" id="L230">				}</span>
+
+<span class="fc" id="L232">				final double[] marketStrikes = new double[count];</span>
+<span class="fc" id="L233">				final double[] marketVolatilities = new double[count];</span>
+
+<span class="fc" id="L235">				index = 0;</span>
+<span class="fc bfc" id="L236" title="All 2 branches covered.">				for(final int moneyness : physicalVolatilities.keySet()) {</span>
+<span class="fc bfc" id="L237" title="All 2 branches covered.">					if(physicalVolatilities.get(moneyness).containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L238">						marketStrikes[index] = parSwapRate + moneyness /10000.0;</span>
+<span class="fc" id="L239">						marketVolatilities[index++] = physicalVolatilities.get(moneyness).getValue(maturity, termination);</span>
+					}
+<span class="fc" id="L241">				}</span>
+
+
+				// calibrate SABR
+<span class="fc" id="L245">				final LevenbergMarquardt optimizer = new LevenbergMarquardt(</span>
+						initialParameters,
+						marketVolatilities,
+						maxIterations,
+						numberOfThreads
+<span class="fc" id="L250">						) {</span>
+					private static final long serialVersionUID = -7551690451877166912L;
+
+					@Override
+					public void setValues(final double[] parameters, final double[] values) {
+
+						// making sure that volatility stays above 0 and rho between -1 and 1.
+<span class="fc" id="L257">						parameters[0] = Math.max(parameters[0], 0);</span>
+<span class="fc" id="L258">						parameters[1] = Math.max(parameters[1], 0);</span>
+<span class="fc" id="L259">						parameters[2] = Math.max(Math.min(parameters[2], 1), -1);</span>
+
+<span class="fc bfc" id="L261" title="All 2 branches covered.">						for(int i = 0; i &lt; marketStrikes.length; i++) {</span>
+<span class="fc" id="L262">							values[i] = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(parameters[0] /* alpha */, sabrBeta /* beta */,</span>
+									parameters[2] /* rho */, parameters[1] /* nu */, sabrDisplacement /* displacement */,
+									parSwapRate, marketStrikes[i], sabrMaturity);
+
+						}
+<span class="fc" id="L267">					}</span>
+				};
+<span class="fc" id="L269">				optimizer.run();</span>
+				//				System.out.println(&quot;Optimizer for node &quot;+maturity+&quot;x&quot;+termination+&quot; finished after &quot; +optimizer.getIterations() +
+				//						&quot; iterations with mean error &quot; + optimizer.getRootMeanSquaredError());
+
+<span class="fc" id="L273">				final double[] parameters = optimizer.getBestFitParameters();</span>
+
+				// sort calibrated parameters into lists
+<span class="fc" id="L276">				maturities.add(maturity);</span>
+<span class="fc" id="L277">				terminations.add(termination);</span>
+<span class="fc" id="L278">				sabrBaseVols.add(parameters[0]);</span>
+<span class="fc" id="L279">				sabrVolvols.add(parameters[1]);</span>
+<span class="fc" id="L280">				sabrRhos.add(parameters[2]);</span>
+
+<span class="fc" id="L282">				initialParameters = parameters;</span>
+			}
+		}
+
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">		if(useLinearInterpolation) {</span>
+<span class="fc" id="L287">			baseVolTable = new DataTableLinear(&quot;MarketBaseVolatilityTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities,</span>
+					terminations, sabrBaseVols);
+<span class="fc" id="L289">			volvolTable = new DataTableLinear(&quot;MarketVolVolTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations,</span>
+					sabrVolvols);
+<span class="fc" id="L291">			rhoTable = new DataTableLinear(&quot;MarketRhoTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);</span>
+		} else {
+<span class="nc" id="L293">			baseVolTable = new DataTableExtrapolated(&quot;MarketBaseVolatilityTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities,</span>
+					terminations, sabrBaseVols);
+<span class="nc" id="L295">			volvolTable = new DataTableExtrapolated(&quot;MarketVolVolTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations,</span>
+					sabrVolvols);
+<span class="nc" id="L297">			rhoTable = new DataTableExtrapolated(&quot;MarketRhoTable&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturities, terminations, sabrRhos);</span>
+		}
+
+<span class="fc" id="L300">	}</span>
+
+	/**
+	 * Identify the nodes on which to calibrate.
+	 */
+	private void findInterpolationNodes() {
+
+<span class="fc" id="L307">		final ArrayList&lt;Integer&gt; nodeMaturities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L308">		final ArrayList&lt;Integer&gt; nodeTerminations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L309">		final ArrayList&lt;Double&gt; nodeCardinalities = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L311">		final Set&lt;Integer&gt; payerStrikes = new TreeSet&lt;&gt;(cashPayerPremiums.getGridNodesPerMoneyness().keySet());</span>
+<span class="fc" id="L312">		payerStrikes.remove(0);</span>
+<span class="fc" id="L313">		final Set&lt;Integer&gt; receiverStrikes = new TreeSet&lt;&gt;(cashReceiverPremiums.getGridNodesPerMoneyness().keySet());</span>
+<span class="fc" id="L314">		receiverStrikes.remove(0);</span>
+
+<span class="fc bfc" id="L316" title="All 2 branches covered.">		for(final int maturity : physicalPremiumsATM.getMaturities()) {</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">			for(final int termination : physicalPremiumsATM.getTenors(0, maturity)) {</span>
+<span class="fc" id="L318">				int count = 1;</span>
+<span class="fc bfc" id="L319" title="All 2 branches covered.">				for(final int strike : payerStrikes) {</span>
+<span class="pc bpc" id="L320" title="1 of 2 branches missed.">					if(cashPayerPremiums.containsEntryFor(maturity, termination, strike)) {</span>
+<span class="fc" id="L321">						count++;</span>
+					}
+<span class="fc" id="L323">				}</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">				for(final int strike : receiverStrikes) {</span>
+<span class="fc bfc" id="L325" title="All 2 branches covered.">					if(cashReceiverPremiums.containsEntryFor(maturity, termination, strike)) {</span>
+<span class="fc" id="L326">						count++;</span>
+					}
+<span class="fc" id="L328">				}</span>
+
+				//only consider if there are more than a single point for a given node
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">				if(count &gt; 1) {</span>
+<span class="fc" id="L332">					nodeMaturities.add(maturity);</span>
+<span class="fc" id="L333">					nodeTerminations.add(termination);</span>
+<span class="fc" id="L334">					nodeCardinalities.add((double) count);</span>
+				}
+			}
+		}
+<span class="fc" id="L338">		interpolationNodes = new DataTableLight(&quot;NodesWithCardinality&quot;, TableConvention.MONTHS, nodeMaturities, nodeTerminations,</span>
+				nodeCardinalities);
+
+		// fix holes (as interpolation needs a regular grid)
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">		if(interpolationNodes.size() != interpolationNodes.getMaturities().size() * interpolationNodes.getTerminations().size()) {</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">			for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">				for(final int termination : interpolationNodes.getTerminations()) {</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">					if(! interpolationNodes.containsEntryFor(maturity, termination)) {</span>
+<span class="nc" id="L346">						interpolationNodes = interpolationNodes.addPoint(maturity, termination, 1);</span>
+					}
+<span class="nc" id="L348">				}</span>
+<span class="nc" id="L349">			}</span>
+		}
+<span class="fc" id="L351">	}</span>
+
+	/**
+	 * Make physical volatility smiles, by shifting cash volatility smiles to physical atm level.
+	 */
+	private void makePhysicalVolatilities() {
+
+		// atm base
+<span class="fc" id="L359">		final int[] maturitiesArray = new int[interpolationNodes.size()];</span>
+<span class="fc" id="L360">		final int[] terminationsArray = new int[interpolationNodes.size()];</span>
+<span class="fc" id="L361">		final double[] volatilitiesArray = new double[interpolationNodes.size()];</span>
+
+<span class="fc" id="L363">		int index = 0;</span>
+<span class="fc bfc" id="L364" title="All 2 branches covered.">		for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc bfc" id="L365" title="All 2 branches covered.">			for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L366">				maturitiesArray[index] = maturity;</span>
+<span class="fc" id="L367">				terminationsArray[index] = termination;</span>
+
+<span class="fc" id="L369">				final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L370">				final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L372">				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L373">				final double annuity = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);</span>
+<span class="fc" id="L374">				final double swapRate = swapRateTable.getValue(maturity, termination);</span>
+
+<span class="fc" id="L376">				volatilitiesArray[index++] = AnalyticFormulas.bachelierOptionImpliedVolatility(swapRate, fixSchedule.getFixing(0), swapRate, annuity,</span>
+<span class="fc" id="L377">						physicalPremiumsATM.getValue(maturity, termination, 0));</span>
+<span class="fc" id="L378">			}</span>
+<span class="fc" id="L379">		}</span>
+
+<span class="fc" id="L381">		final DataTableLight physicalATMTable =  new DataTableLight(&quot;VolatilitiesPhysicalATM&quot;, TableConvention.MONTHS, maturitiesArray, terminationsArray,</span>
+				volatilitiesArray);
+
+<span class="fc" id="L384">		physicalVolatilities = new TreeMap&lt;&gt;();</span>
+<span class="fc" id="L385">		physicalVolatilities.put(0, physicalATMTable);</span>
+
+<span class="fc" id="L387">		final DataTableLight payerATMTable = cashPayerVolatilities.get(0);</span>
+<span class="fc" id="L388">		final DataTableLight receiverATMTable = cashReceiverVolatilities.get(0);</span>
+
+
+
+
+		// imitate physical smile via cash smiles
+<span class="fc" id="L394">		final Set&lt;Integer&gt; strikes = new TreeSet&lt;&gt;(cashPayerVolatilities.keySet());</span>
+<span class="fc" id="L395">		strikes.addAll(cashReceiverVolatilities.keySet());</span>
+<span class="fc" id="L396">		strikes.remove(0);</span>
+
+<span class="fc bfc" id="L398" title="All 2 branches covered.">		for(final int strike : strikes) {</span>
+			//lists for bulk-initialization of tables
+<span class="fc" id="L400">			final ArrayList&lt;Integer&gt; maturitiesPositive = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L401">			final ArrayList&lt;Integer&gt; terminationsPositive = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L402">			final ArrayList&lt;Double&gt; physicalVolatilitiesPositive = new ArrayList&lt;&gt;();</span>
+
+<span class="fc" id="L404">			final ArrayList&lt;Integer&gt; maturitiesNegative = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L405">			final ArrayList&lt;Integer&gt; terminationsNegative = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L406">			final ArrayList&lt;Double&gt; physicalVolatilitiesNegative = new ArrayList&lt;&gt;();</span>
+
+			// shifting surface by shifting each individual point
+<span class="fc bfc" id="L409" title="All 2 branches covered.">			for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc bfc" id="L410" title="All 2 branches covered.">				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L411">					final double physicalATM = physicalATMTable.getValue(maturity, termination);</span>
+
+					//shifting positive wing like payer
+<span class="pc bpc" id="L414" title="2 of 4 branches missed.">					if(cashPayerVolatilities.containsKey(strike) &amp;&amp; cashPayerVolatilities.get(strike).containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L415">						final double payerATM = payerATMTable.getValue(maturity, termination);</span>
+<span class="fc" id="L416">						final double payerSmile = cashPayerVolatilities.get(strike).getValue(maturity, termination);</span>
+
+<span class="fc" id="L418">						maturitiesPositive.add(maturity);</span>
+<span class="fc" id="L419">						terminationsPositive.add(termination);</span>
+<span class="fc" id="L420">						physicalVolatilitiesPositive.add(payerSmile - payerATM + physicalATM);</span>
+					}
+
+					//shifting negative wing like receiver
+<span class="pc bpc" id="L424" title="1 of 4 branches missed.">					if(cashReceiverVolatilities.containsKey(strike) &amp;&amp; cashReceiverVolatilities.get(strike).containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L425">						final double receiverATM = receiverATMTable.getValue(maturity, termination);</span>
+<span class="fc" id="L426">						final double receiverSmile = cashReceiverVolatilities.get(strike).getValue(maturity, termination);</span>
+
+<span class="fc" id="L428">						maturitiesNegative.add(maturity);</span>
+<span class="fc" id="L429">						terminationsNegative.add(termination);</span>
+<span class="fc" id="L430">						physicalVolatilitiesNegative.add(receiverSmile - receiverATM + physicalATM);</span>
+					}
+<span class="fc" id="L432">				}</span>
+<span class="fc" id="L433">			}</span>
+
+<span class="fc" id="L435">			final DataTableLight physicalPositiveSmileTable = new DataTableLight(&quot;VolatilitiesPhysical&quot; +  strike, TableConvention.MONTHS,</span>
+					maturitiesPositive, terminationsPositive, physicalVolatilitiesPositive);
+<span class="fc" id="L437">			final DataTableLight physicalNegativeSmileTable = new DataTableLight(&quot;VolatilitiesPhysical&quot; + -strike, TableConvention.MONTHS,</span>
+					maturitiesNegative, terminationsNegative, physicalVolatilitiesNegative);
+
+
+<span class="fc" id="L441">			physicalVolatilities.put( strike, physicalPositiveSmileTable);</span>
+<span class="fc" id="L442">			physicalVolatilities.put(-strike, physicalNegativeSmileTable);</span>
+<span class="fc" id="L443">		}</span>
+<span class="fc" id="L444">	}</span>
+
+	/**
+	 * Construct the volatility (half-) smile of cash settled payer swaptions.
+	 */
+	private void findPayerVolatilities() {
+
+		//convert to volatilities
+<span class="fc" id="L452">		cashPayerVolatilities = new TreeMap&lt;&gt;();</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">		for(final int moneyness : cashPayerPremiums.getGridNodesPerMoneyness().keySet()) {</span>
+
+<span class="fc" id="L455">			final ArrayList&lt;Integer&gt; maturities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L456">			final ArrayList&lt;Integer&gt; terminations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L457">			final ArrayList&lt;Double&gt; values = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L459" title="All 2 branches covered.">			for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc bfc" id="L460" title="All 2 branches covered.">				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {</span>
+<span class="pc bpc" id="L461" title="1 of 2 branches missed.">					if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)){</span>
+
+<span class="fc" id="L463">						final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L464">						final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L466">						final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L467">						final double swapRate = swapRateTable.getValue(maturity, termination);</span>
+<span class="fc" id="L468">						final double cashAnnuity = cashFunction(swapRate, fixSchedule);</span>
+
+<span class="fc" id="L470">						maturities.add(maturity);</span>
+<span class="fc" id="L471">						terminations.add(termination);</span>
+<span class="fc" id="L472">						values.add(AnalyticFormulas.bachelierOptionImpliedVolatility(swapRate, fixSchedule.getFixing(0), swapRate + moneyness /10000.0,</span>
+<span class="fc" id="L473">								cashAnnuity, cashPayerPremiums.getValue(maturity, termination, moneyness)));</span>
+					}
+<span class="fc" id="L475">				}</span>
+<span class="fc" id="L476">			}</span>
+<span class="fc" id="L477">			final DataTableLight volatilityTable = new DataTableLight(&quot;VolatilitiesPayer&quot;+moneyness, TableConvention.MONTHS, maturities, terminations, values);</span>
+<span class="fc" id="L478">			cashPayerVolatilities.put(moneyness, volatilityTable);</span>
+<span class="fc" id="L479">		}</span>
+
+<span class="fc" id="L481">	}</span>
+
+	/**
+	 * Construct the volatility (half-) smile of cash settled receiver swaptions.
+	 */
+	private void findReceiverVolatilities() {
+
+		//convert to volatilities
+<span class="fc" id="L489">		cashReceiverVolatilities = new TreeMap&lt;&gt;();</span>
+<span class="fc bfc" id="L490" title="All 2 branches covered.">		for(final int moneyness : cashReceiverPremiums.getGridNodesPerMoneyness().keySet()) {</span>
+
+<span class="fc" id="L492">			final ArrayList&lt;Integer&gt; maturities = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L493">			final ArrayList&lt;Integer&gt; terminations = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L494">			final ArrayList&lt;Double&gt; values = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L496" title="All 2 branches covered.">			for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc bfc" id="L497" title="All 2 branches covered.">				for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc bfc" id="L498" title="All 2 branches covered.">					if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)){</span>
+
+<span class="fc" id="L500">						final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L501">						final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L503">						final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L504">						final double swapRate = swapRateTable.getValue(maturity, termination);</span>
+<span class="fc" id="L505">						final double cashAnnuity = cashFunction(swapRate, fixSchedule);</span>
+
+<span class="fc" id="L507">						maturities.add(maturity);</span>
+<span class="fc" id="L508">						terminations.add(termination);</span>
+<span class="fc" id="L509">						values.add(AnalyticFormulas.bachelierOptionImpliedVolatility(swapRate, fixSchedule.getFixing(0), swapRate-moneyness/10000.0,</span>
+<span class="fc" id="L510">								cashAnnuity, cashReceiverPremiums.getValue(maturity, termination, moneyness) + moneyness/10000.0 * cashAnnuity));</span>
+					}
+<span class="fc" id="L512">				}</span>
+<span class="fc" id="L513">			}</span>
+<span class="fc" id="L514">			final DataTableLight volatilityTable = new DataTableLight(&quot;VolatilitiesReceiver&quot;+moneyness, TableConvention.MONTHS, maturities, terminations, values);</span>
+<span class="fc" id="L515">			cashReceiverVolatilities.put(moneyness, volatilityTable);</span>
+<span class="fc" id="L516">		}</span>
+<span class="fc" id="L517">	}</span>
+
+	/**
+	 * Build the table of swap rates as underlyings for the SABR smiles.
+	 */
+	private void makeSwapRateTable() {
+
+<span class="fc" id="L524">		final int[] maturitiesArray = new int[interpolationNodes.size()];</span>
+<span class="fc" id="L525">		final int[] terminationsArray = new int[interpolationNodes.size()];</span>
+<span class="fc" id="L526">		final double[] swapRateArray = new double[interpolationNodes.size()];</span>
+
+<span class="fc" id="L528">		int index = 0;</span>
+<span class="fc bfc" id="L529" title="All 2 branches covered.">		for(final int maturity : interpolationNodes.getMaturities()) {</span>
+<span class="fc bfc" id="L530" title="All 2 branches covered.">			for(final int termination : interpolationNodes.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L531">				maturitiesArray[index] = maturity;</span>
+<span class="fc" id="L532">				terminationsArray[index] = termination;</span>
+
+<span class="fc" id="L534">				final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L535">				final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L537">				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L538">				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L539">				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+
+<span class="fc" id="L541">				swapRateArray[index++] = swapRate;</span>
+<span class="fc" id="L542">			}</span>
+<span class="fc" id="L543">		}</span>
+
+<span class="pc bpc" id="L545" title="1 of 2 branches missed.">		if(useLinearInterpolation) {</span>
+<span class="fc" id="L546">			swapRateTable = new DataTableLinear(&quot;MarketParSwapRates&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray,</span>
+					terminationsArray, swapRateArray);
+		} else {
+<span class="nc" id="L549">			swapRateTable = new DataTableExtrapolated(&quot;MarketParSwapRates&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray,</span>
+					terminationsArray, swapRateArray);
+		}
+<span class="fc" id="L552">	}</span>
+
+	/**
+	 * Set the parameters for calibration.
+	 *
+	 * @param maxIterations The maximum number of iterations done during calibration.
+	 * @param numberOfThreads The number of processor threads to be used.
+	 */
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
+<span class="fc" id="L561">		this.maxIterations		= maxIterations;</span>
+<span class="fc" id="L562">		this.numberOfThreads 	= numberOfThreads;</span>
+<span class="fc" id="L563">	}</span>
+
+	/**
+	 * @return The maximum number of iterations of the optimizer.
+	 */
+	public int getMaxIterations() {
+<span class="nc" id="L569">		return maxIterations;</span>
+	}
+
+
+	/**
+	 * @return The number of threads the optimizer is allowed to use.
+	 */
+	public int getNumberOfThreads() {
+<span class="nc" id="L577">		return numberOfThreads;</span>
+	}
+
+	/**
+	 * @return True if tables holding SABR parameters use linear interpolation, false if piecewise cubic spline.
+	 */
+	public boolean isUseLinearInterpolation() {
+<span class="nc" id="L584">		return useLinearInterpolation;</span>
+	}
+
+	/**
+	 * @param useLinearInterpolation Set whether the interpolation of SABR parameters should be linear as opposed to piecewise cubic spline.
+	 */
+	public void setUseLinearInterpolation(final boolean useLinearInterpolation) {
+<span class="fc" id="L591">		this.useLinearInterpolation = useLinearInterpolation;</span>
+<span class="fc" id="L592">	}</span>
+
+	/**
+	 * Cash function of cash settled swaptions for equidistant tenors.
+	 *
+	 * @param swapRate The swap rate.
+	 * @param schedule The schedule.
+	 * @return The result of the cash function.
+	 */
+	private static double cashFunction(final double swapRate, final Schedule schedule) {
+
+<span class="fc" id="L603">		final int numberOfPeriods = schedule.getNumberOfPeriods();</span>
+<span class="fc" id="L604">		double periodLength = 0.0;</span>
+<span class="fc bfc" id="L605" title="All 2 branches covered.">		for(int index = 0; index &lt; numberOfPeriods; index++) {</span>
+<span class="fc" id="L606">			periodLength += schedule.getPeriodLength(index);</span>
+		}
+<span class="fc" id="L608">		periodLength /= schedule.getNumberOfPeriods();</span>
+
+<span class="pc bpc" id="L610" title="1 of 2 branches missed.">		if(swapRate == 0.0) {</span>
+<span class="nc" id="L611">			return numberOfPeriods * periodLength;</span>
+		} else {
+<span class="fc" id="L613">			return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

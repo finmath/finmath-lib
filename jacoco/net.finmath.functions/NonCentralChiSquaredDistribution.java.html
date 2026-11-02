@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NonCentralChiSquaredDistribution.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">NonCentralChiSquaredDistribution.java</span></div><h1>NonCentralChiSquaredDistribution.java</h1><pre class="source lang-java linenums">package net.finmath.functions;
+
+import org.apache.commons.lang3.Validate;
+import org.apache.commons.math3.special.Gamma;
+
+/**
+ * Implementation of the cumulative distribution function of the non-central &amp;Chi;&lt;sup&gt;2&lt;/sup&gt; distribution.
+ *
+ * The implementation is that of Ding's algorithm, splitting the sum since the first term
+ * of the sum is not the largest one (and may be zero).
+ *
+ * The algorithm uses Kahan summation for the sums and limits the calculation time to avoid infinity loops.
+ *
+ * The method is currently intended to be used as a benchmark in unit tests only.
+ *
+ * Note: The implementation currently does not use an alternative algorithm
+ * in cases of high non-centrality, like Benton and Krishnamoorthy. Since the number
+ * of summation is limited, the method may be inaccurate for high non-centrality.
+ *
+ * @author Christian Fries
+ * @author Ralph Rudd
+ */
+public class NonCentralChiSquaredDistribution {
+
+	private final double nonCentralityHalf;
+	private final double degreesOfFreedomHalf;
+
+	private final int summationSplitIndex;
+	private final int maxSummation;
+	private final double pInitial;
+
+	private static final double PRECISION = 1e-16;
+
+	/**
+	 * Create non-central &amp;Chi;&lt;sup&gt;2&lt;/sup&gt; distribution (non-central chi-squared distribution).
+	 *
+	 * @param degreesOfFreedom The number of degrees of freedom, positive
+	 * @param nonCentrality The non-centrality parameter, not negative
+	 */
+<span class="nc" id="L40">	public NonCentralChiSquaredDistribution(final double degreesOfFreedom, double nonCentrality) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		Validate.isTrue(degreesOfFreedom &gt; 0, &quot;Parameter degreesOfFreedom must be &gt; 0 (given %d).&quot;, degreesOfFreedom);</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		Validate.isTrue(nonCentrality &gt;= 0, &quot;Parameter nonCentrality must be &gt;= 0 (given %d).&quot;, nonCentrality);</span>
+
+<span class="nc" id="L44">		degreesOfFreedomHalf = degreesOfFreedom / 2.0;</span>
+<span class="nc" id="L45">		nonCentralityHalf = nonCentrality / 2.0;</span>
+<span class="nc" id="L46">		summationSplitIndex = (int) Math.round(nonCentralityHalf);</span>
+<span class="nc" id="L47">		maxSummation = Math.max(summationSplitIndex, 10000);</span>
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if (nonCentralityHalf == 0) {</span>
+<span class="nc" id="L50">			pInitial = 0.0;</span>
+		} else {
+<span class="nc" id="L52">			pInitial = Math.exp(-nonCentralityHalf + summationSplitIndex * Math.log(nonCentralityHalf) - Gamma.logGamma(summationSplitIndex + 1));</span>
+		}
+<span class="nc" id="L54">	}</span>
+
+	/**
+	 * Cumulative distribution function of the non-central &amp;Chi;&lt;sup&gt;2&lt;/sup&gt; distribution
+	 *
+	 * @param x A sample point
+	 * @return The probability of X being below x, given that X is non-central &amp;Chi;&lt;sup&gt;2&lt;/sup&gt; distributed
+	 */
+	public double cumulativeDistribution(final double x) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (x &lt; 0) {</span>
+<span class="nc" id="L64">			return 0.0;</span>
+		}
+
+<span class="nc" id="L67">		final double xHalf		= x / 2.0;</span>
+<span class="nc" id="L68">		final double xHalfLog	= Math.log(xHalf);</span>
+
+<span class="nc" id="L70">		final double gammaRegularizedInitial = Gamma.regularizedGammaP(degreesOfFreedomHalf + summationSplitIndex, xHalf);</span>
+
+<span class="nc" id="L72">		double p = pInitial;</span>
+<span class="nc" id="L73">		double gammaRegularized = gammaRegularizedInitial;</span>
+
+		/*
+		 * Sum of terms below summationSplitIndex, backward, using Kahan summation.
+		 */
+<span class="nc" id="L78">		double sum = p * gammaRegularized;</span>
+<span class="nc" id="L79">		double error = 0.0;</span>
+<span class="nc" id="L80">		double newSum = 0.0;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		for(int i=summationSplitIndex-1; i &gt;= 0; i--) {</span>
+
+<span class="nc" id="L83">			p *= (i + 1) / nonCentralityHalf;</span>
+<span class="nc" id="L84">			gammaRegularized += Math.exp((degreesOfFreedomHalf + i) * xHalfLog - xHalf - Gamma.logGamma(degreesOfFreedomHalf + i + 1));</span>
+
+			// Kahan summation
+<span class="nc" id="L87">			final double value = p * gammaRegularized - error;</span>
+
+<span class="nc" id="L89">			newSum = sum + value;</span>
+<span class="nc" id="L90">			error = (newSum - sum) - value;</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">			if(Math.abs(newSum - sum) / newSum &lt;= PRECISION) {</span>
+<span class="nc" id="L93">				break;</span>
+			}
+<span class="nc" id="L95">			sum = newSum;</span>
+		}
+
+<span class="nc" id="L98">		p = pInitial;</span>
+<span class="nc" id="L99">		gammaRegularized = gammaRegularizedInitial;</span>
+<span class="nc" id="L100">		sum = newSum;</span>
+
+		/*
+		 * Sum of terms above summationSplitIndex, forward, using Kahan summation.
+		 * (to prevent infinity loops the sum has a MAXSUMMATION).
+		 */
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		for(int i=summationSplitIndex; i&lt;summationSplitIndex+maxSummation; i++) {</span>
+<span class="nc" id="L107">			p *= nonCentralityHalf / (i+1);</span>
+<span class="nc" id="L108">			gammaRegularized -= Math.exp((degreesOfFreedomHalf + i) * xHalfLog - xHalf - Gamma.logGamma(degreesOfFreedomHalf + i + 1));</span>
+
+			// Kahan summation
+<span class="nc" id="L111">			final double value = p * gammaRegularized - error;</span>
+
+<span class="nc" id="L113">			newSum = sum + value;</span>
+<span class="nc" id="L114">			error = (newSum - sum) - value;</span>
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">			if(Math.abs(newSum - sum) / newSum &lt;= PRECISION) {</span>
+<span class="nc" id="L117">				break;</span>
+			}
+<span class="nc" id="L119">			sum = newSum;</span>
+		}
+
+<span class="nc" id="L122">		return newSum;</span>
+	}
+
+	/**
+	 * @return The number of degrees of freedom
+	 */
+	public double getDegreesOfFreedom() {
+<span class="nc" id="L129">		return degreesOfFreedomHalf * 2.0;</span>
+	}
+
+	/**
+	 * @return The non-centrality parameter
+	 */
+	public double getNonCentrality() {
+<span class="nc" id="L136">		return nonCentralityHalf * 2.0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

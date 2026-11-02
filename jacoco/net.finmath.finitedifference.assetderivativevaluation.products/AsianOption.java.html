@@ -1,0 +1,1557 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsianOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">AsianOption.java</span></div><h1>AsianOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMHestonModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMSabrModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.grids.UniformGrid;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.adi.AbstractADI2D;
+import net.finmath.finitedifference.solvers.adi.AbstractADI3D;
+import net.finmath.finitedifference.solvers.adi.FDMAsianADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMAsianHestonADI3D;
+import net.finmath.finitedifference.solvers.adi.FDMAsianSabrADI3D;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.AsianStrike;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Arithmetic Asian option priced via a Markov lift.
+ *
+ * &lt;p&gt;
+ * We lift the 1D Black-Scholes state S to the 2D Markov state (S, I) where
+ * I(t) = integral_0^t S(u) du, and solve a 2D PDE.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Fixed-strike payoff at maturity T:
+ * Call: max(I(T)/T - K, 0)
+ * Put : max(K - I(T)/T, 0)
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Floating-strike payoff at maturity T:
+ * Call: max(S(T) - I(T)/T, 0)
+ * Put : max(I(T)/T - S(T), 0)
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For early exercise, the immediate exercise payoff is evaluated using
+ * the average accrued up to exercise time t, i.e. I(t) / t.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Assumption: averaging times coincide with the PDE grid's time discretization.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class AsianOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The time epsilon for exercise.
+	 */
+	private static final double TIME_EPSILON_FOR_EXERCISE = 1E-12;
+
+	/**
+	 * Minimum time used to avoid division by zero.
+	 */
+	private static final double MINIMUM_TIME = 1.0E-6;
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put sign.
+	 */
+	private final CallOrPut callOrPutSign;
+	/**
+	 * The asian strike.
+	 */
+	private final AsianStrike asianStrike;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param maturity The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 * @param asianStrike The value.
+	 * @param exercise The value.
+	 */
+	public AsianOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign,
+			final AsianStrike asianStrike,
+<span class="nc" id="L114">			final Exercise exercise) {</span>
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		if (callOrPutSign == null) {</span>
+<span class="nc" id="L117">			throw new IllegalArgumentException(&quot;Option type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		if (asianStrike == null) {</span>
+<span class="nc" id="L120">			throw new IllegalArgumentException(&quot;Asian strike type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L123">			throw new IllegalArgumentException(&quot;Exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L125" title="All 4 branches missed.">		if (asianStrike == AsianStrike.FIXED_STRIKE &amp;&amp; Double.isNaN(strike)) {</span>
+<span class="nc" id="L126">			throw new IllegalArgumentException(&quot;Strike must be specified for fixed-strike Asian options.&quot;);</span>
+		}
+
+<span class="nc" id="L129">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L130">		this.maturity = maturity;</span>
+<span class="nc" id="L131">		this.strike = strike;</span>
+<span class="nc" id="L132">		this.callOrPutSign = callOrPutSign;</span>
+<span class="nc" id="L133">		this.asianStrike = asianStrike;</span>
+<span class="nc" id="L134">		this.exercise = exercise;</span>
+<span class="nc" id="L135">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param maturity The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public AsianOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign) {
+<span class="nc" id="L150">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				callOrPutSign,
+				AsianStrike.FIXED_STRIKE,
+				new EuropeanExercise(maturity));
+<span class="nc" id="L157">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param maturity The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public AsianOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L172">		this(underlyingName, maturity, strike, callOrPutFromDouble(callOrPutSign));</span>
+<span class="nc" id="L173">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param maturity The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public AsianOption(
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign) {
+<span class="nc" id="L186">		this(null, maturity, strike, callOrPutSign);</span>
+<span class="nc" id="L187">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param maturity The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public AsianOption(
+			final double maturity,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L200">		this(null, maturity, strike, callOrPutSign);</span>
+<span class="nc" id="L201">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param maturity The value.
+	 * @param strike The value.
+	 */
+	public AsianOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike) {
+<span class="nc" id="L214">		this(underlyingName, maturity, strike, CallOrPut.CALL);</span>
+<span class="nc" id="L215">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param maturity The value.
+	 * @param strike The value.
+	 */
+	public AsianOption(
+			final double maturity,
+			final double strike) {
+<span class="nc" id="L226">		this(null, maturity, strike, CallOrPut.CALL);</span>
+<span class="nc" id="L227">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param maturity The value.
+	 * @param callOrPutSign The value.
+	 * @param asianStrike The value.
+	 */
+	public AsianOption(
+			final String underlyingName,
+			final double maturity,
+			final CallOrPut callOrPutSign,
+			final AsianStrike asianStrike) {
+<span class="nc" id="L242">		this(</span>
+				underlyingName,
+				maturity,
+<span class="nc bnc" id="L245" title="All 2 branches missed.">				asianStrike == AsianStrike.FLOATING_STRIKE ? Double.NaN : 0.0,</span>
+						callOrPutSign,
+						asianStrike,
+						new EuropeanExercise(maturity));
+<span class="nc" id="L249">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param maturity The value.
+	 * @param callOrPutSign The value.
+	 * @param asianStrike The value.
+	 */
+	public AsianOption(
+			final double maturity,
+			final CallOrPut callOrPutSign,
+			final AsianStrike asianStrike) {
+<span class="nc" id="L262">		this(null, maturity, callOrPutSign, asianStrike);</span>
+<span class="nc" id="L263">	}</span>
+
+	private static CallOrPut callOrPutFromDouble(final double callOrPutSign) {
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		if (callOrPutSign == 1.0) {</span>
+<span class="nc" id="L267">			return CallOrPut.CALL;</span>
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		} else if (callOrPutSign == -1.0) {</span>
+<span class="nc" id="L269">			return CallOrPut.PUT;</span>
+		} else {
+<span class="nc" id="L271">			throw new IllegalArgumentException(&quot;Unknown option type.&quot;);</span>
+		}
+	}
+
+	private double payoff(final double average, final double spot) {
+<span class="nc bnc" id="L276" title="All 2 branches missed.">		if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">			if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L278">				return Math.max(average - strike, 0.0);</span>
+			} else {
+<span class="nc" id="L280">				return Math.max(strike - average, 0.0);</span>
+			}
+<span class="nc bnc" id="L282" title="All 2 branches missed.">		} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">			if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L284">				return Math.max(spot - average, 0.0);</span>
+			} else {
+<span class="nc" id="L286">				return Math.max(average - spot, 0.0);</span>
+			}
+		} else {
+<span class="nc" id="L289">			throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+		}
+	}
+
+	private double getExercisePayoff(final double runningTime, final double spot, final double integral) {
+<span class="nc" id="L294">		final double tSafe = Math.max(runningTime, TIME_EPSILON_FOR_EXERCISE);</span>
+<span class="nc" id="L295">		final double averageSoFar = integral / tSafe;</span>
+<span class="nc" id="L296">		return payoff(averageSoFar, spot);</span>
+	}
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L301">		final double[][] values = getValues(model);</span>
+
+<span class="nc" id="L303">		final double tau = maturity - evaluationTime;</span>
+<span class="nc" id="L304">		final int timeIndex = model.getSpaceTimeDiscretization().getTimeDiscretization()</span>
+<span class="nc" id="L305">				.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc" id="L307">		final double[] column = new double[values.length];</span>
+<span class="nc bnc" id="L308" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L309">			column[i] = values[i][timeIndex];</span>
+		}
+<span class="nc" id="L311">		return column;</span>
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L317">		final FiniteDifferenceEquityModel liftedModel = getLiftedModel(model);</span>
+<span class="nc" id="L318">		final FDMSolver solver = getSolver(liftedModel);</span>
+
+<span class="nc" id="L320">		final DoubleBinaryOperator payoffAtMaturity2D = (S, I) -&gt; {</span>
+<span class="nc" id="L321">			final double averageAtMaturity = I / maturity;</span>
+<span class="nc" id="L322">			return payoff(averageAtMaturity, S);</span>
+		};
+
+<span class="nc" id="L325">		final AbstractADI2D.DoubleTernaryOperator exercisePayoff2D = (runningTime, S, I) -&gt;</span>
+<span class="nc" id="L326">		getExercisePayoff(runningTime, S, I);</span>
+
+<span class="nc" id="L328">		final AbstractADI3D.DoubleTernaryOperator payoffAtMaturity3D = (S, v, I) -&gt; {</span>
+<span class="nc" id="L329">			final double averageAtMaturity = I / maturity;</span>
+<span class="nc" id="L330">			return payoff(averageAtMaturity, S);</span>
+		};
+
+<span class="nc" id="L333">		final AbstractADI3D.DoubleQuaternaryOperator exercisePayoff3D = (runningTime, S, v, I) -&gt;</span>
+<span class="nc" id="L334">		getExercisePayoff(runningTime, S, I);</span>
+
+<span class="nc bnc" id="L336" title="All 2 branches missed.">		if (solver instanceof AbstractADI2D) {</span>
+<span class="nc" id="L337">			return ((AbstractADI2D) solver).getValues(maturity, payoffAtMaturity2D, exercisePayoff2D);</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">		} else if (solver instanceof AbstractADI3D) {</span>
+<span class="nc" id="L339">			return ((AbstractADI3D) solver).getValues(maturity, payoffAtMaturity3D, exercisePayoff3D);</span>
+		}
+
+<span class="nc" id="L342">		throw new IllegalArgumentException(&quot;Unsupported solver type for AsianOption.&quot;);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param model The value.
+	 * @return The value.
+	 */
+	public FDMSolver getSolver(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L352" title="All 6 branches missed.">		if (model instanceof LiftedFDMBlackScholesModelDecorator</span>
+				|| model instanceof LiftedFDMCevModelDecorator
+				|| model instanceof LiftedFDMBachelierModelDecorator) {
+<span class="nc" id="L355">			return new FDMAsianADI2D(model, this, model.getSpaceTimeDiscretization(), exercise);</span>
+<span class="nc bnc" id="L356" title="All 2 branches missed.">		} else if (model instanceof LiftedFDMHestonModelDecorator) {</span>
+<span class="nc" id="L357">			return new FDMAsianHestonADI3D(model, this, model.getSpaceTimeDiscretization(), exercise);</span>
+<span class="nc bnc" id="L358" title="All 2 branches missed.">		} else if (model instanceof LiftedFDMSabrModelDecorator) {</span>
+<span class="nc" id="L359">			return new FDMAsianSabrADI3D(model, this, model.getSpaceTimeDiscretization(), exercise);</span>
+		}
+
+<span class="nc" id="L362">		throw new IllegalArgumentException(</span>
+				&quot;AsianOption currently supports only FDMBlackScholesModel, FDMCevModel, FDMBachelierModel and FDMHestonModel.&quot;);
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param model The value.
+	 * @return The value.
+	 */
+	public FiniteDifferenceEquityModel getLiftedModel(final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L374">		final SpaceTimeDiscretization baseDiscretization = model.getSpaceTimeDiscretization();</span>
+
+<span class="nc bnc" id="L376" title="All 2 branches missed.">		if (model instanceof FDMBlackScholesModel) {</span>
+<span class="nc" id="L377">			final FDMBlackScholesModel bsModel = (FDMBlackScholesModel) model;</span>
+
+<span class="nc" id="L379">			final Grid sGrid = baseDiscretization.getSpaceGrid(0);</span>
+<span class="nc" id="L380">			final double[] sNodes = sGrid.getGrid();</span>
+<span class="nc" id="L381">			final double sMax = sNodes[sNodes.length - 1];</span>
+
+<span class="nc" id="L383">			final double iMax = maturity * sMax;</span>
+<span class="nc" id="L384">			final int nI = sNodes.length * 4;</span>
+<span class="nc" id="L385">			final Grid iGrid = new UniformGrid(nI - 1, 0.0, iMax);</span>
+
+<span class="nc" id="L387">			final SpaceTimeDiscretization liftedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {sGrid, iGrid },
+<span class="nc" id="L389">					baseDiscretization.getTimeDiscretization(),</span>
+<span class="nc" id="L390">					baseDiscretization.getTheta(),</span>
+<span class="nc" id="L391">					new double[] {bsModel.getInitialValue()[0], 0.0 });</span>
+
+<span class="nc" id="L393">			return new LiftedFDMBlackScholesModelDecorator(bsModel, liftedDiscretization);</span>
+<span class="nc bnc" id="L394" title="All 2 branches missed.">		} else if (model instanceof FDMCevModel) {</span>
+<span class="nc" id="L395">			final FDMCevModel cevModel = (FDMCevModel) model;</span>
+
+<span class="nc" id="L397">			final Grid sGrid = baseDiscretization.getSpaceGrid(0);</span>
+<span class="nc" id="L398">			final double[] sNodes = sGrid.getGrid();</span>
+<span class="nc" id="L399">			final double sMax = sNodes[sNodes.length - 1];</span>
+
+<span class="nc" id="L401">			final double iMax = maturity * sMax;</span>
+<span class="nc" id="L402">			final int nI = sNodes.length * 4;</span>
+<span class="nc" id="L403">			final Grid iGrid = new UniformGrid(nI - 1, 0.0, iMax);</span>
+
+<span class="nc" id="L405">			final SpaceTimeDiscretization liftedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {sGrid, iGrid },
+<span class="nc" id="L407">					baseDiscretization.getTimeDiscretization(),</span>
+<span class="nc" id="L408">					baseDiscretization.getTheta(),</span>
+<span class="nc" id="L409">					new double[] {cevModel.getInitialValue()[0], 0.0 });</span>
+
+<span class="nc" id="L411">			return new LiftedFDMCevModelDecorator(cevModel, liftedDiscretization);</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">		} else if (model instanceof FDMBachelierModel) {</span>
+<span class="nc" id="L413">			final FDMBachelierModel bachelierModel = (FDMBachelierModel) model;</span>
+
+<span class="nc" id="L415">			final Grid sGrid = baseDiscretization.getSpaceGrid(0);</span>
+<span class="nc" id="L416">			final double[] sNodes = sGrid.getGrid();</span>
+<span class="nc" id="L417">			final double sMax = sNodes[sNodes.length - 1];</span>
+
+			/*
+			 * Keep the current lifted scale policy for now.
+			 * Note: for Bachelier, if negative S values are allowed on the base
+			 * grid,
+			 * a more robust iMax policy might be max |S| * T instead of T *
+			 * sMax.
+			 */
+<span class="nc" id="L426">			final double iMax = maturity * sMax;</span>
+<span class="nc" id="L427">			final int nI = sNodes.length * 4;</span>
+<span class="nc" id="L428">			final Grid iGrid = new UniformGrid(nI - 1, 0.0, iMax);</span>
+
+<span class="nc" id="L430">			final SpaceTimeDiscretization liftedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {sGrid, iGrid },
+<span class="nc" id="L432">					baseDiscretization.getTimeDiscretization(),</span>
+<span class="nc" id="L433">					baseDiscretization.getTheta(),</span>
+<span class="nc" id="L434">					new double[] {bachelierModel.getInitialValue()[0], 0.0 });</span>
+
+<span class="nc" id="L436">			return new LiftedFDMBachelierModelDecorator(bachelierModel, liftedDiscretization);</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">		} else if (model instanceof FDMHestonModel) {</span>
+<span class="nc" id="L438">			final FDMHestonModel hestonModel = (FDMHestonModel) model;</span>
+
+<span class="nc" id="L440">			final Grid sGrid = baseDiscretization.getSpaceGrid(0);</span>
+<span class="nc" id="L441">			final Grid vGrid = baseDiscretization.getSpaceGrid(1);</span>
+
+<span class="nc" id="L443">			final double[] sNodes = sGrid.getGrid();</span>
+<span class="nc" id="L444">			final double sMax = sNodes[sNodes.length - 1];</span>
+
+<span class="nc" id="L446">			final double iMax = maturity * sMax;</span>
+<span class="nc" id="L447">			final int nI = sNodes.length * 4;</span>
+<span class="nc" id="L448">			final Grid iGrid = new UniformGrid(nI - 1, 0.0, iMax);</span>
+
+<span class="nc" id="L450">			final double[] initialValue = hestonModel.getInitialValue();</span>
+
+<span class="nc" id="L452">			final SpaceTimeDiscretization liftedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {sGrid, vGrid, iGrid },
+<span class="nc" id="L454">					baseDiscretization.getTimeDiscretization(),</span>
+<span class="nc" id="L455">					baseDiscretization.getTheta(),</span>
+					new double[] {initialValue[0], initialValue[1], 0.0 });
+
+<span class="nc" id="L458">			return new LiftedFDMHestonModelDecorator(hestonModel, liftedDiscretization);</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">		} else if (model instanceof FDMSabrModel) {</span>
+<span class="nc" id="L460">			final FDMSabrModel sabrModel = (FDMSabrModel) model;</span>
+
+<span class="nc" id="L462">			final Grid sGrid = baseDiscretization.getSpaceGrid(0);</span>
+<span class="nc" id="L463">			final Grid alphaGrid = baseDiscretization.getSpaceGrid(1);</span>
+
+<span class="nc" id="L465">			final double[] sNodes = sGrid.getGrid();</span>
+<span class="nc" id="L466">			final double sMax = sNodes[sNodes.length - 1];</span>
+
+<span class="nc" id="L468">			final double iMax = maturity * sMax;</span>
+<span class="nc" id="L469">			final int nI = sNodes.length * 4;</span>
+<span class="nc" id="L470">			final Grid iGrid = new UniformGrid(nI - 1, 0.0, iMax);</span>
+
+<span class="nc" id="L472">			final double[] initialValue = sabrModel.getInitialValue();</span>
+
+<span class="nc" id="L474">			final SpaceTimeDiscretization liftedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {sGrid, alphaGrid, iGrid },
+<span class="nc" id="L476">					baseDiscretization.getTimeDiscretization(),</span>
+<span class="nc" id="L477">					baseDiscretization.getTheta(),</span>
+					new double[] {initialValue[0], initialValue[1], 0.0 });
+
+<span class="nc" id="L480">			return new LiftedFDMSabrModelDecorator(sabrModel, liftedDiscretization);</span>
+		} else {
+<span class="nc" id="L482">			throw new IllegalArgumentException(</span>
+					&quot;AsianOption currently supports only FDMBlackScholesModel, FDMCevModel, FDMBachelierModel and FDMHestonModel.&quot;);
+		}
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L493">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L502">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getStrike() {
+<span class="nc" id="L511">		return strike;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L520">		return callOrPutSign;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public AsianStrike getAsianStrike() {
+<span class="nc" id="L529">		return asianStrike;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L538">		return exercise;</span>
+	}
+
+	/**
+	 * Decorator that lifts a 1D Black-Scholes model to a 2D model with state
+	 * (S, I),
+	 * where I(t) = integral_0^t S(u) du.
+	 */
+	private static final class LiftedFDMBlackScholesModelDecorator
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FDMBlackScholesModel delegate;
+		/**
+		 * The lifted discretization.
+		 */
+		private final SpaceTimeDiscretization liftedDiscretization;
+
+		private LiftedFDMBlackScholesModelDecorator(
+				final FDMBlackScholesModel delegate,
+<span class="nc" id="L560">				final SpaceTimeDiscretization liftedDiscretization) {</span>
+<span class="nc" id="L561">			this.delegate = delegate;</span>
+<span class="nc" id="L562">			this.liftedDiscretization = liftedDiscretization;</span>
+<span class="nc" id="L563">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L567">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L572">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L577">			return liftedDiscretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L582" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc bnc" id="L584" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L586">			final double muS = delegate.getDrift(effectiveTime, stock)[0];</span>
+<span class="nc" id="L587">			final double muI = stock;</span>
+
+<span class="nc" id="L589">			return new double[] {muS, muI };</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L594" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L596">			final double sigma = delegate.getFactorLoading(time, stock)[0][0];</span>
+
+<span class="nc" id="L598">			return new double[][] {{sigma, 0.0 }, {0.0, 0.0 } };</span>
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L603">			final double[] oldArray = delegate.getInitialValue();</span>
+<span class="nc" id="L604">			final double[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);</span>
+<span class="nc" id="L605">			newArray[newArray.length - 1] = 0.0;</span>
+<span class="nc" id="L606">			return newArray;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L615" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L617">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L618">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L619">			final double strike = option.getStrike();</span>
+<span class="nc" id="L620">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L621">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L623">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L624">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L625">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc" id="L627">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc bnc" id="L629" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+<span class="nc" id="L630">			final double averageSoFar = integral / maturity;</span>
+
+			final double lowerSValue;
+
+<span class="nc bnc" id="L634" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L635" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L636">					lowerSValue = discount * Math.max(averageSoFar - strike, 0.0);</span>
+				} else {
+<span class="nc" id="L638">					lowerSValue = discount * Math.max(strike - averageSoFar, 0.0);</span>
+				}
+<span class="nc bnc" id="L640" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L641" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L642">					lowerSValue = 0.0;</span>
+				} else {
+<span class="nc" id="L644">					lowerSValue = discount * averageSoFar;</span>
+				}
+			} else {
+<span class="nc" id="L647">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L650">			result[0] = StandardBoundaryCondition.dirichlet(lowerSValue);</span>
+<span class="nc" id="L651">			result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L653">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L662" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L664">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L665">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L666">			final double strike = option.getStrike();</span>
+<span class="nc" id="L667">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L668">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L670">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L671">			final double q = -Math.log(getDividendYieldCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L672">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L673">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc bnc" id="L675" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+<span class="nc bnc" id="L676" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+
+<span class="nc" id="L678">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc" id="L680">			final double averageSoFar = integral / maturity;</span>
+
+			final double discountedExpectedRemainingAverageContribution;
+<span class="nc bnc" id="L683" title="All 2 branches missed.">			if (Math.abs(r - q) &gt; 1E-12) {</span>
+<span class="nc" id="L684">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L685">						(stock / maturity) * (Math.exp(-q * delta) - Math.exp(-r * delta)) / (r - q);</span>
+			} else {
+<span class="nc" id="L687">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L688">						(stock / maturity) * delta * Math.exp(-r * delta);</span>
+			}
+
+<span class="nc" id="L691">			final double discountedExpectedAverage =</span>
+					discount * averageSoFar + discountedExpectedRemainingAverageContribution;
+
+<span class="nc" id="L694">			final double discountedExpectedSpot =</span>
+<span class="nc" id="L695">					stock * Math.exp(-q * delta);</span>
+
+<span class="nc bnc" id="L697" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc" id="L698">				final double upperSCallValue =</span>
+						discountedExpectedAverage - discount * strike;
+
+<span class="nc" id="L701">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L702" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+<span class="nc" id="L703">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc bnc" id="L704" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc" id="L705">				final double upperSCallValue =</span>
+						discountedExpectedSpot - discountedExpectedAverage;
+
+<span class="nc" id="L708">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L709" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+<span class="nc" id="L710">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc" id="L711">			} else {</span>
+<span class="nc" id="L712">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L715">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L722">			return new LiftedFDMBlackScholesModelDecorator(delegate, newSpaceTimeDiscretization);</span>
+		}
+	}
+
+	/**
+	 * Decorator that lifts a 1D CEV model to a 2D model with state (S, I),
+	 * where I(t) = integral_0^t S(u) du.
+	 */
+	private static final class LiftedFDMCevModelDecorator
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FDMCevModel delegate;
+		/**
+		 * The lifted discretization.
+		 */
+		private final SpaceTimeDiscretization liftedDiscretization;
+
+		private LiftedFDMCevModelDecorator(
+				final FDMCevModel delegate,
+<span class="nc" id="L744">				final SpaceTimeDiscretization liftedDiscretization) {</span>
+<span class="nc" id="L745">			this.delegate = delegate;</span>
+<span class="nc" id="L746">			this.liftedDiscretization = liftedDiscretization;</span>
+<span class="nc" id="L747">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L751">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L756">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L761">			return liftedDiscretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L766" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc bnc" id="L768" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L770">			final double muS = delegate.getDrift(effectiveTime, stock)[0];</span>
+<span class="nc" id="L771">			final double muI = stock;</span>
+
+<span class="nc" id="L773">			return new double[] {muS, muI };</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L778" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L780">			final double sigma = delegate.getFactorLoading(time, stock)[0][0];</span>
+
+<span class="nc" id="L782">			return new double[][] {{sigma, 0.0 }, {0.0, 0.0 } };</span>
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L787">			final double[] oldArray = delegate.getInitialValue();</span>
+<span class="nc" id="L788">			final double[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);</span>
+<span class="nc" id="L789">			newArray[newArray.length - 1] = 0.0;</span>
+<span class="nc" id="L790">			return newArray;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L799" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L801">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L802">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L803">			final double strike = option.getStrike();</span>
+<span class="nc" id="L804">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L805">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L807">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L808">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L809">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc" id="L811">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc bnc" id="L813" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+<span class="nc" id="L814">			final double averageSoFar = integral / maturity;</span>
+
+			final double lowerSValue;
+
+<span class="nc bnc" id="L818" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L819" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L820">					lowerSValue = discount * Math.max(averageSoFar - strike, 0.0);</span>
+				} else {
+<span class="nc" id="L822">					lowerSValue = discount * Math.max(strike - averageSoFar, 0.0);</span>
+				}
+<span class="nc bnc" id="L824" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L825" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L826">					lowerSValue = 0.0;</span>
+				} else {
+<span class="nc" id="L828">					lowerSValue = discount * averageSoFar;</span>
+				}
+			} else {
+<span class="nc" id="L831">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L834">			result[0] = StandardBoundaryCondition.dirichlet(lowerSValue);</span>
+<span class="nc" id="L835">			result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L837">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L846" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L848">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L849">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L850">			final double strike = option.getStrike();</span>
+<span class="nc" id="L851">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L852">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L854">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L855">			final double q = -Math.log(getDividendYieldCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L856">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L857">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc bnc" id="L859" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+<span class="nc bnc" id="L860" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+
+<span class="nc" id="L862">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc" id="L864">			final double averageSoFar = integral / maturity;</span>
+
+			final double discountedExpectedRemainingAverageContribution;
+<span class="nc bnc" id="L867" title="All 2 branches missed.">			if (Math.abs(r - q) &gt; 1E-12) {</span>
+<span class="nc" id="L868">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L869">						(stock / maturity) * (Math.exp(-q * delta) - Math.exp(-r * delta)) / (r - q);</span>
+			} else {
+<span class="nc" id="L871">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L872">						(stock / maturity) * delta * Math.exp(-r * delta);</span>
+			}
+
+<span class="nc" id="L875">			final double discountedExpectedAverage =</span>
+					discount * averageSoFar + discountedExpectedRemainingAverageContribution;
+
+<span class="nc" id="L878">			final double discountedExpectedSpot =</span>
+<span class="nc" id="L879">					stock * Math.exp(-q * delta);</span>
+
+<span class="nc bnc" id="L881" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc" id="L882">				final double upperSCallValue =</span>
+						discountedExpectedAverage - discount * strike;
+
+<span class="nc" id="L885">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L886" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+
+<span class="nc" id="L888">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc bnc" id="L889" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc" id="L890">				final double upperSCallValue =</span>
+						discountedExpectedSpot - discountedExpectedAverage;
+
+<span class="nc" id="L893">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L894" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+
+<span class="nc" id="L896">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc" id="L897">			} else {</span>
+<span class="nc" id="L898">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L901">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L908">			return new LiftedFDMCevModelDecorator(delegate, newSpaceTimeDiscretization);</span>
+		}
+	}
+
+	/**
+	 * Decorator that lifts a 1D Bachelier model to a 2D model with state (S,
+	 * I),
+	 * where I(t) = integral_0^t S(u) du.
+	 */
+	private static final class LiftedFDMBachelierModelDecorator
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FDMBachelierModel delegate;
+		/**
+		 * The lifted discretization.
+		 */
+		private final SpaceTimeDiscretization liftedDiscretization;
+
+		private LiftedFDMBachelierModelDecorator(
+				final FDMBachelierModel delegate,
+<span class="nc" id="L931">				final SpaceTimeDiscretization liftedDiscretization) {</span>
+<span class="nc" id="L932">			this.delegate = delegate;</span>
+<span class="nc" id="L933">			this.liftedDiscretization = liftedDiscretization;</span>
+<span class="nc" id="L934">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L938">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L943">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L948">			return liftedDiscretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L953" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc bnc" id="L955" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L957">			final double muS = delegate.getDrift(effectiveTime, stock)[0];</span>
+<span class="nc" id="L958">			final double muI = stock;</span>
+
+<span class="nc" id="L960">			return new double[] {muS, muI };</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L965" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+
+<span class="nc" id="L967">			final double sigma = delegate.getFactorLoading(time, stock)[0][0];</span>
+
+<span class="nc" id="L969">			return new double[][] {{sigma, 0.0 }, {0.0, 0.0 } };</span>
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L974">			final double[] oldArray = delegate.getInitialValue();</span>
+<span class="nc" id="L975">			final double[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);</span>
+<span class="nc" id="L976">			newArray[newArray.length - 1] = 0.0;</span>
+<span class="nc" id="L977">			return newArray;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L986" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L988">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L989">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L990">			final double strike = option.getStrike();</span>
+<span class="nc" id="L991">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L992">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L994">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L995">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L996">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc" id="L998">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+<span class="nc" id="L1001">			final double averageSoFar = integral / maturity;</span>
+
+			final double lowerSValue;
+
+<span class="nc bnc" id="L1005" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L1006" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1007">					lowerSValue = discount * Math.max(averageSoFar - strike, 0.0);</span>
+				} else {
+<span class="nc" id="L1009">					lowerSValue = discount * Math.max(strike - averageSoFar, 0.0);</span>
+				}
+<span class="nc bnc" id="L1011" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L1012" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1013">					lowerSValue = 0.0;</span>
+				} else {
+<span class="nc" id="L1015">					lowerSValue = discount * averageSoFar;</span>
+				}
+			} else {
+<span class="nc" id="L1018">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L1021">			result[0] = StandardBoundaryCondition.dirichlet(lowerSValue);</span>
+<span class="nc" id="L1022">			result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L1024">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L1035">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L1036">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L1037">			final double strike = option.getStrike();</span>
+<span class="nc" id="L1038">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L1039">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L1041">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1042">			final double q = -Math.log(getDividendYieldCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1043">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L1044">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc bnc" id="L1046" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+<span class="nc bnc" id="L1047" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 1 ? stateVariables[1] : 0.0;</span>
+
+<span class="nc" id="L1049">			final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="nc" id="L1051">			final double averageSoFar = integral / maturity;</span>
+
+			final double discountedExpectedRemainingAverageContribution;
+<span class="nc bnc" id="L1054" title="All 2 branches missed.">			if (Math.abs(r - q) &gt; 1E-12) {</span>
+<span class="nc" id="L1055">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1056">						(stock / maturity) * (Math.exp(-q * delta) - Math.exp(-r * delta)) / (r - q);</span>
+			} else {
+<span class="nc" id="L1058">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1059">						(stock / maturity) * delta * Math.exp(-r * delta);</span>
+			}
+
+<span class="nc" id="L1062">			final double discountedExpectedAverage =</span>
+					discount * averageSoFar + discountedExpectedRemainingAverageContribution;
+
+<span class="nc" id="L1065">			final double discountedExpectedSpot =</span>
+<span class="nc" id="L1066">					stock * Math.exp(-q * delta);</span>
+
+<span class="nc bnc" id="L1068" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc" id="L1069">				final double upperSCallValue =</span>
+						discountedExpectedAverage - discount * strike;
+
+<span class="nc" id="L1072">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1073" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+
+<span class="nc" id="L1075">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc bnc" id="L1076" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc" id="L1077">				final double upperSCallValue =</span>
+						discountedExpectedSpot - discountedExpectedAverage;
+
+<span class="nc" id="L1080">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1081" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? upperSCallValue : 0.0);</span>
+
+<span class="nc" id="L1083">				result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc" id="L1084">			} else {</span>
+<span class="nc" id="L1085">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L1088">			return result;</span>
+		}
+
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L1096">			return new LiftedFDMBachelierModelDecorator(delegate, newSpaceTimeDiscretization);</span>
+		}
+	}
+
+	/**
+	 * Decorator that lifts a 2D Heston model with state (S, v)
+	 * to a 3D model with state (S, v, I),
+	 * where I(t) = integral_0^t S(u) du.
+	 */
+	private static final class LiftedFDMHestonModelDecorator
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FDMHestonModel delegate;
+		/**
+		 * The lifted discretization.
+		 */
+		private final SpaceTimeDiscretization liftedDiscretization;
+
+		private LiftedFDMHestonModelDecorator(
+				final FDMHestonModel delegate,
+<span class="nc" id="L1119">				final SpaceTimeDiscretization liftedDiscretization) {</span>
+<span class="nc" id="L1120">			this.delegate = delegate;</span>
+<span class="nc" id="L1121">			this.liftedDiscretization = liftedDiscretization;</span>
+<span class="nc" id="L1122">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L1126">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L1131">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L1136">			return liftedDiscretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1141" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc bnc" id="L1143" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+<span class="nc bnc" id="L1144" title="All 2 branches missed.">			final double variance = stateVariables.length &gt; 1 ? stateVariables[1] : delegate.getInitialValue()[1];</span>
+
+<span class="nc" id="L1146">			final double[] baseDrift = delegate.getDrift(effectiveTime, stock, variance);</span>
+
+<span class="nc" id="L1148">			final double muS = baseDrift[0];</span>
+<span class="nc" id="L1149">			final double muV = baseDrift[1];</span>
+<span class="nc" id="L1150">			final double muI = stock;</span>
+
+<span class="nc" id="L1152">			return new double[] {muS, muV, muI };</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1157" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+<span class="nc bnc" id="L1158" title="All 2 branches missed.">			final double variance = stateVariables.length &gt; 1 ? stateVariables[1] : delegate.getInitialValue()[1];</span>
+
+<span class="nc" id="L1160">			final double[][] baseLoading = delegate.getFactorLoading(time, stock, variance);</span>
+
+<span class="nc" id="L1162">			return new double[][] {</span>
+				{baseLoading[0][0], baseLoading[0][1], 0.0 },
+				{baseLoading[1][0], baseLoading[1][1], 0.0 },
+				{0.0,               0.0,               0.0 }
+			};
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L1171">			final double[] oldArray = delegate.getInitialValue();</span>
+<span class="nc" id="L1172">			final double[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);</span>
+<span class="nc" id="L1173">			newArray[newArray.length - 1] = 0.0;</span>
+<span class="nc" id="L1174">			return newArray;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L1183" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L1185">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L1186">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L1187">			final double strike = option.getStrike();</span>
+<span class="nc" id="L1188">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L1189">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L1191">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1192">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L1193">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc" id="L1195">			final BoundaryCondition[] result = new BoundaryCondition[3];</span>
+
+<span class="nc bnc" id="L1197" title="All 2 branches missed.">			final double I = stateVariables.length &gt; 2 ? stateVariables[2] : 0.0;</span>
+<span class="nc" id="L1198">			final double averageSoFar = I / maturity;</span>
+
+			final double lowerSValue;
+
+<span class="nc bnc" id="L1202" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L1203" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1204">					lowerSValue = discount * Math.max(averageSoFar - strike, 0.0);</span>
+				} else {
+<span class="nc" id="L1206">					lowerSValue = discount * Math.max(strike - averageSoFar, 0.0);</span>
+				}
+<span class="nc bnc" id="L1208" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L1209" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1210">					lowerSValue = 0.0;</span>
+				} else {
+<span class="nc" id="L1212">					lowerSValue = discount * averageSoFar;</span>
+				}
+			} else {
+<span class="nc" id="L1215">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L1218">			result[0] = StandardBoundaryCondition.dirichlet(lowerSValue);</span>
+<span class="nc" id="L1219">			result[1] = StandardBoundaryCondition.none();</span>
+<span class="nc" id="L1220">			result[2] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L1222">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L1231" title="All 2 branches missed.">			if (time == 0.0) {</span>
+<span class="nc" id="L1232">				time = 1e-6;</span>
+			}
+
+<span class="nc" id="L1235">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L1236">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L1237">			final double strike = option.getStrike();</span>
+<span class="nc" id="L1238">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L1239">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L1241">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(time)) / time;</span>
+<span class="nc" id="L1242">			final double q = -Math.log(getDividendYieldCurve().getDiscountFactor(time)) / time;</span>
+<span class="nc" id="L1243">			final double delta = maturity - time;</span>
+<span class="nc" id="L1244">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+<span class="nc bnc" id="L1247" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 2 ? stateVariables[2] : 0.0;</span>
+
+<span class="nc" id="L1249">			final BoundaryCondition[] result = new BoundaryCondition[3];</span>
+
+<span class="nc" id="L1251">			final double averageSoFar = integral / maturity;</span>
+
+			final double discountedExpectedRemainingAverageContribution;
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">			if (Math.abs(r - q) &gt; 1E-12) {</span>
+<span class="nc" id="L1255">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1256">						(stock / maturity) * (Math.exp(-q * delta) - Math.exp(-r * delta)) / (r - q);</span>
+			} else {
+<span class="nc" id="L1258">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1259">						(stock / maturity) * delta * Math.exp(-r * delta);</span>
+			}
+
+<span class="nc" id="L1262">			final double discountedExpectedAverage =</span>
+					discount * averageSoFar + discountedExpectedRemainingAverageContribution;
+
+<span class="nc" id="L1265">			final double discountedExpectedSpot =</span>
+<span class="nc" id="L1266">					stock * Math.exp(-q * delta);</span>
+
+<span class="nc bnc" id="L1268" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc" id="L1269">				final double callAsymptoticValue =</span>
+						discountedExpectedAverage - discount * strike;
+
+<span class="nc" id="L1272">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1273" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? callAsymptoticValue : 0.0);</span>
+
+				/*
+				 * Upper I is the inflow boundary for the transport solve.
+				 * For large I the fixed-strike call is deep ITM and the put is
+				 * asymptotically 0.
+				 */
+<span class="nc" id="L1280">				result[2] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1281" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? callAsymptoticValue : 0.0);</span>
+<span class="nc bnc" id="L1282" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc" id="L1283">				final double putAsymptoticValue =</span>
+						discountedExpectedAverage - discountedExpectedSpot;
+
+				/*
+				 * Upper S boundary.
+				 */
+<span class="nc" id="L1289">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1290" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? 0.0 : putAsymptoticValue);</span>
+
+				/*
+				 * Upper I is the inflow boundary.
+				 * For large I the floating-strike put is deep ITM and the call
+				 * is asymptotically 0.
+				 */
+<span class="nc" id="L1297">				result[2] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1298" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? 0.0 : putAsymptoticValue);</span>
+<span class="nc" id="L1299">			} else {</span>
+<span class="nc" id="L1300">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L1303">			result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L1305">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L1311">			return new LiftedFDMHestonModelDecorator(delegate, newSpaceTimeDiscretization);</span>
+		}
+	}
+
+	/**
+	 * Decorator that lifts a 2D SABR model with state (S, alpha)
+	 * to a 3D model with state (S, alpha, I),
+	 * where I(t) = integral_0^t S(u) du.
+	 */
+	private static final class LiftedFDMSabrModelDecorator
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FDMSabrModel delegate;
+		/**
+		 * The lifted discretization.
+		 */
+		private final SpaceTimeDiscretization liftedDiscretization;
+
+		private LiftedFDMSabrModelDecorator(
+				final FDMSabrModel delegate,
+<span class="nc" id="L1334">				final SpaceTimeDiscretization liftedDiscretization) {</span>
+<span class="nc" id="L1335">			this.delegate = delegate;</span>
+<span class="nc" id="L1336">			this.liftedDiscretization = liftedDiscretization;</span>
+<span class="nc" id="L1337">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L1341">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L1346">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L1351">			return liftedDiscretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1356" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc bnc" id="L1358" title="All 2 branches missed.">			final double s = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+<span class="nc bnc" id="L1359" title="All 2 branches missed.">			final double alpha = stateVariables.length &gt; 1 ? stateVariables[1] : delegate.getInitialValue()[1];</span>
+
+<span class="nc" id="L1361">			final double[] baseDrift = delegate.getDrift(effectiveTime, s, alpha);</span>
+
+<span class="nc" id="L1363">			final double muS = baseDrift[0];</span>
+<span class="nc" id="L1364">			final double muAlpha = baseDrift[1];</span>
+<span class="nc" id="L1365">			final double muI = s;</span>
+
+<span class="nc" id="L1367">			return new double[] {muS, muAlpha, muI };</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1372" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : delegate.getInitialValue()[0];</span>
+<span class="nc bnc" id="L1373" title="All 2 branches missed.">			final double alpha = stateVariables.length &gt; 1 ? stateVariables[1] : delegate.getInitialValue()[1];</span>
+
+<span class="nc" id="L1375">			final double[][] baseLoading = delegate.getFactorLoading(time, stock, alpha);</span>
+
+<span class="nc" id="L1377">			return new double[][] {</span>
+				{baseLoading[0][0], baseLoading[0][1], 0.0 },
+				{baseLoading[1][0], baseLoading[1][1], 0.0 },
+				{0.0,               0.0,               0.0 }
+			};
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L1386">			final double[] oldArray = delegate.getInitialValue();</span>
+<span class="nc" id="L1387">			final double[] newArray = Arrays.copyOf(oldArray, oldArray.length + 1);</span>
+<span class="nc" id="L1388">			newArray[newArray.length - 1] = 0.0;</span>
+<span class="nc" id="L1389">			return newArray;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L1398" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L1400">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L1401">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L1402">			final double strike = option.getStrike();</span>
+<span class="nc" id="L1403">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L1404">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L1406">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1407">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L1408">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc" id="L1410">			final BoundaryCondition[] result = new BoundaryCondition[3];</span>
+
+<span class="nc bnc" id="L1412" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 2 ? stateVariables[2] : 0.0;</span>
+<span class="nc" id="L1413">			final double averageSoFar = integral / maturity;</span>
+
+			final double lowerSValue;
+
+<span class="nc bnc" id="L1417" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc bnc" id="L1418" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1419">					lowerSValue = discount * Math.max(averageSoFar - strike, 0.0);</span>
+				} else {
+<span class="nc" id="L1421">					lowerSValue = discount * Math.max(strike - averageSoFar, 0.0);</span>
+				}
+<span class="nc bnc" id="L1423" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc bnc" id="L1424" title="All 2 branches missed.">				if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L1425">					lowerSValue = 0.0;</span>
+				} else {
+<span class="nc" id="L1427">					lowerSValue = discount * averageSoFar;</span>
+				}
+			} else {
+<span class="nc" id="L1430">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+			/*
+			 * S -&gt; lower boundary:
+			 * same Asian asymptotics as in the existing lifted models.
+			 */
+<span class="nc" id="L1437">			result[0] = StandardBoundaryCondition.dirichlet(lowerSValue);</span>
+
+			/*
+			 * alpha -&gt; lower boundary:
+			 * keep PDE row intact, consistent with current SABR boundary
+			 * policy.
+			 */
+<span class="nc" id="L1444">			result[1] = StandardBoundaryCondition.none();</span>
+
+			/*
+			 * I -&gt; lower boundary:
+			 * keep PDE row intact, as in the existing Asian lifted models.
+			 */
+<span class="nc" id="L1450">			result[2] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L1452">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc bnc" id="L1461" title="All 2 branches missed.">			final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L1463">			final AsianOption option = (AsianOption) product;</span>
+<span class="nc" id="L1464">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L1465">			final double strike = option.getStrike();</span>
+<span class="nc" id="L1466">			final CallOrPut callOrPut = option.getCallOrPut();</span>
+<span class="nc" id="L1467">			final AsianStrike asianStrike = option.getAsianStrike();</span>
+
+<span class="nc" id="L1469">			final double r = -Math.log(getRiskFreeCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1470">			final double q = -Math.log(getDividendYieldCurve().getDiscountFactor(effectiveTime)) / effectiveTime;</span>
+<span class="nc" id="L1471">			final double delta = maturity - effectiveTime;</span>
+<span class="nc" id="L1472">			final double discount = Math.exp(-r * delta);</span>
+
+<span class="nc bnc" id="L1474" title="All 2 branches missed.">			final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+<span class="nc bnc" id="L1475" title="All 2 branches missed.">			final double integral = stateVariables.length &gt; 2 ? stateVariables[2] : 0.0;</span>
+
+<span class="nc" id="L1477">			final BoundaryCondition[] result = new BoundaryCondition[3];</span>
+
+<span class="nc" id="L1479">			final double averageSoFar = integral / maturity;</span>
+
+			final double discountedExpectedRemainingAverageContribution;
+<span class="nc bnc" id="L1482" title="All 2 branches missed.">			if (Math.abs(r - q) &gt; 1E-12) {</span>
+<span class="nc" id="L1483">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1484">						(stock / maturity) * (Math.exp(-q * delta) - Math.exp(-r * delta)) / (r - q);</span>
+			} else {
+<span class="nc" id="L1486">				discountedExpectedRemainingAverageContribution =</span>
+<span class="nc" id="L1487">						(stock / maturity) * delta * Math.exp(-r * delta);</span>
+			}
+
+<span class="nc" id="L1490">			final double discountedExpectedAverage =</span>
+					discount * averageSoFar + discountedExpectedRemainingAverageContribution;
+
+<span class="nc" id="L1493">			final double discountedExpectedSpot =</span>
+<span class="nc" id="L1494">					stock * Math.exp(-q * delta);</span>
+
+<span class="nc bnc" id="L1496" title="All 2 branches missed.">			if (asianStrike == AsianStrike.FIXED_STRIKE) {</span>
+<span class="nc" id="L1497">				final double callAsymptoticValue =</span>
+						discountedExpectedAverage - discount * strike;
+
+				/*
+				 * Upper S boundary.
+				 */
+<span class="nc" id="L1503">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1504" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? callAsymptoticValue : 0.0);</span>
+
+				/*
+				 * Upper alpha boundary:
+				 * keep PDE row intact for now.
+				 */
+<span class="nc" id="L1510">				result[1] = StandardBoundaryCondition.none();</span>
+
+				/*
+				 * Upper I boundary is the inflow boundary for the transport
+				 * solve.
+				 * For large I the fixed-strike call is deep ITM and the put is
+				 * asymptotically 0.
+				 */
+<span class="nc" id="L1518">				result[2] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1519" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? callAsymptoticValue : 0.0);</span>
+<span class="nc bnc" id="L1520" title="All 2 branches missed.">			} else if (asianStrike == AsianStrike.FLOATING_STRIKE) {</span>
+<span class="nc" id="L1521">				final double putAsymptoticValue =</span>
+						discountedExpectedAverage - discountedExpectedSpot;
+
+				/*
+				 * Upper S boundary.
+				 */
+<span class="nc" id="L1527">				result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1528" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? 0.0 : putAsymptoticValue);</span>
+
+				/*
+				 * Upper alpha boundary:
+				 * keep PDE row intact for now.
+				 */
+<span class="nc" id="L1534">				result[1] = StandardBoundaryCondition.none();</span>
+
+				/*
+				 * Upper I boundary is the inflow boundary.
+				 * For large I the floating-strike put is deep ITM and the call
+				 * is asymptotically 0.
+				 */
+<span class="nc" id="L1541">				result[2] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc bnc" id="L1542" title="All 2 branches missed.">						(callOrPut == CallOrPut.CALL) ? 0.0 : putAsymptoticValue);</span>
+<span class="nc" id="L1543">			} else {</span>
+<span class="nc" id="L1544">				throw new IllegalArgumentException(&quot;Unrecognized strike type.&quot;);</span>
+			}
+
+<span class="nc" id="L1547">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L1553">			return new LiftedFDMSabrModelDecorator(delegate, newSpaceTimeDiscretization);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

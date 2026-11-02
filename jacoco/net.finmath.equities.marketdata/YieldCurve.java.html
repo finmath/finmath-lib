@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>YieldCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.marketdata</a> &gt; <span class="el_source">YieldCurve.java</span></div><h1>YieldCurve.java</h1><pre class="source lang-java linenums">package net.finmath.equities.marketdata;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Class to provide methods of a yield curve.
+ *
+ * @author Andreas Grotz
+ */
+<span class="fc" id="L17">public class YieldCurve {</span>
+
+	private final LocalDate referenceDate;
+	private final LocalDate[] discountDates;
+	private final DayCountConvention dayCounter;
+	private final DiscountCurveInterpolation baseCurve;
+
+	public YieldCurve(
+			final String name,
+			final LocalDate referenceDate,
+			final DayCountConvention dayCounter,
+			final LocalDate[] discountDates,
+<span class="fc" id="L29">			final double[] discountFactors) {</span>
+
+<span class="fc" id="L31">		this.dayCounter = dayCounter;</span>
+<span class="fc" id="L32">		this.discountDates = discountDates;</span>
+
+<span class="fc" id="L34">		final double[] times = new double[discountDates.length];</span>
+<span class="fc" id="L35">		final boolean[] isParameter = new boolean[discountDates.length];</span>
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">		for(int i = 0; i &lt; times.length; i++) {</span>
+<span class="fc" id="L38">			times[i] = dayCounter.getDaycountFraction(referenceDate, discountDates[i]);</span>
+		}
+
+<span class="fc" id="L41">		baseCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(</span>
+				name,
+				referenceDate,
+				times,
+				discountFactors,
+				isParameter,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.LOG_OF_VALUE_PER_TIME);
+
+<span class="fc" id="L51">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L52">	}</span>
+
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L55">		return referenceDate;</span>
+	}
+
+	public LocalDate[] getDiscountDates() {
+<span class="nc" id="L59">		return discountDates;</span>
+	}
+
+	public DayCountConvention getDayCounter() {
+<span class="fc" id="L63">		return dayCounter;</span>
+	}
+
+	public DiscountCurveInterpolation getBaseCurve() {
+<span class="fc" id="L67">		return baseCurve;</span>
+	}
+
+
+	public YieldCurve rollToDate(LocalDate date) {
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		assert date.isAfter(referenceDate) : &quot;can only roll to future dates&quot;;</span>
+
+<span class="nc" id="L74">		final LocalDate[] rolledDiscountDates = Arrays.stream(discountDates)</span>
+<span class="nc" id="L75">				.filter(p -&gt; p.isAfter(date))</span>
+<span class="nc" id="L76">				.toArray(LocalDate[]::new);</span>
+
+<span class="nc" id="L78">		final double[] rolledDiscountFactors = new double[rolledDiscountDates.length];</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		for(int i = 0; i &lt; rolledDiscountDates.length; i++) {</span>
+<span class="nc" id="L80">			rolledDiscountFactors[i] = getForwardDiscountFactor(date, rolledDiscountDates[i]);</span>
+		}
+
+<span class="nc" id="L83">		return new YieldCurve(baseCurve.getName(), date, dayCounter, rolledDiscountDates, rolledDiscountFactors);</span>
+	}
+
+	public double getRate(double maturity) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		assert maturity &gt;= 0.0 : &quot;maturity must be positive&quot;;</span>
+<span class="nc" id="L88">		return baseCurve.getZeroRate(maturity);</span>
+	}
+
+	public double getRate(LocalDate date) {
+<span class="fc" id="L92">		return baseCurve.getZeroRate(dayCounter.getDaycountFraction(referenceDate, date));</span>
+	}
+
+	public double getDiscountFactor(double maturity) {
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		assert maturity &gt;= 0.0 : &quot;maturity must be positive&quot;;</span>
+<span class="fc" id="L97">		return baseCurve.getDiscountFactor(maturity);</span>
+	}
+
+	public double getForwardDiscountFactor(double start, double expiry) {
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		assert start &gt;= 0.0 : &quot;start must be positive&quot;;</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		assert expiry &gt;= start : &quot;start must be before expiry&quot;;</span>
+<span class="fc" id="L103">		return getDiscountFactor(expiry) / getDiscountFactor(start);</span>
+	}
+
+	public double getDiscountFactor(LocalDate date) {
+<span class="fc" id="L107">		return baseCurve.getDiscountFactor(dayCounter.getDaycountFraction(referenceDate, date));</span>
+	}
+
+	public double getForwardDiscountFactor(LocalDate startDate, LocalDate endDate) {
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		assert !startDate.isBefore(referenceDate) : &quot;start date must be after curve date&quot;;</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		assert !endDate.isBefore(startDate) : &quot;end date must be after start date&quot;;</span>
+<span class="fc" id="L113">		return getDiscountFactor(endDate) / getDiscountFactor(startDate);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

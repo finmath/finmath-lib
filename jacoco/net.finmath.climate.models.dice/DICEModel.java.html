@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DICEModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice</a> &gt; <span class="el_source">DICEModel.java</span></div><h1>DICEModel.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
+import java.util.logging.Logger;
+
+import net.finmath.climate.models.AbatementModel;
+import net.finmath.climate.models.ClimateModel;
+import net.finmath.climate.models.SavingsRateModel;
+import net.finmath.climate.models.dice.submodels.AbatementCostFunction;
+import net.finmath.climate.models.dice.submodels.CarbonConcentration3DScalar;
+import net.finmath.climate.models.dice.submodels.DamageFromTemperature;
+import net.finmath.climate.models.dice.submodels.EmissionExternalFunction;
+import net.finmath.climate.models.dice.submodels.EvolutionOfCapital;
+import net.finmath.climate.models.dice.submodels.EvolutionOfCarbonConcentration;
+import net.finmath.climate.models.dice.submodels.EvolutionOfEmissionIndustrialIntensity;
+import net.finmath.climate.models.dice.submodels.EvolutionOfPopulation;
+import net.finmath.climate.models.dice.submodels.EvolutionOfProductivity;
+import net.finmath.climate.models.dice.submodels.EvolutionOfTemperature;
+import net.finmath.climate.models.dice.submodels.ForcingExternalFunction;
+import net.finmath.climate.models.dice.submodels.ForcingFunction;
+import net.finmath.climate.models.dice.submodels.Temperature2DScalar;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * A simulation of a simplified DICE model (see &lt;code&gt;net.finmath.climate.models.dice.DICEModelTest&lt;/code&gt; in src/test/java) for an example usage.
+ *
+ * The model just composes the sub-models (evolution equations and functions) from the package {@link net.finmath.climate.models.dice.submodels}.
+ *
+ * Note: The code uses exponential discounting.
+ */
+public class DICEModel implements ClimateModel {
+
+<span class="fc" id="L40">	private static Logger logger = Logger.getLogger(&quot;net.finmath.climate&quot;);</span>
+
+	/*
+	 * Input to this class
+	 */
+	private final TimeDiscretization timeDiscretization;
+	private final UnaryOperator&lt;Double&gt; abatementFunction;
+	private final UnaryOperator&lt;Double&gt; savingsRateFunction;
+	private final double discountRate;
+
+	/*
+	 * Simulated values - stored for plotting ande analysis
+	 */
+	private final Temperature2DScalar[] temperature;
+	private final CarbonConcentration3DScalar[] carbonConcentration;
+	private final double[] gdp;
+	private final double[] emission;
+	private final double[] abatement;
+	private final double[] abatementCosts;
+	private final double[] damage;
+	private final double[] damageCosts;
+	private final double[] capital;
+	private final double[] population;
+	private final double[] productivity;
+	private final double[] consumptions;
+	private final double[] welfare;
+	private final double[] value;
+
+	/**
+	 * Create the model.
+	 *
+	 * @param timeDiscretization The time discretization to be used.
+	 * @param abatementFunction Abatement function \( t \mapsto \mu(t) \)
+	 * @param savingsRateFunction Savings rate function \( t \mapsto s(t) \)
+	 * @param discountRate Constant exponential disocunt rate r
+	 * @param modelProperties A key value map of optional model properties or parameters.
+	 */
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator&lt;Double&gt; abatementFunction, UnaryOperator&lt;Double&gt; savingsRateFunction, double discountRate, Map&lt;String, Object&gt; modelProperties) {
+<span class="fc" id="L78">		super();</span>
+<span class="fc" id="L79">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L80">		this.abatementFunction = abatementFunction;</span>
+<span class="fc" id="L81">		this.savingsRateFunction = savingsRateFunction;</span>
+<span class="fc" id="L82">		this.discountRate = discountRate;</span>
+
+<span class="fc" id="L84">		final int numberOfTimes = this.timeDiscretization.getNumberOfTimes();</span>
+
+<span class="fc" id="L86">		temperature = new Temperature2DScalar[numberOfTimes];</span>
+<span class="fc" id="L87">		carbonConcentration = new CarbonConcentration3DScalar[numberOfTimes];</span>
+<span class="fc" id="L88">		gdp = new double[numberOfTimes];</span>
+<span class="fc" id="L89">		emission = new double[numberOfTimes];</span>
+<span class="fc" id="L90">		abatement = new double[numberOfTimes];</span>
+<span class="fc" id="L91">		abatementCosts = new double[numberOfTimes];</span>
+<span class="fc" id="L92">		damage = new double[numberOfTimes];</span>
+<span class="fc" id="L93">		damageCosts = new double[numberOfTimes];</span>
+<span class="fc" id="L94">		capital = new double[numberOfTimes];</span>
+<span class="fc" id="L95">		population = new double[numberOfTimes];</span>
+<span class="fc" id="L96">		productivity = new double[numberOfTimes];</span>
+<span class="fc" id="L97">		consumptions = new double[numberOfTimes];</span>
+<span class="fc" id="L98">		welfare = new double[numberOfTimes];</span>
+<span class="fc" id="L99">		value = new double[numberOfTimes];</span>
+
+<span class="fc" id="L101">		this.init(modelProperties);</span>
+<span class="fc" id="L102">	}</span>
+
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator&lt;Double&gt; abatementFunction, UnaryOperator&lt;Double&gt; savingsRateFunction, double discountRate) {
+<span class="fc" id="L105">		this(timeDiscretization, abatementFunction, savingsRateFunction, discountRate, Map.of());</span>
+<span class="fc" id="L106">	}</span>
+
+	public DICEModel(TimeDiscretization timeDiscretization, UnaryOperator&lt;Double&gt; abatementFunction) {
+<span class="nc" id="L109">		this(timeDiscretization, abatementFunction, t -&gt; 0.259029014481802, 0.03);</span>
+<span class="nc" id="L110">	}</span>
+
+	private void init(Map&lt;String, Object&gt; modelProperties) {
+
+<span class="fc" id="L114">		final Predicate&lt;Integer&gt; isTimeIndexToShift = (Predicate&lt;Integer&gt;) modelProperties.getOrDefault(&quot;isTimeIndexToShift&quot;, (Predicate&lt;Integer&gt;) i -&gt; true);</span>
+<span class="fc" id="L115">		final double initialEmissionShift = (double) modelProperties.getOrDefault(&quot;initialEmissionShift&quot;, 0.0);</span>
+<span class="fc" id="L116">		final double initialConsumptionShift = (double) modelProperties.getOrDefault(&quot;initialConsumptionShift&quot;, 0.0);</span>
+
+<span class="fc" id="L118">		final double timeStep = timeDiscretization.getTimeStep(0);</span>
+
+		/*
+		 * Building the model by composing the different functions
+		 */
+
+		/*
+		 * Note: Calling constructors without additional arguments will use default arguments consistent with the 2016 original model.
+		 */
+
+		/*
+		 * State vectors initial values
+		 */
+<span class="fc" id="L131">		final Temperature2DScalar temperatureInitial = new Temperature2DScalar(0.85, 0.0068);</span>
+<span class="fc" id="L132">		final CarbonConcentration3DScalar carbonConcentrationInitial = new CarbonConcentration3DScalar(851, 460, 1740);	// Level of Carbon (GtC)</span>
+
+		/*
+		 * Sub-Modules: functional dependencies and evolution
+		 */
+
+		// Model that describes the damage on the GBP as a function of the temperature-above-normal
+<span class="fc" id="L139">		final DoubleUnaryOperator damageFunction = new DamageFromTemperature();</span>
+
+<span class="fc" id="L141">		final EvolutionOfEmissionIndustrialIntensity emissionIndustrialIntensityFunction = new EvolutionOfEmissionIndustrialIntensity(timeDiscretization);</span>
+
+<span class="fc" id="L143">		final Function&lt;Double, Double&gt; emissionExternalFunction = new EmissionExternalFunction();</span>
+
+<span class="fc" id="L145">		final EvolutionOfCarbonConcentration evolutionOfCarbonConcentration = new EvolutionOfCarbonConcentration(timeDiscretization);</span>
+
+<span class="fc" id="L147">		final ForcingFunction forcingFunction = new ForcingFunction();</span>
+<span class="fc" id="L148">		final ForcingExternalFunction forcingExternalFunction = new ForcingExternalFunction();</span>
+
+<span class="fc" id="L150">		final EvolutionOfTemperature evolutionOfTemperature = new EvolutionOfTemperature(timeDiscretization);</span>
+
+		// Abatement
+<span class="fc" id="L153">		final AbatementCostFunction abatementCostFunction = new AbatementCostFunction();</span>
+
+		/*
+		 * GDP - Economics
+		 */
+<span class="fc" id="L158">		final double K0 = 223;		// Initial Capital</span>
+<span class="fc" id="L159">		final double L0 = 7403;		// Initial Population (world in million)</span>
+<span class="fc" id="L160">		final double A0 = 5.115;		// Initial Total Factor of Productivity</span>
+<span class="fc" id="L161">		final double gamma = 0.3;		// Capital Elasticity in Production Function</span>
+<span class="fc" id="L162">		final double gdpInitial = A0*Math.pow(K0,gamma)*Math.pow(L0/1000,1-gamma);</span>
+
+		// Capital
+<span class="fc" id="L165">		final EvolutionOfCapital evolutionOfCapital = new EvolutionOfCapital(timeDiscretization);</span>
+
+		// Population
+<span class="fc" id="L168">		final EvolutionOfPopulation evolutionOfPopulation = new EvolutionOfPopulation(timeDiscretization);</span>
+
+		// Productivity
+<span class="fc" id="L171">		final EvolutionOfProductivity evolutionOfProductivity = new EvolutionOfProductivity(timeDiscretization);</span>
+
+		/*
+		 * Set initial values
+		 */
+<span class="fc" id="L176">		temperature[0] = temperatureInitial;</span>
+<span class="fc" id="L177">		carbonConcentration[0] = carbonConcentrationInitial;</span>
+<span class="fc" id="L178">		gdp[0] = gdpInitial;</span>
+<span class="fc" id="L179">		capital[0] = K0;</span>
+<span class="fc" id="L180">		population[0] = L0;</span>
+<span class="fc" id="L181">		productivity[0] = A0;</span>
+<span class="fc" id="L182">		double utilityDiscountedSum = 0;</span>
+		//Emission intensity initial value, sigma(0) = e0/q0
+<span class="fc" id="L184">		double emissionIntensity = 35.85/105.5;</span>
+
+		/*
+		 * Evolve
+		 */
+<span class="fc bfc" id="L189" title="All 2 branches covered.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="fc" id="L190">			final double time = timeDiscretization.getTime(timeIndex);</span>
+
+			/*
+			 * Evolve geo-physical quantities i -&gt; i+1 (as a function of gdp[i])
+			 */
+
+			// Abatement
+<span class="fc" id="L197">			abatement[timeIndex] = abatementFunction.apply(timeDiscretization.getTime(timeIndex));</span>
+
+			// Carbon
+<span class="fc" id="L200">			final double emissionIndustrial = emissionIntensity/(1-abatement[0]) * gdp[timeIndex];</span>
+<span class="fc" id="L201">			final double emissionExternal = emissionExternalFunction.apply(time);</span>
+<span class="fc" id="L202">			emission[timeIndex] = (1 - abatement[timeIndex]) * emissionIndustrial + emissionExternal;</span>
+
+			// Allow for an external shift to the emissions (e.g. to calculate SCC).
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">			emission[timeIndex] += isTimeIndexToShift.test(timeIndex) ? initialEmissionShift : 0.0;</span>
+
+<span class="fc" id="L207">			carbonConcentration[timeIndex+1] = evolutionOfCarbonConcentration.apply(timeIndex, carbonConcentration[timeIndex], emission[timeIndex]);</span>
+
+			// Temperature
+<span class="fc" id="L210">			final double forcingExternal = forcingExternalFunction.apply(time+timeStep);</span>
+<span class="fc" id="L211">			final double forcing = forcingFunction.apply(carbonConcentration[timeIndex+1], forcingExternal);</span>
+<span class="fc" id="L212">			temperature[timeIndex+1] = evolutionOfTemperature.apply(timeIndex, temperature[timeIndex], forcing);</span>
+
+			/*
+			 * Cost
+			 */
+
+<span class="fc" id="L218">			damage[timeIndex] = damageFunction.applyAsDouble(temperature[timeIndex].getExpectedTemperatureOfAtmosphere());</span>
+
+<span class="fc" id="L220">			final double damageCostAbsolute = damage[timeIndex] * gdp[timeIndex];</span>
+<span class="fc" id="L221">			damageCosts[timeIndex] = damageCostAbsolute;</span>
+
+<span class="fc" id="L223">			final double abatementCostAbsolute = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIndustrial;</span>
+<span class="fc" id="L224">			abatementCosts[timeIndex] = abatementCostAbsolute;</span>
+
+			/*
+			 * Evolve economy i -&gt; i+1 (as a function of temperature[i])
+			 */
+
+			// Remaining gdp
+<span class="fc" id="L231">			final double gdpNet = gdp[timeIndex] - damageCostAbsolute - abatementCostAbsolute;</span>
+
+			/*
+			 * Equivalent (alternative way) to calculate the abatement
+			 */
+<span class="fc" id="L236">			final double abatementCost = abatementCostFunction.apply(time, abatement[timeIndex]) * emissionIntensity/(1-abatement[0]);</span>
+<span class="fc" id="L237">			final double gdpNet2 = gdp[timeIndex] * (1-damage[timeIndex] - abatementCost);</span>
+<span class="pc bpc" id="L238" title="1 of 2 branches missed.">			if(Math.abs(gdpNet2-gdpNet)/(1+Math.abs(gdpNet)) &gt; 1E-10) {</span>
+<span class="nc" id="L239">				logger.warning(&quot;Calculation of relative and absolute net GDP does not match.&quot;);</span>
+			}
+
+			// Evolve emission intensity
+<span class="fc" id="L243">			emissionIntensity = emissionIndustrialIntensityFunction.apply(timeIndex, emissionIntensity);</span>
+
+
+			// Constant from the original model - in the original model this is a time varying control variable.
+<span class="fc" id="L247">			final double savingsRate = savingsRateFunction.apply(time);	//0.259029014481802;</span>
+
+<span class="fc" id="L249">			double consumption = (1-savingsRate) * gdpNet;</span>
+<span class="fc" id="L250">			final double investment = savingsRate * gdpNet;</span>
+
+			// Allow for an external shift to the emissions (e.g. to calculate SCC).
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">			consumption += isTimeIndexToShift.test(timeIndex) ? initialConsumptionShift : 0.0;</span>
+<span class="fc" id="L254">			consumptions[timeIndex] = consumption;</span>
+
+<span class="fc" id="L256">			capital[timeIndex+1] = evolutionOfCapital.apply(timeIndex).apply(capital[timeIndex], investment);</span>
+
+			/*
+			 * Evolve population and productivity for next GDP
+			 */
+<span class="fc" id="L261">			population[timeIndex+1] = evolutionOfPopulation.apply(timeIndex).apply(population[timeIndex]);</span>
+<span class="fc" id="L262">			productivity[timeIndex+1] = evolutionOfProductivity.apply(timeIndex).apply(productivity[timeIndex]);</span>
+
+<span class="fc" id="L264">			final double L = population[timeIndex+1];</span>
+<span class="fc" id="L265">			final double A = productivity[timeIndex+1];</span>
+<span class="fc" id="L266">			gdp[timeIndex+1] = A*Math.pow(capital[timeIndex+1],gamma)*Math.pow(L/1000,1-gamma);</span>
+
+			/*
+			 * Calculate utility
+			 */
+<span class="fc" id="L271">			final double alpha = 1.45;           // Elasticity of marginal utility of consumption (GAMS elasmu)</span>
+<span class="fc" id="L272">			final double C = consumption;</span>
+			// U = L * [ ( (1000*C/L)^(1-alpha) - 1)/(1-alpha) - 1 ]
+<span class="fc" id="L274">			final double utility = population[timeIndex]*( (Math.pow(1000*C/(population[timeIndex]),1-alpha)-1) /(1-alpha)-1 );</span>
+
+			/*
+			 * Discounted utility
+			 */
+<span class="fc" id="L279">			final double discountFactor = Math.exp(- discountRate * time);</span>
+<span class="fc" id="L280">			welfare[timeIndex] = utility * discountFactor;</span>
+
+<span class="fc" id="L282">			utilityDiscountedSum = utilityDiscountedSum + utility*discountFactor*timeStep;</span>
+<span class="fc" id="L283">			value[timeIndex+1] = utilityDiscountedSum;</span>
+		}
+<span class="fc" id="L285">	}</span>
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L289">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public RandomVariable getTemperature(double time) {
+<span class="nc" id="L294">		return Scalar.of(temperature[timeDiscretization.getTimeIndex(time)].getExpectedTemperatureOfAtmosphere());</span>
+	}
+
+	@Override
+	public RandomVariable getValue() {
+<span class="fc" id="L299">		return Scalar.of(value[value.length-1]);</span>
+	}
+
+	@Override
+	public RandomVariable[] getValues() {
+<span class="nc" id="L304">		return Arrays.stream(value).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable[] getAbatement() {
+<span class="nc" id="L309">		return Arrays.stream(abatement).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable[] getEmission() {
+<span class="nc" id="L314">		return Arrays.stream(emission).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public net.finmath.climate.models.CarbonConcentration[] getCarbonConcentration() {
+<span class="nc" id="L319">		return carbonConcentration;</span>
+	}
+
+	@Override
+	public net.finmath.climate.models.Temperature[] getTemperature() {
+<span class="fc" id="L324">		return temperature;</span>
+	}
+
+	@Override
+	public RandomVariable[] getDamage() {
+<span class="nc" id="L329">		return Arrays.stream(damage).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable[] getGDP() {
+<span class="nc" id="L334">		return Arrays.stream(gdp).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable[] getConsumptions() {
+<span class="nc" id="L339">		return Arrays.stream(consumptions).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable[] getAbatementCosts() {
+<span class="nc" id="L344">		return Arrays.stream(abatementCosts).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable getAbatementCost() {
+<span class="nc" id="L349">		double abatementCost = 0.0;</span>
+<span class="nc bnc" id="L350" title="All 2 branches missed.">		for(int timeIndex = 0; timeIndex &lt; timeDiscretization.getNumberOfTimes(); timeIndex++) {</span>
+<span class="nc" id="L351">			abatementCost += abatementCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));</span>
+		}
+<span class="nc" id="L353">		return Scalar.of(abatementCost);</span>
+	}
+
+	@Override
+	public RandomVariable[] getDamageCosts() {
+<span class="nc" id="L358">		return Arrays.stream(damageCosts).mapToObj(Scalar::of).toArray(RandomVariable[]::new);</span>
+	}
+
+	@Override
+	public RandomVariable getDamageCost() {
+<span class="nc" id="L363">		double damageCost = 0.0;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">		for(int timeIndex = 0; timeIndex &lt; timeDiscretization.getNumberOfTimes(); timeIndex++) {</span>
+<span class="nc" id="L365">			damageCost += damageCosts[timeIndex] * Math.exp(- discountRate * timeDiscretization.getTime(timeIndex));</span>
+		}
+<span class="nc" id="L367">		return Scalar.of(damageCost);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(double time) {
+		// we choose as numeraire the continuously compounding bank account - discount factor is N(0)/N(t)
+<span class="nc" id="L373">		return Scalar.of(Math.exp(discountRate * time));</span>
+	}
+
+	@Override
+	public AbatementModel getAbatementModel() {
+<span class="nc" id="L378">		return (AbatementModel)abatementFunction.andThen(Scalar::new).andThen(RandomVariable.class::cast);</span>
+	}
+
+	@Override
+	public SavingsRateModel getSavingsRateModel() {
+<span class="nc" id="L383">		return (SavingsRateModel)savingsRateFunction.andThen(Scalar::new).andThen(RandomVariable.class::cast);</span>
+	}
+
+	public RandomVariable getDisocuntFactor(double time) {
+<span class="nc" id="L387">		return getNumeraire(0).div(getNumeraire(time));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ContinuationActivationPolicy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">ContinuationActivationPolicy.java</span></div><h1>ContinuationActivationPolicy.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+/**
+ * Activation policy for two-state finite-difference products in which the
+ * active regime
+ * continues with its own continuation value once the barrier event has
+ * occurred.
+ *
+ * &lt;p&gt;
+ * In a two-state barrier formulation, the contract value is decomposed into an
+ * inactive
+ * no-hit regime and an active already-hit regime. Let
+ * &lt;i&gt;V^{\mathrm{act}}(t,x)&lt;/i&gt; denote the value in the active regime, where
+ * &lt;i&gt;x&lt;/i&gt; is the state variable. Under a continuation activation rule, barrier
+ * activation
+ * does not trigger an immediate replacement payoff other than the active branch
+ * itself.
+ * Hence the already-hit value is simply identified with the active continuation
+ * value.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * At maturity this means
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V^{\mathrm{hit}}(T,x) = V^{\mathrm{act}}(T,x)&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * independently of the inactive no-hit terminal value. Likewise, at
+ * intermediate times
+ * and at the activation interface,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V^{\mathrm{hit}}(t,x) = V^{\mathrm{act}}(t,x)&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This policy is appropriate for contracts where hitting the barrier switches
+ * the product
+ * into an active continuation problem rather than causing an immediate cash
+ * settlement.
+ * A typical example is an expiry-settled knock-in structure, where the contract
+ * remains
+ * alive after activation and evolves according to the active branch PDE until
+ * maturity.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+<span class="nc" id="L53">public class ContinuationActivationPolicy implements TwoStateActivationPolicy {</span>
+
+	/**
+	 * Returns the already-hit value at maturity.
+	 *
+	 * @param stateVariable State variable.
+	 * @param activePayoffValue Active-regime payoff value at maturity.
+	 * @param inactiveNoHitValue Inactive no-hit value at maturity.
+	 * @return The already-hit value at maturity.
+	 */
+	@Override
+	public double getAlreadyHitValueAtMaturity(
+			final double stateVariable,
+			final double activePayoffValue,
+			final double inactiveNoHitValue) {
+<span class="nc" id="L68">		return activePayoffValue;</span>
+	}
+
+	/**
+	 * Returns the already-hit value before maturity.
+	 *
+	 * @param currentTime Current running time.
+	 * @param stateVariable State variable.
+	 * @param activeValue Active-regime continuation value.
+	 * @return The already-hit value.
+	 */
+	@Override
+	public double getAlreadyHitValue(
+			final double currentTime,
+			final double stateVariable,
+			final double activeValue) {
+<span class="nc" id="L84">		return activeValue;</span>
+	}
+
+	/**
+	 * Returns the interface value at the activation boundary.
+	 *
+	 * @param currentTime Current running time.
+	 * @param barrierStateVariable State variable at the barrier.
+	 * @param activeValueAtBarrier Active-regime value at the barrier.
+	 * @return The interface value.
+	 */
+	@Override
+	public double getInterfaceValue(
+			final double currentTime,
+			final double barrierStateVariable,
+			final double activeValueAtBarrier) {
+<span class="nc" id="L100">		return activeValueAtBarrier;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

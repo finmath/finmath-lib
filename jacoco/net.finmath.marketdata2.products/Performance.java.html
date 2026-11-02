@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Performance.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.products</a> &gt; <span class="el_source">Performance.java</span></div><h1>Performance.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 06.12.2015
+ */
+package net.finmath.marketdata2.products;
+
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements an analytic product given by the ratio
+ * of two analytic products.
+ *
+ * This class may become handy when constructing calibrations products.
+ * For example: The swap rate is the performance of a &lt;code&gt;SwapLeg&lt;/code&gt; relative to a &lt;code&gt;SwapAnnuity&lt;/code&gt;.
+ *
+ * Note: In the strict sense, the performance is an index an not a product (e.g. it does not have a currency unit).
+ * With respect to the implementation we do not make a difference here and implement the AbstractAnalyticProduct interface.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Performance extends AbstractAnalyticProduct implements AnalyticProduct {
+
+	private final AbstractAnalyticProduct productNumerator;
+	private final AbstractAnalyticProduct productDenominator;
+
+	/**
+	 * Creates a Performance product.
+	 *
+	 * @param productNumerator A product implementing AbstractAnalyticProduct for the numerator.
+	 * @param productDenominator A product implementing AbstractAnalyticProduct for the denominator.
+	 */
+	public Performance(final AbstractAnalyticProduct productNumerator, final AbstractAnalyticProduct productDenominator) {
+<span class="nc" id="L36">		super();</span>
+<span class="nc" id="L37">		this.productNumerator = productNumerator;</span>
+<span class="nc" id="L38">		this.productDenominator = productDenominator;</span>
+<span class="nc" id="L39">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
+
+<span class="nc" id="L44">		final RandomVariable valueNumerator	= productNumerator.getValue(evaluationTime, model);</span>
+<span class="nc" id="L45">		final RandomVariable valueDenominator	= productDenominator.getValue(evaluationTime, model);</span>
+
+<span class="nc" id="L47">		final RandomVariable value = valueNumerator.div(valueDenominator);</span>
+<span class="nc" id="L48">		return value;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L53">		return &quot;Performance [productNumerator=&quot; + productNumerator</span>
+				+ &quot;, productDenominator=&quot; + productDenominator + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

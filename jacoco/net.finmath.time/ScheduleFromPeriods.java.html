@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScheduleFromPeriods.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">ScheduleFromPeriods.java</span></div><h1>ScheduleFromPeriods.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * A schedule of interest rate periods with
+ * a fixing and payment.
+ *
+ * The periods have two representations: one a {@link net.finmath.time.Period}
+ * which contains {@link java.time.LocalDate} dates and
+ * an alternative representation using doubles.
+ *
+ * Within a schedule, the mapping from doubles to dates is one to one.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ScheduleFromPeriods implements Schedule, Serializable {
+
+	private static final long serialVersionUID = 4460864939790714361L;
+
+	private final			LocalDate					referenceDate;
+
+	private final List&lt;Period&gt;			periods;
+	private final DayCountConvention	daycountconvention;
+
+	private final double[] fixingTimes;
+	private final double[] paymentTimes;
+	private final double[] periodStartTimes;
+	private final double[] periodEndTimes;
+	private final double[] periodLength;
+
+	public ScheduleFromPeriods(final LocalDate referenceDate, final DayCountConvention daycountconvention, final Period... periods) {
+<span class="fc" id="L46">		this(referenceDate, Arrays.asList(periods), daycountconvention);</span>
+<span class="fc" id="L47">	}</span>
+
+	public ScheduleFromPeriods(final LocalDate referenceDate, final List&lt;Period&gt; periods, final DayCountConvention daycountconvention) {
+<span class="fc" id="L50">		super();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		if(referenceDate == null) {</span>
+<span class="nc" id="L52">			throw new IllegalArgumentException(&quot;referenceDate must not be null.&quot;);</span>
+		}
+
+<span class="fc" id="L55">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L56">		this.periods = periods;</span>
+<span class="fc" id="L57">		this.daycountconvention = daycountconvention;</span>
+
+		// Precalculate dates to yearfrac doubles
+<span class="fc" id="L60">		fixingTimes = new double[periods.size()];</span>
+<span class="fc" id="L61">		paymentTimes = new double[periods.size()];</span>
+<span class="fc" id="L62">		periodStartTimes = new double[periods.size()];</span>
+<span class="fc" id="L63">		periodEndTimes = new double[periods.size()];</span>
+<span class="fc" id="L64">		periodLength = new double[periods.size()];</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex &lt; periods.size(); periodIndex++) {</span>
+<span class="fc" id="L66">			fixingTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getFixing());</span>
+<span class="fc" id="L67">			paymentTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPayment());</span>
+<span class="fc" id="L68">			periodStartTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodStart());</span>
+<span class="fc" id="L69">			periodEndTimes[periodIndex] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, periods.get(periodIndex).getPeriodEnd());</span>
+<span class="fc" id="L70">			periodLength[periodIndex] = daycountconvention.getDaycountFraction(periods.get(periodIndex).getPeriodStart(), periods.get(periodIndex).getPeriodEnd());</span>
+		}
+<span class="fc" id="L72">	}</span>
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L76">		return referenceDate;</span>
+	}
+
+	@Override
+	public List&lt;Period&gt; getPeriods() {
+<span class="fc" id="L81">		return periods;</span>
+	}
+
+	@Override
+	public DayCountConvention getDaycountconvention() {
+<span class="fc" id="L86">		return daycountconvention;</span>
+	}
+
+	@Override
+	public int getNumberOfPeriods() {
+<span class="fc" id="L91">		return periods.size();</span>
+	}
+
+	@Override
+	public Period getPeriod(final int periodIndex) {
+<span class="fc" id="L96">		return periods.get(periodIndex);</span>
+	}
+
+	@Override
+	public double getFixing(final int periodIndex) {
+<span class="fc" id="L101">		return fixingTimes[periodIndex];</span>
+	}
+
+	@Override
+	public double getPayment(final int periodIndex) {
+<span class="fc" id="L106">		return paymentTimes[periodIndex];</span>
+	}
+
+	@Override
+	public double getPeriodStart(final int periodIndex) {
+<span class="fc" id="L111">		return periodStartTimes[periodIndex];</span>
+	}
+
+	@Override
+	public double getPeriodEnd(final int periodIndex) {
+<span class="fc" id="L116">		return periodEndTimes[periodIndex];</span>
+	}
+
+	@Override
+	public double getPeriodLength(final int periodIndex) {
+<span class="fc" id="L121">		return periodLength[periodIndex];</span>
+	}
+
+	@Override
+	public Iterator&lt;Period&gt; iterator() {
+<span class="fc" id="L126">		return periods.iterator();</span>
+	}
+
+	@Override
+	public int getPeriodIndex(final double time) {
+<span class="nc bnc" id="L131" title="All 4 branches missed.">		if(time&lt; getPeriodStart(0)|| time&gt;= getPeriodEnd(getNumberOfPeriods()-1)) {</span>
+<span class="nc" id="L132">			throw new IllegalArgumentException(&quot;Time point not included&quot;);</span>
+		}
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		for(int i=0; i&lt;getNumberOfPeriods()-1;i++) {</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			if(time&lt;=getPeriodEnd(i)) {</span>
+<span class="nc" id="L136">				return i;</span>
+			}
+		}
+<span class="nc" id="L139">		return getNumberOfPeriods()-1;</span>
+	}
+
+	@Override
+	public int getPeriodIndex(final LocalDate date) {
+<span class="nc" id="L144">		final double floatingDate=FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(),date);</span>
+<span class="nc" id="L145">		return getPeriodIndex(floatingDate);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L150">		String periodOutputString = &quot;Periods (fixing, periodStart, periodEnd, payment):&quot;;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;periods.size(); periodIndex++) {</span>
+<span class="fc" id="L152">			periodOutputString += &quot;\n&quot; + periods.get(periodIndex).getFixing() + &quot;, &quot; +</span>
+<span class="fc" id="L153">					periods.get(periodIndex).getPeriodStart() + &quot;, &quot; +</span>
+<span class="fc" id="L154">					periods.get(periodIndex).getPeriodEnd() + &quot;, &quot; +</span>
+<span class="fc" id="L155">					periods.get(periodIndex).getPayment();</span>
+		}
+<span class="fc" id="L157">		return &quot;ScheduleFromPeriods [referenceDate=&quot; + referenceDate + &quot;, daycountconvention=&quot; + daycountconvention + &quot;\n&quot; + periodOutputString + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

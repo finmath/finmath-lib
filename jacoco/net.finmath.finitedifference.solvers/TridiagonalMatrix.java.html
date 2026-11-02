@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TridiagonalMatrix.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">TridiagonalMatrix.java</span></div><h1>TridiagonalMatrix.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+/**
+ * Data container representing a tridiagonal matrix by its three diagonals.
+ * &lt;p&gt;
+ * A tridiagonal matrix has non-zero entries only on the main diagonal,
+ * the first lower diagonal, and the first upper diagonal.
+ * Instead of storing the full matrix, this class stores those three
+ * diagonals in separate arrays.
+ * &lt;p&gt;
+ * For a matrix of dimension {@code n}:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code lower[i]} stores the entry below the main diagonal in row {@code
+ * i},&lt;/li&gt;
+ *   &lt;li&gt;{@code diag[i]} stores the main diagonal entry in row {@code i},&lt;/li&gt;
+ * &lt;li&gt;{@code upper[i]} stores the entry above the main diagonal in row {@code
+ * i}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * By convention, {@code lower[0]} and {@code upper[n-1]} are typically unused.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class TridiagonalMatrix {
+
+	/**
+	 * The lower diagonal of the matrix.
+	 * &lt;p&gt;
+	 * Entry {@code lower[i]} represents the coefficient below the main
+	 * diagonal in row {@code i}. The value {@code lower[0]} is typically
+	 * unused.
+	 */
+	private final double[] lower;
+
+	/**
+	 * The main diagonal of the matrix.
+	 * &lt;p&gt;
+	 * Entry {@code diag[i]} represents the diagonal coefficient in row {@code
+	 * i}.
+	 */
+	private final double[] diag;
+
+	/**
+	 * The upper diagonal of the matrix.
+	 * &lt;p&gt;
+	 * Entry {@code upper[i]} represents the coefficient above the main
+	 * diagonal in row {@code i}. The value {@code upper[n-1]} is typically
+	 * unused.
+	 */
+	private final double[] upper;
+
+	/**
+	 * Creates a tridiagonal matrix representation of dimension {@code n}.
+	 * &lt;p&gt;
+	 * All three diagonal arrays are initialized with length {@code n} and
+	 * filled with zeros.
+	 *
+	 * @param n The dimension of the tridiagonal matrix.
+	 */
+<span class="fc" id="L60">	public TridiagonalMatrix(final int n) {</span>
+<span class="fc" id="L61">		this.lower = new double[n];</span>
+<span class="fc" id="L62">		this.diag = new double[n];</span>
+<span class="fc" id="L63">		this.upper = new double[n];</span>
+<span class="fc" id="L64">	}</span>
+
+	public double[] getUpperDiagonal() {
+<span class="fc" id="L67">		return upper;</span>
+	}
+
+	public double[] getMainDiagonal() {
+<span class="fc" id="L71">		return diag;</span>
+	}
+
+	public double[] getLowerDiagonal() {
+<span class="fc" id="L75">		return lower;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

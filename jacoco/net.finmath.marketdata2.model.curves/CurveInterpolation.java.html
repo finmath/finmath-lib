@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurveInterpolation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.model.curves</a> &gt; <span class="el_source">CurveInterpolation.java</span></div><h1>CurveInterpolation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata2.model.curves;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.ref.SoftReference;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.finmath.marketdata2.interpolation.RationalFunctionInterpolation;
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * This class represents a curveFromInterpolationPoints build from a set of points in 2D.
+ *
+ * It provides different interpolation and extrapolation methods applied to a transformation of the input point,
+ * examples are
+ * &lt;ul&gt;
+ * 	&lt;li&gt;linear interpolation of the input points&lt;/li&gt;
+ *  &lt;li&gt;linear interpolation of the log of the input points&lt;/li&gt;
+ *  &lt;li&gt;linear interpolation of the log of the input points divided by their respective time&lt;/li&gt;
+ * 	&lt;li&gt;cubic spline interpolation of the input points (or a function of the input points) (the curveFromInterpolationPoints will be C&lt;sup&gt;1&lt;/sup&gt;).&lt;/li&gt;
+ * 	&lt;li&gt;Akima interpolation of the input points (or a function of the input points).&lt;/li&gt;
+ *  &lt;li&gt;etc.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;br&gt;
+ *
+ * For the interpolation methods provided see {@link net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod}.
+ * For the extrapolation methods provided see {@link net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod}.
+ * For the possible interpolation entities see {@link net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity}.
+ *
+ * To construct the curveFromInterpolationPoints, please use the inner class CurveBuilder (a builder pattern).
+ *
+ * For a demo on how to construct and/or calibrate a curveFromInterpolationPoints see, e.g.
+ * net.finmath.tests.marketdata.curves.CurveTest.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CurveInterpolation extends AbstractCurve implements Serializable, Cloneable {
+
+	/**
+	 * Possible interpolation methods.
+	 *
+	 * @author Christian Fries
+	 */
+<span class="fc" id="L61">	public enum InterpolationMethod {</span>
+		/** Constant interpolation. Synonym of PIECEWISE_CONSTANT_LEFTPOINT. **/
+<span class="fc" id="L63">		PIECEWISE_CONSTANT,</span>
+		/** Constant interpolation. Right continuous, i.e. using the value of the left end point of the interval. **/
+<span class="fc" id="L65">		PIECEWISE_CONSTANT_LEFTPOINT,</span>
+		/** Constant interpolation using the value of the right end point of the interval. **/
+<span class="fc" id="L67">		PIECEWISE_CONSTANT_RIGHTPOINT,</span>
+		/** Linear interpolation. **/
+<span class="fc" id="L69">		LINEAR,</span>
+		//	/** Cubic spline interpolation. **/
+		//	CUBIC_SPLINE,
+		//	/** Akima interpolation (C1 sub-spline interpolation). **/
+		//	AKIMA,
+		//	/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
+		//	AKIMA_CONTINUOUS,
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
+<span class="fc" id="L77">		HARMONIC_SPLINE,</span>
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/
+<span class="fc" id="L79">		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING</span>
+
+	}
+
+	/**
+	 * Possible extrapolation methods.
+	 *
+	 * @author Christian Fries
+	 */
+<span class="fc" id="L88">	public enum ExtrapolationMethod {</span>
+		/** Extrapolation using the interpolation function of the adjacent interval **/
+<span class="fc" id="L90">		DEFAULT,</span>
+		/** Constant extrapolation. **/
+<span class="fc" id="L92">		CONSTANT,</span>
+		/** Linear extrapolation. **/
+<span class="fc" id="L94">		LINEAR</span>
+	}
+
+	/**
+	 * Possible interpolation entities.
+	 * @author Christian Fries
+	 */
+<span class="fc" id="L101">	public enum InterpolationEntity {</span>
+		/** Interpolation is performed on the native point values, i.e. value(t) **/
+<span class="fc" id="L103">		VALUE,</span>
+		/** Interpolation is performed on the log of the point values, i.e. log(value(t)) **/
+<span class="fc" id="L105">		LOG_OF_VALUE,</span>
+		/** Interpolation is performed on the log of the point values divided by their respective time, i.e. log(value(t))/t **/
+<span class="fc" id="L107">		LOG_OF_VALUE_PER_TIME</span>
+	}
+
+	private static class Point implements Comparable&lt;Point&gt;, Serializable {
+		private static final long serialVersionUID = 8857387999991917430L;
+
+		private final double time;
+		private RandomVariable value;
+		private final boolean isParameter;
+
+		/**
+		 * @param time The time (or x-value) of the point.
+		 * @param value The value (or y-value) of the point.
+		 * @param isParameter A boolean specifying if this point is considered a &quot;degree of freedom&quot;, e.g., in a calibration.
+		 */
+		Point(final double time, final RandomVariable value, final boolean isParameter) {
+<span class="fc" id="L123">			super();</span>
+<span class="fc" id="L124">			this.time = time;</span>
+<span class="fc" id="L125">			this.value = value;</span>
+<span class="fc" id="L126">			this.isParameter = isParameter;</span>
+<span class="fc" id="L127">		}</span>
+
+		@Override
+		public int compareTo(final Point point) {
+			// Ordering of the curveFromInterpolationPoints points with respect to time.
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">			if(time &lt; point.time) {</span>
+<span class="fc" id="L133">				return -1;</span>
+			}
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			if(time &gt; point.time) {</span>
+<span class="nc" id="L136">				return +1;</span>
+			}
+
+<span class="nc" id="L139">			return 0;</span>
+		}
+
+		@Override
+		public Object clone() {
+<span class="fc" id="L144">			return new Point(time,value,isParameter);</span>
+		}
+	}
+
+	/**
+	 * A builder (following the builder pattern) for CurveFromInterpolationPoints objects.
+	 * Allows to successively construct a curveFromInterpolationPoints object by adding points.
+	 *
+	 * @author Christian Fries
+	 */
+	public static class Builder implements CurveBuilder {
+<span class="nc" id="L155">		private CurveInterpolation curveInterpolation = null;</span>
+
+		/**
+		 * Build a curveFromInterpolationPoints.
+		 */
+<span class="nc" id="L160">		public Builder() {</span>
+<span class="nc" id="L161">			curveInterpolation = new CurveInterpolation(null, null);</span>
+<span class="nc" id="L162">		}</span>
+
+		/**
+		 * Build a curveFromInterpolationPoints with a given name and given reference date.
+		 *
+		 * @param name The name of this curveFromInterpolationPoints.
+		 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
+		 */
+<span class="nc" id="L170">		public Builder(final String name, final LocalDate referenceDate) {</span>
+<span class="nc" id="L171">			curveInterpolation = new CurveInterpolation(name, referenceDate);</span>
+<span class="nc" id="L172">		}</span>
+
+		/**
+		 * Build a curveFromInterpolationPoints by cloning a given curveFromInterpolationPoints.
+		 *
+		 * @param curveInterpolation A curveFromInterpolationPoints to be used as starting point for the new curveFromInterpolationPoints.
+		 * @throws CloneNotSupportedException Thrown, when the curveFromInterpolationPoints could not be cloned.
+		 */
+<span class="nc" id="L180">		public Builder(final CurveInterpolation curveInterpolation) throws CloneNotSupportedException {</span>
+<span class="nc" id="L181">			this.curveInterpolation = curveInterpolation.clone();</span>
+<span class="nc" id="L182">		}</span>
+
+		/* (non-Javadoc)
+		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#build()
+		 */
+		@Override
+		public Curve build() {
+<span class="nc" id="L189">			final CurveInterpolation buildCurve = curveInterpolation;</span>
+<span class="nc" id="L190">			curveInterpolation = null;</span>
+<span class="nc" id="L191">			return buildCurve;</span>
+		}
+
+		/**
+		 * Set the interpolation method of the curveFromInterpolationPoints.
+		 *
+		 * @param interpolationMethod The interpolation method of the curveFromInterpolationPoints.
+		 * @return A self reference to this curveFromInterpolationPoints build object.
+		 */
+		public CurveBuilder setInterpolationMethod(final InterpolationMethod interpolationMethod) {
+<span class="nc" id="L201">			curveInterpolation.interpolationMethod = interpolationMethod;</span>
+<span class="nc" id="L202">			return this;</span>
+		}
+
+		/**
+		 * Set the extrapolation method of the curveFromInterpolationPoints.
+		 *
+		 * @param extrapolationMethod The extrapolation method of the curveFromInterpolationPoints.
+		 * @return A self reference to this curveFromInterpolationPoints build object.
+		 */
+		public CurveBuilder setExtrapolationMethod(final ExtrapolationMethod extrapolationMethod) {
+<span class="nc" id="L212">			curveInterpolation.extrapolationMethod = extrapolationMethod;</span>
+<span class="nc" id="L213">			return this;</span>
+		}
+
+		/**
+		 * Set the interpolationEntity of the curveFromInterpolationPoints.
+		 *
+		 * @param interpolationEntity The interpolation entity of the curveFromInterpolationPoints.
+		 * @return A self reference to this curveFromInterpolationPoints build object.
+		 */
+		public CurveBuilder setInterpolationEntity(final InterpolationEntity interpolationEntity) {
+<span class="nc" id="L223">			curveInterpolation.interpolationEntity = interpolationEntity;</span>
+<span class="nc" id="L224">			return this;</span>
+		}
+
+		/* (non-Javadoc)
+		 * @see net.finmath.marketdata.model.curves.CurveBuilderInterface#addPoint(double, double, boolean)
+		 */
+		@Override
+		public CurveBuilder addPoint(final double time, final RandomVariable value, final boolean isParameter) {
+<span class="nc" id="L232">			curveInterpolation.addPoint(time, value, isParameter);</span>
+<span class="nc" id="L233">			return this;</span>
+		}
+	}
+
+<span class="pc" id="L237">	private ArrayList&lt;Point&gt;	points					= new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L238">	private ArrayList&lt;Point&gt;	pointsBeingParameters	= new ArrayList&lt;&gt;();</span>
+<span class="pc" id="L239">	private InterpolationMethod	interpolationMethod	= InterpolationMethod.LINEAR; //CUBIC_SPLINE;</span>
+<span class="pc" id="L240">	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+<span class="pc" id="L241">	private InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE;</span>
+
+<span class="pc" id="L243">	private RationalFunctionInterpolation	rationalFunctionInterpolation =  null;</span>
+<span class="pc" id="L244">	private transient Object					rationalFunctionInterpolationLazyInitLock = new Object();</span>
+<span class="pc" id="L245">	private SoftReference&lt;Map&lt;Double, RandomVariable&gt;&gt; curveCacheReference = null;</span>
+	//private LIBORModelMonteCarloSimulationModel model;
+
+
+	private static final long serialVersionUID = -4126228588123963885L;
+<span class="fc" id="L250">	private static NumberFormat	formatterReal = NumberFormat.getInstance(Locale.US);</span>
+
+
+	/**
+	 * Create a curveFromInterpolationPoints with a given name, reference date and an interpolation method from given points
+	 *
+	 * @param name The name of this curveFromInterpolationPoints.
+	 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
+	 * @param interpolationMethod The interpolation method used for the curveFromInterpolationPoints.
+	 * @param extrapolationMethod The extrapolation method used for the curveFromInterpolationPoints.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param times A vector of times.
+	 * @param values A vector of corresponding values.
+	 */
+	public CurveInterpolation(final String name,
+			final LocalDate referenceDate,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity,
+			final double[] times,
+			final RandomVariable[] values) {
+<span class="nc" id="L271">		super(name, referenceDate);</span>
+<span class="nc" id="L272">		this.interpolationMethod	= interpolationMethod;</span>
+<span class="nc" id="L273">		this.extrapolationMethod	= extrapolationMethod;</span>
+<span class="nc" id="L274">		this.interpolationEntity	= interpolationEntity;</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">		if(times.length != values.length) {</span>
+<span class="nc" id="L276">			throw new IllegalArgumentException(&quot;Length of times not equal to length of values.&quot;);</span>
+		}
+<span class="nc bnc" id="L278" title="All 2 branches missed.">		for(int i=0; i&lt;times.length; i++) {</span>
+<span class="nc" id="L279">			this.addPoint(times[i], values[i], false);</span>
+		}
+<span class="nc" id="L281">	}</span>
+
+	/**
+	 * Create a curveFromInterpolationPoints with a given name, reference date and an interpolation method.
+	 *
+	 * @param name The name of this curveFromInterpolationPoints.
+	 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
+	 * @param interpolationMethod The interpolation method used for the curveFromInterpolationPoints.
+	 * @param extrapolationMethod The extrapolation method used for the curveFromInterpolationPoints.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 */
+
+	protected CurveInterpolation(final String name,
+			final LocalDate referenceDate,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity) {
+
+<span class="fc" id="L299">		super(name, referenceDate);</span>
+<span class="fc" id="L300">		this.interpolationMethod	= interpolationMethod;</span>
+<span class="fc" id="L301">		this.extrapolationMethod	= extrapolationMethod;</span>
+<span class="fc" id="L302">		this.interpolationEntity	= interpolationEntity;</span>
+
+<span class="fc" id="L304">	}</span>
+
+	/**
+	 * Create a curveFromInterpolationPoints with a given name, reference date.
+	 *
+	 * @param name The name of this curveFromInterpolationPoints.
+	 * @param referenceDate The reference date for this curveFromInterpolationPoints, i.e., the date which defined t=0.
+	 */
+	private CurveInterpolation(final String name, final LocalDate referenceDate) {
+<span class="nc" id="L313">		super(name, referenceDate);</span>
+<span class="nc" id="L314">	}</span>
+
+
+	@Override
+	public RandomVariable getValue(final double time)
+	{
+<span class="nc" id="L320">		return getValue(null, time);</span>
+	}
+
+	@Override
+	public RandomVariable getValue(final AnalyticModel model, final double time)
+	{
+<span class="fc bfc" id="L326" title="All 2 branches covered.">		Map&lt;Double, RandomVariable&gt; curveCache = curveCacheReference != null ? curveCacheReference.get() : null;</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">		if(curveCache == null) {</span>
+<span class="fc" id="L328">			curveCache = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L329">			curveCacheReference = new SoftReference&lt;&gt;(curveCache);</span>
+		}
+<span class="fc" id="L331">		final RandomVariable valueFromCache = curveCache.get(time);</span>
+<span class="fc bfc" id="L332" title="All 2 branches covered.">		if(valueFromCache != null) {</span>
+<span class="fc" id="L333">			return valueFromCache;</span>
+		}
+
+<span class="fc" id="L336">		final RandomVariable value = valueFromInterpolationEntity(getInterpolationEntityValue(time), time);</span>
+<span class="fc" id="L337">		curveCache.put(time, value);</span>
+<span class="fc" id="L338">		return value;</span>
+	}
+
+	private  RandomVariable getInterpolationEntityValue(final double time)
+	{
+<span class="fc" id="L343">		synchronized(rationalFunctionInterpolationLazyInitLock) {</span>
+			// Lazy initialization of interpolation function
+<span class="fc bfc" id="L345" title="All 2 branches covered.">			if(rationalFunctionInterpolation == null) {</span>
+<span class="fc" id="L346">				final double[] pointsArray = new double[points.size()];//time</span>
+<span class="fc" id="L347">				final RandomVariable[] valuesArray = new RandomVariable[points.size()];</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">				for(int i=0; i&lt;points.size(); i++) {</span>
+<span class="fc" id="L349">					pointsArray[i] = points.get(i).time;</span>
+<span class="fc" id="L350">					valuesArray[i] = points.get(i).value;</span>
+				}
+<span class="fc" id="L352">				rationalFunctionInterpolation = new RationalFunctionInterpolation(</span>
+						pointsArray,
+						valuesArray,
+<span class="fc" id="L355">						RationalFunctionInterpolation.InterpolationMethod.valueOf(interpolationMethod.toString()),</span>
+<span class="fc" id="L356">						RationalFunctionInterpolation.ExtrapolationMethod.valueOf(extrapolationMethod.toString())</span>
+						);
+			}
+<span class="fc" id="L359">		}</span>
+<span class="fc" id="L360">		return rationalFunctionInterpolation.getValue(time);</span>
+	}
+
+
+	/**
+	 * Add a point to this curveFromInterpolationPoints. The method will throw an exception if the point
+	 * is already part of the curveFromInterpolationPoints.
+	 *
+	 * @param time The x&lt;sub&gt;i&lt;/sub&gt; in &lt;sub&gt;i&lt;/sub&gt; = f(x&lt;sub&gt;i&lt;/sub&gt;).
+	 * @param value The y&lt;sub&gt;i&lt;/sub&gt; in &lt;sub&gt;i&lt;/sub&gt; = f(x&lt;sub&gt;i&lt;/sub&gt;).
+	 * @param isParameter If true, then this point is served via {@link #getParameter()} and changed via {@link #getCloneForParameter(RandomVariable[])}, i.e., it can be calibrated.
+	 */
+	protected void addPoint(final double time, final RandomVariable value, final boolean isParameter) {
+<span class="fc" id="L373">		synchronized (rationalFunctionInterpolationLazyInitLock) {</span>
+<span class="fc bfc" id="L374" title="All 4 branches covered.">			if(interpolationEntity == InterpolationEntity.LOG_OF_VALUE_PER_TIME &amp;&amp; time == 0) {</span>
+<span class="fc" id="L375">				boolean containsOne = false; int index=0;</span>
+<span class="pc bpc" id="L376" title="2 of 4 branches missed.">				for(int i = 0; i&lt; value.size(); i++){if(value.get(i)==1.0) {containsOne = true; index=i; break;}}</span>
+<span class="pc bpc" id="L377" title="2 of 4 branches missed.">				if(containsOne &amp;&amp; !isParameter) {</span>
+<span class="fc" id="L378">					return;</span>
+				} else {
+<span class="nc" id="L380">					throw new IllegalArgumentException(&quot;The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0 other than 1.0 (received 1 at index&quot; + index + &quot;).&quot;);</span>
+				}
+			}
+
+<span class="fc" id="L384">			final RandomVariable interpolationEntityValue = interpolationEntityFromValue(value, time);</span>
+
+<span class="fc" id="L386">			final int index = getTimeIndex(time);</span>
+<span class="pc bpc" id="L387" title="1 of 2 branches missed.">			if(index &gt;= 0) {</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">				if(points.get(index).value == interpolationEntityValue) {</span>
+<span class="nc" id="L389">					return;			// Already in list</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">				} else if(isParameter) {</span>
+<span class="nc" id="L391">					return;</span>
+				} else {
+<span class="nc" id="L393">					throw new RuntimeException(&quot;Trying to add a value for a time for which another value already exists.&quot;);</span>
+				}
+			}
+			else {
+				// Insert the new point, retain ordering.
+<span class="fc" id="L398">				final Point point = new Point(time, interpolationEntityValue, isParameter);</span>
+<span class="fc" id="L399">				points.add(-index-1, point);</span>
+
+<span class="fc bfc" id="L401" title="All 2 branches covered.">				if(isParameter) {</span>
+					// Add this point also to the list of parameters
+<span class="fc" id="L403">					final int parameterIndex = getParameterIndex(time);</span>
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">					if(parameterIndex &gt;= 0) {</span>
+<span class="nc" id="L405">						new RuntimeException(&quot;CurveFromInterpolationPoints inconsistent.&quot;);</span>
+					}
+<span class="fc" id="L407">					pointsBeingParameters.add(-parameterIndex-1, point);</span>
+				}
+			}
+<span class="fc" id="L410">			rationalFunctionInterpolation = null;</span>
+<span class="fc" id="L411">			curveCacheReference = null;</span>
+<span class="fc" id="L412">		}</span>
+<span class="fc" id="L413">	}</span>
+
+	/**
+	 * Returns the interpolation method used by this curveFromInterpolationPoints.
+	 *
+	 * @return The interpolation method used by this curveFromInterpolationPoints.
+	 */
+	public InterpolationMethod getInterpolationMethod() {
+<span class="nc" id="L421">		return interpolationMethod;</span>
+	}
+
+	/**
+	 * Returns the extrapolation method used by this curveFromInterpolationPoints.
+	 *
+	 * @return The extrapolation method used by this curveFromInterpolationPoints.
+	 */
+	public ExtrapolationMethod getExtrapolationMethod() {
+<span class="nc" id="L430">		return extrapolationMethod;</span>
+	}
+
+	/**
+	 * Returns the interpolation entity used by this curveFromInterpolationPoints.
+	 *
+	 * @return The interpolation entity used by this curveFromInterpolationPoints.
+	 */
+	public InterpolationEntity getInterpolationEntity() {
+<span class="nc" id="L439">		return interpolationEntity;</span>
+	}
+
+	protected int getTimeIndex(final double time) {
+<span class="fc" id="L443">		final Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);</span>
+<span class="fc" id="L444">		final int index =  java.util.Collections.binarySearch(points, point);</span>
+<span class="fc" id="L445">		return index;</span>
+	}
+
+	protected int getParameterIndex(final double time) {
+<span class="fc" id="L449">		final Point point = new Point(time, new RandomVariableFromDoubleArray(Double.NaN), false);</span>
+<span class="fc" id="L450">		return java.util.Collections.binarySearch(pointsBeingParameters, point);</span>
+	}
+
+
+	@Override
+	public  RandomVariable[] getParameter() {
+<span class="fc" id="L456">		final RandomVariable[] parameters = new RandomVariable[pointsBeingParameters.size()];</span>
+<span class="fc bfc" id="L457" title="All 2 branches covered.">		for(int i=0; i&lt;pointsBeingParameters.size(); i++) {</span>
+<span class="fc" id="L458">			parameters[i] = valueFromInterpolationEntity(pointsBeingParameters.get(i).value, pointsBeingParameters.get(i).time);</span>
+		}
+<span class="fc" id="L460">		return parameters;</span>
+	}
+
+
+	@Override
+	public void setParameter(final RandomVariable[] parameter) {
+<span class="nc" id="L466">		throw new UnsupportedOperationException(&quot;This class is immutable. Use getCloneForParameter(double[]) instead.&quot;);</span>
+	}
+
+	private void setParameterPrivate(final RandomVariable[] parameter) {
+<span class="fc bfc" id="L470" title="All 2 branches covered.">		for(int i=0; i&lt;pointsBeingParameters.size(); i++) {</span>
+<span class="fc" id="L471">			pointsBeingParameters.get(i).value = interpolationEntityFromValue(parameter[i], pointsBeingParameters.get(i).time);</span>
+		}
+<span class="fc" id="L473">		rationalFunctionInterpolation = null;</span>
+<span class="fc" id="L474">		curveCacheReference = null;</span>
+<span class="fc" id="L475">	}</span>
+
+	private RandomVariable interpolationEntityFromValue(final RandomVariable value, final double time) {
+<span class="fc bfc" id="L478" title="All 3 branches covered.">		switch(interpolationEntity) {</span>
+		case VALUE:
+		default:
+<span class="fc" id="L481">			return value;</span>
+		case LOG_OF_VALUE:
+<span class="fc" id="L483">			return value.floor(0.0).log();</span>
+		case LOG_OF_VALUE_PER_TIME:
+<span class="pc bpc" id="L485" title="1 of 2 branches missed.">			if(time == 0) {</span>
+<span class="nc" id="L486">				throw new IllegalArgumentException(&quot;The interpolation method LOG_OF_VALUE_PER_TIME does not allow to add a value at time = 0.&quot;);</span>
+			} else {
+<span class="fc" id="L488">				return  value.floor(0.0).log().div(time);</span>
+			}
+		}
+	}
+
+	private RandomVariable valueFromInterpolationEntity(final RandomVariable interpolationEntityValue, final double time) {
+<span class="fc bfc" id="L494" title="All 3 branches covered.">		switch(interpolationEntity) {</span>
+		case VALUE:
+		default:
+<span class="fc" id="L497">			return interpolationEntityValue;</span>
+		case LOG_OF_VALUE:
+<span class="fc" id="L499">			return interpolationEntityValue.exp();</span>
+		case LOG_OF_VALUE_PER_TIME:
+<span class="fc" id="L501">			return interpolationEntityValue.mult(time).exp();</span>
+		}
+	}
+
+	@Override
+	public CurveInterpolation clone() throws CloneNotSupportedException {
+<span class="fc" id="L507">		final CurveInterpolation newCurve = (CurveInterpolation) super.clone();</span>
+
+<span class="fc" id="L509">		newCurve.points					= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L510">		newCurve.pointsBeingParameters	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L511">		newCurve.rationalFunctionInterpolation = null;</span>
+<span class="fc" id="L512">		newCurve.curveCacheReference = null;</span>
+<span class="fc bfc" id="L513" title="All 2 branches covered.">		for(final Point point : points) {</span>
+<span class="fc" id="L514">			final Point newPoint = (Point) point.clone();</span>
+<span class="fc" id="L515">			newCurve.points.add(newPoint);</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">			if(point.isParameter) {</span>
+<span class="fc" id="L517">				newCurve.pointsBeingParameters.add(newPoint);</span>
+			}
+<span class="fc" id="L519">		}</span>
+
+<span class="fc" id="L521">		return newCurve;</span>
+	}
+
+	@Override
+	public Curve getCloneForParameter(final RandomVariable[] parameter) throws CloneNotSupportedException {
+<span class="fc bfc" id="L526" title="All 2 branches covered.">		if(Arrays.equals(parameter, getParameter())) {</span>
+<span class="fc" id="L527">			return this;</span>
+		}
+<span class="fc" id="L529">		final CurveInterpolation newCurve = this.clone();</span>
+<span class="fc" id="L530">		newCurve.setParameterPrivate(parameter);</span>
+
+<span class="fc" id="L532">		return newCurve;</span>
+	}
+
+	@Override
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+<span class="nc" id="L537">		final Builder builder = new Builder(this);</span>
+<span class="nc" id="L538">		return builder;</span>
+	}
+
+	@Override
+	public String toString() {
+		/*
+		 * Pretty print curveFromInterpolationPoints (appended to standard toString)
+		 */
+<span class="fc" id="L546">		final StringBuilder curveTableString = new StringBuilder();</span>
+<span class="fc" id="L547">		final NumberFormat formatTime = new DecimalFormat(&quot;0.00000000E0&quot;);	// Floating point time is accurate to 3+5 digits.</span>
+<span class="fc bfc" id="L548" title="All 2 branches covered.">		for (final Point point : points) {</span>
+<span class="fc" id="L549">			curveTableString.append(formatTime.format(point.time) + &quot;\t&quot;);</span>
+<span class="fc" id="L550">			curveTableString.append(FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), point.time) + &quot;\t&quot;);</span>
+<span class="fc" id="L551">			curveTableString.append(valueFromInterpolationEntity(point.value, point.time) + &quot;\n&quot;);</span>
+<span class="fc" id="L552">		}</span>
+
+<span class="fc" id="L554">		return &quot;CurveFromInterpolationPoints [points=&quot; + points + &quot;, pointsBeingParameters=&quot; + pointsBeingParameters + &quot;, interpolationMethod=&quot;</span>
+		+ interpolationMethod + &quot;, extrapolationMethod=&quot; + extrapolationMethod + &quot;, interpolationEntity=&quot;
+		+ interpolationEntity + &quot;, rationalFunctionInterpolation=&quot; + rationalFunctionInterpolation
+<span class="fc" id="L557">		+ &quot;, toString()=&quot; + super.toString() + &quot;,\n&quot; + curveTableString + &quot;]&quot;;</span>
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L561">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L563">		rationalFunctionInterpolationLazyInitLock = new Object();</span>
+<span class="nc" id="L564">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

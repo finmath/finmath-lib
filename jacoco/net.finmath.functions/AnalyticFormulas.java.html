@@ -1,0 +1,1861 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticFormulas.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">AnalyticFormulas.java</span></div><h1>AnalyticFormulas.java</h1><pre class="source lang-java linenums">/*
+ * Created on 23.01.2004.
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.functions;
+
+import java.util.Calendar;
+
+import net.finmath.rootfinder.NewtonsMethod;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * This class implements some functions as static class methods.
+ *
+ * It provides functions like
+ * &lt;ul&gt;
+ * 	&lt;li&gt;the Black-Scholes formula,
+ * 	&lt;li&gt;the inverse of the Back-Scholes formula with respect to (implied) volatility,
+ * 	&lt;li&gt;the Bachelier formula,
+ * 	&lt;li&gt;the inverse of the Bachelier formula with respect to (implied) volatility,
+ * 	&lt;li&gt;the corresponding functions (versions) for caplets and swaptions,
+ * 	&lt;li&gt;analytic approximation for European options under the SABR model,
+ * 	&lt;li&gt;some convexity adjustments.
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ * @version 1.10
+ * @date 27.04.2012
+ */
+public class AnalyticFormulas {
+
+	/**
+	 * Preventing instantiation of this class.
+	 */
+	private AnalyticFormulas() {
+		// This constructor will never be invoked
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward and/or the option strike is zero.
+	 *
+	 * @param forward The forward of the underlying.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static double blackScholesGeneralizedOptionValue(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+<span class="pc bpc" id="L61" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L62">			return 0;</span>
+		}
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		else if(forward &lt; 0) {</span>
+			// We use max(X,0) = X + max(-X,0)
+<span class="nc" id="L66">			return (forward - optionStrike) * payoffUnit + blackScholesGeneralizedOptionValue(-forward, volatility, optionMaturity, -optionStrike, payoffUnit);</span>
+		}
+<span class="pc bpc" id="L68" title="2 of 8 branches missed.">		else if((forward == 0) || (optionStrike &lt;= 0.0) || (volatility &lt;= 0.0) || (optionMaturity &lt;= 0.0))</span>
+		{
+			// Limit case (where dPlus = +/- infty)
+<span class="fc" id="L71">			return Math.max(forward - optionStrike,0) * payoffUnit;</span>
+		}
+		else
+		{
+			// Calculate analytic value
+<span class="fc" id="L76">			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L77">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+
+<span class="fc" id="L79">			final double valueAnalytic = (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;</span>
+
+<span class="fc" id="L81">			return valueAnalytic;</span>
+		}
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a log-normal process with constant log-volatility.
+	 *
+	 * The model specific quantities are considered to be random variable, i.e.,
+	 * the function may calculate an per-path valuation in a single call.
+	 *
+	 * @param forward The forward of the underlying.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariable blackScholesGeneralizedOptionValue(
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
+	{
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L106">			return forward.mult(0.0);</span>
+		}
+		else
+		{
+<span class="fc" id="L110">			final RandomVariable dPlus	= forward.div(optionStrike).log().add(volatility.squared().mult(0.5 * optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L111">			final RandomVariable dMinus	= dPlus.sub(volatility.mult(Math.sqrt(optionMaturity)));</span>
+
+<span class="fc" id="L113">			final RandomVariable valueAnalytic = dPlus.apply(NormalDistribution::cumulativeDistribution).mult(forward).sub(dMinus.apply(NormalDistribution::cumulativeDistribution).mult(optionStrike)).mult(payoffUnit);</span>
+
+<span class="fc" id="L115">			return valueAnalytic;</span>
+		}
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static double blackScholesOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="fc" id="L136">		return blackScholesGeneralizedOptionValue(</span>
+<span class="fc" id="L137">				initialStockValue * Math.exp(riskFreeRate * optionMaturity),	// forward</span>
+				volatility,
+				optionMaturity,
+				optionStrike,
+<span class="fc" id="L141">				Math.exp(-riskFreeRate * optionMaturity)						// payoff unit</span>
+				);
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariable blackScholesOptionValue(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L162">		return blackScholesGeneralizedOptionValue(</span>
+<span class="nc" id="L163">				initialStockValue.mult(riskFreeRate.mult(optionMaturity).exp()),	// forward</span>
+				volatility,
+				optionMaturity - 0.0,
+				optionStrike,
+<span class="nc" id="L167">				riskFreeRate.mult(-optionMaturity).exp()							// payoff unit</span>
+				);
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @return Returns the value of a European call option under the Black-Scholes model.
+	 */
+	public static RandomVariable blackScholesOptionValue(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="fc" id="L188">		return blackScholesGeneralizedOptionValue(</span>
+<span class="fc" id="L189">				initialStockValue.mult(Math.exp(riskFreeRate*optionMaturity)),	// forward</span>
+				new Scalar(volatility),
+				optionMaturity - 0.0,
+				optionStrike,
+<span class="fc" id="L193">				new Scalar(Math.exp(-riskFreeRate*optionMaturity))				// payoff unit</span>
+				);
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a call, i.e., the payoff max(S(T)-K,0), or a put, i.e., the payoff max(K-S(T),0), where S follows a log-normal process with constant log-volatility.
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate The risk free rate r (df = exp(-r T)).
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T for the call and zero for the put.
+	 * @param isCall If true, the value of a call is calculated, if false, the value of a put is calculated.
+	 * @return Returns the value of a European call/put option under the Black-Scholes model.
+	 */
+	public static double blackScholesOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall)	{
+
+<span class="fc" id="L216">		final double callValue = blackScholesOptionValue(initialStockValue, riskFreeRate, volatility, optionMaturity, optionStrike);</span>
+<span class="pc bpc" id="L217" title="1 of 2 branches missed.">		if(isCall) {</span>
+<span class="nc" id="L218">			return callValue;</span>
+		}
+		else {
+<span class="fc" id="L221">			final double putValue = callValue - (initialStockValue-optionStrike *  Math.exp(-riskFreeRate * optionMaturity));</span>
+<span class="fc" id="L222">			return putValue;</span>
+		}
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of an atm call option.
+	 *
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param forward The forward, i.e., the expectation of the index under the measure associated with payoff unit.
+	 * @param payoffUnit The payoff unit, i.e., the discount factor or the anuity associated with the payoff.
+	 * @return Returns the value of a European at-the-money call option under the Black-Scholes model
+	 */
+	public static double blackScholesATMOptionValue(
+			final double volatility,
+			final double optionMaturity,
+			final double forward,
+			final double payoffUnit)
+	{
+<span class="nc bnc" id="L241" title="All 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L242">			return 0.0;</span>
+		}
+
+		// Calculate analytic value
+<span class="nc" id="L246">		final double dPlus = 0.5 * volatility * Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L247">		final double dMinus = -dPlus;</span>
+
+<span class="nc" id="L249">		final double valueAnalytic = (NormalDistribution.cumulativeDistribution(dPlus) - NormalDistribution.cumulativeDistribution(dMinus)) * forward * payoffUnit;</span>
+
+<span class="nc" id="L251">		return valueAnalytic;</span>
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static double blackScholesOptionDelta(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L275" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L276">			return 0;</span>
+		}
+<span class="pc bpc" id="L278" title="1 of 2 branches missed.">		else if(initialStockValue &lt; 0) {</span>
+			// We use Indicator(S&gt;K) = 1 - Indicator(-S&gt;-K)
+<span class="nc" id="L280">			return 1 - blackScholesOptionDelta(-initialStockValue, riskFreeRate, volatility, optionMaturity, -optionStrike);</span>
+		}
+<span class="pc bpc" id="L282" title="1 of 2 branches missed.">		else if(initialStockValue == 0)</span>
+		{
+			// Limit case (where dPlus = +/- infty)
+<span class="nc bnc" id="L285" title="All 2 branches missed.">			if(optionStrike &lt; 0) {</span>
+<span class="nc" id="L286">				return 1.0;					// dPlus = +infinity</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">			} else if(optionStrike &gt; 0) {</span>
+<span class="nc" id="L288">				return 0.0;					// dPlus = -infinity</span>
+			}
+			else {
+<span class="nc" id="L291">				return 1.0;					// Matter of definition of continuity of the payoff function</span>
+			}
+		}
+<span class="pc bpc" id="L294" title="3 of 6 branches missed.">		else if((optionStrike &lt;= 0.0) || (volatility &lt;= 0.0) || (optionMaturity &lt;= 0.0))		// (and initialStockValue &gt; 0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L297">			return 1.0;</span>
+		}
+		else
+		{
+			// Calculate delta
+<span class="fc" id="L302">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="fc" id="L304">			final double delta = NormalDistribution.cumulativeDistribution(dPlus);</span>
+
+<span class="fc" id="L306">			return delta;</span>
+		}
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariable blackScholesOptionDelta(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L331" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L332">			return initialStockValue.mult(0.0);</span>
+		}
+		else
+		{
+			// Calculate delta
+<span class="fc" id="L337">			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));</span>
+
+<span class="fc" id="L339">			final RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);</span>
+
+<span class="fc" id="L341">			return delta;</span>
+		}
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariable blackScholesOptionDelta(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="fc" id="L366">		return blackScholesOptionDelta(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);</span>
+	}
+
+	/**
+	 * Calculates the delta of a call option under a Black-Scholes model
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward or the option strike is zero.
+	 * In the case forward = option strike = 0 the method returns 1.0.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the option
+	 */
+	public static RandomVariable blackScholesOptionDelta(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final RandomVariable optionStrike)
+	{
+<span class="nc bnc" id="L390" title="All 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L391">			return initialStockValue.mult(0.0);</span>
+		}
+		else
+		{
+			// Calculate delta
+<span class="nc" id="L396">			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L398">			final RandomVariable delta = dPlus.apply(NormalDistribution::cumulativeDistribution);</span>
+
+<span class="nc" id="L400">			return delta;</span>
+		}
+	}
+
+	/**
+	 * This static method calculated the gamma of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The gamma of the option
+	 */
+	public static double blackScholesOptionGamma(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc bnc" id="L421" title="All 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L424">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate gamma
+<span class="nc" id="L429">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L431">			final double gamma = Math.exp(-0.5*dPlus*dPlus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);</span>
+
+<span class="nc" id="L433">			return gamma;</span>
+		}
+	}
+
+	/**
+	 * This static method calculated the gamma of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The gamma of the option
+	 */
+	public static RandomVariable blackScholesOptionGamma(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc bnc" id="L454" title="All 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L457">			return initialStockValue.mult(0.0);</span>
+		}
+		else
+		{
+			// Calculate gamma
+<span class="nc" id="L462">			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L464">			final RandomVariable gamma	= dPlus.squared().mult(-0.5).exp().div(initialStockValue.mult(volatility).mult(Math.sqrt(2.0 * Math.PI * optionMaturity)));</span>
+
+<span class="nc" id="L466">			return gamma;</span>
+		}
+	}
+
+	/**
+	 * This static method calculated the gamma of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The gamma of the option
+	 */
+	public static RandomVariable blackScholesOptionGamma(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L487">		return blackScholesOptionGamma(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);</span>
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static double blackScholesOptionVega(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L511" title="2 of 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L514">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate vega
+<span class="fc" id="L519">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="fc" id="L521">			final double vega = Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) * initialStockValue * Math.sqrt(optionMaturity);</span>
+
+<span class="fc" id="L523">			return vega;</span>
+		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static RandomVariable blackScholesOptionVega(
+			final RandomVariable initialStockValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc bnc" id="L548" title="All 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L551">			return initialStockValue.mult(0.0);</span>
+		}
+		else
+		{
+			// Calculate vega
+<span class="nc" id="L556">			final RandomVariable dPlus	= initialStockValue.div(optionStrike).log().add(volatility.squared().mult(0.5).add(riskFreeRate).mult(optionMaturity)).div(volatility).div(Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L558">			final RandomVariable vega	= dPlus.squared().mult(-0.5).exp().div(Math.sqrt(2.0 * Math.PI * optionMaturity)).mult(initialStockValue).mult(volatility);</span>
+
+<span class="nc" id="L560">			return vega;</span>
+		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static RandomVariable blackScholesOptionVega(
+			final RandomVariable initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L585">		return blackScholesOptionVega(initialStockValue, new Scalar(riskFreeRate), new Scalar(volatility), optionMaturity, optionStrike);</span>
+	}
+
+	/**
+	 * This static method calculated the vega of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the option
+	 */
+	public static double blackScholesOptionTheta(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc bnc" id="L605" title="All 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L608">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate theta
+<span class="nc" id="L613">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="nc" id="L614">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+
+<span class="nc" id="L616">			final double theta = -volatility * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0 * Math.PI) / Math.sqrt(optionMaturity) / 2 * initialStockValue - riskFreeRate * optionStrike * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);</span>
+
+<span class="nc" id="L618">			return theta;</span>
+		}
+	}
+
+	/**
+	 * This static method calculated the rho of a call option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The rho of the option
+	 */
+	public static double blackScholesOptionRho(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L639" title="2 of 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L642">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate rho
+<span class="fc" id="L647">			final double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="fc" id="L649">			final double rho = optionStrike * optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);</span>
+
+<span class="fc" id="L651">			return rho;</span>
+		}
+	}
+
+	/**
+	 * Calculates the Black-Scholes option implied volatility of a call, i.e., the payoff
+	 * &lt;p&gt;&lt;i&gt;max(S(T)-K,0)&lt;/i&gt;&lt;/p&gt;, where &lt;i&gt;S&lt;/i&gt; follows a log-normal process with constant log-volatility.
+	 * The admissible values for &lt;code&gt;optionValue&lt;/code&gt; are between &lt;code&gt;forward * payoffUnit - optionStrike&lt;/code&gt; (the inner value) and &lt;code&gt;forward * payoffUnit&lt;/code&gt;.
+	 *
+	 * @param forward The forward of the underlying (which is equal to S(0) / payoffUnit, given the spot value S(0)).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor), (which is equal to exp(-maturity * r), given the interest rate r).
+	 * @param optionValue The option value. The admissible values for &lt;code&gt;optionValue&lt;/code&gt; are between &lt;code&gt;forward * payoffUnit - optionStrike&lt;/code&gt; (the inner value) and &lt;code&gt;forward * payoffUnit&lt;/code&gt;.
+	 * @return Returns the implied volatility of a European call option under the Black-Scholes model.
+	 */
+	public static double blackScholesOptionImpliedVolatility(
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit,
+			final double optionValue)
+	{
+		// Limit the maximum number of iterations, to ensure this calculation returns fast, e.g. in cases when there is no such thing as an implied vol
+		// TODO An exception should be thrown, when there is no implied volatility for the given value.
+<span class="fc" id="L676">		final int		maxIterations	= 500;</span>
+<span class="fc" id="L677">		final double	maxAccuracy		= 1E-15;</span>
+
+<span class="fc bfc" id="L679" title="All 2 branches covered.">		if(optionStrike &lt;= 0.0)</span>
+		{
+			// Actually it is not an option
+<span class="fc" id="L682">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate an lower and upper bound for the volatility
+<span class="fc" id="L687">			final double p = NormalDistribution.inverseCumulativeDistribution((optionValue/payoffUnit+optionStrike)/(forward+optionStrike)) / Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L688">			final double q = 2.0 * Math.abs(Math.log(forward/optionStrike)) / optionMaturity;</span>
+
+<span class="fc" id="L690">			final double volatilityLowerBound = p + Math.sqrt(Math.max(p * p - q, 0.0));</span>
+<span class="fc" id="L691">			final double volatilityUpperBound = p + Math.sqrt(         p * p + q      );</span>
+
+			// If strike is close to forward the two bounds are close to the analytic solution
+<span class="fc bfc" id="L694" title="All 2 branches covered.">			if(Math.abs(volatilityLowerBound - volatilityUpperBound) &lt; maxAccuracy) {</span>
+<span class="fc" id="L695">				return (volatilityLowerBound+volatilityUpperBound) / 2.0;</span>
+			}
+
+			// Solve for implied volatility
+<span class="fc" id="L699">			final NewtonsMethod solver = new NewtonsMethod(0.5*(volatilityLowerBound+volatilityUpperBound) /* guess */);</span>
+<span class="pc bpc" id="L700" title="1 of 6 branches missed.">			while(solver.getAccuracy() &gt; maxAccuracy &amp;&amp; !solver.isDone() &amp;&amp; solver.getNumberOfIterations() &lt; maxIterations) {</span>
+<span class="fc" id="L701">				final double volatility = solver.getNextPoint();</span>
+
+				// Calculate analytic value
+<span class="fc" id="L704">				final double dPlus                = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L705">				final double dMinus               = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L706">				final double valueAnalytic		= (forward * NormalDistribution.cumulativeDistribution(dPlus) - optionStrike * NormalDistribution.cumulativeDistribution(dMinus)) * payoffUnit;</span>
+<span class="fc" id="L707">				final double derivativeAnalytic	= forward * Math.sqrt(optionMaturity) * Math.exp(-0.5*dPlus*dPlus) / Math.sqrt(2.0*Math.PI) * payoffUnit;</span>
+
+<span class="fc" id="L709">				final double error = valueAnalytic - optionValue;</span>
+
+<span class="fc" id="L711">				solver.setValueAndDerivative(error,derivativeAnalytic);</span>
+<span class="fc" id="L712">			}</span>
+
+<span class="fc" id="L714">			return solver.getBestPoint();</span>
+		}
+	}
+
+	/**
+	 * Calculates the Black-Scholes option value of a digital call option.
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return Returns the value of a European call option under the Black-Scholes model
+	 */
+	public static double blackScholesDigitalOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L735" title="1 of 2 branches missed.">		if(optionStrike &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L738">			return 1.0;</span>
+		}
+		else
+		{
+			// Calculate analytic value
+<span class="fc" id="L743">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L744">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+
+<span class="fc" id="L746">			final double valueAnalytic = Math.exp(- riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus);</span>
+
+<span class="fc" id="L748">			return valueAnalytic;</span>
+		}
+	}
+
+	/**
+	 * Calculates the delta of a digital option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The delta of the digital option
+	 */
+	public static double blackScholesDigitalOptionDelta(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L769" title="2 of 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L772">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate delta
+<span class="fc" id="L777">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L778">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+
+<span class="fc" id="L780">			final double delta = Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / (Math.sqrt(2.0 * Math.PI * optionMaturity) * initialStockValue * volatility);</span>
+
+<span class="fc" id="L782">			return delta;</span>
+		}
+	}
+
+	/**
+	 * Calculates the vega of a digital option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The vega of the digital option
+	 */
+	public static double blackScholesDigitalOptionVega(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L803" title="2 of 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L806">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate vega
+<span class="fc" id="L811">			final double dPlus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate + 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L812">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+
+<span class="fc" id="L814">			final double vega = - Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI) * dPlus / volatility;</span>
+
+<span class="fc" id="L816">			return vega;</span>
+		}
+	}
+
+	/**
+	 * Calculates the rho of a digital option under a Black-Scholes model
+	 *
+	 * @param initialStockValue The initial value of the underlying, i.e., the spot.
+	 * @param riskFreeRate The risk free rate of the bank account numerarie.
+	 * @param volatility The Black-Scholes volatility.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @return The rho of the digital option
+	 */
+	public static double blackScholesDigitalOptionRho(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="pc bpc" id="L837" title="1 of 2 branches missed.">		if(optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L840">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L842" title="1 of 2 branches missed.">		else if(optionStrike &lt;= 0.0) {</span>
+<span class="nc" id="L843">			final double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity);</span>
+
+<span class="nc" id="L845">			return rho;</span>
+		}
+		else
+		{
+			// Calculate rho
+<span class="fc" id="L850">			final double dMinus = (Math.log(initialStockValue / optionStrike) + (riskFreeRate - 0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="fc" id="L852">			final double rho = - optionMaturity * Math.exp(-riskFreeRate * optionMaturity) * NormalDistribution.cumulativeDistribution(dMinus)</span>
+<span class="fc" id="L853">					+ Math.sqrt(optionMaturity)/volatility * Math.exp(-riskFreeRate * optionMaturity) * Math.exp(-0.5*dMinus*dMinus) / Math.sqrt(2.0 * Math.PI);</span>
+
+<span class="fc" id="L855">			return rho;</span>
+		}
+	}
+
+	/**
+	 * Calculate the value of a caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @return Returns the value of a caplet under the Black'76 model
+	 */
+	public static double blackModelCapletValue(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double periodLength,
+			final double discountFactor)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+<span class="fc" id="L879">		return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, volatility, optionMaturity, optionStrike, periodLength * discountFactor);</span>
+	}
+
+	/**
+	 * Calculate the implied volatility of a caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param value The value of the caplet.
+	 * @return Returns the value of a caplet under the Black'76 model
+	 */
+	public static double blackModelCapletImpliedVolatility(
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double periodLength,
+			final double discountFactor,
+			final double value)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+<span class="fc" id="L902">		return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, periodLength * discountFactor, value);</span>
+	}
+
+	/**
+	 * Calculate the value of a digital caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @return Returns the price of a digital caplet under the Black'76 model
+	 */
+	public static double blackModelDigitalCapletValue(
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+<span class="fc" id="L925">		return AnalyticFormulas.blackScholesDigitalOptionValue(forward, 0.0, volatility, optionMaturity, optionStrike) * periodLength * discountFactor;</span>
+	}
+
+	/**
+	 * Calculate the delta of a digital caplet assuming the Black'76 model.
+	 *
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @return Returns the price of a digital caplet under the Black'76 model
+	 */
+	public static double blackModelDigitalCapletDelta(
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+<span class="fc" id="L948">		return AnalyticFormulas.blackScholesDigitalOptionDelta(forward, 0.0, volatility, optionMaturity, optionStrike) * periodLength * discountFactor;</span>
+	}
+
+	/**
+	 * Calculate the value of a digital caplet assuming the Black'76 model.
+	 *
+	 * This method exists for backward compatibility due to a typo in an earlier version.
+	 *
+	 * @param forward The forward (spot).
+	 * @param volatility The Black'76 volatility.
+	 * @param periodLength The period length of the underlying forward rate.
+	 * @param discountFactor The discount factor corresponding to the payment date (option maturity + period length).
+	 * @param optionMaturity The option maturity
+	 * @param optionStrike The option strike.
+	 * @return Returns the price of a digital caplet under the Black'76 model
+	 */
+	public static double blackModelDgitialCapletValue(
+			final double forward,
+			final double volatility,
+			final double periodLength,
+			final double discountFactor,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="fc" id="L972">		return AnalyticFormulas.blackModelDigitalCapletValue(forward, volatility, periodLength, discountFactor, optionMaturity, optionStrike);</span>
+	}
+
+	/**
+	 * Calculate the value of a swaption assuming the Black'76 model.
+	 *
+	 * @param forwardSwaprate The forward (spot)
+	 * @param volatility The Black'76 volatility.
+	 * @param optionMaturity The option maturity.
+	 * @param optionStrike The option strike.
+	 * @param swapAnnuity The swap annuity corresponding to the underlying swap.
+	 * @return Returns the value of a Swaption under the Black'76 model
+	 */
+	public static double blackModelSwaptionValue(
+			final double forwardSwaprate,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double swapAnnuity)
+	{
+		// May be interpreted as a special version of the Black-Scholes Formula
+<span class="fc" id="L993">		return AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);</span>
+	}
+
+	/**
+	 * Calculates the value of an Exchange option under a generalized Black-Scholes model, i.e., the payoff \( max(S_{1}(T)-S_{2}(T),0) \),
+	 * where \( S_{1} \) and \( S_{2} \) follow a log-normal process with constant log-volatility and constant instantaneous correlation.
+	 *
+	 * The method also handles cases where the forward and/or option strike is negative
+	 * and some limit cases where the forward and/or the option strike is zero.
+	 *
+	 * @param spot1 Value of \( S_{1}(0) \)
+	 * @param spot2 Value of \( S_{2}(0) \)
+	 * @param volatility1 Volatility of \( \log(S_{1}(t)) \)
+	 * @param volatility2 Volatility of \( \log(S_{2}(t)) \)
+	 * @param correlation Instantaneous correlation of \( \log(S_{1}(t)) \) and \( \log(S_{2}(t)) \)
+	 * @param optionMaturity The option maturity \( T \).
+	 * @return Returns the value of a European exchange option under the Black-Scholes model.
+	 */
+	public static double margrabeExchangeOptionValue(
+			final double spot1,
+			final double spot2,
+			final double volatility1,
+			final double volatility2,
+			final double correlation,
+			final double optionMaturity)
+	{
+<span class="nc" id="L1019">		final double volatility = Math.sqrt(volatility1*volatility1 + volatility2*volatility2 - 2.0 * volatility1*volatility2*correlation);</span>
+<span class="nc" id="L1020">		return blackScholesGeneralizedOptionValue(spot1, volatility, optionMaturity, spot2, 1.0);</span>
+	}
+
+	/*
+	 * Some functions for the Bachelier model. For more see BachelierModel class.
+	 */
+
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 *
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static double bachelierOptionValue(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+<span class="fc" id="L1053">		return BachelierModel.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);</span>
+	}
+
+	/**
+	 * Calculates the option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of a European call option under the Bachelier model.
+	 */
+	public static RandomVariable bachelierOptionValue(
+			final RandomVariable forward,
+			final RandomVariable volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final RandomVariable payoffUnit)
+	{
+<span class="fc" id="L1081">		return BachelierModel.bachelierOptionValue(forward, volatility, optionMaturity, optionStrike, payoffUnit);</span>
+	}
+
+	/**
+	 * Calculates the Bachelier option implied volatility of a call, i.e., the payoff max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike. If the option strike is &amp;le; 0.0 the method returns the value of the forward contract paying S(T)-K in T.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @param optionValue The option value.
+	 * @return Returns the implied volatility of a European call option under the Bachelier model.
+	 */
+	public static double bachelierOptionImpliedVolatility(
+			final double forward,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit,
+			final double optionValue)
+	{
+<span class="fc" id="L1109">		return BachelierModel.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);</span>
+	}
+
+	/**
+	 * Calculates the option delta dV(0)/dS(0) of a call option, i.e., the payoff V(T)=max(S(T)-K,0), where S follows a
+	 * normal process with numeraire scaled volatility, i.e., a homogeneous Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma exp(-r (T-t)) \mathrm{d}W(t)
+	 * \]
+	 * Considering the numeraire \( N(t) = exp(-r (T-t)) \), this implies that \( F(t) = S(t)/N(t) \) follows
+	 * \[
+	 * 	\mathrm{d} F(t) = \sigma \mathrm{d}W(t) \text{.}
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F(0) = S(0)/N(0) = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \) of the forward process.
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike K.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor \( N(0)/N(T) = exp(-r T) \))
+	 * @return Returns the value of the option delta (dV/dS(0)) of a European call option under the Bachelier model.
+	 */
+	public static double bachelierOptionDelta(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+<span class="fc" id="L1137">		return BachelierModel.bachelierOptionDelta(forward, volatility, optionMaturity, optionStrike, payoffUnit);</span>
+	}
+
+	/*
+	 * CMS Options
+	 */
+
+	/**
+	 * Calculate the value of a CMS option using the Black-Scholes model for the swap rate together with
+	 * the Hunt-Kennedy convexity adjustment.
+	 *
+	 * @param forwardSwaprate The forward swap rate
+	 * @param volatility Volatility of the log of the swap rate
+	 * @param swapAnnuity The swap annuity
+	 * @param optionMaturity The option maturity
+	 * @param swapMaturity The swap maturity
+	 * @param payoffUnit The payoff unit, e.g., the discount factor corresponding to the payment date
+	 * @param optionStrike The option strike
+	 * @return Value of the CMS option
+	 */
+	public static double huntKennedyCMSOptionValue(
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit,
+			final double optionStrike)
+	{
+<span class="fc" id="L1166">		final double a = 1.0/swapMaturity;</span>
+<span class="fc" id="L1167">		final double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;</span>
+<span class="fc" id="L1168">		final double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);</span>
+
+<span class="fc" id="L1170">		final double valueUnadjusted	= blackModelSwaptionValue(forwardSwaprate, volatility, optionMaturity, optionStrike, swapAnnuity);</span>
+<span class="fc" id="L1171">		final double valueAdjusted	= blackModelSwaptionValue(forwardSwaprate * convexityAdjustment, volatility, optionMaturity, optionStrike, swapAnnuity);</span>
+
+<span class="fc" id="L1173">		return a * valueUnadjusted + b * forwardSwaprate * valueAdjusted;</span>
+	}
+
+	/**
+	 * Calculate the value of a CMS strike using the Black-Scholes model for the swap rate together with
+	 * the Hunt-Kennedy convexity adjustment.
+	 *
+	 * @param forwardSwaprate The forward swap rate
+	 * @param volatility Volatility of the log of the swap rate
+	 * @param swapAnnuity The swap annuity
+	 * @param optionMaturity The option maturity
+	 * @param swapMaturity The swap maturity
+	 * @param payoffUnit The payoff unit, e.g., the discount factor corresponding to the payment date
+	 * @param optionStrike The option strike
+	 * @return Value of the CMS strike
+	 */
+	public static double huntKennedyCMSFloorValue(
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit,
+			final double optionStrike)
+	{
+<span class="nc" id="L1198">		final double huntKennedyCMSOptionValue = huntKennedyCMSOptionValue(forwardSwaprate, volatility, swapAnnuity, optionMaturity, swapMaturity, payoffUnit, optionStrike);</span>
+
+		// A floor is an option plus the strike (max(X,K) = max(X-K,0) + K)
+<span class="nc" id="L1201">		return huntKennedyCMSOptionValue + optionStrike * payoffUnit;</span>
+	}
+
+	/**
+	 * Calculate the adjusted forward swaprate corresponding to a change of payoff unit from the given swapAnnuity to the given payoffUnit
+	 * using the Black-Scholes model for the swap rate together with the Hunt-Kennedy convexity adjustment.
+	 *
+	 * @param forwardSwaprate The forward swap rate
+	 * @param volatility Volatility of the log of the swap rate
+	 * @param swapAnnuity The swap annuity
+	 * @param optionMaturity The option maturity
+	 * @param swapMaturity The swap maturity
+	 * @param payoffUnit The payoff unit, e.g., the discount factor corresponding to the payment date
+	 * @return Convexity adjusted forward rate
+	 */
+	public static double huntKennedyCMSAdjustedRate(
+			final double forwardSwaprate,
+			final double volatility,
+			final double swapAnnuity,
+			final double optionMaturity,
+			final double swapMaturity,
+			final double payoffUnit)
+	{
+<span class="fc" id="L1224">		final double a = 1.0/swapMaturity;</span>
+<span class="fc" id="L1225">		final double b = (payoffUnit / swapAnnuity - a) / forwardSwaprate;</span>
+<span class="fc" id="L1226">		final double convexityAdjustment = Math.exp(volatility*volatility*optionMaturity);</span>
+
+<span class="fc" id="L1228">		final double rateUnadjusted	= forwardSwaprate;</span>
+<span class="fc" id="L1229">		final double rateAdjusted		= forwardSwaprate * convexityAdjustment;</span>
+
+<span class="fc" id="L1231">		return (a * rateUnadjusted + b * forwardSwaprate * rateAdjusted) * swapAnnuity / payoffUnit;</span>
+	}
+
+	/**
+	 * Calculated the approximation to the lognormal Black volatility using the
+	 * standard SABR model and the standard Hagan approximation.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return Implied lognormal Black volatility.
+	 */
+	public static double sabrHaganLognormalBlackVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double underlying, final double strike, final double maturity)
+	{
+<span class="nc" id="L1249">		return sabrHaganLognormalBlackVolatilityApproximation(alpha, beta, rho, nu, 0.0, underlying, strike, maturity);</span>
+	}
+
+	/**
+	 * Calculated the approximation to the lognormal Black volatility using the
+	 * standard SABR model and the standard Hagan approximation.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return Implied lognormal Black volatility.
+	 */
+	public static double sabrHaganLognormalBlackVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
+	{
+
+<span class="nc bnc" id="L1269" title="All 2 branches missed.">		if(alpha &lt;= 0) {</span>
+<span class="nc" id="L1270">			throw new IllegalArgumentException(&quot;&amp;alpha; must be greater than 0.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1273" title="All 4 branches missed.">		if(rho &gt; 1 || rho &lt; -1) {</span>
+<span class="nc" id="L1274">			throw new IllegalArgumentException(&quot;&amp;rho; must be between -1 and 1.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1277" title="All 2 branches missed.">		if(nu &lt;= 0) {</span>
+<span class="nc" id="L1278">			throw new IllegalArgumentException(&quot;&amp;nu; must be greater than 0.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1281" title="All 2 branches missed.">		if(underlying &lt;= 0) {</span>
+<span class="nc" id="L1282">			throw new IllegalArgumentException(&quot;Approximation not definied for non-positive underlyings.&quot;);</span>
+		}
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="nc" id="L1286">		underlying += displacement;</span>
+<span class="nc" id="L1287">		strike += displacement;</span>
+
+<span class="nc bnc" id="L1289" title="All 2 branches missed.">		if(Math.abs(underlying - strike) &lt; 0.0001 * (1+Math.abs(underlying))) {</span>
+			/*
+			 * ATM case - we assume underlying = strike
+			 */
+
+<span class="nc" id="L1294">			final double term1 = alpha / (Math.pow(underlying,1-beta));</span>
+
+<span class="nc" id="L1296">			final double term2 = Math.pow(1-beta,2)/24 * Math.pow(alpha,2)/Math.pow(underlying,2*(1-beta))</span>
+<span class="nc" id="L1297">					+ rho*beta*alpha*nu/(4*Math.pow(underlying,1-beta))</span>
+					+ (2-3*rho*rho)*nu*nu/24;
+<span class="nc" id="L1299">			return term1 * (1+ term2 * maturity);</span>
+		}
+		else{
+			/*
+			 * General non-ATM case no prob with log(F/K)
+			 */
+<span class="nc" id="L1305">			final double forwardTimesStrike = underlying * strike;</span>
+
+<span class="nc" id="L1307">			final double z = nu/alpha * Math.pow(forwardTimesStrike, (1-beta)/2) * Math.log(underlying / strike);</span>
+
+<span class="nc" id="L1309">			final double x = Math.log((Math.sqrt(1- 2*rho * z + z*z) + z - rho)/(1 - rho));</span>
+
+<span class="nc" id="L1311">			final double term1 = alpha / Math.pow(forwardTimesStrike,(1-beta)/2)</span>
+<span class="nc" id="L1312">					/ (1 + Math.pow(1-beta,2)/24*Math.pow(Math.log(underlying/strike),2)</span>
+<span class="nc" id="L1313">							+ Math.pow(1-beta,4)/1920 * Math.pow(Math.log(underlying/strike),4));</span>
+
+<span class="nc bnc" id="L1315" title="All 2 branches missed.">			final double term2 = (Math.abs(x-z) &lt; 1E-10) ? 1 : z / x;</span>
+
+<span class="nc" id="L1317">			final double term3 = 1 + (Math.pow(1 - beta,2)/24 *Math.pow(alpha, 2)/Math.pow(forwardTimesStrike, 1-beta)</span>
+<span class="nc" id="L1318">					+ rho*beta*nu*alpha / 4 / Math.pow(forwardTimesStrike, (1-beta)/2)</span>
+					+ (2-3*rho*rho)/24 * nu*nu) *maturity;
+
+
+<span class="nc" id="L1322">			return term1 * term2 * term3;</span>
+		}
+	}
+
+
+	/**
+	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrBerestyckiNormalVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
+	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="fc" id="L1344">		underlying += displacement;</span>
+<span class="fc" id="L1345">		strike += displacement;</span>
+
+<span class="fc" id="L1347">		final double forwardStrikeAverage = (underlying+strike) / 2.0;		// Original paper uses a geometric average here</span>
+
+		double z;
+<span class="pc bpc" id="L1350" title="1 of 2 branches missed.">		if(beta &lt; 1.0) {</span>
+<span class="fc" id="L1351">			z = nu / alpha * (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);</span>
+		} else {
+<span class="nc" id="L1353">			z = nu / alpha * Math.log(underlying/strike);</span>
+		}
+
+<span class="fc" id="L1356">		final double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));</span>
+
+		double term1;
+<span class="fc bfc" id="L1359" title="All 2 branches covered.">		if(Math.abs(underlying - strike) &lt; 1E-10 * (1+Math.abs(underlying))) {</span>
+			// ATM case - we assume underlying = strike
+<span class="fc" id="L1361">			term1 = alpha * Math.pow(underlying, beta);</span>
+		}
+<span class="fc bfc" id="L1363" title="All 2 branches covered.">		else if(x == 0) {</span>
+			// x ~ z for z small
+<span class="pc bpc" id="L1365" title="1 of 2 branches missed.">			if(beta &lt; 1.0) {</span>
+<span class="fc" id="L1366">				term1 = (underlying-strike) * alpha / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta)) / (1.0-beta);</span>
+			} else {
+<span class="nc" id="L1368">				term1 = (underlying-strike) * alpha / Math.log(underlying/strike);</span>
+			}
+		}
+		else {
+<span class="fc" id="L1372">			term1 = nu * (underlying-strike) / x;</span>
+		}
+<span class="fc" id="L1374">		final double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));</span>
+
+<span class="fc" id="L1376">		return Math.max(sigma, 0.0);</span>
+	}
+
+	/**
+	 * Return the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Hagan.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param strike Strike.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilityApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, double strike, final double maturity)
+	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="nc" id="L1396">		underlying += displacement;</span>
+<span class="nc" id="L1397">		strike += displacement;</span>
+
+<span class="nc" id="L1399">		final double forwardStrikeAverage = (underlying+strike) / 2.0;</span>
+
+<span class="nc" id="L1401">		final double z = nu / alpha * (underlying-strike) / Math.pow(forwardStrikeAverage, beta);</span>
+<span class="nc" id="L1402">		final double x = Math.log((Math.sqrt(1.0 - 2.0*rho*z + z*z) + z - rho) / (1.0-rho));</span>
+
+		double term1;
+<span class="nc bnc" id="L1405" title="All 2 branches missed.">		if(Math.abs(underlying - strike) &lt; 1E-8 * (1+Math.abs(underlying))) {</span>
+			// ATM case - we assume underlying = strike
+<span class="nc" id="L1407">			term1 = alpha * Math.pow(underlying, beta);</span>
+		}
+		else {
+<span class="nc" id="L1410">			final double z2 = (1.0 - beta) / (Math.pow(underlying, 1.0-beta) - Math.pow(strike, 1.0-beta));</span>
+<span class="nc" id="L1411">			term1 = alpha * z2 * z * (underlying-strike) / x;</span>
+		}
+
+<span class="nc" id="L1414">		final double sigma = term1 * (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));</span>
+
+<span class="nc" id="L1416">		return Math.max(sigma, 0.0);</span>
+	}
+
+	/**
+	 * Return the parameter alpha (initial value of the stochastic vol process) of a SABR model using the
+	 * to match the given at-the-money volatility.
+	 *
+	 * @param normalVolatility ATM volatility to match.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param maturity Maturity.
+	 * @return The implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrAlphaApproximation(final double normalVolatility, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
+	{
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="nc" id="L1435">		underlying += displacement;</span>
+
+		// ATM case.
+<span class="nc" id="L1438">		final double forwardStrikeAverage = underlying;</span>
+
+<span class="nc" id="L1440">		final double guess = normalVolatility/Math.pow(underlying, beta);</span>
+<span class="nc" id="L1441">		final NewtonsMethod search = new NewtonsMethod(guess);</span>
+<span class="nc bnc" id="L1442" title="All 6 branches missed.">		while(!search.isDone() &amp;&amp; search.getAccuracy() &gt; 1E-16 &amp;&amp; search.getNumberOfIterations() &lt; 100) {</span>
+<span class="nc" id="L1443">			final double alpha = search.getNextPoint();</span>
+
+<span class="nc" id="L1445">			final double term1 = alpha * Math.pow(underlying, beta);</span>
+<span class="nc" id="L1446">			final double term2 = (1.0 + maturity * ((-beta*(2-beta)*alpha*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*alpha*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))) + (2.0 -3.0*rho*rho)*nu*nu/24));</span>
+
+<span class="nc" id="L1448">			final double derivativeTerm1 = Math.pow(underlying, beta);</span>
+<span class="nc" id="L1449">			final double derivativeTerm2 = maturity * (2*(-beta*(2-beta)*alpha)/(24*Math.pow(forwardStrikeAverage,2.0*(1.0-beta))) + beta*rho*nu / (4*Math.pow(forwardStrikeAverage,(1.0-beta))));</span>
+
+<span class="nc" id="L1451">			final double sigma = term1 * term2;</span>
+<span class="nc" id="L1452">			final double derivative = derivativeTerm1 * term2 + term1 * derivativeTerm2;</span>
+
+<span class="nc" id="L1454">			search.setValueAndDerivative(sigma-normalVolatility, derivative);</span>
+<span class="nc" id="L1455">		}</span>
+<span class="nc" id="L1456">		return search.getBestPoint();</span>
+	}
+
+	/**
+	 * Return the skew of the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki. The skew is the first derivative of the implied vol w.r.t. the strike,
+	 * evaluated at the money.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param maturity Maturity.
+	 * @return The skew of the implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilitySkewApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
+	{
+<span class="fc" id="L1475">		final double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);</span>
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="fc" id="L1478">		underlying += displacement;</span>
+
+<span class="fc" id="L1480">		final double a = alpha/Math.pow(underlying, 1-beta);</span>
+<span class="fc" id="L1481">		final double c = 1.0/24*Math.pow(a, 3)*beta*(1.0-beta);</span>
+
+<span class="fc" id="L1483">		final double skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying) - maturity*c*(3.0*rho*nu/a + beta - 2.0);</span>
+
+		// Some alternative representations
+		//		double term1dterm21 = (beta*(2-beta)*alpha*alpha*alpha)/24*Math.pow(underlying,-3.0*(1.0-beta)) * (1.0-beta);
+		//		double term1dterm22 = beta*alpha*alpha*rho*nu / 4 * Math.pow(underlying,-2.0*(1.0-beta)) * -(1.0-beta) * 0.5;
+		//		skew = + 1.0/2.0*sigma/underlying*(rho*nu/alpha * Math.pow(underlying, 1-beta) + beta) + maturity * (term1dterm21+term1dterm22);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*3.0*c) + maturity*2.0*c*(1+beta);
+		//		skew = + (rho*nu/a + beta) * (1.0/2.0*sigma/underlying - maturity*c) - maturity*c*(2.0*rho*nu/a - 2.0);
+
+		// The follwoing may be used as approximations (for beta=0 the approximation is exact).
+		//		double approximation = (rho*nu/a + beta) * (1.0/2.0*sigma/underlying);
+		//		double residual =  skew - approximation;
+
+<span class="fc" id="L1496">		return  skew;</span>
+	}
+
+	/**
+	 * Return the curvature of the implied normal volatility (Bachelier volatility) under a SABR model using the
+	 * approximation of Berestycki. The curvatures is the second derivative of the implied vol w.r.t. the strike,
+	 * evaluated at the money.
+	 *
+	 * @param alpha initial value of the stochastic volatility process of the SABR model.
+	 * @param beta CEV parameter of the SABR model.
+	 * @param rho Correlation (leverages) of the stochastic volatility.
+	 * @param nu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param displacement The displacement parameter d.
+	 * @param underlying Underlying (spot) value.
+	 * @param maturity Maturity.
+	 * @return The curvature of the implied normal volatility (Bachelier volatility)
+	 */
+	public static double sabrNormalVolatilityCurvatureApproximation(final double alpha, final double beta, final double rho, final double nu, final double displacement, double underlying, final double maturity)
+	{
+<span class="fc" id="L1515">		final double sigma = sabrBerestyckiNormalVolatilityApproximation(alpha, beta, rho, nu, displacement, underlying, underlying, maturity);</span>
+
+		// Apply displacement. Displaced model is just a shift on underlying and strike.
+<span class="fc" id="L1518">		underlying += displacement;</span>
+
+		/*
+		double d1xdz1 = 1.0;
+		double d2xdz2 = rho;
+		double d3xdz3 = 3.0*rho*rho-1.0;
+
+		double d1zdK1 = -nu/alpha * Math.pow(underlying, -beta);
+		double d2zdK2 = + nu/alpha * beta * Math.pow(underlying, -beta-1.0);
+		double d3zdK3 = - nu/alpha * beta * (1.0+beta) * Math.pow(underlying, -beta-2.0);
+
+		double d1xdK1 = d1xdz1*d1zdK1;
+		double d2xdK2 = d2xdz2*d1zdK1*d1zdK1 + d1xdz1*d2zdK2;
+		double d3xdK3 = d3xdz3*d1zdK1*d1zdK1*d1zdK1 + 3.0*d2xdz2*d2zdK2*d1zdK1 + d1xdz1*d3zdK3;
+
+		double term1 = alpha * Math.pow(underlying, beta) / nu;
+		 */
+
+<span class="fc" id="L1536">		final double d2Part1dK2 = nu * ((1.0/3.0 - 1.0/2.0 * rho * rho) * nu/alpha * Math.pow(underlying, -beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * alpha/nu*Math.pow(underlying, beta-2));</span>
+<span class="fc" id="L1537">		final double d0BdK0 = (-1.0/24.0 *beta*(2-beta)*alpha*alpha*Math.pow(underlying, 2*beta-2) + 1.0/4.0 * beta*alpha*rho*nu*Math.pow(underlying, beta-1.0) + (2.0 -3.0*rho*rho)*nu*nu/24);</span>
+<span class="fc" id="L1538">		final double d1BdK1 = (-1.0/48.0 *beta*(2-beta)*(2*beta-2)*alpha*alpha*Math.pow(underlying, 2*beta-3) + 1.0/8.0 * beta*(beta-1.0)*alpha*rho*nu*Math.pow(underlying, beta-2));</span>
+<span class="fc" id="L1539">		final double d2BdK2 = (-1.0/96.0 *beta*(2-beta)*(2*beta-2)*(2*beta-3)*alpha*alpha*Math.pow(underlying, 2*beta-4) + 1.0/16.0 * beta*(beta-1)*(beta-2)*alpha*rho*nu*Math.pow(underlying, beta-3));</span>
+
+<span class="fc" id="L1541">		final double curvatureApproximation	= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta));</span>
+<span class="fc" id="L1542">		final double curvaturePart1			= nu/alpha * ((1.0/3.0 - 1.0/2.0 * rho * rho) * sigma*nu/alpha * Math.pow(underlying, -2*beta) + (1.0/6.0 * beta*beta - 2.0/6.0 * beta) * sigma*alpha/nu*Math.pow(underlying, -2));</span>
+<span class="fc" id="L1543">		final double curvatureMaturityPart	= (rho*nu + alpha*beta*Math.pow(underlying, beta-1))*d1BdK1 + alpha*Math.pow(underlying, beta)*d2BdK2;</span>
+
+<span class="fc" id="L1545">		return  (curvaturePart1 + maturity * curvatureMaturityPart);</span>
+	}
+
+	/**
+	 * Exact conversion of displaced lognormal ATM volatility to normal ATM volatility.
+	 *
+	 * @param forward The forward
+	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
+	 * @param optionMaturity The maturity
+	 * @param lognormalVolatility The (implied) lognormal volatility.
+	 * @return The (implied) normal volatility.
+	 * @see &lt;a href=&quot;http://papers.ssrn.com/sol3/papers.cfm?abstract_id=2687742&quot;&gt;Dimitroff, Fries, Lichtner and Rodi: Lognormal vs Normal Volatilities and Sensitivities in Practice&lt;/a&gt;
+	 */
+	public static double volatilityConversionLognormalATMtoNormalATM(final double forward, final double displacement, final double optionMaturity, final double lognormalVolatility) {
+<span class="fc" id="L1559">		final double x = lognormalVolatility * Math.sqrt(optionMaturity / 8);</span>
+<span class="fc" id="L1560">		final double y = org.apache.commons.math3.special.Erf.erf(x);</span>
+<span class="fc" id="L1561">		final double normalVol = Math.sqrt(2*Math.PI / optionMaturity) * (forward+displacement) * y;</span>
+
+<span class="fc" id="L1563">		return normalVol;</span>
+	}
+
+	/**
+	 * Numerical conversion of displaced lognormal volatility to normal volatility.
+	 *
+	 * @param forward The forward.
+	 * @param displacement The displacement (considering a displaced lognormal model, otherwise 0.
+	 * @param optionMaturity The maturity.
+	 * @param optionStrike The strike.
+	 * @param lognormalVolatility The (implied) lognormal volatility.
+	 * @return The (implied) normal volatility.
+	 */
+	public static double volatilityConversionLognormalToNormal(final double forward, final double displacement, final double optionMaturity, final double optionStrike, final double lognormalVolatility) {
+<span class="fc" id="L1577">		final double payoffUnit = 1.0;		// does not matter in this conversion</span>
+<span class="fc" id="L1578">		final double optionValue = blackScholesGeneralizedOptionValue(forward+displacement, lognormalVolatility, optionMaturity, optionStrike+displacement, payoffUnit);</span>
+
+<span class="fc" id="L1580">		final double impliedNormalVolatility = bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);</span>
+
+<span class="fc" id="L1582">		return impliedNormalVolatility;</span>
+	}
+
+	/**
+	 * Re-implementation of the Excel PRICE function (a rather primitive bond price formula).
+	 * The re-implementation is not exact, because this function does not consider daycount conventions.
+	 *
+	 * @param settlementDate Valuation date.
+	 * @param maturityDate Maturity date of the bond.
+	 * @param coupon Coupon payment.
+	 * @param yield Yield (discount factor, using frequency: 1/(1 + yield/frequency).
+	 * @param redemption Redemption (notional repayment).
+	 * @param frequency Frequency (1,2,4).
+	 * @return price Clean price.
+	 */
+	public static double price(
+			final java.util.Date settlementDate,
+			final java.util.Date maturityDate,
+			final double coupon,
+			final double yield,
+			final double redemption,
+			final int frequency)
+	{
+<span class="nc" id="L1605">		double price = 0.0;</span>
+
+<span class="nc bnc" id="L1607" title="All 2 branches missed.">		if(maturityDate.after(settlementDate)) {</span>
+<span class="nc" id="L1608">			price += redemption;</span>
+		}
+
+<span class="nc" id="L1611">		final Calendar paymentDate = Calendar.getInstance();</span>
+<span class="nc" id="L1612">		paymentDate.setTime(maturityDate);</span>
+<span class="nc bnc" id="L1613" title="All 2 branches missed.">		while(paymentDate.after(settlementDate)) {</span>
+<span class="nc" id="L1614">			price += coupon;</span>
+
+			// Discount back
+<span class="nc" id="L1617">			price /= 1.0 + yield / frequency;</span>
+<span class="nc" id="L1618">			paymentDate.add(Calendar.MONTH, -12/frequency);</span>
+		}
+
+<span class="nc" id="L1621">		final Calendar periodEndDate = (Calendar)paymentDate.clone();</span>
+<span class="nc" id="L1622">		periodEndDate.add(Calendar.MONTH, +12/frequency);</span>
+
+		// Accrue running period
+<span class="nc" id="L1625">		final double accrualPeriod = (paymentDate.getTimeInMillis() - settlementDate.getTime()) / (periodEndDate.getTimeInMillis() - paymentDate.getTimeInMillis());</span>
+<span class="nc" id="L1626">		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);</span>
+<span class="nc" id="L1627">		price -= coupon * accrualPeriod;</span>
+
+<span class="nc" id="L1629">		return price;</span>
+	}
+
+	/**
+	 * Re-implementation of the Excel PRICE function (a rather primitive bond price formula).
+	 * The re-implementation is not exact, because this function does not consider daycount conventions.
+	 * We assume we have (int)timeToMaturity/frequency future periods and the running period has
+	 * an accrual period of timeToMaturity - frequency * ((int)timeToMaturity/frequency).
+	 *
+	 * @param timeToMaturity The time to maturity.
+	 * @param coupon Coupon payment.
+	 * @param yield Yield (discount factor, using frequency: 1/(1 + yield/frequency).
+	 * @param redemption Redemption (notional repayment).
+	 * @param frequency Frequency (1,2,4).
+	 * @return price Clean price.
+	 */
+	public static double price(
+			final double timeToMaturity,
+			final double coupon,
+			final double yield,
+			final double redemption,
+			final int frequency)
+	{
+<span class="nc" id="L1652">		double price = 0.0;</span>
+
+<span class="nc bnc" id="L1654" title="All 2 branches missed.">		if(timeToMaturity &gt; 0) {</span>
+<span class="nc" id="L1655">			price += redemption;</span>
+		}
+
+<span class="nc" id="L1658">		double paymentTime = timeToMaturity;</span>
+<span class="nc bnc" id="L1659" title="All 2 branches missed.">		while(paymentTime &gt; 0) {</span>
+<span class="nc" id="L1660">			price += coupon;</span>
+
+			// Discount back
+<span class="nc" id="L1663">			price = price / (1.0 + yield / frequency);</span>
+<span class="nc" id="L1664">			paymentTime -= 1.0 / frequency;</span>
+		}
+
+		// Accrue running period
+<span class="nc" id="L1668">		final double accrualPeriod = 0.0- paymentTime;</span>
+<span class="nc" id="L1669">		price *= Math.pow(1.0 + yield / frequency, accrualPeriod);</span>
+<span class="nc" id="L1670">		price -= coupon * accrualPeriod;</span>
+
+<span class="nc" id="L1672">		return price;</span>
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Bachelier model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma \mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
+	 * @param volatility The Bachelier volatility \( \sigma \).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the vega of a European call option under the Bachelier model.
+	 */
+	public static double bachelierGeneralizedOptionVega(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+<span class="nc bnc" id="L1696" title="All 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L1697">			return 0;</span>
+		}
+<span class="nc bnc" id="L1699" title="All 2 branches missed.">		else if(forward == optionStrike) {</span>
+
+<span class="nc" id="L1701">			return Math.sqrt(optionMaturity / (Math.PI * 2.0)) * payoffUnit;</span>
+		}
+		else
+		{
+			// Calculate analytic value
+<span class="nc" id="L1706">			final double dPlus = (forward - optionStrike) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L1708">			final double vegaAnalytic = Math.sqrt(optionMaturity) * NormalDistribution.density(dPlus) * payoffUnit;</span>
+
+<span class="nc" id="L1710">			return vegaAnalytic;</span>
+		}
+	}
+
+	/**
+	 * Calculates the vega of a call, i.e., the payoff max(S(T)-K,0) P, where S follows a
+	 * normal process with constant volatility, i.e., a Black-Scholes model
+	 * \[
+	 * 	\mathrm{d} S(t) = r S(t) \mathrm{d} t + \sigma S(t)\mathrm{d}W(t)
+	 * \]
+	 *
+	 * @param forward The forward of the underlying \( F = S(0) \exp(r T) \).
+	 * @param volatility The Black-Scholes volatility \( \sigma \).
+	 * @param optionMaturity The option maturity T.
+	 * @param optionStrike The option strike.
+	 * @param payoffUnit The payoff unit (e.g., the discount factor)
+	 * @return Returns the vega of a European call option under the Black-Scholes model.
+	 */
+	public static double blackScholesGeneralizedOptionVega(
+			final double forward,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final double payoffUnit)
+	{
+<span class="nc bnc" id="L1735" title="All 4 branches missed.">		if(optionStrike &lt;= 0.0 || optionMaturity &lt;= 0.0)</span>
+		{
+			// The Black-Scholes model does not consider it being an option
+<span class="nc" id="L1738">			return 0.0;</span>
+		}
+		else
+		{
+			// Calculate vega
+<span class="nc" id="L1743">			final double dPlus = (Math.log(forward / optionStrike) + (0.5 * volatility * volatility) * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+
+<span class="nc" id="L1745">			final double vega = payoffUnit * NormalDistribution.density(dPlus) * forward * Math.sqrt(optionMaturity);</span>
+
+<span class="nc" id="L1747">			return vega;</span>
+		}
+	}
+
+	/**
+	 * Calculates the CEV option value of a call, i.e., the payoff max(S(T)-K,0), where S follows a CEV process.
+	 * Formula is from 2007 - Hsu Lin Lee - 'Constant Elasticity of Variance Option Pricing Model'.
+	 * CEV exponent must be between 0 and 1.
+	 *
+	 * @author Ralph Rudd
+	 *
+	 * @param initialStockValue The spot value of the underlying.
+	 * @param riskFreeRate      The risk free rate r (df = exp(-r T)).
+	 * @param volatility        The CEV volatility (NOT the log-normal volatility).
+	 * @param exponent          The exponent of S in the diffusion term.
+	 * @param optionMaturity    The option maturity T.
+	 * @param optionStrike      The option strike.
+	 * @param isCall            If true, the value of a call is calculated, if false, the value of a put is calculated.
+	 * @return Returns the value of a European call option under the CEV model.
+	 */
+	public static double constantElasticityOfVarianceOptionValue(
+			double initialStockValue,
+			double riskFreeRate,
+			double volatility,
+			double exponent,
+			double optionMaturity,
+			double optionStrike,
+			boolean isCall) {
+<span class="nc" id="L1775">		final double kappa = 2 * riskFreeRate / (Math.pow(volatility, 2) * (1 - exponent) * (Math.exp(2 * riskFreeRate * (1 - exponent) * optionMaturity) - 1));</span>
+<span class="nc" id="L1776">		final double z = 2 + 1 / (1 - exponent);</span>
+<span class="nc" id="L1777">		final double y = kappa * Math.pow(optionStrike, 2 * (1 - exponent));</span>
+<span class="nc" id="L1778">		final double x = kappa * Math.pow(initialStockValue, 2 * (1 - exponent)) * Math.exp(2 * riskFreeRate * (1 - exponent) * optionMaturity);</span>
+<span class="nc" id="L1779">		final NonCentralChiSquaredDistribution P1 = new NonCentralChiSquaredDistribution(z, x);</span>
+<span class="nc" id="L1780">		final NonCentralChiSquaredDistribution P2 = new NonCentralChiSquaredDistribution(z - 2, y);</span>
+<span class="nc bnc" id="L1781" title="All 2 branches missed.">		if (isCall) {</span>
+<span class="nc" id="L1782">			return initialStockValue * (1 - P1.cumulativeDistribution(y)) - optionStrike * Math.exp(-riskFreeRate * optionMaturity) * P2.cumulativeDistribution(x);</span>
+		} else {
+<span class="nc" id="L1784">			return -initialStockValue * P1.cumulativeDistribution(y) + optionStrike * Math.exp(-riskFreeRate * optionMaturity) * (1 - P2.cumulativeDistribution(x));</span>
+		}
+	}
+
+	/**
+	 * Returns the Margrabe price of a European exchange option with payoff
+	 * {@code max(S1(T) - S2(T), 0)}.
+	 *
+	 * @param initialValueFirstAsset Initial value of the first asset.
+	 * @param initialValueSecondAsset Initial value of the second asset.
+	 * @param dividendYieldFirstAsset Continuous dividend yield of the first
+	 *     asset.
+	 * @param dividendYieldSecondAsset Continuous dividend yield of the second
+	 *     asset.
+	 * @param volatilityFirstAsset Volatility of the first asset.
+	 * @param volatilitySecondAsset Volatility of the second asset.
+	 * @param correlation Instantaneous correlation between the two assets.
+	 * @param maturity Option maturity.
+	 * @return The Margrabe price.
+	 */
+	public static double margrabeExchangeOptionValue(
+			final double initialValueFirstAsset,
+			final double initialValueSecondAsset,
+			final double dividendYieldFirstAsset,
+			final double dividendYieldSecondAsset,
+			final double volatilityFirstAsset,
+			final double volatilitySecondAsset,
+			final double correlation,
+			final double maturity) {
+
+<span class="nc bnc" id="L1814" title="All 4 branches missed.">		if (initialValueFirstAsset &lt;= 0.0 || initialValueSecondAsset &lt;= 0.0) {</span>
+<span class="nc" id="L1815">			throw new IllegalArgumentException(&quot;Initial asset values must be strictly positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L1817" title="All 4 branches missed.">		if (volatilityFirstAsset &lt; 0.0 || volatilitySecondAsset &lt; 0.0) {</span>
+<span class="nc" id="L1818">			throw new IllegalArgumentException(&quot;Volatilities must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L1820" title="All 4 branches missed.">		if (correlation &lt; -1.0 || correlation &gt; 1.0) {</span>
+<span class="nc" id="L1821">			throw new IllegalArgumentException(&quot;Correlation must lie in [-1,1].&quot;);</span>
+		}
+<span class="nc bnc" id="L1823" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L1824">			throw new IllegalArgumentException(&quot;Maturity must be non-negative.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1827" title="All 2 branches missed.">		if (maturity == 0.0) {</span>
+<span class="nc" id="L1828">			return Math.max(initialValueFirstAsset - initialValueSecondAsset, 0.0);</span>
+		}
+
+<span class="nc" id="L1831">		final double effectiveVolatilitySquared =</span>
+				volatilityFirstAsset * volatilityFirstAsset
+				+ volatilitySecondAsset * volatilitySecondAsset
+				- 2.0 * correlation * volatilityFirstAsset * volatilitySecondAsset;
+
+<span class="nc" id="L1836">		final double effectiveVolatility = Math.sqrt(Math.max(effectiveVolatilitySquared, 0.0));</span>
+<span class="nc" id="L1837">		final double sqrtMaturity = Math.sqrt(maturity);</span>
+
+<span class="nc bnc" id="L1839" title="All 2 branches missed.">		if (effectiveVolatility == 0.0) {</span>
+<span class="nc" id="L1840">			final double deterministicForwardDifference =</span>
+<span class="nc" id="L1841">					initialValueFirstAsset * Math.exp(-dividendYieldFirstAsset * maturity)</span>
+<span class="nc" id="L1842">					- initialValueSecondAsset * Math.exp(-dividendYieldSecondAsset * maturity);</span>
+
+<span class="nc" id="L1844">			return Math.max(deterministicForwardDifference, 0.0);</span>
+		}
+
+<span class="nc" id="L1847">		final double d1 =</span>
+				(
+<span class="nc" id="L1849">						Math.log(initialValueFirstAsset / initialValueSecondAsset)</span>
+						+ (dividendYieldSecondAsset - dividendYieldFirstAsset
+								+ 0.5 * effectiveVolatilitySquared) * maturity
+						)
+				/ (effectiveVolatility * sqrtMaturity);
+
+<span class="nc" id="L1855">		final double d2 = d1 - effectiveVolatility * sqrtMaturity;</span>
+
+<span class="nc" id="L1857">		return initialValueFirstAsset * Math.exp(-dividendYieldFirstAsset * maturity) * NormalDistribution.cumulativeDistribution(d1)</span>
+<span class="nc" id="L1858">				- initialValueSecondAsset * Math.exp(-dividendYieldSecondAsset * maturity) * NormalDistribution.cumulativeDistribution(d2);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

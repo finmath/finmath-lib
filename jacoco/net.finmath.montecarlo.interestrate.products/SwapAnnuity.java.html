@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwapAnnuity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">SwapAnnuity.java</span></div><h1>SwapAnnuity.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 10.02.2026
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Objects;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class implements the valuation of a simple swap annuity, i.e.,
+ * the \( \sum_{i=1}^{n} \delta_{i} P(T_{i}) \) where \( \delta_{i} \) are given weights (period length) and
+ * \( T_{i} \) are given maturities.
+ *
+ * @author Christian Fries
+ * @version 1.2
+ */
+public class SwapAnnuity extends AbstractTermStructureMonteCarloProduct {
+
+	private final LocalDateTime referenceDate;
+
+	private final double[] maturities;
+	private final double[] periodLengths;
+
+	/**
+	 * Create a swap annuity with maturity \( T_{i} \) and period length \( \delta_{i} \).
+	 * Here \( T_{i} \) is specified as a double offset to a given reference date \( t = 0 \).
+	 *
+	 * @param referenceDate The date corresponding to \( t = 0 \).
+	 * @param maturities The maturities given as doubles, following the
+	 *        {@link FloatingpointDate} convention as offsets to {@code referenceDate}.
+	 * @param periodLengths The period lengths (cash-flow weights).
+	 */
+	public SwapAnnuity(final LocalDateTime referenceDate, final double[] maturities, final double[] periodLengths) {
+<span class="fc" id="L44">		super();</span>
+<span class="fc" id="L45">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L46">		validateSchedule(maturities, periodLengths);</span>
+<span class="fc" id="L47">		this.maturities = maturities.clone();</span>
+<span class="fc" id="L48">		this.periodLengths = periodLengths.clone();</span>
+<span class="fc" id="L49">	}</span>
+
+	/**
+	 * @param maturities The maturities given as double.
+	 * @param periodLengths The period lengths (cash-flow weights).
+	 */
+	public SwapAnnuity(final double[] maturities, final double[] periodLengths) {
+<span class="fc" id="L56">		this(null, maturities, periodLengths);</span>
+<span class="fc" id="L57">	}</span>
+
+	/**
+	 * Creates a swap annuity from a tenor discretization. Each time step is one
+	 * weighted payment at the end of the step.
+	 *
+	 * @param timeDiscretization The payment tenor.
+	 */
+<span class="nc" id="L65">	public SwapAnnuity(final TimeDiscretization timeDiscretization) {</span>
+<span class="nc" id="L66">		this.referenceDate = null;</span>
+<span class="nc" id="L67">		Objects.requireNonNull(timeDiscretization, &quot;timeDiscretization must not be null.&quot;);</span>
+<span class="nc" id="L68">		this.maturities = new double[timeDiscretization.getNumberOfTimeSteps()];</span>
+<span class="nc" id="L69">		this.periodLengths = new double[timeDiscretization.getNumberOfTimeSteps()];</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		for(int timeIndex = 0; timeIndex&lt;maturities.length; timeIndex++) {</span>
+<span class="nc" id="L71">			maturities[timeIndex] = timeDiscretization.getTime(timeIndex+1);</span>
+<span class="nc" id="L72">			periodLengths[timeIndex] = timeDiscretization.getTimeStep(timeIndex);</span>
+		}
+<span class="nc" id="L74">		validateSchedule(maturities, periodLengths);</span>
+<span class="nc" id="L75">	}</span>
+
+	private static void validateSchedule(final double[] maturities, final double[] periodLengths) {
+<span class="fc" id="L78">		Objects.requireNonNull(maturities, &quot;maturities must not be null.&quot;);</span>
+<span class="fc" id="L79">		Objects.requireNonNull(periodLengths, &quot;periodLengths must not be null.&quot;);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		if(maturities.length != periodLengths.length) {</span>
+<span class="fc" id="L81">			throw new IllegalArgumentException(&quot;maturities and periodLengths must have the same length.&quot;);</span>
+		}
+
+<span class="fc bfc" id="L84" title="All 2 branches covered.">		for(int periodIndex = 0; periodIndex &lt; maturities.length; periodIndex++) {</span>
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">			if(!Double.isFinite(maturities[periodIndex])) {</span>
+<span class="nc" id="L86">				throw new IllegalArgumentException(&quot;maturities must contain only finite values.&quot;);</span>
+			}
+<span class="pc bpc" id="L88" title="2 of 4 branches missed.">			if(!Double.isFinite(periodLengths[periodIndex]) || periodLengths[periodIndex] &lt; 0.0) {</span>
+<span class="nc" id="L89">				throw new IllegalArgumentException(&quot;periodLengths must contain only finite, non-negative values.&quot;);</span>
+			}
+		}
+<span class="fc" id="L92">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L107">		final double productToModelTimeOffset = getProductToModelTimeOffset(model);</span>
+
+		// Aggregation of value
+<span class="fc" id="L110">		RandomVariable values = Scalar.of(0.0);</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex &lt; maturities.length; periodIndex++) {</span>
+<span class="fc" id="L112">			final double maturity = maturities[periodIndex];</span>
+<span class="fc" id="L113">			final double paymentTime = productToModelTimeOffset + maturity;</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">			if(paymentTime &lt; evaluationTime - Bond.PAYMENT_TIME_TOLERANCE) {</span>
+<span class="fc" id="L116">				continue;</span>
+			}
+
+			// Get random variables
+<span class="fc" id="L120">			final RandomVariable	numeraire				= model.getNumeraire(paymentTime);</span>
+<span class="fc" id="L121">			final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentTime);</span>
+
+			// Calculate numeraire relative value
+<span class="fc" id="L124">			RandomVariable valueOfPeriod = model.getRandomVariableForConstant(periodLengths[periodIndex]);</span>
+<span class="fc" id="L125">			valueOfPeriod = valueOfPeriod.div(numeraire).mult(monteCarloProbabilities);</span>
+<span class="fc" id="L126">			values = values.add(valueOfPeriod);</span>
+		}
+
+		// Convert back to values
+<span class="fc" id="L130">		final RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L131">		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L132">		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);</span>
+
+		// Return values
+<span class="fc" id="L135">		return values;</span>
+	}
+
+	double getProductToModelTimeOffset(final TermStructureMonteCarloSimulationModel model) {
+<span class="fc bfc" id="L139" title="All 2 branches covered.">		if(referenceDate == null) {</span>
+<span class="fc" id="L140">			return 0.0;</span>
+		}
+
+		final LocalDateTime modelReferenceDate;
+		try {
+<span class="fc" id="L145">			modelReferenceDate = model.getReferenceDate();</span>
+		}
+<span class="nc" id="L147">		catch(final UnsupportedOperationException exception) {</span>
+<span class="nc" id="L148">			throw new IllegalArgumentException(</span>
+					&quot;The model must provide a reference date to value a date-based SwapAnnuity.&quot;,
+					exception);
+<span class="fc" id="L151">		}</span>
+<span class="fc bfc" id="L152" title="All 2 branches covered.">		if(modelReferenceDate == null) {</span>
+<span class="fc" id="L153">			throw new IllegalArgumentException(</span>
+					&quot;The model must provide a reference date to value a date-based SwapAnnuity.&quot;);
+		}
+
+<span class="fc" id="L157">		return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, referenceDate);</span>
+	}
+
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L161">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return Returns the maturities.
+	 */
+	public double[] getMaturities() {
+<span class="fc" id="L168">		return maturities.clone();</span>
+	}
+
+	/**
+	 * @return Returns the period lengths (cash-flow weights).
+	 */
+	public double[] getPeriodLengths() {
+<span class="fc" id="L175">		return periodLengths.clone();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L180">		return &quot;SwapAnnuity [referenceDate=&quot; + referenceDate + &quot;, maturities=&quot; + Arrays.toString(maturities)</span>
+<span class="nc" id="L181">				+ &quot;, periodLengths=&quot; + Arrays.toString(periodLengths) + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

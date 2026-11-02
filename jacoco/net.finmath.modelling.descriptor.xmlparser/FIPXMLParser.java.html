@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FIPXMLParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor.xmlparser</a> &gt; <span class="el_source">FIPXMLParser.java</span></div><h1>FIPXMLParser.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor.xmlparser;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
+import net.finmath.time.Period;
+import net.finmath.time.daycount.DayCountConvention;
+import net.finmath.time.daycount.DayCountConventionFactory;
+
+/**
+ * Class for parsing trades saved in FIPXML to product descriptors.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class FIPXMLParser implements XMLParser {
+
+	private final boolean agentIsBuyer;
+	private final String discountCurveName;
+
+	/**
+	 * Construct the parser with default parameters. I.e. agent is buyer. Name of discount curve will be taken from file.
+	 */
+	public FIPXMLParser() {
+<span class="fc" id="L41">		this(false, null);</span>
+<span class="fc" id="L42">	}</span>
+
+	/**
+	 * Construct the parser.
+	 *
+	 * @param agentIsBuyer Boolean indicating whether valuation is done from the buyers perspective.
+	 * @param discountCurveName Name of the discount curve to be assigned to the descriptor. If set to null or left blank the parser will try to determine this from the file.
+	 */
+	public FIPXMLParser(final boolean agentIsBuyer, final String discountCurveName) {
+<span class="fc" id="L51">		super();</span>
+<span class="fc" id="L52">		this.agentIsBuyer = agentIsBuyer;</span>
+<span class="fc" id="L53">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L54">	}</span>
+
+	@Override
+	public ProductDescriptor getProductDescriptor(final File file) throws SAXException, IOException, ParserConfigurationException {
+
+<span class="nc" id="L59">		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);</span>
+<span class="nc" id="L60">		doc.getDocumentElement().normalize();</span>
+
+		//Check compatibility and assign proper parser
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if(! doc.getDocumentElement().getNodeName().equalsIgnoreCase(&quot;FIPXML&quot;)) {</span>
+<span class="nc" id="L64">			throw new IllegalArgumentException(&quot;This parser is meant for XML of type FIPXML, but file was &quot;+doc.getDocumentElement().getNodeName()+&quot;.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L67" title="All 2 branches missed.">		if(doc.getElementsByTagName(&quot;instrumentName&quot;).item(0).getTextContent().equalsIgnoreCase(&quot;Interest Rate Swap&quot;)) {</span>
+<span class="nc" id="L68">			return getSwapProductDescriptor(file);</span>
+		} else {
+<span class="nc" id="L70">			throw new IllegalArgumentException(&quot;This xml parser is not set up to process trade of type &quot;+doc.getElementsByTagName(&quot;instrumentName&quot;).item(0).getTextContent());</span>
+		}
+	}
+
+	/**
+	 * Parse a product descriptor from a file containing a swap trade.
+	 *
+	 * @param file File containing a swap trade.
+	 * @return Product descriptor extracted from the file.
+	 * @throws SAXException Thrown by the xml parser.
+	 * @throws IOException Thrown if the file in not found or another IO error occured.
+	 * @throws ParserConfigurationException Thrown by the xml parser.
+	 */
+	public InterestRateSwapProductDescriptor getSwapProductDescriptor(final File file) throws SAXException, IOException, ParserConfigurationException {
+
+<span class="nc" id="L85">		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);</span>
+<span class="nc" id="L86">		doc.getDocumentElement().normalize();</span>
+
+		//Check compatibility
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if(! doc.getDocumentElement().getNodeName().equalsIgnoreCase(&quot;FIPXML&quot;)) {</span>
+<span class="nc" id="L90">			throw new IllegalArgumentException(&quot;This parser is meant for XML of type FIPXML, but file was &quot;+doc.getDocumentElement().getNodeName()+&quot;.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		if(doc.getElementsByTagName(&quot;instrumentName&quot;).item(0).getTextContent().equalsIgnoreCase(&quot;Interest Rate Swap&quot;)) {</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">			if (doc.getElementsByTagName(&quot;legAgreement&quot;).getLength() != 2) {</span>
+<span class="nc" id="L95">				throw new IllegalArgumentException(&quot;Unknown swap configuration. Number of swap legs was &quot;+doc.getElementsByTagName(&quot;legAgreement&quot;).getLength());</span>
+			}
+		} else {
+<span class="nc" id="L98">			throw new IllegalArgumentException(&quot;This xml parser is not set up to process trade of type &quot;+doc.getElementsByTagName(&quot;instrumentName&quot;).item(0).getTextContent());</span>
+		}
+
+<span class="nc" id="L101">		final DayCountConvention daycountConvention = DayCountConventionFactory.getDayCountConvention(doc.getElementsByTagName(&quot;dayCountFraction&quot;).item(0).getTextContent());</span>
+
+		//TODO try to get curves from file. Problems if there are two float/fixed legs
+		//forward curve
+<span class="nc" id="L105">		String forwardCurveName = null;</span>
+<span class="nc" id="L106">		final NodeList temp = doc.getElementsByTagName(&quot;instrumentId&quot;);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		for(int index = 0; index &lt; temp.getLength(); index++) {</span>
+<span class="nc" id="L108">			final Node id = temp.item(index);</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">			if(id.getAttributes().getNamedItem(&quot;instrumentIdScheme&quot;).getTextContent().equalsIgnoreCase(&quot;INTERESTRATE&quot;)) {</span>
+<span class="nc" id="L110">				forwardCurveName = id.getTextContent();</span>
+<span class="nc" id="L111">				break;</span>
+			}
+		}
+
+		//Discount curve
+<span class="nc" id="L116">		final String[] split = forwardCurveName.split(&quot;_&quot;);</span>
+<span class="nc bnc" id="L117" title="All 4 branches missed.">		final String discountCurveName = (this.discountCurveName == null || this.discountCurveName.length() == 0 ) ? split[0] +&quot;_&quot;+split[1] : this.discountCurveName;</span>
+
+<span class="nc" id="L119">		InterestRateSwapLegProductDescriptor legReceiver = null;</span>
+<span class="nc" id="L120">		InterestRateSwapLegProductDescriptor legPayer = null;</span>
+
+		//Get descriptors for both legs
+<span class="nc" id="L123">		final NodeList legs = doc.getElementsByTagName(&quot;legAgreement&quot;);</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		for(int legIndex = 0; legIndex &lt; legs.getLength(); legIndex++) {</span>
+<span class="nc" id="L125">			final Element leg = (Element) legs.item(legIndex);</span>
+
+<span class="nc bnc" id="L127" title="All 4 branches missed.">			final boolean isPayer = (leg.getElementsByTagName(&quot;payDirection&quot;).item(0).getTextContent().equalsIgnoreCase(&quot;SELLER_TO_BUYER&quot;) &amp;&amp; !agentIsBuyer)</span>
+<span class="nc bnc" id="L128" title="All 4 branches missed.">					|| (leg.getElementsByTagName(&quot;payDirection&quot;).item(0).getTextContent().equalsIgnoreCase(&quot;BUYER_TO_SELLER&quot;) &amp;&amp; agentIsBuyer);</span>
+<span class="nc" id="L129">			final boolean isFixed = leg.getElementsByTagName(&quot;interestType&quot;).item(0).getTextContent().equals(&quot;FIX&quot;);</span>
+
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			if(isPayer) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">				legPayer = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);</span>
+			} else {
+<span class="nc bnc" id="L134" title="All 2 branches missed.">				legReceiver = getSwapLegProductDescriptor(leg, isFixed ? null : forwardCurveName, discountCurveName, daycountConvention);</span>
+			}
+
+		}
+
+<span class="nc" id="L139">		return new InterestRateSwapProductDescriptor(legReceiver, legPayer);</span>
+
+	}
+
+	/**
+	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FIPXML file.
+	 *
+	 * @param leg The node containing the leg.
+	 * @param forwardCurveName Forward curve name form outside the node.
+	 * @param discountCurveName Discount curve name form outside the node.
+	 * @param daycountConvention Daycount convention from outside the node.
+	 * @return Descriptor of the swap leg.
+	 */
+	private static InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(final Element leg, final String forwardCurveName, final String discountCurveName,
+			final DayCountConvention daycountConvention) {
+
+<span class="nc" id="L155">		final boolean isFixed = leg.getElementsByTagName(&quot;interestType&quot;).item(0).getTextContent().equalsIgnoreCase(&quot;FIX&quot;);</span>
+
+<span class="nc" id="L157">		final ArrayList&lt;Period&gt; periods 		= new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L158">		final ArrayList&lt;Double&gt; notionalsList	= new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L159">		final ArrayList&lt;Double&gt; rates			= new ArrayList&lt;&gt;();</span>
+
+		//extracting data for each period
+<span class="nc" id="L162">		final NodeList periodsXML = leg.getElementsByTagName(&quot;incomePayment&quot;);</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		for(int periodIndex = 0; periodIndex &lt; periodsXML.getLength(); periodIndex++) {</span>
+
+<span class="nc" id="L165">			final Element periodXML = (Element) periodsXML.item(periodIndex);</span>
+
+<span class="nc" id="L167">			final LocalDate startDate	= LocalDate.parse(periodXML.getElementsByTagName(&quot;startDate&quot;).item(0).getTextContent());</span>
+<span class="nc" id="L168">			final LocalDate endDate	= LocalDate.parse(periodXML.getElementsByTagName(&quot;endDate&quot;).item(0).getTextContent());</span>
+
+<span class="nc" id="L170">			LocalDate fixingDate	= startDate;</span>
+<span class="nc" id="L171">			final LocalDate paymentDate	= LocalDate.parse(periodXML.getElementsByTagName(&quot;payDate&quot;).item(0).getTextContent());</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			if(! isFixed) {</span>
+<span class="nc" id="L174">				fixingDate = LocalDate.parse(periodXML.getElementsByTagName(&quot;fixingDate&quot;).item(0).getTextContent());</span>
+			}
+
+<span class="nc" id="L177">			periods.add(new Period(fixingDate, paymentDate, startDate, endDate));</span>
+
+<span class="nc" id="L179">			final double notional		= Double.parseDouble(periodXML.getElementsByTagName(&quot;nominal&quot;).item(0).getTextContent());</span>
+<span class="nc" id="L180">			notionalsList.add(new Double(notional));</span>
+
+<span class="nc bnc" id="L182" title="All 2 branches missed.">			if(isFixed) {</span>
+<span class="nc" id="L183">				final double fixedRate	= Double.parseDouble(periodXML.getElementsByTagName(&quot;fixedRate&quot;).item(0).getTextContent());</span>
+<span class="nc" id="L184">				rates.add(new Double(fixedRate));</span>
+<span class="nc" id="L185">			} else {</span>
+<span class="nc" id="L186">				rates.add(new Double(0));</span>
+			}
+
+		}
+
+<span class="nc" id="L191">		final ScheduleDescriptor schedule = new ScheduleDescriptor(periods, daycountConvention);</span>
+<span class="nc" id="L192">		final double[] notionals	= notionalsList.stream().mapToDouble(Double::doubleValue).toArray();</span>
+<span class="nc" id="L193">		final double[] spreads	= rates.stream().mapToDouble(Double::doubleValue).toArray();</span>
+
+<span class="nc" id="L195">		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notionals, spreads, false);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

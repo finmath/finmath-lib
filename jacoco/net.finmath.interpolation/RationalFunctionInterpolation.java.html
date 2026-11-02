@@ -1,0 +1,614 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RationalFunctionInterpolation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.interpolation</a> &gt; <span class="el_source">RationalFunctionInterpolation.java</span></div><h1>RationalFunctionInterpolation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28.05.2004
+ */
+package net.finmath.interpolation;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.functions.LinearAlgebra;
+
+/**
+ * This class provides methodologies to interpolate given sample points by
+ * rational functions, that is, given interpolation points (x&lt;sub&gt;i&lt;/sub&gt;,y&lt;sub&gt;i&lt;/sub&gt;)
+ * the class provides a continuous function y = f(x) where
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		f(x&lt;sub&gt;i&lt;/sub&gt;) = y&lt;sub&gt;i&lt;/sub&gt; and
+ * 	&lt;/li&gt;
+ * &lt;li&gt;
+ *		for x&lt;sub&gt;i&lt;/sub&gt; &amp;lt; x &amp;lt; x&lt;sub&gt;i+1&lt;/sub&gt; the function is a fraction of two polynomes
+ * f(x) = (sum a&lt;sub&gt;j&lt;/sub&gt; x&lt;sup&gt;j&lt;/sup&gt;) / (sum b&lt;sub&gt;k&lt;/sub&gt; x&lt;sup&gt;k&lt;/sup&gt;).
+ * &lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * This setup comprises linear interpolation (for which the function is C&lt;sup&gt;0&lt;/sup&gt;) and
+ * cubic spline interpolation (for which the function is C&lt;sup&gt;1&lt;/sup&gt;).
+ *
+ * @author Christian Fries
+ * @version 1.3
+ */
+public class RationalFunctionInterpolation implements DoubleUnaryOperator, Serializable {
+
+	private static final long serialVersionUID = -3214160594013393575L;
+
+<span class="fc" id="L39">	public enum InterpolationMethod {</span>
+		/** Constant interpolation. Synonym of PIECEWISE_CONSTANT_LEFTPOINT. **/
+<span class="fc" id="L41">		PIECEWISE_CONSTANT,</span>
+		/** Constant interpolation. Right continuous, i.e. using the value of the left end point of the interval. **/
+<span class="fc" id="L43">		PIECEWISE_CONSTANT_LEFTPOINT,</span>
+		/** Constant interpolation using the value of the right end point of the interval. **/
+<span class="fc" id="L45">		PIECEWISE_CONSTANT_RIGHTPOINT,</span>
+		/** Linear interpolation. **/
+<span class="fc" id="L47">		LINEAR,</span>
+		/** Cubic spline interpolation. **/
+<span class="fc" id="L49">		CUBIC_SPLINE,</span>
+		/** Akima interpolation (C1 sub-spline interpolation). **/
+<span class="fc" id="L51">		AKIMA,</span>
+		/** Akima interpolation (C1 sub-spline interpolation) with a smoothing in the weights. **/
+<span class="fc" id="L53">		AKIMA_CONTINUOUS,</span>
+		/** Harmonic spline interpolation (C1 sub-spline interpolation). **/
+<span class="fc" id="L55">		HARMONIC_SPLINE,</span>
+		/** Harmonic spline interpolation (C1 sub-spline interpolation) with a monotonic filtering at the boundary points. **/
+<span class="fc" id="L57">		HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING</span>
+
+	}
+
+<span class="fc" id="L61">	public enum ExtrapolationMethod {</span>
+		/** Extrapolation using the interpolation function of the adjacent interval **/
+<span class="fc" id="L63">		DEFAULT,</span>
+		/** Constant extrapolation. **/
+<span class="fc" id="L65">		CONSTANT,</span>
+		/** Linear extrapolation. **/
+<span class="fc" id="L67">		LINEAR</span>
+	}
+
+	// The curve to interpolate
+	private final double[]	points;
+	private final double[]	values;
+
+<span class="fc" id="L74">	private InterpolationMethod	interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L75">	private ExtrapolationMethod	extrapolationMethod = ExtrapolationMethod.DEFAULT;</span>
+
+	private static class RationalFunction implements Serializable {
+
+		private static final long serialVersionUID = -1596026703859403853L;
+
+		private final double[] coefficientsNumerator;
+		private final double[] coefficientsDenominator;
+
+		/**
+		 * Create a rational interpolation function.
+		 *
+		 * @param coefficientsNumerator The coefficients of the polynomial of the numerator, in increasing order.
+		 * @param coefficientsDenominator The coefficients of the polynomial of the denominator, in increasing order.
+		 */
+		RationalFunction(final double[] coefficientsNumerator, final double[] coefficientsDenominator) {
+<span class="fc" id="L91">			super();</span>
+<span class="fc" id="L92">			this.coefficientsNumerator = coefficientsNumerator;</span>
+<span class="fc" id="L93">			this.coefficientsDenominator = coefficientsDenominator;</span>
+<span class="fc" id="L94">		}</span>
+
+		/**
+		 * Create a polynomial interpolation function.
+		 *
+		 * @param coefficients The coefficients of the polynomial, in increasing order.
+		 */
+		RationalFunction(final double[] coefficients) {
+<span class="fc" id="L102">			this(coefficients, null);</span>
+<span class="fc" id="L103">		}</span>
+
+		/**
+		 * Returns the value for a given arguments.
+		 *
+		 * @param x Given argument.
+		 * @return Returns the value for the given argument.
+		 */
+		public double getValue(final double x)
+		{
+<span class="fc" id="L113">			double valueNumerator	= 0.0;</span>
+<span class="fc" id="L114">			double valueDenominator	= 0.0;</span>
+<span class="fc" id="L115">			double powerOfX	= 1.0;</span>
+
+<span class="fc bfc" id="L117" title="All 2 branches covered.">			for (final double polynomialCoefficient : coefficientsNumerator) {</span>
+<span class="fc" id="L118">				valueNumerator += polynomialCoefficient * powerOfX;</span>
+<span class="fc" id="L119">				powerOfX *= x;</span>
+			}
+
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">			if(coefficientsDenominator == null) {</span>
+<span class="fc" id="L123">				return valueNumerator;</span>
+			}
+
+<span class="nc" id="L126">			powerOfX	= 1.0;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			for (final double polynomialCoefficient : coefficientsDenominator) {</span>
+<span class="nc" id="L128">				valueDenominator += polynomialCoefficient * powerOfX;</span>
+<span class="nc" id="L129">				powerOfX *= x;</span>
+			}
+
+<span class="nc" id="L132">			return valueNumerator/valueDenominator;</span>
+		}
+	}
+
+	// The interpolated curve - a rational function for each interval (one less than number of points)
+	private RationalFunction[]	interpolatingRationalFunctions;
+<span class="fc" id="L138">	private transient Object		interpolatingRationalFunctionsLazyInitLock = new Object();</span>
+
+	/**
+	 * Generate a rational function interpolation from a given set of points.
+	 *
+	 * @param points The array of the x&lt;sub&gt;i&lt;/sub&gt; sample points of a function y=f(x).
+	 * @param values The corresponding array of the y&lt;sub&gt;i&lt;/sub&gt; sample values to the sample points x&lt;sub&gt;i&lt;/sub&gt;.
+	 */
+	public RationalFunctionInterpolation(final double[] points, final double[] values) {
+<span class="fc" id="L147">		super();</span>
+<span class="fc" id="L148">		this.points = points;</span>
+<span class="fc" id="L149">		this.values = values;</span>
+<span class="fc" id="L150">	}</span>
+
+	/**
+	 * Generate a rational function interpolation from a given set of points using
+	 * the specified interpolation and extrapolation method.
+	 *
+	 * @param points The array of the x&lt;sub&gt;i&lt;/sub&gt; sample points of a function y=f(x).
+	 * @param values The corresponding array of the y&lt;sub&gt;i&lt;/sub&gt; sample values to the sample points x&lt;sub&gt;i&lt;/sub&gt;.
+	 * @param interpolationMethod The interpolation method to be used.
+	 * @param extrapolationMethod The extrapolation method to be used.
+	 */
+	public RationalFunctionInterpolation(final double[] points, final double[] values,  final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod) {
+<span class="fc" id="L162">		super();</span>
+<span class="fc" id="L163">		this.points = points;</span>
+<span class="fc" id="L164">		this.values = values;</span>
+<span class="fc" id="L165">		this.interpolationMethod = interpolationMethod;</span>
+<span class="fc" id="L166">		this.extrapolationMethod = extrapolationMethod;</span>
+<span class="fc" id="L167">	}</span>
+
+	/**
+	 * Returns the interpolation method used.
+	 *
+	 * @return Returns the interpolationMethod.
+	 */
+	public InterpolationMethod getInterpolationMethod() {
+<span class="fc" id="L175">		return interpolationMethod;</span>
+	}
+
+	/**
+	 * Get an interpolated value for a given argument x.
+	 *
+	 * @param x The abscissa at which the interpolation should be performed.
+	 * @return The interpolated value (ordinate).
+	 */
+	public double getValue(final double x)
+	{
+<span class="fc" id="L186">		synchronized(interpolatingRationalFunctionsLazyInitLock) {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">			if(interpolatingRationalFunctions == null) {</span>
+<span class="fc" id="L188">				doCreateRationalFunctions();</span>
+			}
+<span class="fc" id="L190">		}</span>
+
+		// Get interpolating rational function for the given point x
+<span class="fc" id="L193">		final int pointIndex = java.util.Arrays.binarySearch(points, x);</span>
+<span class="fc bfc" id="L194" title="All 2 branches covered.">		if(pointIndex &gt;= 0) {</span>
+<span class="fc" id="L195">			return values[pointIndex];</span>
+		}
+
+<span class="fc" id="L198">		int intervalIndex = -pointIndex-2;</span>
+
+		// Check for extrapolation
+<span class="fc bfc" id="L201" title="All 2 branches covered.">		if(intervalIndex &lt; 0) {</span>
+			// Extrapolation
+<span class="fc bfc" id="L203" title="All 2 branches covered.">			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {</span>
+<span class="fc" id="L204">				return values[0];</span>
+<span class="fc bfc" id="L205" title="All 2 branches covered.">			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {</span>
+<span class="fc" id="L206">				return values[0]+(values[1]-values[0])/(points[1]-points[0])*(x-points[0]);</span>
+			} else {
+<span class="fc" id="L208">				intervalIndex = 0;</span>
+			}
+		}
+<span class="fc bfc" id="L211" title="All 2 branches covered.">		else if(intervalIndex &gt; points.length-2) {</span>
+			// Extrapolation
+<span class="fc bfc" id="L213" title="All 2 branches covered.">			if(extrapolationMethod == ExtrapolationMethod.CONSTANT) {</span>
+<span class="fc" id="L214">				return values[points.length-1];</span>
+<span class="fc bfc" id="L215" title="All 2 branches covered.">			} else if(extrapolationMethod == ExtrapolationMethod.LINEAR) {</span>
+<span class="fc" id="L216">				return values[points.length-1]+(values[points.length-2]-values[points.length-1])/(points[points.length-2]-points[points.length-1])*(x-points[points.length-1]);</span>
+			} else {
+<span class="fc" id="L218">				intervalIndex = points.length-2;</span>
+			}
+		}
+
+<span class="fc" id="L222">		final RationalFunction rationalFunction = interpolatingRationalFunctions[intervalIndex];</span>
+
+		// Calculate interpolating value
+<span class="fc" id="L225">		return rationalFunction.getValue(x-points[intervalIndex]);</span>
+	}
+
+	private void doCreateRationalFunctions()
+	{
+<span class="fc bfc" id="L230" title="All 7 branches covered.">		switch(interpolationMethod)</span>
+		{
+		case PIECEWISE_CONSTANT:
+		case PIECEWISE_CONSTANT_LEFTPOINT:
+		case PIECEWISE_CONSTANT_RIGHTPOINT:
+<span class="fc" id="L235">			doCreateRationalFunctionsForPiecewiseConstantInterpolation();</span>
+<span class="fc" id="L236">			break;</span>
+		case LINEAR:
+		default:
+<span class="fc" id="L239">			doCreateRationalFunctionsForLinearInterpolation();</span>
+<span class="fc" id="L240">			break;</span>
+		case CUBIC_SPLINE:
+<span class="fc" id="L242">			doCreateRationalFunctionsForCubicSplineInterpolation();</span>
+<span class="fc" id="L243">			break;</span>
+		case AKIMA:
+<span class="fc" id="L245">			doCreateRationalFunctionsForAkimaInterpolation();</span>
+<span class="fc" id="L246">			break;</span>
+		case AKIMA_CONTINUOUS:
+<span class="fc" id="L248">			doCreateRationalFunctionsForAkimaInterpolation(1E-02);</span>
+<span class="fc" id="L249">			break;</span>
+		case HARMONIC_SPLINE:
+<span class="fc" id="L251">			doCreateRationalFunctionsForHarmonicSplineInterpolation();</span>
+<span class="fc" id="L252">			break;</span>
+		case HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING:
+<span class="fc" id="L254">			doCreateRationalFunctionsForHarmonicSplineInterpolation();</span>
+			break;
+		}
+<span class="fc" id="L257">	}</span>
+
+	private void doCreateRationalFunctionsForPiecewiseConstantInterpolation()
+	{
+		/*
+		 * Generate a rational function for each given interval
+		 */
+<span class="fc" id="L264">		interpolatingRationalFunctions = new RationalFunction[points.length-1];</span>
+
+		// create numerator polynomials (constant)
+<span class="fc bfc" id="L267" title="All 2 branches covered.">		for(int pointIndex = 0; pointIndex &lt; points.length-1; pointIndex++ ) {</span>
+			double[] numeratorPolynomCoeff;
+<span class="fc bfc" id="L269" title="All 2 branches covered.">			if (interpolationMethod == InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT) {</span>
+<span class="fc" id="L270">				numeratorPolynomCoeff = new double[] {values[pointIndex+1]};</span>
+			} else {
+<span class="fc" id="L272">				numeratorPolynomCoeff = new double[] {values[pointIndex]};</span>
+			}
+<span class="fc" id="L274">			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);</span>
+		}
+<span class="fc" id="L276">	}</span>
+
+	private void doCreateRationalFunctionsForLinearInterpolation()
+	{
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">		if(points.length == 0) {</span>
+<span class="nc" id="L281">			throw new IllegalArgumentException(&quot;Interpolation requested on curve with no points.&quot;);</span>
+		}
+
+		/*
+		 * Generate a rational function for each given interval
+		 */
+<span class="fc" id="L287">		interpolatingRationalFunctions = new RationalFunction[points.length-1];</span>
+
+		// create numerator polynomials (linear)
+<span class="fc bfc" id="L290" title="All 2 branches covered.">		for(int pointIndex = 0; pointIndex &lt; points.length-1; pointIndex++ ) {</span>
+<span class="fc" id="L291">			final double[] numeratorPolynomCoeff		= new double[2];</span>
+
+<span class="fc" id="L293">			final double xl = points[pointIndex];</span>
+<span class="fc" id="L294">			final double xr = points[pointIndex+1];</span>
+
+<span class="fc" id="L296">			final double fl = values[pointIndex];</span>
+<span class="fc" id="L297">			final double fr = values[pointIndex+1];</span>
+
+<span class="fc" id="L299">			numeratorPolynomCoeff[1] = (fr-fl) / (xr-xl);</span>
+<span class="fc" id="L300">			numeratorPolynomCoeff[0] = fl;</span>
+
+<span class="fc" id="L302">			interpolatingRationalFunctions[pointIndex] = new RationalFunction(numeratorPolynomCoeff);</span>
+		}
+<span class="fc" id="L304">	}</span>
+
+	private void doCreateRationalFunctionsForCubicSplineInterpolation()
+	{
+<span class="fc" id="L308">		final int numberOfPoints = points.length;</span>
+
+		// Calculate interval lengths
+<span class="fc" id="L311">		final double[] step = new double[numberOfPoints-1];</span>
+<span class="fc bfc" id="L312" title="All 2 branches covered.">		for (int i=0; i&lt;numberOfPoints-1; i++ ) {</span>
+<span class="fc" id="L313">			step[i] = points[i+1] - points[i];</span>
+		}
+
+		/*
+		 * Calculate 2nd derivatives of given function at states by solving
+		 * a linear system of equations (secondDerivativeMarix * secondDerivativeVector = v).
+		 */
+<span class="fc" id="L320">		double[] secondDerivativeVector	= new double[numberOfPoints];</span>
+
+<span class="fc" id="L322">		final double[][]	secondDerivativeMarix	= new double[numberOfPoints][numberOfPoints];</span>
+<span class="fc" id="L323">		final double[]	v						= new double[numberOfPoints];</span>
+
+		// Initialize A and b
+<span class="fc" id="L326">		secondDerivativeMarix[0][0] = 1.0;</span>
+<span class="fc" id="L327">		secondDerivativeMarix[numberOfPoints-1][numberOfPoints-1] = 1.0;</span>
+<span class="fc" id="L328">		v[0] = 0.0;</span>
+<span class="fc" id="L329">		v[numberOfPoints-1] = 0.0;</span>
+
+<span class="fc bfc" id="L331" title="All 2 branches covered.">		for (int intervalIndex=1; intervalIndex&lt;numberOfPoints-1; intervalIndex++)</span>
+		{
+<span class="fc" id="L333">			v[intervalIndex] =  6 * ( (values[intervalIndex+1] - values[intervalIndex])/step[intervalIndex] - (values[intervalIndex]-values[intervalIndex-1]) / step[intervalIndex-1]);</span>
+
+<span class="fc" id="L335">			secondDerivativeMarix[intervalIndex][intervalIndex-1] = step[intervalIndex-1];</span>
+<span class="fc" id="L336">			secondDerivativeMarix[intervalIndex][intervalIndex  ] = 2 * (step[intervalIndex-1] + step[intervalIndex]);</span>
+<span class="fc" id="L337">			secondDerivativeMarix[intervalIndex][intervalIndex+1] = step[intervalIndex];</span>
+		}
+		// Making it a symmetric matrix
+<span class="fc bfc" id="L340" title="All 2 branches covered.">		if(numberOfPoints &gt; 1)	{</span>
+<span class="fc" id="L341">			secondDerivativeMarix[0][1] 								= secondDerivativeMarix[1][0];</span>
+<span class="fc" id="L342">			secondDerivativeMarix[numberOfPoints-2][numberOfPoints-1]	= secondDerivativeMarix[numberOfPoints-1][numberOfPoints-2];</span>
+		}
+
+		// Solve equation
+<span class="fc" id="L346">		secondDerivativeVector = LinearAlgebra.solveLinearEquationSymmetric(secondDerivativeMarix, v);</span>
+
+		/*
+		 * Generate a rational function for each given interval
+		 */
+<span class="fc" id="L351">		interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];</span>
+
+		// create numerator polynomials (third order polynomial)
+<span class="fc bfc" id="L354" title="All 2 branches covered.">		for(int i = 0; i &lt; numberOfPoints-1; i++ ) {</span>
+<span class="fc" id="L355">			final double[] numeratortorPolynomCoeff		= new double[4];</span>
+
+<span class="fc" id="L357">			numeratortorPolynomCoeff[0] = values[i];</span>
+<span class="fc" id="L358">			numeratortorPolynomCoeff[1] = (values[i+1] - values[i])/step[i] - (secondDerivativeVector[i+1] + 2*secondDerivativeVector[i])*step[i]/6;</span>
+<span class="fc" id="L359">			numeratortorPolynomCoeff[2] = secondDerivativeVector[i] / 2;</span>
+<span class="fc" id="L360">			numeratortorPolynomCoeff[3] = (secondDerivativeVector[i+1] - secondDerivativeVector[i]) / (6*step[i]);</span>
+
+<span class="fc" id="L362">			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);</span>
+		}
+<span class="fc" id="L364">	}</span>
+
+	private void doCreateRationalFunctionsForAkimaInterpolation()
+	{
+<span class="fc" id="L368">		doCreateRationalFunctionsForAkimaInterpolation(0.0);</span>
+<span class="fc" id="L369">	}</span>
+
+	private void doCreateRationalFunctionsForAkimaInterpolation(final double minSlopeDifferenceWeight)
+	{
+<span class="fc" id="L373">		final int numberOfPoints = points.length;</span>
+
+<span class="fc bfc" id="L375" title="All 2 branches covered.">		if(numberOfPoints &lt; 4) {</span>
+			// Akima interpolation not possible
+<span class="fc" id="L377">			doCreateRationalFunctionsForCubicSplineInterpolation();</span>
+		}
+		else {
+			// Calculate slopes
+<span class="fc" id="L381">			final double[] step = new double[numberOfPoints-1];</span>
+<span class="fc" id="L382">			final double[] slope = new double[numberOfPoints-1];</span>
+<span class="fc" id="L383">			final double[] absSlopeDifference	= new double[numberOfPoints-2];</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">			for(int i = 0; i &lt; numberOfPoints-1; i++){</span>
+<span class="fc" id="L385">				step[i]		= (points[i+1] - points[i]);</span>
+<span class="fc" id="L386">				slope[i]	= (values[i+1] - values[i]) / step[i];</span>
+<span class="fc bfc" id="L387" title="All 2 branches covered.">				if(i &gt; 0) {</span>
+<span class="fc" id="L388">					absSlopeDifference[i-1] = Math.abs(slope[i] - slope[i-1]) + minSlopeDifferenceWeight;</span>
+				}
+			}
+
+			// Calculate first derivatives ...
+<span class="fc" id="L393">			final double[] derivative = new double[numberOfPoints];</span>
+
+			// ... for the 2 left and 2 right outer boundary points:
+			// in t_0
+<span class="fc" id="L397">			derivative[0] = 0.5 * (3 * slope[0] - slope[1]);</span>
+
+			// in t_1
+<span class="pc bpc" id="L400" title="1 of 4 branches missed.">			if((absSlopeDifference[1] == 0) &amp;&amp; (absSlopeDifference[0] == 0)){</span>
+<span class="fc" id="L401">				derivative[1] = (step[1] * slope[0] + step[0] * slope[1]) / (step[0] + step[1]);</span>
+			}
+			else{
+<span class="fc" id="L404">				derivative[1] = (absSlopeDifference[1] * slope[0] + absSlopeDifference[0] * slope[1])</span>
+						/ (absSlopeDifference[1] + absSlopeDifference[0]);
+			}
+
+			// in t_{n-1}
+<span class="pc bpc" id="L409" title="1 of 4 branches missed.">			if((absSlopeDifference[numberOfPoints-3] == 0) &amp;&amp; (absSlopeDifference[numberOfPoints-4] == 0)){</span>
+<span class="fc" id="L410">				derivative[numberOfPoints-2] = (step[numberOfPoints-2] * slope[numberOfPoints-3] + step[numberOfPoints-3] * slope[numberOfPoints-2]) / (step[numberOfPoints-3] + step[numberOfPoints-2]);</span>
+			}
+			else{
+<span class="fc" id="L413">				derivative[numberOfPoints-2] =</span>
+						(absSlopeDifference[numberOfPoints-3] * slope[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4] * slope[numberOfPoints-2])
+						/ (absSlopeDifference[numberOfPoints-3] + absSlopeDifference[numberOfPoints-4]);
+			}
+
+			// in t_n
+<span class="fc" id="L419">			derivative[numberOfPoints-1] = 0.5 * (3 * slope[numberOfPoints-2] - slope[numberOfPoints-3]);</span>
+
+			// ... for inner points:
+<span class="fc bfc" id="L422" title="All 2 branches covered.">			for(int i = 2; i &lt; numberOfPoints-2; i++){</span>
+				// Check if denominator would be zero
+<span class="pc bpc" id="L424" title="1 of 4 branches missed.">				if( (absSlopeDifference[i] == 0) &amp;&amp; (absSlopeDifference[i-2] == 0) ){</span>
+					// Take Convention
+<span class="fc" id="L426">					derivative[i] = (step[i] * slope[i-1] + step[i-1] * slope[i]) / (step[i-1] + step[i]);</span>
+				}
+				else{
+<span class="fc" id="L429">					derivative[i] =</span>
+							(absSlopeDifference[i] * slope[i-1] + absSlopeDifference[i-2] * slope[i])
+							/ (absSlopeDifference[i] + absSlopeDifference[i-2]);
+				}
+			}
+
+			/*
+			 * Generate a rational function for each given interval
+			 */
+<span class="fc" id="L438">			interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];</span>
+
+			// create numerator polynomials (third order polynomial)
+<span class="fc bfc" id="L441" title="All 2 branches covered.">			for(int i = 0; i &lt; numberOfPoints-1; i++ ) {</span>
+<span class="fc" id="L442">				final double[] numeratorPolynomCoeff		= new double[4];</span>
+
+<span class="fc" id="L444">				numeratorPolynomCoeff[0] = values[i];</span>
+<span class="fc" id="L445">				numeratorPolynomCoeff[1] = derivative[i];</span>
+<span class="fc" id="L446">				numeratorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];</span>
+<span class="fc" id="L447">				numeratorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);</span>
+
+<span class="fc" id="L449">				interpolatingRationalFunctions[i] = new RationalFunction(numeratorPolynomCoeff);</span>
+			}
+		}
+<span class="fc" id="L452">	}</span>
+
+	private void doCreateRationalFunctionsForHarmonicSplineInterpolation(){
+<span class="fc" id="L455">		final int numberOfPoints = points.length;</span>
+
+		// Calculate parameters
+<span class="fc" id="L458">		final double[] step = new double[numberOfPoints-1];</span>
+<span class="fc" id="L459">		final double[] slope = new double[numberOfPoints-1];</span>
+<span class="fc" id="L460">		final double[] doubleStep	= new double[numberOfPoints-2];</span>
+<span class="fc bfc" id="L461" title="All 2 branches covered.">		for(int i = 0; i &lt; numberOfPoints-1; i++){</span>
+<span class="fc" id="L462">			step[i] = (points[i+1] - points[i]);</span>
+<span class="fc" id="L463">			slope[i] = (values[i+1] - values[i]) / step[i];</span>
+<span class="fc bfc" id="L464" title="All 2 branches covered.">			if(i &gt; 0){</span>
+<span class="fc" id="L465">				doubleStep[i-1] = points[i+1] - points[i-1];</span>
+			}
+		}
+
+		// Calculate first derivatives ...
+<span class="fc" id="L470">		final double[] derivative = new double[numberOfPoints];</span>
+
+		// ... for boundary points:
+		// in t_0
+<span class="fc" id="L474">		derivative[0] =(2*step[0] + step[1])/doubleStep[0] * slope[0] - step[0]/doubleStep[0] * slope[1];</span>
+
+		// in t_n
+<span class="fc" id="L477">		derivative[numberOfPoints-1] =(2*step[numberOfPoints-2] + step[numberOfPoints-3])/doubleStep[numberOfPoints-3] * slope[numberOfPoints-2]</span>
+				- step[numberOfPoints-2]/doubleStep[numberOfPoints-3] * slope[numberOfPoints-3];
+
+		//  monotonicity filtering
+<span class="fc bfc" id="L481" title="All 2 branches covered.">		if(interpolationMethod == InterpolationMethod.HARMONIC_SPLINE_WITH_MONOTONIC_FILTERING){</span>
+			// in t_0
+<span class="pc bpc" id="L483" title="4 of 6 branches missed.">			if((derivative[0]*slope[0] &gt; 0) &amp;&amp; (slope[0]*slope[1] &lt;= 0) &amp;&amp; (Math.abs(derivative[0]) &lt; 3*Math.abs(slope[0]))) {</span>
+<span class="nc" id="L484">				derivative[0] = 3 * slope[0];</span>
+			}
+<span class="pc bpc" id="L486" title="1 of 2 branches missed.">			if( derivative[0]*slope[0] &lt;= 0 ) {</span>
+<span class="nc" id="L487">				derivative[0] = 0;</span>
+			}
+
+			// in t_n
+<span class="pc bpc" id="L491" title="2 of 4 branches missed.">			if((derivative[numberOfPoints-1]*slope[numberOfPoints-2] &gt; 0) &amp;&amp; (slope[numberOfPoints-2]*slope[numberOfPoints-3] &lt;= 0)</span>
+<span class="nc bnc" id="L492" title="All 2 branches missed.">					&amp;&amp; (Math.abs(derivative[numberOfPoints-1]) &lt; 3*Math.abs(slope[numberOfPoints-2]))) {</span>
+<span class="nc" id="L493">				derivative[numberOfPoints-1] = 3 * slope[numberOfPoints-2];</span>
+			}
+<span class="pc bpc" id="L495" title="1 of 2 branches missed.">			if( derivative[numberOfPoints-1]*slope[numberOfPoints-2] &lt;= 0 ) {</span>
+<span class="nc" id="L496">				derivative[numberOfPoints-1] = 0;</span>
+			}
+		}
+
+		// ... for inner points:
+<span class="fc bfc" id="L501" title="All 2 branches covered.">		for(int i = 1; i &lt; numberOfPoints-1; i++){</span>
+<span class="fc bfc" id="L502" title="All 2 branches covered.">			if( slope[i-1] * slope[i] &lt;= 0 ){</span>
+<span class="fc" id="L503">				derivative[i] = 0;</span>
+			}
+			else{
+<span class="fc" id="L506">				final double weightedHarmonicMean = (step[i-1] + 2*step[i]) / (3*doubleStep[i-1]*slope[i-1])</span>
+						+ (2*step[i-1] + step[i]) / (3*doubleStep[i-1]*slope[i]);
+<span class="fc" id="L508">				derivative[i] = 1.0 / weightedHarmonicMean;</span>
+			}
+		}
+
+		/*
+		 * Generate a rational function for each given interval
+		 */
+<span class="fc" id="L515">		interpolatingRationalFunctions = new RationalFunction[numberOfPoints-1];</span>
+
+		// create numerator polynomials (third order polynomial)
+<span class="fc bfc" id="L518" title="All 2 branches covered.">		for(int i = 0; i &lt; numberOfPoints-1; i++ ) {</span>
+<span class="fc" id="L519">			final double[] numeratortorPolynomCoeff		= new double[4];</span>
+
+<span class="fc" id="L521">			numeratortorPolynomCoeff[0] = values[i];</span>
+<span class="fc" id="L522">			numeratortorPolynomCoeff[1] = derivative[i];</span>
+<span class="fc" id="L523">			numeratortorPolynomCoeff[2] = (3*slope[i] - 2*derivative[i] - derivative[i+1]) / step[i];</span>
+<span class="fc" id="L524">			numeratortorPolynomCoeff[3] = (derivative[i] + derivative[i+1] - 2*slope[i]) / (step[i] * step[i]);</span>
+
+<span class="fc" id="L526">			interpolatingRationalFunctions[i] = new RationalFunction(numeratortorPolynomCoeff);</span>
+		}
+
+<span class="fc" id="L529">	}</span>
+
+
+	public static void main(final String[] args) {
+
+		/*
+		 * Example. Shows how to use this class.
+		 */
+<span class="nc" id="L537">		final int samplePoints = 200;</span>
+
+		/*
+		 * Given input points
+		 */
+<span class="nc" id="L542">		final double[] givenPoints		= { 0.0, 1.0, 2.0, 3.0, 4.0, 5.0 };</span>
+<span class="nc" id="L543">		final double[] givenValues		= { 5.0, 6.0, 4.0, 7.0, 5.0, 6.0 };</span>
+
+<span class="nc" id="L545">		System.out.println(&quot;Interplation of given input points (x,y):&quot;);</span>
+<span class="nc" id="L546">		System.out.println(&quot;  x: &quot; + Arrays.toString(givenPoints));</span>
+<span class="nc" id="L547">		System.out.println(&quot;  y: &quot; + Arrays.toString(givenValues));</span>
+<span class="nc" id="L548">		System.out.println();</span>
+
+
+		// Create interpolated curve
+<span class="nc" id="L552">		System.out.println(&quot;Default:&quot;);</span>
+<span class="nc" id="L553">		RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(givenPoints, givenValues);</span>
+
+<span class="nc bnc" id="L555" title="All 2 branches missed.">		for(int samplePointIndex = 0; samplePointIndex&lt;samplePoints; samplePointIndex++) {</span>
+<span class="nc" id="L556">			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];</span>
+<span class="nc" id="L557">			final double value = interpolation.getValue(point);</span>
+<span class="nc" id="L558">			System.out.println(&quot;&quot; + point + &quot;\t&quot; + value);</span>
+		}
+<span class="nc" id="L560">		System.out.println();</span>
+
+		// Create interpolated curve
+<span class="nc" id="L563">		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.AKIMA, ExtrapolationMethod.CONSTANT);</span>
+<span class="nc" id="L564">		System.out.println(&quot;AKIMA:&quot;);</span>
+<span class="nc bnc" id="L565" title="All 2 branches missed.">		for(int samplePointIndex = 0; samplePointIndex&lt;samplePoints; samplePointIndex++) {</span>
+<span class="nc" id="L566">			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];</span>
+<span class="nc" id="L567">			final double value = interpolation.getValue(point);</span>
+<span class="nc" id="L568">			System.out.println(&quot;&quot; + point + &quot;\t&quot; + value);</span>
+		}
+<span class="nc" id="L570">		System.out.println();</span>
+
+		// Create interpolated curve
+<span class="nc" id="L573">		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.CUBIC_SPLINE, ExtrapolationMethod.CONSTANT);</span>
+<span class="nc" id="L574">		System.out.println(&quot;CUBIC_SPLINE:&quot;);</span>
+<span class="nc bnc" id="L575" title="All 2 branches missed.">		for(int samplePointIndex = 0; samplePointIndex&lt;samplePoints; samplePointIndex++) {</span>
+<span class="nc" id="L576">			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];</span>
+<span class="nc" id="L577">			final double value = interpolation.getValue(point);</span>
+<span class="nc" id="L578">			System.out.println(&quot;&quot; + point + &quot;\t&quot; + value);</span>
+		}
+<span class="nc" id="L580">		System.out.println();</span>
+
+		// Create interpolated curve
+<span class="nc" id="L583">		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.PIECEWISE_CONSTANT, ExtrapolationMethod.CONSTANT);</span>
+<span class="nc" id="L584">		System.out.println(&quot;PIECEWISE_CONSTANT:&quot;);</span>
+<span class="nc bnc" id="L585" title="All 2 branches missed.">		for(int samplePointIndex = 0; samplePointIndex&lt;samplePoints; samplePointIndex++) {</span>
+<span class="nc" id="L586">			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];</span>
+<span class="nc" id="L587">			final double value = interpolation.getValue(point);</span>
+<span class="nc" id="L588">			System.out.println(&quot;&quot; + point + &quot;\t&quot; + value);</span>
+		}
+<span class="nc" id="L590">		System.out.println();</span>
+
+		// Create interpolated curve
+<span class="nc" id="L593">		interpolation = new RationalFunctionInterpolation(givenPoints, givenValues, InterpolationMethod.HARMONIC_SPLINE, ExtrapolationMethod.CONSTANT);</span>
+<span class="nc" id="L594">		System.out.println(&quot;HARMONIC_SPLINE:&quot;);</span>
+<span class="nc bnc" id="L595" title="All 2 branches missed.">		for(int samplePointIndex = 0; samplePointIndex&lt;samplePoints; samplePointIndex++) {</span>
+<span class="nc" id="L596">			final double point = givenPoints[0] + (double)samplePointIndex / (double)(samplePoints-1) * givenPoints[givenPoints.length-1]-givenPoints[0];</span>
+<span class="nc" id="L597">			final double value = interpolation.getValue(point);</span>
+<span class="nc" id="L598">			System.out.println(&quot;&quot; + point + &quot;\t&quot; + value);</span>
+		}
+<span class="nc" id="L600">		System.out.println();</span>
+<span class="nc" id="L601">	}</span>
+
+	@Override
+	public double applyAsDouble(final double operand) {
+<span class="fc" id="L605">		return getValue(operand);</span>
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="fc" id="L609">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="fc" id="L611">		interpolatingRationalFunctionsLazyInitLock = new Object();</span>
+<span class="fc" id="L612">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

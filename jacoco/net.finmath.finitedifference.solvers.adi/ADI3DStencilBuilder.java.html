@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ADI3DStencilBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">ADI3DStencilBuilder.java</span></div><h1>ADI3DStencilBuilder.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+
+/**
+ * Builds tridiagonal line matrices for alternating direction implicit (ADI)
+ * solves for three-dimensional finite difference models.
+ *
+ * &lt;p&gt;
+ * The state variables are interpreted generically as
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;state variable 0: first spatial direction,&lt;/li&gt;
+ *   &lt;li&gt;state variable 1: second spatial direction,&lt;/li&gt;
+ *   &lt;li&gt;state variable 2: third spatial direction.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The PDE operator is split into the directional parts
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code A1}: drift and diffusion terms in the first spatial
+ * direction,&lt;/li&gt;
+ * &lt;li&gt;{@code A2}: drift and diffusion terms in the second spatial
+ * direction,&lt;/li&gt;
+ * &lt;li&gt;{@code A3}: drift and diffusion terms in the third spatial
+ * direction.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * This builder returns the tridiagonal matrix corresponding to
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * (I - theta * dt * A1)
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * on one fixed slice of the second and third state variables, or
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * (I - theta * dt * A2)
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * on one fixed slice of the first and third state variables, or
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * (I - theta * dt * A3)
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * on one fixed slice of the first and second state variables.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The coefficients are obtained from the model drift and factor loading and
+ * are discretized by central finite differences on possibly non-uniform grids.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class ADI3DStencilBuilder {
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceEquityModel model;
+	/**
+	 * The x0 grid.
+	 */
+	private final double[] x0Grid;
+	/**
+	 * The x1 grid.
+	 */
+	private final double[] x1Grid;
+	/**
+	 * The x2 grid.
+	 */
+	private final double[] x2Grid;
+
+	/**
+	 * Creates a stencil builder for three-dimensional ADI line solves.
+	 *
+	 * @param model The finite difference model providing drift and factor
+	 *     loadings.
+	 * @param x0Grid The grid for the first state variable.
+	 * @param x1Grid The grid for the second state variable.
+	 * @param x2Grid The grid for the third state variable.
+	 */
+	public ADI3DStencilBuilder(
+			final FiniteDifferenceEquityModel model,
+			final double[] x0Grid,
+			final double[] x1Grid,
+<span class="nc" id="L92">			final double[] x2Grid) {</span>
+<span class="nc" id="L93">		this.model = model;</span>
+<span class="nc" id="L94">		this.x0Grid = x0Grid;</span>
+<span class="nc" id="L95">		this.x1Grid = x1Grid;</span>
+<span class="nc" id="L96">		this.x2Grid = x2Grid;</span>
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Builds the tridiagonal matrix for the implicit solve in the first spatial
+	 * direction on a fixed slice of the second and third state variables.
+	 *
+	 * &lt;p&gt;
+	 * The returned matrix represents
+	 * &lt;/p&gt;
+	 * &lt;pre&gt;
+	 * (I - theta * dt * A1)
+	 * &lt;/pre&gt;
+	 * &lt;p&gt;
+	 * where {@code A1} contains only first-direction drift and diffusion terms.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The running time at which coefficients are evaluated.
+	 * @param dt The time step size.
+	 * @param theta The ADI weight.
+	 * @param x1Index The fixed index in the second state-variable grid.
+	 * @param x2Index The fixed index in the third state-variable grid.
+	 * @return The tridiagonal matrix for the first-direction implicit line
+	 *     solve.
+	 */
+	public TridiagonalMatrix buildFirstDirectionLineMatrix(
+			final double time,
+			final double dt,
+			final double theta,
+			final int x1Index,
+			final int x2Index) {
+
+<span class="nc" id="L128">		final int n0 = x0Grid.length;</span>
+<span class="nc" id="L129">		final double x1 = x1Grid[x1Index];</span>
+<span class="nc" id="L130">		final double x2 = x2Grid[x2Index];</span>
+
+<span class="nc" id="L132">		final TridiagonalMatrix m = new TridiagonalMatrix(n0);</span>
+
+		/*
+		 * Boundary rows are overwritten by the caller.
+		 */
+<span class="nc" id="L137">		m.getMainDiagonal()[0] = 1.0;</span>
+<span class="nc" id="L138">		m.getMainDiagonal()[n0 - 1] = 1.0;</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		for (int i = 1; i &lt; n0 - 1; i++) {</span>
+<span class="nc" id="L141">			final double x0 = x0Grid[i];</span>
+
+<span class="nc" id="L143">			final double[] drift = model.getDrift(time, x0, x1, x2);</span>
+<span class="nc" id="L144">			final double[][] factorLoading = model.getFactorLoading(time, x0, x1, x2);</span>
+
+<span class="nc" id="L146">			final double mu0 = drift[0];</span>
+
+<span class="nc" id="L148">			double a00 = 0.0;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">			for (int f = 0; f &lt; factorLoading[0].length; f++) {</span>
+<span class="nc" id="L150">				a00 += factorLoading[0][f] * factorLoading[0][f];</span>
+			}
+
+<span class="nc" id="L153">			final double dxDown = x0Grid[i] - x0Grid[i - 1];</span>
+<span class="nc" id="L154">			final double dxUp = x0Grid[i + 1] - x0Grid[i];</span>
+<span class="nc" id="L155">			final double dxSum = dxDown + dxUp;</span>
+<span class="nc" id="L156">			final double dxProd = dxDown * dxUp;</span>
+
+<span class="nc" id="L158">			final double lowerA1 = -mu0 / dxSum + a00 / (dxSum * dxDown);</span>
+<span class="nc" id="L159">			final double diagA1  = -a00 / dxProd;</span>
+<span class="nc" id="L160">			final double upperA1 =  mu0 / dxSum + a00 / (dxSum * dxUp);</span>
+
+<span class="nc" id="L162">			m.getLowerDiagonal()[i] = -theta * dt * lowerA1;</span>
+<span class="nc" id="L163">			m.getMainDiagonal()[i]  = 1.0 - theta * dt * diagA1;</span>
+<span class="nc" id="L164">			m.getUpperDiagonal()[i] = -theta * dt * upperA1;</span>
+		}
+
+<span class="nc" id="L167">		return m;</span>
+	}
+
+	/**
+	 * Builds the tridiagonal matrix for the implicit solve in the second
+	 * spatial
+	 * direction on a fixed slice of the first and third state variables.
+	 *
+	 * &lt;p&gt;
+	 * The returned matrix represents
+	 * &lt;/p&gt;
+	 * &lt;pre&gt;
+	 * (I - theta * dt * A2)
+	 * &lt;/pre&gt;
+	 * &lt;p&gt;
+	 * where {@code A2} contains only second-direction drift and diffusion
+	 * terms.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The running time at which coefficients are evaluated.
+	 * @param dt The time step size.
+	 * @param theta The ADI weight.
+	 * @param x0Index The fixed index in the first state-variable grid.
+	 * @param x2Index The fixed index in the third state-variable grid.
+	 * @return The tridiagonal matrix for the second-direction implicit line
+	 *     solve.
+	 */
+	public TridiagonalMatrix buildSecondDirectionLineMatrix(
+			final double time,
+			final double dt,
+			final double theta,
+			final int x0Index,
+			final int x2Index) {
+
+<span class="nc" id="L201">		final int n1 = x1Grid.length;</span>
+<span class="nc" id="L202">		final double x0 = x0Grid[x0Index];</span>
+<span class="nc" id="L203">		final double x2 = x2Grid[x2Index];</span>
+
+<span class="nc" id="L205">		final TridiagonalMatrix m = new TridiagonalMatrix(n1);</span>
+
+		/*
+		 * Boundary rows are overwritten by the caller.
+		 */
+<span class="nc" id="L210">		m.getMainDiagonal()[0] = 1.0;</span>
+<span class="nc" id="L211">		m.getMainDiagonal()[n1 - 1] = 1.0;</span>
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		for (int j = 1; j &lt; n1 - 1; j++) {</span>
+<span class="nc" id="L214">			final double x1 = x1Grid[j];</span>
+
+<span class="nc" id="L216">			final double[] drift = model.getDrift(time, x0, x1, x2);</span>
+<span class="nc" id="L217">			final double[][] factorLoading = model.getFactorLoading(time, x0, x1, x2);</span>
+
+<span class="nc" id="L219">			final double mu1 = drift[1];</span>
+
+<span class="nc" id="L221">			double a11 = 0.0;</span>
+<span class="nc bnc" id="L222" title="All 2 branches missed.">			for (int f = 0; f &lt; factorLoading[1].length; f++) {</span>
+<span class="nc" id="L223">				a11 += factorLoading[1][f] * factorLoading[1][f];</span>
+			}
+
+<span class="nc" id="L226">			final double dxDown = x1Grid[j] - x1Grid[j - 1];</span>
+<span class="nc" id="L227">			final double dxUp = x1Grid[j + 1] - x1Grid[j];</span>
+<span class="nc" id="L228">			final double dxSum = dxDown + dxUp;</span>
+<span class="nc" id="L229">			final double dxProd = dxDown * dxUp;</span>
+
+<span class="nc" id="L231">			final double lowerA2 = -mu1 / dxSum + a11 / (dxSum * dxDown);</span>
+<span class="nc" id="L232">			final double diagA2  = -a11 / dxProd;</span>
+<span class="nc" id="L233">			final double upperA2 =  mu1 / dxSum + a11 / (dxSum * dxUp);</span>
+
+<span class="nc" id="L235">			m.getLowerDiagonal()[j] = -theta * dt * lowerA2;</span>
+<span class="nc" id="L236">			m.getMainDiagonal()[j]  = 1.0 - theta * dt * diagA2;</span>
+<span class="nc" id="L237">			m.getUpperDiagonal()[j] = -theta * dt * upperA2;</span>
+		}
+
+<span class="nc" id="L240">		return m;</span>
+	}
+
+	/**
+	 * Builds the tridiagonal matrix for the implicit solve in the third spatial
+	 * direction on a fixed slice of the first and second state variables.
+	 *
+	 * &lt;p&gt;
+	 * The returned matrix represents
+	 * &lt;/p&gt;
+	 * &lt;pre&gt;
+	 * (I - theta * dt * A3)
+	 * &lt;/pre&gt;
+	 * &lt;p&gt;
+	 * where {@code A3} contains only third-direction drift and diffusion terms.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The running time at which coefficients are evaluated.
+	 * @param dt The time step size.
+	 * @param theta The ADI weight.
+	 * @param x0Index The fixed index in the first state-variable grid.
+	 * @param x1Index The fixed index in the second state-variable grid.
+	 * @return The tridiagonal matrix for the third-direction implicit line
+	 *     solve.
+	 */
+	public TridiagonalMatrix buildThirdDirectionLineMatrix(
+			final double time,
+			final double dt,
+			final double theta,
+			final int x0Index,
+			final int x1Index) {
+
+<span class="nc" id="L272">		final int n2 = x2Grid.length;</span>
+<span class="nc" id="L273">		final double x0 = x0Grid[x0Index];</span>
+<span class="nc" id="L274">		final double x1 = x1Grid[x1Index];</span>
+
+<span class="nc" id="L276">		final TridiagonalMatrix m = new TridiagonalMatrix(n2);</span>
+
+		/*
+		 * Boundary rows are overwritten by the caller.
+		 */
+<span class="nc" id="L281">		m.getMainDiagonal()[0] = 1.0;</span>
+<span class="nc" id="L282">		m.getMainDiagonal()[n2 - 1] = 1.0;</span>
+
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		for (int k = 1; k &lt; n2 - 1; k++) {</span>
+<span class="nc" id="L285">			final double x2 = x2Grid[k];</span>
+
+<span class="nc" id="L287">			final double[] drift = model.getDrift(time, x0, x1, x2);</span>
+<span class="nc" id="L288">			final double[][] factorLoading = model.getFactorLoading(time, x0, x1, x2);</span>
+
+<span class="nc" id="L290">			final double mu2 = drift[2];</span>
+
+<span class="nc" id="L292">			double a22 = 0.0;</span>
+<span class="nc bnc" id="L293" title="All 2 branches missed.">			for (int f = 0; f &lt; factorLoading[2].length; f++) {</span>
+<span class="nc" id="L294">				a22 += factorLoading[2][f] * factorLoading[2][f];</span>
+			}
+
+<span class="nc" id="L297">			final double dxDown = x2Grid[k] - x2Grid[k - 1];</span>
+<span class="nc" id="L298">			final double dxUp = x2Grid[k + 1] - x2Grid[k];</span>
+<span class="nc" id="L299">			final double dxSum = dxDown + dxUp;</span>
+<span class="nc" id="L300">			final double dxProd = dxDown * dxUp;</span>
+
+<span class="nc" id="L302">			final double lowerA3 = -mu2 / dxSum + a22 / (dxSum * dxDown);</span>
+<span class="nc" id="L303">			final double diagA3  = -a22 / dxProd;</span>
+<span class="nc" id="L304">			final double upperA3 =  mu2 / dxSum + a22 / (dxSum * dxUp);</span>
+
+<span class="nc" id="L306">			m.getLowerDiagonal()[k] = -theta * dt * lowerA3;</span>
+<span class="nc" id="L307">			m.getMainDiagonal()[k]  = 1.0 - theta * dt * diagA3;</span>
+<span class="nc" id="L308">			m.getUpperDiagonal()[k] = -theta * dt * upperA3;</span>
+		}
+
+<span class="nc" id="L311">		return m;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

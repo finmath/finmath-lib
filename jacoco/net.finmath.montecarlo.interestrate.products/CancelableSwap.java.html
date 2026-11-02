@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CancelableSwap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">CancelableSwap.java</span></div><h1>CancelableSwap.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 11.03.2006
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Implements the pricing of a cancelable swap under a &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt;
+ *
+ * @author Christian Fries
+ * @version 1.2
+ * @date 11.03.2006, 31.05.2009
+ */
+public class CancelableSwap extends AbstractTermStructureMonteCarloProduct {
+
+	private final boolean[]	isPeriodStartDateExerciseDate;	// Exercise date
+	private final double[]	fixingDates;                  	// Vector of fixing dates (must be sorted)
+	private final double[]	periodLengths;					// Vector of period length;
+	private final double[]	paymentDates;	                // Vector of payment dates (same length as fixing dates)
+	private final double[]	periodNotionals;				// Vector of notionals for each period
+	private final double[]	swaprates;	                 	// Vector of strikes
+
+	/**
+	 * @param isPeriodStartDateExerciseDate If true, we may exercise at period start
+	 * @param fixingDates Vector of fixing dates
+	 * @param periodLength Vector of periodLength
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param periodNotionals Vector of period notionals.
+	 * @param swaprates Vector of strikes (must have same length as fixing dates)
+	 */
+	public CancelableSwap(final boolean[] isPeriodStartDateExerciseDate, final double[] fixingDates, final double[] periodLength, final double[] paymentDates, final double[] periodNotionals, final double[] swaprates) {
+<span class="nc" id="L44">		super();</span>
+<span class="nc" id="L45">		this.isPeriodStartDateExerciseDate = isPeriodStartDateExerciseDate;</span>
+<span class="nc" id="L46">		this.fixingDates = fixingDates;</span>
+<span class="nc" id="L47">		periodLengths = periodLength;</span>
+<span class="nc" id="L48">		this.paymentDates = paymentDates;</span>
+<span class="nc" id="L49">		this.periodNotionals = periodNotionals;</span>
+<span class="nc" id="L50">		this.swaprates = swaprates;</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// After the last period the product has value zero: Initialize values to zero.
+<span class="nc" id="L67">		RandomVariable values = new RandomVariableFromDoubleArray(fixingDates[fixingDates.length-1], 0.0);</span>
+
+		// Loop backward over the swap periods
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		for(int period=fixingDates.length-1; period&gt;=0; period--)</span>
+		{
+<span class="nc" id="L72">			final double fixingDate	= fixingDates[period];</span>
+<span class="nc" id="L73">			final double periodLength	= periodLengths[period];</span>
+<span class="nc" id="L74">			final double paymentDate	= paymentDates[period];</span>
+<span class="nc" id="L75">			final double notional		= periodNotionals[period];</span>
+<span class="nc" id="L76">			final double swaprate		= swaprates[period];</span>
+
+			// Get random variables - note that this is the rate at simulation time = exerciseDate
+<span class="nc" id="L79">			final RandomVariable	libor					= model.getForwardRate(fixingDate, fixingDate, fixingDate+periodLength);</span>
+<span class="nc" id="L80">			final RandomVariable	numeraire               = model.getNumeraire(paymentDate);</span>
+<span class="nc" id="L81">			final RandomVariable	monteCarloProbabilities = model.getMonteCarloWeights(paymentDate);</span>
+
+			// foreach(path) values[path] += notional * (libor.get(path) - swaprate) * periodLength / numeraire.get(path) * monteCarloProbabilities.get(path);
+<span class="nc" id="L84">			RandomVariable payoff = libor.sub(swaprate).mult(periodLength).mult(notional);</span>
+
+			// Apply discounting and Monte-Carlo probabilities
+<span class="nc" id="L87">			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);</span>
+
+<span class="nc" id="L89">			values = values.add(payoff);</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">			if(isPeriodStartDateExerciseDate[period]) {</span>
+				// Remove foresight through condition expectation
+<span class="nc" id="L93">				final ConditionalExpectationEstimator condExpEstimator = getConditionalExpectationEstimator(period, model);</span>
+
+				// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
+<span class="nc" id="L96">				final RandomVariable valueIfExcercised         = condExpEstimator.getConditionalExpectation(values);</span>
+
+				// Apply the exercise criteria
+				// foreach(path) if(valueIfExcercided.get(path) &lt; 0.0) values[path] = 0.0;
+<span class="nc" id="L100">				values = valueIfExcercised.choose(values, new Scalar(0.0));</span>
+			}
+		}
+
+<span class="nc" id="L104">		final RandomVariable	numeraireAtZero						= model.getNumeraire(evaluationTime);</span>
+<span class="nc" id="L105">		final RandomVariable	monteCarloProbabilitiesAtZero		= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="nc" id="L106">		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);</span>
+
+<span class="nc" id="L108">		return values;</span>
+	}
+
+	/**
+	 * @param fixingDateIndex
+	 * @param model
+	 * @return
+	 * @throws CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	private ConditionalExpectationEstimator getConditionalExpectationEstimator(final int fixingDateIndex, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L118">		final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(fixingDates[fixingDateIndex], model));</span>
+<span class="nc" id="L119">		return condExpEstimator;</span>
+	}
+
+	/**
+	 * Return the basis functions for the regression suitable for this product.
+	 *
+	 * @param fixingDate The the fixing date
+	 * @param model The model
+	 * @return The basis functions for the regression suitable for this product.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	private RandomVariable[] getRegressionBasisFunctions(final double fixingDate, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="nc" id="L132">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+		// Constant
+		// @TODO Use non differentiable
+<span class="nc" id="L136">		final RandomVariable basisFunction = new RandomVariableFromDoubleArray(1.0);//.getRandomVariableForConstant(1.0);</span>
+<span class="nc" id="L137">		basisFunctions.add(basisFunction);</span>
+
+<span class="nc" id="L139">		int fixingDateIndex = Arrays.binarySearch(fixingDates, fixingDate);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		if(fixingDateIndex &lt; 0) {</span>
+<span class="nc" id="L141">			fixingDateIndex = -fixingDateIndex;</span>
+		}
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		if(fixingDateIndex &gt;= fixingDates.length) {</span>
+<span class="nc" id="L144">			fixingDateIndex = fixingDates.length-1;</span>
+		}
+
+		// forward rate to the next period
+<span class="nc" id="L148">		final RandomVariable rateShort = model.getForwardRate(fixingDate, fixingDate, paymentDates[fixingDateIndex+1]);</span>
+<span class="nc" id="L149">		final RandomVariable bondShort = rateShort.mult(paymentDates[fixingDateIndex+1]-fixingDate).add(1.0).invert();</span>
+<span class="nc" id="L150">		basisFunctions.add(bondShort);</span>
+<span class="nc" id="L151">		basisFunctions.add(bondShort.pow(2.0));</span>
+<span class="nc" id="L152">		basisFunctions.add(bondShort.pow(3.0));</span>
+
+		// forward rate to the end of the product
+<span class="nc" id="L155">		final RandomVariable rateLong = model.getForwardRate(fixingDate, fixingDates[fixingDateIndex], paymentDates[paymentDates.length-1]);</span>
+<span class="nc" id="L156">		final RandomVariable bondLong = rateLong.mult(paymentDates[paymentDates.length-1]-fixingDates[fixingDateIndex]).add(1.0).invert();</span>
+<span class="nc" id="L157">		basisFunctions.add(bondLong);</span>
+<span class="nc" id="L158">		basisFunctions.add(bondLong.pow(2.0));</span>
+<span class="nc" id="L159">		basisFunctions.add(bondLong.pow(3.0));</span>
+
+		// Numeraire
+<span class="nc" id="L162">		final RandomVariable numeraire = model.getNumeraire(fixingDate);</span>
+<span class="nc" id="L163">		basisFunctions.add(numeraire);</span>
+<span class="nc" id="L164">		basisFunctions.add(numeraire.pow(2.0));</span>
+<span class="nc" id="L165">		basisFunctions.add(numeraire.pow(3.0));</span>
+
+		// Cross
+<span class="nc" id="L168">		basisFunctions.add(rateLong.mult(numeraire));</span>
+
+<span class="nc" id="L170">		return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

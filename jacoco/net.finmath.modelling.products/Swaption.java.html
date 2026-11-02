@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Swaption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.products</a> &gt; <span class="el_source">Swaption.java</span></div><h1>Swaption.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 31.03.2019
+ */
+
+package net.finmath.modelling.products;
+
+/**
+ * A market interface for all swaption implementations and a holder for some product specific definitions.
+ *
+ * @author Christian Fries
+ */
+public interface Swaption {
+
+	/**
+	 * Swaptions specific value units, like swaption implied volatilities.
+	 *
+	 * @author Christian Fries
+	 */
+<span class="fc" id="L21">	enum ValueUnit {</span>
+		/** Returns the value of the swaption. **/
+<span class="fc" id="L23">		VALUE,</span>
+		/** Returns the Black-Scholes implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt;. **/
+<span class="fc" id="L25">		INTEGRATEDVARIANCELOGNORMAL,</span>
+		/**
+		 * Returns the Black-Scholes implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt;.
+		 * @deprecated Use INTEGRATEDVARIANCELOGNORMAL instead.
+		 */
+<span class="fc" id="L30">		@Deprecated</span>
+		INTEGRATEDLOGNORMALVARIANCE,
+		/** Returns the Black-Scholes implied volatility, i.e., &lt;i&gt;&amp;sigma;&lt;/i&gt;. **/
+<span class="fc" id="L33">		VOLATILITYLOGNORMAL,</span>
+		/** Returns the Bachelier implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt;. **/
+<span class="fc" id="L35">		INTEGRATEDVARIANCENORMAL,</span>
+		/**
+		 * Returns the Bachelier implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt;.
+		 * @deprecated Use INTEGRATEDVARIANCENORMAL instead.
+		 */
+<span class="fc" id="L40">		@Deprecated</span>
+		INTEGRATEDNORMALVARIANCE,
+		/** Returns the Bachelier implied volatility, i.e., &lt;i&gt;&amp;sigma;&lt;/i&gt;. **/
+<span class="fc" id="L43">		VOLATILITYNORMAL,</span>
+		/**
+		 * Returns the Black-Scholes implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt;.
+		 * @deprecated Use INTEGRATEDVARIANCELOGNORMAL instead
+		 */
+<span class="fc" id="L48">		@Deprecated</span>
+		INTEGRATEDVARIANCE,
+		/**
+		 * Returns the Black-Scholes implied volatility, i.e., &lt;i&gt;&amp;sigma;&lt;/i&gt;.
+		 * @deprecated Use VOLATILITYLOGNORMAL instead
+		 */
+<span class="fc" id="L54">		@Deprecated</span>
+		VOLATILITY,
+
+		/**
+		 * The Bachelier implied volatility, assuming an ATM option.
+		 * The value is obtained by multiplying VALUE with 1.0 / Math.sqrt(optionMaturity / Math.PI / 2.0) / annuity.
+		 */
+<span class="fc" id="L61">		VOLATILITYNORMALATM</span>
+
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

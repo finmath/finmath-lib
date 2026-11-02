@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TimeDiscretization.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">TimeDiscretization.java</span></div><h1>TimeDiscretization.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.11.2012
+ */
+package net.finmath.time;
+
+import java.util.ArrayList;
+import java.util.function.DoublePredicate;
+import java.util.stream.DoubleStream;
+
+/**
+ * Interface to classes providing time discretization,
+ * i.e. a map \( i \mapsto t_{i} \) for i = 0, 1, 2, ..., n.
+ *
+ * Classes implementing this interface should provide convenient methods
+ * to transform an index to a time and a time to an index.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public interface TimeDiscretization extends Iterable&lt;Double&gt; {
+
+	/**
+	 * @return Returns the number of time discretization points.
+	 */
+<span class="fc" id="L27">	default int size() { return getNumberOfTimes(); }</span>
+
+	/**
+	 * @return Returns the number of time discretization points.
+	 */
+	int getNumberOfTimes();
+
+	/**
+	 * @return Returns the number of time steps (= number of discretization points-1).
+	 */
+	int getNumberOfTimeSteps();
+
+	/**
+	 * Returns the time for the given time index.
+	 *
+	 * @param timeIndex Time index
+	 * @return Returns the time for a given time index.
+	 */
+	double getTime(int timeIndex);
+
+	/**
+	 * Returns the time step from the given time index to the next one.
+	 *
+	 * @param timeIndex Time index
+	 * @return Returns the time step
+	 */
+	double getTimeStep(int timeIndex);
+
+	/**
+	 * Returns the time index for the given time. If the given time is not in the time discretization
+	 * the method returns a negative number being (-insertionPoint-1).
+	 *
+	 * @param time The time.
+	 * @return Returns the time index for a given time.
+	 */
+	int getTimeIndex(double time);
+
+	/**
+	 * Returns the time index for the time in the time discretization which is the nearest
+	 * to the given time, being less or equal (i.e. max(i : timeDiscretizationFromArray[i] &amp;le; time
+	 * where timeDiscretizationFromArray[i] &amp;le; timeDiscretizationFromArray[j]) for i &amp;le; j.
+	 *
+	 * @param time Given time.
+	 * @return Returns a time index or -1, if the given time is smaller than the this.getFirstTime().
+	 */
+	int getTimeIndexNearestLessOrEqual(double time);
+
+	/**
+	 * Returns the time index for the time in the time discretization which is the nearest
+	 * to the given time, being greater or equal (i.e. min(i : timeDiscretizationFromArray[i] &amp;ge; time
+	 * where timeDiscretizationFromArray[i] &amp;le; timeDiscretizationFromArray[j]) for i &amp;le; j.
+	 *
+	 * @param time Given time.
+	 * @return Returns a time index or getNumberOfTimes(), if the given time is smaller than the this.getLastTime().
+	 */
+	int getTimeIndexNearestGreaterOrEqual(double time);
+
+	/**
+	 * Returns the first time in the time discretization.
+	 *
+	 * @return The first time in the time discretization.
+	 */
+	default double getFirstTime() {
+<span class="nc" id="L90">		return getTime(0);</span>
+	}
+
+	/**
+	 * Returns the last time in the time discretization.
+	 *
+	 * @return The last time in the time discretization.
+	 */
+	default double getLastTime() {
+<span class="fc" id="L99">		return getTime(getNumberOfTimes()-1);</span>
+	}
+
+
+	/**
+	 * Return a clone of this time discretization as &lt;code&gt;double[]&lt;/code&gt;.
+	 *
+	 * @return The time discretization as &lt;code&gt;double[]&lt;/code&gt;
+	 */
+	double[] getAsDoubleArray();
+
+	/**
+	 * Return a clone of this time discretization as &lt;code&gt;ArrayList&amp;lt;Double&amp;gt;&lt;/code&gt;.
+	 * Note that this method is costly in terms of performance.
+	 *
+	 * @return The time discretization as &lt;code&gt;ArrayList&amp;lt;Double&amp;gt;&lt;/code&gt;
+	 */
+	ArrayList&lt;Double&gt; getAsArrayList();
+
+	/**
+	 * Return a DoubleStream of this time discretization.
+	 *
+	 * @return The time discretization as &lt;code&gt;DoubleStream&lt;/code&gt;
+	 */
+	default DoubleStream doubleStream() {
+<span class="nc" id="L124">		return DoubleStream.of(getAsDoubleArray());</span>
+	}
+
+	/**
+	 * Returns the smallest time span distinguishable in this time discretization.
+	 * @return A non-negative double containing the tick size.
+	 */
+	double getTickSize();
+
+	/**
+	 * Create a new &lt;code&gt;TimeDiscretization&lt;/code&gt; with a subset of &lt;code&gt;this&lt;/code&gt; time discretization.
+	 *
+	 * @param timesToKeep True if the time point should belong to the new &lt;code&gt;TimeDiscretization&lt;/code&gt;
+	 * @return A &lt;code&gt;TimeDiscretization&lt;/code&gt; with a subset of &lt;code&gt;this&lt;/code&gt; time discretization.
+	 */
+	default TimeDiscretization filter(DoublePredicate timesToKeep) {
+<span class="nc" id="L140">		return this.intersect(new TimeDiscretizationFromArray(this.filter(timesToKeep), getTickSize()));</span>
+	}
+
+	/**
+	 * Returns the union of this time discretization with another one. This means that the times of the other time discretization will be added.
+	 * In case the tick sizes differ the union will have the smaller tick size, i. e. the finer precision.
+	 * Note that when the differing tick sizes are not integer multiples of each other time points might get shifted due to rounding;
+	 * for example &lt;code&gt;a.intersect(a.union(b))&lt;/code&gt; might not be equal to &lt;code&gt;a&lt;/code&gt;.
+	 *
+	 * @param that Another time discretization containing points to add to the time discretization.
+	 * @return A new time discretization containing both the time points of this and the other discretization.
+	 */
+	TimeDiscretization union(TimeDiscretization that);
+
+	/**
+	 * Returns the intersection of this time discretization with another one. This means that all times not contained in the other time discretization will be removed.
+	 * In case the tick sizes differ the intersection will have the greater tick size, i. e. the coarser precision.
+	 * Note that when the differing tick sizes are not integer multiples of each other time points might get shifted due to rounding;
+	 * for example &lt;code&gt;a.intersect(a.union(b))&lt;/code&gt; might not be equal to &lt;code&gt;a&lt;/code&gt;.
+	 *
+	 * @param that Another time discretization containing points to add to the time discretization.
+	 * @return A new time discretization containing both the time points of this and the other discretization.
+	 */
+	TimeDiscretization intersect(TimeDiscretization that);
+
+	/**
+	 * Return a new time discretization where all time points have been shifted by
+	 * a given time shift.
+	 *
+	 * @param timeShift A time shift applied to all discretization points.
+	 * @return A new time discretization where all time points have been shifted by the given time shift.
+	 */
+	TimeDiscretization getTimeShiftedTimeDiscretization(double timeShift);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

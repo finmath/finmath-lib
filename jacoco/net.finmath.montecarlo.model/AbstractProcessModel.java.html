@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractProcessModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.model</a> &gt; <span class="el_source">AbstractProcessModel.java</span></div><h1>AbstractProcessModel.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.model;
+
+import java.time.LocalDateTime;
+
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class is an abstract base class to implement a model provided to an MonteCarloProcessFromProcessModel.
+ *
+ * Manages the delegation to MonteCarloProcess.
+ *
+ * For details see {@link net.finmath.montecarlo.model.ProcessModel}.
+ *
+ * @author Christian Fries
+ * @see ProcessModel The interface definition contains more details.
+ * @version 1.3
+ */
+<span class="fc" id="L19">public abstract class AbstractProcessModel implements ProcessModel {</span>
+
+	/**
+	 * Returns the initial value of the model.
+	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @return The initial value of the model.
+	 */
+	public RandomVariable[] getInitialValue(MonteCarloProcess process) {
+<span class="nc" id="L28">		final RandomVariable[] initialState = getInitialState(process);</span>
+
+<span class="nc" id="L30">		final RandomVariable[] value = new RandomVariable[initialState.length];</span>
+<span class="nc bnc" id="L31" title="All 2 branches missed.">		for(int i= 0; i&lt;value.length; i++) {</span>
+<span class="nc" id="L32">			value[i] = applyStateSpaceTransform(process, 0, i, initialState[i]);</span>
+		}
+
+<span class="nc" id="L35">		return value;</span>
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L40">		throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaptionATMMarketDataFromArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">SwaptionATMMarketDataFromArray.java</span></div><h1>SwaptionATMMarketDataFromArray.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.volatilities;
+
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Simple swaption market data class.
+ *
+ * The class does currently not provide a surface interpolation
+ * like SABR.
+ *
+ * This will be added in a future version.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SwaptionATMMarketDataFromArray implements SwaptionMarketData {
+
+	// @TODO CurveFromInterpolationPoints data currently not used.
+	private final ForwardCurve				forwardCurve;
+	private final DiscountCurve			discountCurve;
+
+	private final TimeDiscretization		optionMaturities;
+	private final TimeDiscretization		tenor;
+
+	private final double							swapPeriodLength;
+	private final double[][]						impliedVolatilities;
+
+
+	public SwaptionATMMarketDataFromArray(final double[] optionMaturities, final double[] tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">		forwardCurve = null;		// Implied vol only.</span>
+<span class="nc" id="L40">		discountCurve = null;		// Implied vol only.</span>
+<span class="nc" id="L41">		this.optionMaturities = new TimeDiscretizationFromArray(optionMaturities);</span>
+<span class="nc" id="L42">		this.tenor = new TimeDiscretizationFromArray(tenor);</span>
+<span class="nc" id="L43">		this.swapPeriodLength = swapPeriodLength;</span>
+<span class="nc" id="L44">		this.impliedVolatilities = impliedVolatilities;</span>
+<span class="nc" id="L45">	}</span>
+
+	public SwaptionATMMarketDataFromArray(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final double[] optionMaturities, final double[] tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
+<span class="nc" id="L48">		super();</span>
+<span class="nc" id="L49">		this.forwardCurve = forwardCurve;</span>
+<span class="nc" id="L50">		this.discountCurve = discountCurve;</span>
+<span class="nc" id="L51">		this.optionMaturities = new TimeDiscretizationFromArray(optionMaturities);</span>
+<span class="nc" id="L52">		this.tenor = new TimeDiscretizationFromArray(tenor);</span>
+<span class="nc" id="L53">		this.swapPeriodLength = swapPeriodLength;</span>
+<span class="nc" id="L54">		this.impliedVolatilities = impliedVolatilities;</span>
+<span class="nc" id="L55">	}</span>
+
+	public SwaptionATMMarketDataFromArray(final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final TimeDiscretization optionMatruities, final TimeDiscretization tenor, final double swapPeriodLength, final double[][] impliedVolatilities) {
+<span class="nc" id="L58">		super();</span>
+<span class="nc" id="L59">		this.forwardCurve = forwardCurve;</span>
+<span class="nc" id="L60">		this.discountCurve = discountCurve;</span>
+<span class="nc" id="L61">		optionMaturities = optionMatruities;</span>
+<span class="nc" id="L62">		this.tenor = tenor;</span>
+<span class="nc" id="L63">		this.swapPeriodLength = swapPeriodLength;</span>
+<span class="nc" id="L64">		this.impliedVolatilities = impliedVolatilities;</span>
+<span class="nc" id="L65">	}</span>
+
+	@Override
+	public TimeDiscretization getOptionMaturities() {
+<span class="nc" id="L69">		return optionMaturities;</span>
+	}
+
+	@Override
+	public TimeDiscretization getTenor() {
+<span class="nc" id="L74">		return tenor;</span>
+	}
+
+	@Override
+	public double getSwapPeriodLength() {
+<span class="nc" id="L79">		return swapPeriodLength;</span>
+	}
+
+	@Override
+	public double getValue(final double optionMatruity, final double tenorLength, final double periodLength, final double strike) {
+<span class="nc" id="L84">		throw new RuntimeException(&quot;Method not implemented.&quot;);</span>
+	}
+
+	public double getVolatility(final double optionMatruity, final double tenorLength) {
+<span class="nc" id="L88">		final int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);</span>
+<span class="nc" id="L89">		final int indexTenorIndex = tenor.getTimeIndex(tenorLength);</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if(indexOptionMaturity &lt; 0) {</span>
+<span class="nc" id="L91">			throw new IllegalArgumentException(&quot;Option maturity not part of data.&quot;);</span>
+		}
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		if(indexTenorIndex &lt; 0) {</span>
+<span class="nc" id="L94">			throw new IllegalArgumentException(&quot;TenorFromArray maturity not part of data.&quot;);</span>
+		}
+
+<span class="nc" id="L97">		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.AbstractSwaptionMarketData#getVolatility(double, double, double, double)
+	 */
+	@Override
+	public double getVolatility(final double optionMatruity, final double tenorLength, final double periodLength, final double strike) {
+<span class="nc" id="L105">		final int indexOptionMaturity = optionMaturities.getTimeIndex(optionMatruity);</span>
+<span class="nc" id="L106">		final int indexTenorIndex = tenor.getTimeIndex(tenorLength);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if(indexOptionMaturity &lt; 0) {</span>
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;Option maturity not part of data.&quot;);</span>
+		}
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if(indexTenorIndex &lt; 0) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;TenorFromArray maturity not part of data.&quot;);</span>
+		}
+
+<span class="nc" id="L114">		return impliedVolatilities[indexOptionMaturity][indexTenorIndex];</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

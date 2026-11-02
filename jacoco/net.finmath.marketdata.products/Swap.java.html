@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Swap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.products</a> &gt; <span class="el_source">Swap.java</span></div><h1>Swap.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.11.2012
+ */
+package net.finmath.marketdata.products;
+
+import java.io.Serializable;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.InterestRateProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements the valuation of a swap using curves (discount curve, forward curve).
+ * The swap valuation supports distinct discounting and forward curve.
+ * Support for day counting is limited to the capabilities of
+ * &lt;code&gt;TimeDiscretization&lt;/code&gt;.
+ *
+ * The swap is just the composition of two &lt;code&gt;SwapLeg&lt;/code&gt;s, namely the
+ * receiver leg and the payer leg. The value of the swap is the value of the receiver leg minus the value of the payer leg.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Swap extends AbstractAnalyticProduct implements AnalyticProduct, DescribedProduct&lt;InterestRateSwapProductDescriptor&gt;, Serializable {
+
+	private static final long serialVersionUID = 6546984174616265190L;
+
+	private final AnalyticProduct legReceiver;
+	private final AnalyticProduct legPayer;
+
+	/**
+	 * Create a swap which values as &lt;code&gt;legReceiver - legPayer&lt;/code&gt;.
+	 *
+	 * @param legReceiver The receiver leg.
+	 * @param legPayer The payer leg.
+	 */
+	public Swap(final AnalyticProduct legReceiver, final AnalyticProduct legPayer) {
+<span class="fc" id="L49">		super();</span>
+<span class="fc" id="L50">		this.legReceiver = legReceiver;</span>
+<span class="fc" id="L51">		this.legPayer = legPayer;</span>
+<span class="fc" id="L52">	}</span>
+
+	/**
+	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
+	 *
+	 * @param scheduleReceiveLeg ScheduleFromPeriods of the receiver leg.
+	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spreadReceive Fixed spread on the forward or fix rate.
+	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
+	 * @param schedulePayLeg ScheduleFromPeriods of the payer leg.
+	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spreadPay Fixed spread on the forward or fix rate.
+	 * @param discountCurvePayName Name of the discount curve for the payer leg.
+	 * @param isNotionalExchanged If true, both leg will pay notional at the beginning of each swap period and receive notional at the end of the swap period. Note that the cash flow date for the notional is periodStart and periodEnd (not fixingDate and paymentDate).
+	 */
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName,
+			final boolean isNotionalExchanged
+			) {
+<span class="fc" id="L75">		super();</span>
+<span class="fc" id="L76">		legReceiver		= new SwapLeg(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, isNotionalExchanged /* Notional Exchange */);</span>
+<span class="fc" id="L77">		legPayer		= new SwapLeg(schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, isNotionalExchanged /* Notional Exchange */);</span>
+<span class="fc" id="L78">	}</span>
+
+	/**
+	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
+	 *
+	 * @param scheduleReceiveLeg ScheduleFromPeriods of the receiver leg.
+	 * @param forwardCurveReceiveName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spreadReceive Fixed spread on the forward or fix rate.
+	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
+	 * @param schedulePayLeg ScheduleFromPeriods of the payer leg.
+	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param spreadPay Fixed spread on the forward or fix rate.
+	 * @param discountCurvePayName Name of the discount curve for the payer leg.
+	 */
+	public Swap(final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName, final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName, final double spreadPay,
+			final String discountCurvePayName) {
+<span class="fc" id="L98">		this(scheduleReceiveLeg, forwardCurveReceiveName, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, spreadPay, discountCurvePayName, true);</span>
+<span class="fc" id="L99">	}</span>
+
+	/**
+	 * Creates a swap with notional exchange. The swap has a unit notional of 1.
+	 *
+	 * @param scheduleReceiveLeg ScheduleFromPeriods of the receiver leg.
+	 * @param spreadReceive Fixed spread on the forward or fix rate.
+	 * @param discountCurveReceiveName Name of the discount curve for the receiver leg.
+	 * @param schedulePayLeg ScheduleFromPeriods of the payer leg.
+	 * @param forwardCurvePayName Name of the forward curve, leave empty if this is a fix leg.
+	 * @param discountCurvePayName Name of the discount curve for the payer leg.
+	 */
+	public Swap(final Schedule scheduleReceiveLeg,
+			final double spreadReceive,
+			final String discountCurveReceiveName,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName,
+			final String discountCurvePayName) {
+<span class="nc" id="L117">		this(scheduleReceiveLeg, null, spreadReceive, discountCurveReceiveName, schedulePayLeg, forwardCurvePayName, 0.0, discountCurvePayName, true);</span>
+<span class="nc" id="L118">	}</span>
+
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+
+<span class="fc" id="L124">		final double valueReceiverLeg	= legReceiver.getValue(evaluationTime, model);</span>
+<span class="fc" id="L125">		final double valuePayerLeg	= legPayer.getValue(evaluationTime, model);</span>
+
+<span class="fc" id="L127">		return valueReceiverLeg - valuePayerLeg;</span>
+	}
+
+	public static double getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurve forwardCurve) {
+<span class="fc" id="L131">		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve);</span>
+	}
+
+	public static double getForwardSwapRate(final TimeDiscretization fixTenor, final TimeDiscretization floatTenor, final ForwardCurve forwardCurve, final DiscountCurve discountCurve) {
+<span class="fc" id="L135">		AnalyticModelFromCurvesAndVols model = null;</span>
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">		if(discountCurve != null) {</span>
+<span class="fc" id="L137">			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });</span>
+		}
+<span class="fc" id="L139">		return getForwardSwapRate(new RegularSchedule(fixTenor), new RegularSchedule(floatTenor), forwardCurve, model);</span>
+	}
+
+	public static double getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurve forwardCurve) {
+<span class="fc" id="L143">		return getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, null);</span>
+	}
+
+	public static double getForwardSwapRate(final Schedule fixSchedule, final Schedule floatSchedule, final ForwardCurve forwardCurve, AnalyticModel model) {
+<span class="fc bfc" id="L147" title="All 2 branches covered.">		DiscountCurve discountCurve = model == null ? null : model.getDiscountCurve(forwardCurve.getDiscountCurveName());</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">		if(discountCurve == null) {</span>
+<span class="fc" id="L149">			discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());</span>
+<span class="fc" id="L150">			model			= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });</span>
+		}
+
+<span class="fc" id="L153">		final double evaluationTime = fixSchedule.getFixing(0);	// Consider all values</span>
+<span class="fc" id="L154">		final double swapAnnuity	= SwapAnnuity.getSwapAnnuity(evaluationTime, fixSchedule, discountCurve, model);</span>
+
+<span class="fc" id="L156">		double floatLeg = 0;</span>
+<span class="fc bfc" id="L157" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;floatSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L158">			final double fixing			= floatSchedule.getFixing(periodIndex);</span>
+<span class="fc" id="L159">			final double payment			= floatSchedule.getPayment(periodIndex);</span>
+<span class="fc" id="L160">			final double periodLength		= floatSchedule.getPeriodLength(periodIndex);</span>
+
+<span class="fc" id="L162">			final double forward			= forwardCurve.getForward(model, fixing, payment-fixing);</span>
+<span class="fc" id="L163">			final double discountFactor	= discountCurve.getDiscountFactor(model, payment);</span>
+
+<span class="fc" id="L165">			floatLeg += forward * periodLength * discountFactor;</span>
+		}
+
+<span class="fc" id="L168">		final double valueFloatLeg = floatLeg / discountCurve.getDiscountFactor(model, evaluationTime);</span>
+
+<span class="fc" id="L170">		final double swapRate = valueFloatLeg / swapAnnuity;</span>
+
+		//		System.out.println(forwardCurve.getName() + &quot;\t&quot; + discountCurve.getName() + &quot;\t&quot; + swapRate);
+<span class="fc" id="L173">		return swapRate;</span>
+	}
+
+	/**
+	 * Return the receiver leg of the swap, i.e. the leg who's value is added to the swap value.
+	 *
+	 * @return The receiver leg of the swap.
+	 */
+	public AnalyticProduct getLegReceiver() {
+<span class="nc" id="L182">		return legReceiver;</span>
+	}
+
+	/**
+	 * Return the payer leg of the swap, i.e. the leg who's value is subtracted from the swap value.
+	 *
+	 * @return The payer leg of the swap.
+	 */
+	public AnalyticProduct getLegPayer() {
+<span class="nc" id="L191">		return legPayer;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L196">		return &quot;Swap [legReceiver=&quot; + legReceiver + &quot;, legPayer=&quot; + legPayer</span>
+				+ &quot;]&quot;;
+	}
+
+	@Override
+	public InterestRateSwapProductDescriptor getDescriptor() {
+		// TODO what if it is not a swap leg?
+<span class="nc bnc" id="L203" title="All 4 branches missed.">		if(!(legReceiver instanceof DescribedProduct&lt;?&gt;) || !(legPayer instanceof DescribedProduct&lt;?&gt;)) {</span>
+<span class="nc" id="L204">			throw new RuntimeException(&quot;One or both of the legs of this swap do not support extraction of a descriptor.&quot;);</span>
+		}
+<span class="nc" id="L206">		final InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct&lt;InterestRateProductDescriptor&gt;) legReceiver).getDescriptor();</span>
+<span class="nc" id="L207">		final InterestRateProductDescriptor payerDescriptor = ((DescribedProduct&lt;InterestRateProductDescriptor&gt;) legPayer).getDescriptor();</span>
+<span class="nc" id="L208">		return new  InterestRateSwapProductDescriptor(receiverDescriptor, payerDescriptor);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

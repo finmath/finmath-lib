@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMBachelierModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMBachelierModel.java</span></div><h1>FDMBachelierModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite difference model for option pricing under the Bachelier (normal)
+ * model.
+ *
+ * &lt;p&gt;
+ * The model assumes an arithmetic Brownian motion for the underlying:
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * dS(t) = (r(t) - q(t)) S(t) dt + sigma dW(t)
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where {@code r(t)} is the risk-free rate, {@code q(t)} is the dividend yield,
+ * and {@code sigma} is a
+ * constant (normal) volatility.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This class follows the same design principles as the other finite-difference
+ * equity model implementations:
+ * it provides drift and factor loadings via {@link #getDrift(double,
+ * double...)} and
+ * {@link #getFactorLoading(double, double...)}, and delegates boundary values
+ * to a boundary implementation
+ * created through {@link FDBoundaryFactory}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMBachelierModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial value.
+	 */
+	private final double initialValue;
+
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+
+	/**
+	 * The volatility.
+	 */
+	private final double volatility;
+
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Creates a Bachelier model from discount curves.
+	 *
+	 * @param initialValue            Initial underlying value {@code S(0)}.
+	 * @param riskFreeCurve           Risk-free discount curve.
+	 * @param dividendYieldCurve      Dividend yield discount curve.
+	 * @param volatility              Normal volatility {@code sigma}.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMBachelierModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double volatility,
+<span class="nc" id="L84">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L86">		this.initialValue = initialValue;</span>
+<span class="nc" id="L87">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L88">		this.dividendYieldCurve = dividendYieldCurve;</span>
+<span class="nc" id="L89">		this.volatility = volatility;</span>
+<span class="nc" id="L90">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L91">	}</span>
+
+	/**
+	 * Convenience constructor without dividend yield curve (i.e., {@code q =
+	 * 0}).
+	 *
+	 * @param initialValue            Initial underlying value {@code S(0)}.
+	 * @param riskFreeCurve           Risk-free discount curve.
+	 * @param volatility              Normal volatility {@code sigma}.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMBachelierModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="nc" id="L108">		this(</span>
+				initialValue,
+				riskFreeCurve,
+<span class="nc" id="L111">				createFlatZeroCurve(&quot;dividendCurve&quot;),</span>
+				volatility,
+				spaceTimeDiscretization);
+<span class="nc" id="L114">	}</span>
+
+	/**
+	 * Creates a Bachelier model from constant rates (flat curves).
+	 *
+	 * @param initialValue            Initial underlying value {@code S(0)}.
+	 * @param riskFreeRate            Constant risk-free rate {@code r}.
+	 * @param dividendYieldRate       Constant dividend yield {@code q}.
+	 * @param volatility              Normal volatility {@code sigma}.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMBachelierModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="nc" id="L132">		this(</span>
+				initialValue,
+<span class="nc" id="L134">				createFlatCurveFromZeroRate(&quot;riskFreeCurve&quot;, riskFreeRate),</span>
+<span class="nc" id="L135">				createFlatCurveFromZeroRate(&quot;dividendCurve&quot;, dividendYieldRate),</span>
+				volatility,
+				spaceTimeDiscretization);
+<span class="nc" id="L138">	}</span>
+
+	/**
+	 * Convenience constructor from a constant risk-free rate (flat curve) and
+	 * {@code q = 0}.
+	 *
+	 * @param initialValue            Initial underlying value {@code S(0)}.
+	 * @param riskFreeRate            Constant risk-free rate {@code r}.
+	 * @param volatility              Normal volatility {@code sigma}.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMBachelierModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="nc" id="L155">		this(initialValue, riskFreeRate, 0.0, volatility, spaceTimeDiscretization);</span>
+<span class="nc" id="L156">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L160">		return riskFreeCurve;</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L165">		return dividendYieldCurve;</span>
+	}
+
+	/**
+	 * Returns {@code S(0)}.
+	 *
+	 * @return Initial underlying value.
+	 */
+	@Override
+	public double[] getInitialValue() {
+<span class="nc" id="L175">		return new double[] {initialValue};</span>
+	}
+
+	/**
+	 * Returns the normal volatility {@code sigma}.
+	 *
+	 * @return Normal volatility.
+	 */
+	public double getVolatility() {
+<span class="nc" id="L184">		return volatility;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L189">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L194" title="All 2 branches missed.">		final double s = stateVariables.length &gt; 0 ? stateVariables[0] : initialValue;</span>
+
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		final double tSafe = time == 0.0 ? 1e-6 : time;</span>
+
+<span class="nc" id="L198">		final double r = -Math.log(riskFreeCurve.getDiscountFactor(tSafe)) / tSafe;</span>
+<span class="nc" id="L199">		final double q = -Math.log(dividendYieldCurve.getDiscountFactor(tSafe)) / tSafe;</span>
+
+		// Bachelier drift in spot coordinates: (r-q) * S
+<span class="nc" id="L202">		return new double[] {(r - q) * s };</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+		// Single factor, additive diffusion: sigma dW
+<span class="nc" id="L208">		return new double[][] {{volatility } };</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L217">		final FiniteDifferenceBoundary boundary =</span>
+<span class="nc" id="L218">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="nc" id="L220">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L229">		final FiniteDifferenceBoundary boundary =</span>
+<span class="nc" id="L230">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="nc" id="L232">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	private static DiscountCurve createFlatZeroCurve(final String name) {
+<span class="nc" id="L236">		return createFlatCurveFromZeroRate(name, 0.0);</span>
+	}
+
+	private static DiscountCurve createFlatCurveFromZeroRate(final String name, final double zeroRate) {
+<span class="nc" id="L240">		final double[] times = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L241">		final double[] zeroRates = new double[] {zeroRate, zeroRate };</span>
+
+<span class="nc" id="L243">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L244">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+<span class="nc" id="L245">		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;</span>
+
+<span class="nc" id="L247">		return DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				name,
+				null,
+				times,
+				zeroRates,
+				interpolationMethod,
+				extrapolationMethod,
+				interpolationEntity);
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L260">		return new FDMBachelierModel(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				volatility,
+				newSpaceTimeDiscretization
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

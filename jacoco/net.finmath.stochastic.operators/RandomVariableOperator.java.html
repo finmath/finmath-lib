@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableOperator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.stochastic.operators</a> &gt; <span class="el_source">RandomVariableOperator.java</span></div><h1>RandomVariableOperator.java</h1><pre class="source lang-java linenums">package net.finmath.stochastic.operators;
+
+import net.finmath.stochastic.RandomOperator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * A factory for useful {@link RandomOperator}s.
+ *
+ * @author Christian Fries
+ */
+<span class="nc" id="L12">public class RandomVariableOperator {</span>
+
+	/**
+	 * The expected short fall operator for a given percentageLevel.
+	 *
+	 * @param percentageLevel The percentage level.
+	 * @return The operator that maps a randomVariable to its expected short fall (wrapped in a random variable).
+	 */
+	static RandomOperator expectedShortFall(final Double percentageLevel) {
+
+<span class="nc bnc" id="L22" title="All 4 branches missed.">		if(percentageLevel &lt; 0 || percentageLevel &gt; 1) {</span>
+<span class="nc" id="L23">			throw new IllegalArgumentException(&quot;&quot;);</span>
+		}
+
+<span class="nc" id="L26">		return (RandomVariable x) -&gt; {</span>
+			// Special case: constant will result in that constant
+<span class="nc bnc" id="L28" title="All 4 branches missed.">			if(x.isDeterministic() || x.getVariance() == 0) {</span>
+<span class="nc" id="L29">				return x;</span>
+			}
+
+<span class="nc" id="L32">			final double quantileValue = x.getQuantile(percentageLevel);</span>
+<span class="nc" id="L33">			final RandomVariable indicator = x.sub(quantileValue).choose(Scalar.of(0.0), Scalar.of(1.0));</span>
+<span class="nc" id="L34">			final RandomVariable averageVar = x.mult(indicator).average().div(percentageLevel);</span>
+
+<span class="nc" id="L36">			return averageVar;</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

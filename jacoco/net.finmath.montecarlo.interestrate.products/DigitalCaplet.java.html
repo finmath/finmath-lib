@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalCaplet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">DigitalCaplet.java</span></div><h1>DigitalCaplet.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 06.04.2005
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Implements the valuation of a digital caplet using a given
+ * &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt;.
+ * The digital caplet pays periodLength if &lt;i&gt;L &amp;gt; K&lt;/i&gt; and else 0.
+ * Here &lt;i&gt;L = L(T&lt;sub&gt;i&lt;/sub&gt;,T&lt;sub&gt;i+1&lt;/sub&gt;;t)&lt;/i&gt; is the
+ * forward rate with period start &lt;i&gt;T&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;
+ * and period end &lt;i&gt;T&lt;sub&gt;i+1&lt;/sub&gt;&lt;/i&gt; and fixing &lt;i&gt;t&lt;/i&gt;.
+ * &lt;i&gt;K&lt;/i&gt; denotes the strike rate.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class DigitalCaplet extends AbstractTermStructureMonteCarloProduct {
+	private final double	optionMaturity;
+	private final double	periodStart;
+	private final double	periodEnd;
+	private final double	strike;
+
+	/**
+	 * Create a digital caplet with given maturity and strike.
+	 *
+	 * @param optionMaturity The option maturity.
+	 * @param periodStart The period start of the forward rate.
+	 * @param periodEnd The period end of the forward rate.
+	 * @param strike The strike rate.
+	 */
+	public DigitalCaplet(final double optionMaturity, final double periodStart,
+			final double periodEnd, final double strike) {
+<span class="fc" id="L41">		super();</span>
+<span class="fc" id="L42">		this.optionMaturity = optionMaturity;</span>
+<span class="fc" id="L43">		this.periodStart = periodStart;</span>
+<span class="fc" id="L44">		this.periodEnd = periodEnd;</span>
+<span class="fc" id="L45">		this.strike = strike;</span>
+<span class="fc" id="L46">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// Set payment date and period length
+<span class="fc" id="L62">		final double	paymentDate		= periodEnd;</span>
+<span class="fc" id="L63">		final double	periodLength	= periodEnd - periodStart;</span>
+
+		// Get random variables
+<span class="fc" id="L66">		final RandomVariable	libor		= model.getForwardRate(optionMaturity, periodStart, periodEnd);</span>
+
+<span class="fc" id="L68">		final RandomVariable 		trigger		= libor.sub(strike);</span>
+<span class="fc" id="L69">		RandomVariable				values		= trigger.choose((new Scalar(periodLength)), (new Scalar(0.0)));</span>
+
+		// Get numeraire and probabilities for payment time
+<span class="fc" id="L72">		final RandomVariable	numeraire					= model.getNumeraire(paymentDate);</span>
+<span class="fc" id="L73">		final RandomVariable	monteCarloProbabilities		= model.getMonteCarloWeights(paymentDate);</span>
+
+<span class="fc" id="L75">		values = values.div(numeraire).mult(monteCarloProbabilities);</span>
+
+		// Get numeraire and probabilities for evaluation time
+<span class="fc" id="L78">		final RandomVariable	numeraireAtEvaluationTime					= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L79">		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime		= model.getMonteCarloWeights(evaluationTime);</span>
+
+<span class="fc" id="L81">		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);</span>
+
+		// Return values
+<span class="fc" id="L84">		return values;</span>
+	}
+
+	public double getOptionMaturity() {
+<span class="nc" id="L88">		return optionMaturity;</span>
+	}
+
+	public double getPeriodStart() {
+<span class="nc" id="L92">		return periodStart;</span>
+	}
+
+	public double getPeriodEnd() {
+<span class="nc" id="L96">		return periodEnd;</span>
+	}
+
+	public double getStrike() {
+<span class="nc" id="L100">		return strike;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

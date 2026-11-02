@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TimeDiscretizationFromArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">TimeDiscretizationFromArray.java</span></div><h1>TimeDiscretizationFromArray.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.04.2008
+ */
+package net.finmath.time;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.function.DoublePredicate;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+/**
+ * This class represents a set of discrete points in time.
+ * &lt;br&gt;
+ * It handles the mapping from time indices to time points and back.
+ * It uses a time tick size (&quot;quantum&quot;). This is to make comparison of times safe.
+ * The default tick size is 1.0 / (365.0 * 24.0) (which corresponds to one hour if 1.0 is a non-leap-year):
+ * Times are rounded to the nearest multiple of 1.0 / (365.0 * 24.0).
+ *
+ * This property can be configured via a System.setProperty(&quot;net.finmath.functions.TimeDiscretization.timeTickSize&quot;).
+ *
+ * Objects of this class are immutable.
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public class TimeDiscretizationFromArray implements Serializable, TimeDiscretization {
+
+	private static final long serialVersionUID = 6880668325019167781L;
+<span class="fc" id="L39">	private static final double timeTickSizeDefault = Double.parseDouble(System.getProperty(&quot;net.finmath.functions.TimeDiscretization.timeTickSize&quot;, Double.toString(1.0 / (365.0 * 24.0))));</span>
+
+	private final double[]	timeDiscretization;
+	private final double timeTickSize;
+
+<span class="fc" id="L44">	public enum ShortPeriodLocation {</span>
+<span class="fc" id="L45">		SHORT_PERIOD_AT_START,</span>
+<span class="fc" id="L46">		SHORT_PERIOD_AT_END</span>
+	}
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The time discretization will be sorted. Duplicate entries are allowed if &lt;code&gt;allowDuplicates&lt;/code&gt; is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+<span class="fc" id="L57">	public TimeDiscretizationFromArray(DoubleStream times, final double tickSize, final boolean allowDuplicates) {</span>
+<span class="fc" id="L58">		timeTickSize = tickSize;</span>
+<span class="fc" id="L59">		times = times.map(this::roundToTimeTickSize);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if(!allowDuplicates) {</span>
+<span class="fc" id="L61">			times = times.distinct();</span>
+		}
+<span class="fc" id="L63">		timeDiscretization = times.sorted().toArray();</span>
+<span class="fc" id="L64">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 *
+	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 */
+	public TimeDiscretizationFromArray(final DoubleStream times, final double tickSize) {
+<span class="nc" id="L73">		this(times, tickSize, false);</span>
+<span class="nc" id="L74">	}</span>
+
+	/**
+	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of doubles.
+	 * The time discretization will be sorted. Duplicate entries are allowed if &lt;code&gt;allowDuplicates&lt;/code&gt; is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times A double stream of time points for the time discretization.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(final DoubleStream times, final boolean allowDuplicates) {
+<span class="nc" id="L84">		this(times, timeTickSizeDefault, allowDuplicates);</span>
+<span class="nc" id="L85">	}</span>
+
+	/**
+	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of doubles.
+	 *
+	 * @param times A double stream of time points for the time discretization.
+	 */
+	public TimeDiscretizationFromArray(final DoubleStream times) {
+<span class="fc" id="L93">		this(times, timeTickSizeDefault, false);</span>
+<span class="fc" id="L94">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 *
+	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(final Stream&lt;Double&gt; times, final double tickSize, final boolean allowDuplicates) {
+<span class="fc" id="L104">		this(times.mapToDouble(Double::doubleValue), tickSize, allowDuplicates);</span>
+<span class="fc" id="L105">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The time discretization will be sorted. Duplicate entries are allowed if &lt;code&gt;allowDuplicates&lt;/code&gt; is true, otherwise duplicate entries are removed.
+	 *
+	 * @param times    A non closed and not necessarily sorted stream containing the time points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 */
+	public TimeDiscretizationFromArray(final Stream&lt;Double&gt; times, final double tickSize) {
+<span class="fc" id="L115">		this(times.mapToDouble(Double::doubleValue), tickSize, false);</span>
+<span class="fc" id="L116">	}</span>
+
+	/**
+	 * Constructs a time discretization from a (non closed and not necessarily sorted) stream of boxed doubles.
+	 *
+	 * @param times A double stream of time points for the time discretization.
+	 */
+	public TimeDiscretizationFromArray(final Stream&lt;Double&gt; times) {
+<span class="fc" id="L124">		this(times.mapToDouble(Double::doubleValue), timeTickSizeDefault, false);</span>
+<span class="fc" id="L125">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The iteration of the iterable does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(final Iterable&lt;Double&gt; times, final double tickSize, final boolean allowDuplicates) {
+<span class="fc" id="L136">		this(StreamSupport.stream(times.spliterator(), false), tickSize, allowDuplicates);</span>
+<span class="fc" id="L137">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The iteration of the iterable does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 */
+	public TimeDiscretizationFromArray(final Iterable&lt;Double&gt; times, final double tickSize) {
+<span class="fc" id="L147">		this(times, tickSize, false);</span>
+<span class="fc" id="L148">	}</span>
+
+	/**
+	 * Constructs a time discretization from an iterable of doubles.
+	 * The iteration does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 * @param allowDuplicates If true, the time discretization allows duplicate entries.
+	 */
+	public TimeDiscretizationFromArray(final Iterable&lt;Double&gt; times, final boolean allowDuplicates) {
+<span class="fc" id="L158">		this(times,timeTickSizeDefault, allowDuplicates);</span>
+<span class="fc" id="L159">	}</span>
+
+	/**
+	 * Constructs a time discretization from an iterable of doubles.
+	 * The iteration does not have to happen in order.
+	 *
+	 * @param times The time to constitute the time discretization.
+	 */
+	public TimeDiscretizationFromArray(final Iterable&lt;Double&gt; times) {
+<span class="fc" id="L168">		this(times, false);</span>
+<span class="fc" id="L169">	}</span>
+
+	/**
+	 * Constructs a time discretization from a given set of doubles.
+	 * The given array does not need to be sorted.
+	 *
+	 * @param times Given array or arguments list of discretization points.
+	 */
+	public TimeDiscretizationFromArray(final double... times) {
+<span class="fc" id="L178">		this(Arrays.stream(times));</span>
+<span class="fc" id="L179">	}</span>
+
+	/**
+	 * Constructs a time discretization from a given set of Doubles.
+	 * The given array does not need to be sorted.
+	 *
+	 * @param times Given boxed array of discretization points.
+	 */
+	public TimeDiscretizationFromArray(final Double[] times) {
+<span class="fc" id="L188">		this(Arrays.stream(times));</span>
+<span class="fc" id="L189">	}</span>
+
+	/**
+	 * Constructs a time discretization using the given tick size.
+	 * The given array does not need to be sorted.
+	 *
+	 * @param times Given boxed array of discretization points.
+	 * @param tickSize A non-negative double representing the smallest time span distinguishable.
+	 */
+	public TimeDiscretizationFromArray(final Double[] times, final double tickSize) {
+<span class="fc" id="L199">		this(Arrays.stream(times), tickSize);</span>
+<span class="fc" id="L200">	}</span>
+
+	/**
+	 * Constructs an equi-distant time discretization with points timeDiscretizationFromArray[i] being
+	 * &lt;code&gt;for(i=0; i &amp;le; timeSteps; i++) timeDiscretizationFromArray[i] = initial + i * deltaT;&lt;/code&gt;
+	 *
+	 * @param initial First discretization point.
+	 * @param numberOfTimeSteps Number of time steps.
+	 * @param deltaT Time step size.
+	 */
+	public TimeDiscretizationFromArray(final double initial, final int numberOfTimeSteps, final double deltaT) {
+<span class="fc" id="L211">		this(IntStream.range(0, numberOfTimeSteps + 1).mapToDouble(new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int n) {
+<span class="fc" id="L214">				return initial + n * deltaT;</span>
+			}
+		}));
+<span class="fc" id="L217">	}</span>
+
+	/**
+	 * Constructs an equi-distant time discretization with stub periods at start or end.
+	 *
+	 * @param initial First discretization point.
+	 * @param last Last time steps.
+	 * @param deltaT Time step size.
+	 * @param shortPeriodLocation Placement of the stub period.
+	 */
+	public TimeDiscretizationFromArray(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
+<span class="fc" id="L228">		this(getEquidistantStreamWithStub(initial, last, deltaT, shortPeriodLocation));</span>
+<span class="fc" id="L229">	}</span>
+
+	private static DoubleStream getEquidistantStreamWithStub(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
+<span class="fc" id="L232">		final int numberOfTimeStepsPlusOne = (int) Math.ceil((last - initial) / deltaT) + 1;</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">		if (shortPeriodLocation == ShortPeriodLocation.SHORT_PERIOD_AT_END) {</span>
+<span class="fc" id="L235">			return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {</span>
+				@Override
+				public double applyAsDouble(final int n) {
+<span class="fc" id="L238">					return Math.min(last, initial + n * deltaT);</span>
+				}
+			});
+		}
+
+<span class="fc" id="L243">		return IntStream.range(0, numberOfTimeStepsPlusOne).mapToDouble(new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int n) {
+<span class="fc" id="L246">				return Math.max(initial, last - n * deltaT);</span>
+			}
+		});
+	}
+
+	@Override
+	public int getNumberOfTimes() {
+<span class="fc" id="L253">		return timeDiscretization.length;</span>
+	}
+
+	@Override
+	public int getNumberOfTimeSteps() {
+<span class="fc" id="L258">		return timeDiscretization.length-1;</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="fc" id="L263">		return timeDiscretization[timeIndex];</span>
+	}
+
+	@Override
+	public double getTimeStep(final int timeIndex) {
+<span class="fc" id="L268">		return timeDiscretization[timeIndex + 1] - timeDiscretization[timeIndex];</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L273">		return Arrays.binarySearch(timeDiscretization, roundToTimeTickSize(time));</span>
+	}
+
+	@Override
+	public int getTimeIndexNearestLessOrEqual(final double time) {
+<span class="fc" id="L278">		int index = java.util.Arrays.binarySearch(timeDiscretization,roundToTimeTickSize(time));</span>
+<span class="fc bfc" id="L279" title="All 2 branches covered.">		if(index &lt; 0) {</span>
+<span class="fc" id="L280">			index = -index-2;</span>
+		}
+<span class="fc" id="L282">		return index;</span>
+	}
+
+	@Override
+	public int getTimeIndexNearestGreaterOrEqual(final double time) {
+<span class="fc" id="L287">		int index = java.util.Arrays.binarySearch(timeDiscretization,time);</span>
+<span class="pc bpc" id="L288" title="1 of 2 branches missed.">		if(index &lt; 0) {</span>
+<span class="nc" id="L289">			index = -index-1;</span>
+		}
+<span class="fc" id="L291">		return index;</span>
+	}
+
+	@Override
+	public double[] getAsDoubleArray() {
+		// Note: This is a deep copy
+<span class="fc" id="L297">		return timeDiscretization.clone();</span>
+	}
+
+	@Override
+	public ArrayList&lt;Double&gt; getAsArrayList() {
+<span class="fc" id="L302">		final ArrayList&lt;Double&gt;	times = new ArrayList&lt;&gt;(timeDiscretization.length);</span>
+<span class="fc bfc" id="L303" title="All 2 branches covered.">		for (final double aTimeDiscretization : timeDiscretization) {</span>
+<span class="fc" id="L304">			times.add(aTimeDiscretization);</span>
+		}
+<span class="fc" id="L306">		return times;</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeShiftedTimeDiscretization(final double timeShift) {
+<span class="nc" id="L311">		final double[] newTimeDiscretization = new double[timeDiscretization.length];</span>
+
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; timeDiscretization.length; timeIndex++) {</span>
+<span class="nc" id="L314">			newTimeDiscretization[timeIndex] = roundToTimeTickSize(timeDiscretization[timeIndex] + timeShift);</span>
+		}
+
+<span class="nc" id="L317">		return new TimeDiscretizationFromArray(newTimeDiscretization);</span>
+	}
+
+	@Override
+	public TimeDiscretization filter(DoublePredicate timesToKeep) {
+<span class="nc" id="L322">		return new TimeDiscretizationFromArray(Arrays.stream(timeDiscretization).filter(timesToKeep), getTickSize());</span>
+	}
+
+	/**
+	 * @param that Another time discretization containing points to add to the time discretization.
+	 * @return A new time discretization containing both the time points of this and the other discretization.
+	 */
+	@Override
+	public TimeDiscretization union(final TimeDiscretization that) {
+<span class="fc" id="L331">		return new TimeDiscretizationFromArray(</span>
+<span class="fc" id="L332">				Stream.concat(Arrays.stream(timeDiscretization).boxed(), Arrays.stream(that.getAsDoubleArray()).boxed()),</span>
+<span class="fc" id="L333">				Math.min(timeTickSize, that.getTickSize()));</span>
+	}
+
+	@Override
+	public TimeDiscretization intersect(final TimeDiscretization that) {
+<span class="fc" id="L338">		final Set&lt;Double&gt; intersectionSet = Arrays.stream(timeDiscretization).boxed().collect(Collectors.toSet());</span>
+<span class="fc" id="L339">		intersectionSet.retainAll(that.getAsArrayList());</span>
+
+<span class="fc" id="L341">		return new TimeDiscretizationFromArray(intersectionSet, Math.max(timeTickSize, that.getTickSize()));</span>
+	}
+
+	@Override
+	public double getTickSize() {
+<span class="fc" id="L346">		return timeTickSize;</span>
+	}
+
+	@Override
+	public Iterator&lt;Double&gt; iterator() {
+<span class="fc" id="L351">		return this.getAsArrayList().iterator();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L356">		return &quot;TimeDiscretizationFromArray [timeDiscretizationFromArray=&quot;</span>
+<span class="fc" id="L357">				+ Arrays.toString(timeDiscretization) + &quot;, timeTickSize=&quot;</span>
+				+ timeTickSize + &quot;]&quot;;
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L363">		final int prime = 31;</span>
+<span class="nc" id="L364">		int result = 1;</span>
+<span class="nc" id="L365">		result = prime * result + Arrays.hashCode(timeDiscretization);</span>
+		long temp;
+<span class="nc" id="L367">		temp = Double.doubleToLongBits(timeTickSize);</span>
+<span class="nc" id="L368">		result = prime * result + (int) (temp ^ (temp &gt;&gt;&gt; 32));</span>
+<span class="nc" id="L369">		return result;</span>
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+<span class="pc bpc" id="L374" title="1 of 2 branches missed.">		if (this == obj) {</span>
+<span class="fc" id="L375">			return true;</span>
+		}
+<span class="nc bnc" id="L377" title="All 4 branches missed.">		if ((obj == null) || (getClass() != obj.getClass())) {</span>
+<span class="nc" id="L378">			return false;</span>
+		}
+<span class="nc" id="L380">		final TimeDiscretizationFromArray other = (TimeDiscretizationFromArray) obj;</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">		if (!Arrays.equals(timeDiscretization, other.timeDiscretization)) {</span>
+<span class="nc" id="L382">			return false;</span>
+		}
+<span class="nc bnc" id="L384" title="All 2 branches missed.">		return Double.doubleToLongBits(timeTickSize) == Double.doubleToLongBits(other.timeTickSize);</span>
+	}
+
+	private double roundToTimeTickSize(final double time) {
+<span class="fc" id="L388">		return Math.rint(time/timeTickSize)*timeTickSize;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

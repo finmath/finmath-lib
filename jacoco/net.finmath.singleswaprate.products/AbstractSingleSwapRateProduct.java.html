@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractSingleSwapRateProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.products</a> &gt; <span class="el_source">AbstractSingleSwapRateProduct.java</span></div><h1>AbstractSingleSwapRateProduct.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.products;
+
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.integration.RealIntegral;
+import net.finmath.integration.SimpsonRealIntegrator;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.time.Schedule;
+
+/**
+ * An abstract class providing valuation methods for single swap rate products.
+ * Extending classes may use the valuation via replication of this class by implementing the methods:
+ * &lt;ul&gt;
+ * &lt;li&gt;payoffFunction&lt;/li&gt;
+ * &lt;li&gt;hedgeWeight&lt;/li&gt;
+ * &lt;li&gt;singularAddon&lt;/li&gt;
+ * &lt;li&gt;buildAnnuityMapping&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public abstract class AbstractSingleSwapRateProduct extends AbstractAnalyticVolatilityCubeProduct {
+
+	private final Schedule fixSchedule;
+	private final Schedule floatSchedule;
+	private final String discountCurveName;
+	private final String forwardCurveName;
+	private final String volatilityCubeName;
+
+<span class="fc" id="L39">	private final QuotingConvention quotingConvention = VolatilitySurface.QuotingConvention.VOLATILITYNORMAL;</span>
+
+<span class="fc" id="L41">	private double lowerBound = -0.15;</span>
+<span class="fc" id="L42">	private double upperBound =  0.15;</span>
+<span class="fc" id="L43">	private int numberOfEvaluationPoints = 500;</span>
+
+	/**
+	 * Create the single swap rate product.
+	 *
+	 * @param fixSchedule The fix schedule of the swap.
+	 * @param floatSchedule The float schedule of the swap.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 */
+	public AbstractSingleSwapRateProduct(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName) {
+<span class="fc" id="L56">		super();</span>
+<span class="fc" id="L57">		this.fixSchedule = fixSchedule;</span>
+<span class="fc" id="L58">		this.floatSchedule = floatSchedule;</span>
+<span class="fc" id="L59">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L60">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L61">		this.volatilityCubeName = volatilityCubeName;</span>
+<span class="fc" id="L62">	}</span>
+
+	/**
+	 * Set the parameters for replication.
+	 *
+	 * @param lowerBound The lowest strike the replication may use.
+	 * @param upperBound The largest strike the replication may use.
+	 * @param numberOfEvaluationPoints The number of points the replication may evaluate.
+	 */
+	public void setIntegrationParameters(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="fc" id="L72">		this.lowerBound = lowerBound;</span>
+<span class="fc" id="L73">		this.upperBound = upperBound;</span>
+<span class="fc" id="L74">		this.numberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="fc" id="L75">	}</span>
+
+	/**
+	 * @return The lowest strike the replication may use.
+	 */
+	public double getIntegrationLowerBound() {
+<span class="fc" id="L81">		return lowerBound;</span>
+	}
+
+	/**
+	 * @return The largest strike the replication may use.
+	 */
+	public double getIntegrationUpperBound() {
+<span class="fc" id="L88">		return upperBound;</span>
+	}
+
+	/**
+	 * @return The number of points the replication may evaluate.
+	 */
+	public int getIntegrationNumberOfEvaluationPoints() {
+<span class="fc" id="L95">		return numberOfEvaluationPoints;</span>
+	}
+
+	//can be overridden for better performance
+	@Override
+	public double getValue(final double evaluationTime, final VolatilityCubeModel model) {
+<span class="fc" id="L101">		return getValue(evaluationTime, null, model);</span>
+	}
+
+	// allows to provide annuity mapping to optimize code
+	/**
+	 * Return the valuation of the product using the given model.
+	 * The model has to implement the modes of {@link VolatilityCubeModel}.
+	 * This method allows to specify an annuity mapping to be used during the evaluation.
+	 * This may be done to safe time, when many evaluations at different time, or of products with the same underlying swap rate, have to be done at once.
+	 * Otherwise each call of &lt;code&gt;getValue&lt;/code&gt; will first instantiate an individual annuity mapping. Which may take long for more elaborate implementations.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param annuityMapping The annuity mapping to be used during valuation. If left null a new mapping will be generated.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the product using the given model.
+	 */
+	public double getValue(final double evaluationTime, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
+
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">		if(evaluationTime &gt; getFixSchedule().getPeriodStart(0)) {</span>
+<span class="nc" id="L120">			throw new IllegalArgumentException(&quot;This framework is not set up to evaluate the product &quot;</span>
+<span class="nc" id="L121">					+this.getClass()+&quot; at a time larger than the start of the first period (&quot;+getFixSchedule().getPeriodStart(0)+&quot;). Requested time was &quot;+evaluationTime);</span>
+		}
+
+		double forwardSwapRate;
+		ForwardCurve forwardCurve;
+
+<span class="fc bfc" id="L127" title="All 2 branches covered.">		if(getForwardCurveName() == null) {</span>
+<span class="fc" id="L128">			forwardCurve = new ForwardCurveFromDiscountCurve(&quot;From&quot;+getDiscountCurveName(), getDiscountCurveName(), getFixSchedule().getReferenceDate(), &quot;6M&quot;);</span>
+		} else {
+<span class="fc" id="L130">			forwardCurve = model.getForwardCurve(getForwardCurveName());</span>
+		}
+<span class="fc" id="L132">		forwardSwapRate	= Swap.getForwardSwapRate(getFixSchedule(), getFloatSchedule(), forwardCurve, model);</span>
+
+		// check if there is an annuity mapping provided, otherwise get new one.
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		final AnnuityMapping internalAnnuityMapping = annuityMapping == null ? buildAnnuityMapping(model) : annuityMapping;</span>
+
+<span class="fc" id="L137">		double	receiverLeg = 0.0;</span>
+<span class="fc" id="L138">		double	payerLeg 	= 0.0;</span>
+
+		// check whether cube supports given lower bound
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">		final double lowerBound = getVolatilityCubeName() == null ? this.lowerBound :</span>
+<span class="fc" id="L142">			Math.max(this.lowerBound, model.getVolatilityCube(getVolatilityCubeName()).getLowestStrike(model));</span>
+
+		// Numerical integration
+<span class="fc" id="L145">		final RealIntegral receiverIntegral = new SimpsonRealIntegrator(lowerBound, forwardSwapRate, numberOfEvaluationPoints);</span>
+<span class="fc" id="L146">		final RealIntegral    payerIntegral = new SimpsonRealIntegrator(forwardSwapRate, upperBound, numberOfEvaluationPoints);</span>
+
+<span class="fc" id="L148">		final DoubleUnaryOperator  receiverIntegrand = x -&gt; (hedgeWeight(x, internalAnnuityMapping, model) * valuePut(x,model, forwardSwapRate));</span>
+<span class="fc" id="L149">		final DoubleUnaryOperator 	payerIntegrand = x -&gt; (hedgeWeight(x, internalAnnuityMapping, model) * valueCall(x,model, forwardSwapRate));</span>
+
+<span class="fc" id="L151">		receiverLeg = receiverIntegral.integrate(receiverIntegrand);</span>
+<span class="fc" id="L152">		payerLeg	= payerIntegral.integrate(payerIntegrand);</span>
+
+<span class="fc" id="L154">		double value = ((payoffFunction(forwardSwapRate, internalAnnuityMapping, model)) + receiverLeg + payerLeg</span>
+<span class="fc" id="L155">				+ singularAddon(forwardSwapRate, internalAnnuityMapping, model));</span>
+<span class="pc bpc" id="L156" title="1 of 2 branches missed.">		if(evaluationTime != getFixSchedule().getPeriodStart(0)) {</span>
+<span class="nc" id="L157">			value *= model.getDiscountCurve(getDiscountCurveName()).getDiscountFactor(model, getFixSchedule().getPeriodStart(0))</span>
+<span class="nc" id="L158">					/ model.getDiscountCurve(getDiscountCurveName()).getDiscountFactor(model, evaluationTime);</span>
+		}
+<span class="fc" id="L160">		return value;</span>
+	}
+
+	//to be implemented by individual products
+	/**
+	 * Payoff function of the product. Dependent only on the swap rate.
+	 *
+	 * @param swapRate The swap rate.
+	 * @param annuityMapping The annuity mapping to use.
+	 * @param model The model for context.
+	 * @return The payoff of the product.
+	 */
+	protected abstract double payoffFunction(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model);
+
+	/**
+	 * Essentially the second derivative of the payoff function.
+	 * The hedgeweight determines the weight of the puts and calls under the integral when replicating.
+	 *
+	 * @param swapRate The swap rate.
+	 * @param annuityMapping The annuity mapping to use.
+	 * @param model The model for context.
+	 * @return The weight during replication.
+	 */
+	protected abstract double hedgeWeight(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model);
+
+	/**
+	 * As some products have a portion of their weight in a singular point,
+	 * this is portion is split off from the &lt;code&gt;hedgeweight&lt;/code&gt; and added after the integration.
+	 *
+	 * @param swapRate The swap rate.
+	 * @param annuityMapping The annuity mapping to use.
+	 * @param model The model for context.
+	 * @return The singular addon.
+	 */
+	protected abstract double singularAddon(double swapRate, AnnuityMapping annuityMapping, VolatilityCubeModel model);
+
+	/**
+	 * Since most annuity mappings require data from models to be created, but models are only provided at execution of &lt;code&gt;getValue&lt;/code&gt;,
+	 * the product needs to dynamically be able to build its annuity mapping.
+	 * This method may be left to return &lt;code&gt;null&lt;/code&gt;, if the product requires no annuity mapping or is intended to always receive an annuity mapping for evaluation.
+	 *
+	 * @param model The model for context.
+	 * @return The annuity mapping.
+	 */
+	protected abstract AnnuityMapping buildAnnuityMapping(VolatilityCubeModel model);
+
+	//for internal use in the integration
+	/**
+	 * Value of a put option on the swap rate.
+	 *
+	 * @param optionStrike The strike of the option.
+	 * @param model The model for context.
+	 * @param swapRate The swap rate.
+	 * @return The value of a put.
+	 */
+	protected double valuePut(final double optionStrike, final VolatilityCubeModel model, final double swapRate){
+<span class="fc" id="L216">		return valueCall(optionStrike, model, swapRate) - (swapRate-optionStrike);</span>
+	}
+
+	/**
+	 * Value of a call option on the swap rate.
+	 *
+	 * @param optionStrike The strike of the option.
+	 * @param model The model for context.
+	 * @param swapRate The swap rate.
+	 * @return The value of a call.
+	 */
+	protected double valueCall(final double optionStrike, final VolatilityCubeModel model, final double swapRate){
+<span class="fc" id="L228">		final double optionMaturity 	= getFixSchedule().getFixing(0);</span>
+<span class="fc" id="L229">		final double termination 		= getFixSchedule().getPayment(getFixSchedule().getNumberOfPeriods()-1);</span>
+<span class="fc" id="L230">		final double volatility = model.getVolatilityCube(getVolatilityCubeName()).getValue(model, termination, optionMaturity, optionStrike, quotingConvention);</span>
+<span class="fc" id="L231">		final double value = AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, optionStrike, 1.0);</span>
+<span class="fc" id="L232">		return value;</span>
+	}
+
+	/**
+	 * @return the fixSchedule
+	 */
+	public Schedule getFixSchedule() {
+<span class="fc" id="L239">		return fixSchedule;</span>
+	}
+
+	/**
+	 * @return the floatSchedule
+	 */
+	public Schedule getFloatSchedule() {
+<span class="fc" id="L246">		return floatSchedule;</span>
+	}
+
+	/**
+	 * @return the discountCurveName
+	 */
+	public String getDiscountCurveName() {
+<span class="fc" id="L253">		return discountCurveName;</span>
+	}
+
+	/**
+	 * @return the forwardCurveName
+	 */
+	public String getForwardCurveName() {
+<span class="fc" id="L260">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * @return the volatilityCubeName
+	 */
+	public String getVolatilityCubeName() {
+<span class="fc" id="L267">		return volatilityCubeName;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

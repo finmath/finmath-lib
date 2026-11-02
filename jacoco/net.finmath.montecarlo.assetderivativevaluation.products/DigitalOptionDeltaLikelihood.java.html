@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalOptionDeltaLikelihood.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">DigitalOptionDeltaLikelihood.java</span></div><h1>DigitalOptionDeltaLikelihood.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.assetderivativevaluation.products;
+/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 12.02.2013
+ */
+
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloBlackScholesModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Implements calculation of the delta of a digital option.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ * @since finmath-lib 3.6.0
+ */
+public class DigitalOptionDeltaLikelihood extends AbstractAssetMonteCarloProduct {
+
+	private final double	maturity;
+	private final double	strike;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 *
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 */
+	public DigitalOptionDeltaLikelihood(final double maturity, final double strike) {
+<span class="fc" id="L36">		super();</span>
+<span class="fc" id="L37">		this.maturity = maturity;</span>
+<span class="fc" id="L38">		this.strike = strike;</span>
+<span class="fc" id="L39">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+
+		/*
+		 * The following valuation code requires in-depth knowledge of the model to calculate the denstiy analytically.
+		 */
+<span class="fc" id="L57">		BlackScholesModel blackScholesModel = null;</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if(model instanceof MonteCarloAssetModel) {</span>
+			try {
+<span class="fc" id="L60">				blackScholesModel = (BlackScholesModel)((MonteCarloAssetModel)model).getModel();</span>
+			}
+<span class="pc" id="L62">			catch(final Exception e) {}</span>
+		}
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		else if(model instanceof MonteCarloBlackScholesModel) {</span>
+<span class="nc" id="L65">			blackScholesModel = ((MonteCarloBlackScholesModel)model).getModel();</span>
+		}
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">		if(model == null) {</span>
+<span class="nc" id="L68">			throw new ClassCastException(&quot;This method requires a Black-Scholes type model (MonteCarloBlackScholesModel).&quot;);</span>
+		}
+
+		// Get underlying and numeraire
+<span class="fc" id="L72">		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity,0);</span>
+<span class="fc" id="L73">		final RandomVariable underlyingAtToday		= model.getAssetValue(0.0,0);</span>
+
+		// Get some model parameters
+<span class="fc" id="L76">		final double T		= maturity-evaluationTime;</span>
+<span class="fc" id="L77">		final double r		= blackScholesModel.getRiskFreeRate().doubleValue();</span>
+<span class="fc" id="L78">		final double sigma	= blackScholesModel.getVolatility().doubleValue();</span>
+
+<span class="fc" id="L80">		final RandomVariable lr = underlyingAtMaturity.log().sub(underlyingAtToday.log()).sub(r * T - 0.5 * sigma*sigma * T).div(sigma * sigma * T).div(underlyingAtToday);</span>
+
+<span class="fc" id="L82">		final RandomVariable payoff = underlyingAtMaturity.sub(strike).choose(new Scalar(1.0), new Scalar(0.0));</span>
+
+<span class="fc" id="L84">		final RandomVariable modifiedPayoff = payoff.mult(lr);</span>
+
+<span class="fc" id="L86">		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);</span>
+<span class="fc" id="L87">		final RandomVariable numeraireAtEvalTime	= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L88">		final RandomVariable monteCarloWeightsAtMaturity	= model.getMonteCarloWeights(maturity);</span>
+<span class="fc" id="L89">		final RandomVariable monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);</span>
+
+<span class="fc" id="L91">		return modifiedPayoff.div(numeraireAtMaturity).mult(numeraireAtEvalTime).mult(monteCarloWeightsAtMaturity).div(monteCarloWeightsAtEvalTime);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScaledVolatilityCube.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">ScaledVolatilityCube.java</span></div><h1>ScaledVolatilityCube.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+
+/**
+ * A volatility cube that always returns a multiple of the value an underlying cube would return.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class ScaledVolatilityCube implements VolatilityCube {
+
+	private final String		name;
+	private final LocalDate	referenceDate;
+	private final String referenceCubeName;
+	private final double coefficient;
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
+
+	/**
+	 * Create the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param referenceCubeName The name of the underlying cube.
+	 * @param coefficient The coefficient with which the value of the underlying cube is to be multiplied.
+	 * @param correlationDecay The correlation decay parameter of the cube.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
+	 */
+	public ScaledVolatilityCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final double coefficient, final double correlationDecay, final double iborOisDecorrelation) {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		this.name = name;</span>
+<span class="fc" id="L39">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L40">		this.referenceCubeName = referenceCubeName;</span>
+<span class="fc" id="L41">		this.coefficient = coefficient;</span>
+<span class="fc" id="L42">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L43">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+<span class="fc" id="L44">	}</span>
+
+	public ScaledVolatilityCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final double coefficient, final double correlationDecay) {
+<span class="fc" id="L47">		this(name, referenceDate, referenceCubeName, coefficient, correlationDecay, 1.0);</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
+<span class="fc" id="L53">		return model.getVolatilityCube(referenceCubeName).getValue(model, termination, maturity, strike, quotingConvention) * coefficient;</span>
+	}
+
+	@Override
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="nc" id="L58">		return getValue(null, termination, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L63">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L68">		return referenceDate;</span>
+	}
+
+	public String getReferenceCubeName() {
+<span class="nc" id="L72">		return referenceCubeName;</span>
+	}
+
+	@Override
+	public double getCorrelationDecay() {
+<span class="fc" id="L77">		return correlationDecay;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getParameters() {
+<span class="nc" id="L82">		final Map&lt;String,Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L83">		map.put(&quot;coefficient&quot;, coefficient);</span>
+<span class="nc" id="L84">		map.put(&quot;Inherent correlationDecay&quot;, correlationDecay);</span>
+<span class="nc" id="L85">		map.put(&quot;iborOisDecorrelation&quot;, iborOisDecorrelation);</span>
+
+<span class="nc" id="L87">		return map;</span>
+	}
+
+	@Override
+	public double getLowestStrike(final VolatilityCubeModel model) {
+<span class="fc" id="L92">		return model.getVolatilityCube(referenceCubeName).getLowestStrike(model);</span>
+	}
+
+	@Override
+	public double getIborOisDecorrelation() {
+<span class="nc" id="L97">		return iborOisDecorrelation;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

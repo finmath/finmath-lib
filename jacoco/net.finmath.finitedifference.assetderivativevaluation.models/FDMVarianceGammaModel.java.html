@@ -1,0 +1,590 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMVarianceGammaModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMVarianceGammaModel.java</span></div><h1>FDMVarianceGammaModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import java.util.Optional;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite-difference model for option pricing under the Variance Gamma model.
+ *
+ * &lt;p&gt;
+ * The model is formulated in the stock variable and follows the convention used
+ * for jump models in this finite-difference framework:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link #getDrift(double, double...)} returns the local first-order term,
+ *       i.e. {@code (r-q)S},&lt;/li&gt;
+ *   &lt;li&gt;{@link #getFactorLoading(double, double...)} returns zero, since the
+ *       pure Variance Gamma model has no diffusive factor,&lt;/li&gt;
+ *   &lt;li&gt;the jump part of the generator is supplied separately through
+ *       {@link #getJumpComponent()}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The public constructors use the usual Variance Gamma parameterization
+ * {@code (sigma, nu, theta)} in order to stay close to the Monte Carlo side.
+ * Constructors / factories based on {@code (C,G,M)} are provided only through
+ * named static factory methods in order to avoid Java signature clashes.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMVarianceGammaModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial value.
+	 */
+	private final double initialValue;
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+	/**
+	 * The jump component.
+	 */
+	private final VarianceGammaJumpComponent jumpComponent;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Minimum time used to avoid division by zero.
+	 */
+	private static final double MINIMUM_TIME = 1.0E-6;
+
+	/**
+	 * Creates a Variance Gamma model from explicit discount curves and an
+	 * explicit
+	 * jump component.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param jumpComponent Variance Gamma jump component.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final VarianceGammaJumpComponent jumpComponent,
+<span class="fc" id="L85">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">		if (riskFreeCurve == null) {</span>
+<span class="nc" id="L88">			throw new IllegalArgumentException(&quot;Risk-free curve must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		if (dividendYieldCurve == null) {</span>
+<span class="nc" id="L91">			throw new IllegalArgumentException(&quot;Dividend yield curve must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if (jumpComponent == null) {</span>
+<span class="nc" id="L94">			throw new IllegalArgumentException(&quot;Jump component must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">		if (spaceTimeDiscretization == null) {</span>
+<span class="nc" id="L97">			throw new IllegalArgumentException(&quot;Space-time discretization must not be null.&quot;);</span>
+		}
+
+<span class="fc" id="L100">		this.initialValue = initialValue;</span>
+<span class="fc" id="L101">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="fc" id="L102">		this.dividendYieldCurve = dividendYieldCurve;</span>
+<span class="fc" id="L103">		this.jumpComponent = jumpComponent;</span>
+<span class="fc" id="L104">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L105">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model from explicit discount curves and the
+	 * usual
+	 * {@code (sigma, nu, theta)} parameterization.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param sigma The volatility parameter.
+	 * @param nu The variance-of-time-change parameter.
+	 * @param theta The asymmetry parameter.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double sigma,
+			final double nu,
+			final double theta,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="fc" id="L134">		this(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+<span class="fc" id="L138">				VarianceGammaJumpComponent.ofSigmaNuTheta(</span>
+						lowerIntegrationBound,
+						upperIntegrationBound,
+						sigma,
+						nu,
+						theta
+						),
+				spaceTimeDiscretization
+				);
+<span class="fc" id="L147">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model assuming zero dividend yield and using an
+	 * explicit jump component.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param jumpComponent Variance Gamma jump component.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final VarianceGammaJumpComponent jumpComponent,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L163">		this(</span>
+				initialValue,
+				riskFreeCurve,
+<span class="nc" id="L166">				createFlatDiscountCurve(&quot;dividendCurve&quot;, 0.0),</span>
+				jumpComponent,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L170">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model assuming zero dividend yield and using the
+	 * usual {@code (sigma, nu, theta)} parameterization.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param sigma The volatility parameter.
+	 * @param nu The variance-of-time-change parameter.
+	 * @param theta The asymmetry parameter.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final double sigma,
+			final double nu,
+			final double theta,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L196">		this(</span>
+				initialValue,
+				riskFreeCurve,
+<span class="nc" id="L199">				createFlatDiscountCurve(&quot;dividendCurve&quot;, 0.0),</span>
+				sigma,
+				nu,
+				theta,
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L207">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model from flat rates and an explicit jump
+	 * component.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield.
+	 * @param jumpComponent Variance Gamma jump component.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final VarianceGammaJumpComponent jumpComponent,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L225">		this(</span>
+				initialValue,
+<span class="nc" id="L227">				createFlatDiscountCurve(&quot;riskFreeCurve&quot;, riskFreeRate),</span>
+<span class="nc" id="L228">				createFlatDiscountCurve(&quot;dividendCurve&quot;, dividendYieldRate),</span>
+				jumpComponent,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L232">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model from flat rates and the usual
+	 * {@code (sigma, nu, theta)} parameterization.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield.
+	 * @param sigma The volatility parameter.
+	 * @param nu The variance-of-time-change parameter.
+	 * @param theta The asymmetry parameter.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double sigma,
+			final double nu,
+			final double theta,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="fc" id="L260">		this(</span>
+				initialValue,
+<span class="fc" id="L262">				createFlatDiscountCurve(&quot;riskFreeCurve&quot;, riskFreeRate),</span>
+<span class="fc" id="L263">				createFlatDiscountCurve(&quot;dividendCurve&quot;, dividendYieldRate),</span>
+				sigma,
+				nu,
+				theta,
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				spaceTimeDiscretization
+				);
+<span class="fc" id="L271">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model from a flat risk-free rate, assuming zero
+	 * dividend yield, and using an explicit jump component.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param jumpComponent Variance Gamma jump component.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final VarianceGammaJumpComponent jumpComponent,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L287">		this(</span>
+				initialValue,
+				riskFreeRate,
+				0.0,
+				jumpComponent,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L294">	}</span>
+
+	/**
+	 * Creates a Variance Gamma model from a flat risk-free rate, assuming zero
+	 * dividend yield, and using the usual {@code (sigma, nu, theta)}
+	 * parameterization.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param sigma The volatility parameter.
+	 * @param nu The variance-of-time-change parameter.
+	 * @param theta The asymmetry parameter.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMVarianceGammaModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double sigma,
+			final double nu,
+			final double theta,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L321">		this(</span>
+				initialValue,
+				riskFreeRate,
+				0.0,
+				sigma,
+				nu,
+				theta,
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L332">	}</span>
+
+	/**
+	 * Named factory using the {@code (C,G,M)} parameterization and explicit
+	 * curves.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param c The parameter {@code C}.
+	 * @param g The parameter {@code G}.
+	 * @param m The parameter {@code M}.
+	 * @param lowerIntegrationBound Lower integration bound.
+	 * @param upperIntegrationBound Upper integration bound.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @return The corresponding Variance Gamma model.
+	 */
+	public static FDMVarianceGammaModel ofCGM(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double c,
+			final double g,
+			final double m,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L359">		return new FDMVarianceGammaModel(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				new VarianceGammaJumpComponent(
+						lowerIntegrationBound,
+						upperIntegrationBound,
+						c,
+						g,
+						m
+						),
+				spaceTimeDiscretization
+				);
+	}
+
+	/**
+	 * Named factory using the {@code (C,G,M)} parameterization and zero
+	 * dividend yield.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param c The parameter {@code C}.
+	 * @param g The parameter {@code G}.
+	 * @param m The parameter {@code M}.
+	 * @param lowerIntegrationBound Lower integration bound.
+	 * @param upperIntegrationBound Upper integration bound.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @return The corresponding Variance Gamma model.
+	 */
+	public static FDMVarianceGammaModel ofCGM(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final double c,
+			final double g,
+			final double m,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L397">		return new FDMVarianceGammaModel(</span>
+				initialValue,
+				riskFreeCurve,
+				new VarianceGammaJumpComponent(
+						lowerIntegrationBound,
+						upperIntegrationBound,
+						c,
+						g,
+						m
+						),
+				spaceTimeDiscretization
+				);
+	}
+
+	/**
+	 * Named factory using the {@code (C,G,M)} parameterization and flat rates.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield.
+	 * @param c The parameter {@code C}.
+	 * @param g The parameter {@code G}.
+	 * @param m The parameter {@code M}.
+	 * @param lowerIntegrationBound Lower integration bound.
+	 * @param upperIntegrationBound Upper integration bound.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @return The corresponding Variance Gamma model.
+	 */
+	public static FDMVarianceGammaModel ofCGM(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double c,
+			final double g,
+			final double m,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L435">		return new FDMVarianceGammaModel(</span>
+				initialValue,
+				riskFreeRate,
+				dividendYieldRate,
+				new VarianceGammaJumpComponent(
+						lowerIntegrationBound,
+						upperIntegrationBound,
+						c,
+						g,
+						m
+						),
+				spaceTimeDiscretization
+				);
+	}
+
+	/**
+	 * Named factory using the {@code (C,G,M)} parameterization, flat risk-free
+	 * rate,
+	 * and zero dividend yield.
+	 *
+	 * @param initialValue Initial spot value.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param c The parameter {@code C}.
+	 * @param g The parameter {@code G}.
+	 * @param m The parameter {@code M}.
+	 * @param lowerIntegrationBound Lower integration bound.
+	 * @param upperIntegrationBound Upper integration bound.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @return The corresponding Variance Gamma model.
+	 */
+	public static FDMVarianceGammaModel ofCGM(
+			final double initialValue,
+			final double riskFreeRate,
+			final double c,
+			final double g,
+			final double m,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L474">		return new FDMVarianceGammaModel(</span>
+				initialValue,
+				riskFreeRate,
+				new VarianceGammaJumpComponent(
+						lowerIntegrationBound,
+						upperIntegrationBound,
+						c,
+						g,
+						m
+						),
+				spaceTimeDiscretization
+				);
+	}
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="fc" id="L490">		return riskFreeCurve;</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="fc" id="L495">		return dividendYieldCurve;</span>
+	}
+
+	@Override
+	public double[] getInitialValue() {
+<span class="fc" id="L500">		return new double[] {initialValue };</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public VarianceGammaJumpComponent getVarianceGammaJumpComponent() {
+<span class="nc" id="L509">		return jumpComponent;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="fc" id="L514">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+<span class="fc bfc" id="L519" title="All 2 branches covered.">		final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="fc" id="L521">		final double[] result = new double[1];</span>
+
+<span class="fc" id="L523">		final double rF = getRiskFreeCurve().getDiscountFactor(effectiveTime);</span>
+<span class="fc" id="L524">		final double riskFreeRate = -Math.log(rF) / effectiveTime;</span>
+
+<span class="fc" id="L526">		final double dY = getDividendYieldCurve().getDiscountFactor(effectiveTime);</span>
+<span class="fc" id="L527">		final double dividendYieldRate = -Math.log(dY) / effectiveTime;</span>
+
+<span class="fc" id="L529">		result[0] = (riskFreeRate - dividendYieldRate) * stateVariables[0];</span>
+<span class="fc" id="L530">		return result;</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="fc" id="L535">		return new double[][] {{0.0 } };</span>
+	}
+
+	@Override
+	public Optional&lt;JumpComponent&gt; getJumpComponent() {
+<span class="fc" id="L540">		return Optional.of(jumpComponent);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L549">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="fc" id="L550">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L559">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="fc" id="L560">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L566">		return new FDMVarianceGammaModel(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				jumpComponent,
+				newSpaceTimeDiscretization
+				);
+	}
+
+	private static DiscountCurve createFlatDiscountCurve(final String name, final double zeroRate) {
+<span class="fc" id="L576">		final double[] times = new double[] {0.0, 1.0 };</span>
+<span class="fc" id="L577">		final double[] zeroRates = new double[] {zeroRate, zeroRate };</span>
+
+<span class="fc" id="L579">		return DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				name,
+				null,
+				times,
+				zeroRates,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.VALUE
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

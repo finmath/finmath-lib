@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardCurveFromDiscountCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">ForwardCurveFromDiscountCurve.java</span></div><h1>ForwardCurveFromDiscountCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.curves;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * A forward curve derived from a given discount curve.
+ *
+ * The forward with fixing in \( t \) is calculated as
+ * \(
+ * 		(\frac{1}{dcf(t,t+d)} ( \frac{df(t)}{df(t+d)}-1 )
+ * \)
+ * where \( dcf(t,t+d) \) is the daycount-fraction between t and t+d and \( t \mapsto df(t) \) is the given referenceDiscountCurveNameForForwardCurve.
+ * The payment offset \( t+d \) is either generated from the paymentOffsetCode or directly specified if paymentOffsetCode=NaN.
+ *
+ * The referenceDiscountCurveNameForForwardCurve is referenced by name and evaluated late (which allows use of
+ * this construct in a calibration process referencing changing discount curves.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ForwardCurveFromDiscountCurve extends AbstractForwardCurve implements Serializable {
+
+	private static final long serialVersionUID = -4126228588123963885L;
+
+	private final String referenceDiscountCurveForForwardsName; // The (pseudo-)discount curve that the forwards are calculated from. Note that this is in general different from the discount curve associated with the forwards
+
+	private final DayCountConvention daycountConvention;
+	private final double daycountScaling;
+
+	private final double periodOffset;
+
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (usually OIS).
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 * @param daycountConvention The daycount convention \( dcf(t,t+d) \) use the time-scale the performance ratio derived from the discount factors.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName,
+			final String discountCurveName, final LocalDate referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentOffsetBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention,
+			final DayCountConvention daycountConvention, final double periodOffset) {
+<span class="nc" id="L63">		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);</span>
+
+<span class="nc" id="L65">		referenceDiscountCurveForForwardsName = referenceDiscountCurveName;</span>
+<span class="nc" id="L66">		this.daycountConvention = daycountConvention;</span>
+<span class="nc" id="L67">		daycountScaling = 1.0;</span>
+<span class="nc" id="L68">		this.periodOffset = periodOffset;</span>
+<span class="nc" id="L69">	}</span>
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (usually OIS).
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName, final String discountCurveName, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentOffsetBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention, final double daycountScaling, final double periodOffset) {
+<span class="fc" id="L85">		super(name, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, discountCurveName);</span>
+
+<span class="fc" id="L87">		referenceDiscountCurveForForwardsName = referenceDiscountCurveName;</span>
+<span class="fc" id="L88">		daycountConvention = null;</span>
+<span class="fc" id="L89">		this.daycountScaling = daycountScaling;</span>
+<span class="fc" id="L90">		this.periodOffset = periodOffset;</span>
+<span class="fc" id="L91">	}</span>
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 * @param daycountScaling The scaling factor applied to the paymentOffset measured in ACT/365.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentOffsetBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention, final double daycountScaling, final double periodOffset) {
+<span class="fc" id="L107">		this(name, referenceDiscountCurveName, referenceDiscountCurveName, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, daycountScaling, periodOffset);</span>
+<span class="fc" id="L108">	}</span>
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 * @param paymentOffsetBusinessdayCalendar The calendar used to generate the payment date from the paymentOffetCode.
+	 * @param paymentOffsetDateRollConvention The date roll convention used to generate the payment date from the paymentOffsetCode.
+	 */
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentOffsetBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentOffsetDateRollConvention) {
+<span class="fc" id="L122">		this(name, referenceDiscountCurveName, referenceDate, paymentOffsetCode, paymentOffsetBusinessdayCalendar, paymentOffsetDateRollConvention, 1.0, 0.0);</span>
+<span class="fc" id="L123">	}</span>
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
+	 *
+	 * @param name The name under which the forward curve can be referenced.
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 */
+	public ForwardCurveFromDiscountCurve(final String name, final String referenceDiscountCurveName, final LocalDate referenceDate, final String paymentOffsetCode) {
+<span class="fc" id="L135">		this(name, referenceDiscountCurveName, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendar.DateRollConvention.FOLLOWING);</span>
+<span class="fc" id="L136">	}</span>
+
+	/**
+	 * Create a forward curve using a given referenceDiscountCurveForForwards.
+	 * Note that the referenceDiscountCurveForForwards is also used as the discount curve associated with the forwards (i.e. single curve).
+	 *
+	 * The name of the this forward curve will be
+	 * &lt;code&gt;
+	 * 	&quot;ForwardCurveFromDiscountCurve(&quot; +  referenceDiscountCurveName + &quot;,&quot; + paymentOffsetCode + &quot;)&quot;,
+	 * &lt;/code&gt;
+	 * but code should not reply on this. Instead you should use getName() to get the name of the curve.
+	 *
+	 * @param referenceDiscountCurveName The (pseudo-)discount curve that the forwards are calculated from.
+	 * @param referenceDate The reference date used in the interpretation of times (i.e., the referenceDate where t=0).
+	 * @param paymentOffsetCode The payment offset. If null, the parameter p has to be provided to the getForward method.
+	 */
+	public ForwardCurveFromDiscountCurve(final String referenceDiscountCurveName, final LocalDate referenceDate, final String paymentOffsetCode) {
+<span class="fc" id="L153">		this(&quot;ForwardCurveFromDiscountCurve(&quot; +  referenceDiscountCurveName + &quot;,&quot; + paymentOffsetCode + &quot;)&quot;, referenceDiscountCurveName, referenceDate, paymentOffsetCode);</span>
+<span class="fc" id="L154">	}</span>
+
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime)
+	{
+<span class="fc" id="L159">		final double paymentOffset = getPaymentOffset(fixingTime+periodOffset);</span>
+<span class="fc" id="L160">		return getForward(model, fixingTime, paymentOffset);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.ForwardCurveInterface#getForward(double)
+	 */
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset)
+	{
+<span class="pc bpc" id="L169" title="1 of 2 branches missed.">		if(model == null) {</span>
+<span class="nc" id="L170">			throw new IllegalArgumentException(this.getName() + &quot;: model==null&quot;);</span>
+		}
+<span class="fc" id="L172">		final DiscountCurve referenceDiscountCurveForForwards = model.getDiscountCurve(referenceDiscountCurveForForwardsName); // do not use discountCurveName here (usually this is an OIS curve)</span>
+<span class="pc bpc" id="L173" title="1 of 2 branches missed.">		if(referenceDiscountCurveForForwards == null) {</span>
+<span class="nc" id="L174">			throw new IllegalArgumentException(this.getName() + &quot;: referenceDiscountCurveForForwards &quot; + referenceDiscountCurveForForwardsName + &quot; not found in the model:\n&quot; + model.toString());</span>
+		}
+<span class="pc bpc" id="L176" title="2 of 4 branches missed.">		if(Double.isNaN(paymentOffset) || paymentOffset&lt;=0.0) {</span>
+<span class="nc" id="L177">			throw new IllegalArgumentException(this.getName() + &quot;: Requesting forward with paymentOffset &quot; + paymentOffset + &quot; not allowed.&quot;);</span>
+		}
+
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		final double daycount = (daycountConvention != null ?</span>
+<span class="nc" id="L181">				daycountConvention.getDaycountFraction(</span>
+<span class="nc" id="L182">						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime),</span>
+<span class="nc" id="L183">						FloatingpointDate.getDateFromFloatingPointDate(getReferenceDate(), fixingTime+paymentOffset)</span>
+						)
+<span class="fc" id="L185">				: paymentOffset) * daycountScaling;</span>
+
+<span class="fc" id="L187">		return (referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+periodOffset) / referenceDiscountCurveForForwards.getDiscountFactor(model, fixingTime+paymentOffset+periodOffset) - 1.0) / daycount;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
+	 */
+	@Override
+	public double getValue(final double time) {
+<span class="nc" id="L195">		return getValue(null, time);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
+	 */
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc" id="L203">		return getForward(model, time);</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L209">		return null;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L214">		return &quot;ForwardCurveFromDiscountCurve [&quot; + super.toString() + &quot;, referenceDiscountCurveForForwardsName=&quot; + referenceDiscountCurveForForwardsName + &quot;, daycountScaling=&quot; + daycountScaling + &quot;, periodOffset=&quot; + periodOffset + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

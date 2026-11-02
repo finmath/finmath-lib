@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurveFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">CurveFactory.java</span></div><h1>CurveFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 14.06.2015
+ */
+
+package net.finmath.marketdata.model.curves;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.daycount.DayCountConvention_30E_360;
+import net.finmath.time.daycount.DayCountConvention_ACT_365;
+
+/**
+ * A collection of convenient methods constructing some more specialized curves.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CurveFactory {
+
+<span class="nc" id="L30">	private static DayCountConvention_ACT_365 modelDcc = new DayCountConvention_ACT_365();</span>
+
+	private CurveFactory() {
+	}
+
+	/**
+	 * Creates a monthly index curve with seasonality and past fixings.
+	 *
+	 * This methods creates an index curve (e.g. for a CPI index) using provided &lt;code&gt;annualizedZeroRates&lt;/code&gt;
+	 * for the forwards (expected future CPI values) and &lt;code&gt;indexFixings&lt;/code&gt; for the past
+	 * fixings.
+	 *
+	 * It may also &quot;overlay&quot; the future values with a seasonality adjustment. The seasonality adjustment
+	 * is either taken from adjustment factors provided in &lt;code&gt;seasonalityAdjustments&lt;/code&gt; or
+	 * (if that argument is null) estimated from the &lt;code&gt;indexFixings&lt;/code&gt;. The the latter case
+	 * use &lt;code&gt;seasonalAveragingNumerOfYears&lt;/code&gt; to specify the number of years which should be used
+	 * to estimate the seasonality adjustments.
+	 *
+	 * @param name The name of the curve.
+	 * @param referenceDate The reference date of the curve.
+	 * @param indexFixings A Map&amp;lt;LocalDate, Double&amp;gt; of past fixings.
+	 * @param seasonalityAdjustments A Map&amp;lt;String, Double&amp;gt; of seasonality adjustments (annualized continuously compounded rates for the given month, i.e., the seasonality factor is exp(seasonalityAdjustment/12)), where the String keys are &quot;january&quot;, &quot;february&quot;, &quot;march&quot;, &quot;april&quot;, &quot;may&quot;, &quot;june&quot;, &quot;july&quot;, &quot;august&quot;, &quot;september&quot;, &quot;october&quot;, &quot;november&quot;, &quot;december&quot;.
+	 * @param seasonalAveragingNumberOfYears If seasonalityAdjustments is null you may provide an integer representing a number of years to have the seasonality estimated from the past fixings in &lt;code&gt;indexFixings&lt;/code&gt;.
+	 * @param annualizedZeroRates Map&amp;lt;LocalDate, Double&amp;gt; of annualized zero rates for given maturities.
+	 * @param forwardsFixingLag The fixing lag (e.g. &quot;-3M&quot; for -3 month)
+	 * @param forwardsFixingType The fixing type (e.g. &quot;endOfMonth&quot;)
+	 * @return An index curve.
+	 */
+	public static Curve createIndexCurveWithSeasonality(final String name, final LocalDate referenceDate, final Map&lt;LocalDate, Double&gt; indexFixings, final Map&lt;String, Double&gt; seasonalityAdjustments, final Integer seasonalAveragingNumberOfYears, final Map&lt;LocalDate, Double&gt; annualizedZeroRates, final String forwardsFixingLag, final String forwardsFixingType) {
+
+		/*
+		 * Create a curve containing past fixings (using picewise constant interpolation)
+		 */
+<span class="nc" id="L63">		final double[] fixingTimes = new double[indexFixings.size()];</span>
+<span class="nc" id="L64">		final double[] fixingValue = new double[indexFixings.size()];</span>
+<span class="nc" id="L65">		int i = 0;</span>
+<span class="nc" id="L66">		final List&lt;LocalDate&gt; fixingDates = new ArrayList&lt;&gt;(indexFixings.keySet());</span>
+<span class="nc" id="L67">		Collections.sort(fixingDates);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		for(final LocalDate fixingDate : fixingDates) {</span>
+<span class="nc" id="L69">			fixingTimes[i] = modelDcc.getDaycountFraction(referenceDate, fixingDate);</span>
+<span class="nc" id="L70">			fixingValue[i] = indexFixings.get(fixingDate).doubleValue();</span>
+<span class="nc" id="L71">			i++;</span>
+<span class="nc" id="L72">		}</span>
+<span class="nc" id="L73">		final Curve curveOfFixings = new CurveInterpolation(name, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_RIGHTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, fixingTimes, fixingValue);</span>
+
+		/*
+		 * Create a curve modeling the seasonality
+		 */
+<span class="nc" id="L78">		Curve seasonCurve = null;</span>
+<span class="nc bnc" id="L79" title="All 6 branches missed.">		if(seasonalityAdjustments != null &amp;&amp; seasonalityAdjustments.size() &gt; 0 &amp;&amp; seasonalAveragingNumberOfYears == null) {</span>
+<span class="nc" id="L80">			final String[] monthList = { &quot;january&quot;, &quot;february&quot;, &quot;march&quot;, &quot;april&quot;, &quot;may&quot;, &quot;june&quot;, &quot;july&quot;, &quot;august&quot;, &quot;september&quot;, &quot;october&quot;, &quot;november&quot;, &quot;december&quot; };</span>
+<span class="nc" id="L81">			final double[] seasonTimes = new double[12];</span>
+<span class="nc" id="L82">			final double[] seasonValue = new double[12];</span>
+<span class="nc" id="L83">			double seasonValueCummulated = 1.0;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">			for(int j=0; j&lt;12; j++) {</span>
+<span class="nc" id="L85">				seasonValueCummulated *= Math.exp(seasonalityAdjustments.get(monthList[j]));</span>
+<span class="nc" id="L86">				seasonTimes[j] = j/12.0;</span>
+<span class="nc" id="L87">				seasonValue[j] = seasonValueCummulated;</span>
+			}
+<span class="nc" id="L89">			seasonCurve = new SeasonalCurve(name + &quot;-seasonal&quot;, referenceDate,new CurveInterpolation(name + &quot;-seasonal-base&quot;, referenceDate, InterpolationMethod.PIECEWISE_CONSTANT_LEFTPOINT, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, seasonTimes, seasonValue));</span>
+<span class="nc" id="L90">		}</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">		else if(seasonalAveragingNumberOfYears != null &amp;&amp; seasonalityAdjustments == null) {</span>
+<span class="nc" id="L92">			seasonCurve = new SeasonalCurve(name + &quot;-seasonal&quot;, referenceDate, indexFixings, seasonalAveragingNumberOfYears);</span>
+		}
+<span class="nc bnc" id="L94" title="All 4 branches missed.">		else if(seasonalAveragingNumberOfYears != null &amp;&amp; seasonalityAdjustments != null) {</span>
+<span class="nc" id="L95">			throw new IllegalArgumentException(&quot;Specified seasonal factors and seasonal averaging at the same time.&quot;);</span>
+		}
+
+		/*
+		 * Create the index curve from annualized zero rates.
+		 */
+<span class="nc" id="L101">		final double[] times = new double[annualizedZeroRates.size()];</span>
+<span class="nc" id="L102">		final double[] givenDiscountFactors = new double[annualizedZeroRates.size()];</span>
+
+
+<span class="nc" id="L105">		int index = 0;</span>
+<span class="nc" id="L106">		final List&lt;LocalDate&gt; dates = new ArrayList&lt;&gt;(annualizedZeroRates.keySet());</span>
+<span class="nc" id="L107">		Collections.sort(dates);</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		for(final LocalDate forwardDate : dates) {</span>
+<span class="nc" id="L109">			LocalDate cpiDate = forwardDate;</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">			if(forwardsFixingType != null &amp;&amp; forwardsFixingLag != null) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">				if(forwardsFixingType.equals(&quot;endOfMonth&quot;)) {</span>
+<span class="nc" id="L112">					cpiDate = cpiDate.withDayOfMonth(1);</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">					if(forwardsFixingLag.equals(&quot;-2M&quot;)) {</span>
+<span class="nc" id="L114">						cpiDate = cpiDate.minusMonths(2);</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">					} else if(forwardsFixingLag.equals(&quot;-3M&quot;)) {</span>
+<span class="nc" id="L116">						cpiDate = cpiDate.minusMonths(3);</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">					} else if(forwardsFixingLag.equals(&quot;-4M&quot;)) {</span>
+<span class="nc" id="L118">						cpiDate = cpiDate.minusMonths(4);</span>
+					} else {
+<span class="nc" id="L120">						throw new IllegalArgumentException(&quot;Unsupported fixing type for forward in curve &quot; + name);</span>
+					}
+<span class="nc" id="L122">					cpiDate = cpiDate.withDayOfMonth(cpiDate.lengthOfMonth());</span>
+				}
+				else {
+<span class="nc" id="L125">					throw new IllegalArgumentException(&quot;Unsupported fixing type for forward in curve &quot; + name);</span>
+				}
+			}
+<span class="nc" id="L128">			times[index] = modelDcc.getDaycountFraction(referenceDate, cpiDate);</span>
+<span class="nc" id="L129">			final double rate = annualizedZeroRates.get(forwardDate).doubleValue();</span>
+<span class="nc" id="L130">			givenDiscountFactors[index] = 1.0/Math.pow(1 + rate, (new DayCountConvention_30E_360()).getDaycountFraction(referenceDate, forwardDate));</span>
+<span class="nc" id="L131">			index++;</span>
+<span class="nc" id="L132">		}</span>
+<span class="nc" id="L133">		final DiscountCurve discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(name, referenceDate, times, givenDiscountFactors, null, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE);</span>
+
+<span class="nc" id="L135">		LocalDate baseDate = referenceDate;</span>
+<span class="nc bnc" id="L136" title="All 6 branches missed.">		if(forwardsFixingType != null &amp;&amp; forwardsFixingType.equals(&quot;endOfMonth&quot;) &amp;&amp; forwardsFixingLag != null) {</span>
+<span class="nc" id="L137">			baseDate = baseDate.withDayOfMonth(1);</span>
+<span class="nc bnc" id="L138" title="All 2 branches missed.">			if(forwardsFixingLag.equals(&quot;-2M&quot;)) {</span>
+<span class="nc" id="L139">				baseDate = baseDate.minusMonths(2);</span>
+<span class="nc bnc" id="L140" title="All 2 branches missed.">			} else if(forwardsFixingLag.equals(&quot;-3M&quot;)) {</span>
+<span class="nc" id="L141">				baseDate = baseDate.minusMonths(3);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">			} else if(forwardsFixingLag.equals(&quot;-4M&quot;)) {</span>
+<span class="nc" id="L143">				baseDate = baseDate.minusMonths(4);</span>
+			} else {
+<span class="nc" id="L145">				throw new IllegalArgumentException(&quot;Unsupported fixing type for forward in curve &quot; + name);</span>
+			}
+<span class="nc" id="L147">			baseDate = baseDate.withDayOfMonth(baseDate.lengthOfMonth());</span>
+		}
+
+		/*
+		 * Index base value
+		 */
+<span class="nc" id="L153">		final Double baseValue	= indexFixings.get(baseDate);</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		if(baseValue == null) {</span>
+<span class="nc" id="L155">			throw new IllegalArgumentException(&quot;CurveFromInterpolationPoints &quot; + name + &quot; has missing index value for base date &quot; + baseDate);</span>
+		}
+<span class="nc" id="L157">		final double baseTime		= FloatingpointDate.getFloatingPointDateFromDate(referenceDate, baseDate);</span>
+
+		/*
+		 * Combine all three curves.
+		 */
+<span class="nc" id="L162">		double currentProjectedIndexValue = baseValue;</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		if(seasonCurve != null) {</span>
+			// Rescale initial value of with seasonality
+<span class="nc" id="L165">			currentProjectedIndexValue /= seasonCurve.getValue(baseTime);</span>
+
+<span class="nc" id="L167">			final Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);</span>
+<span class="nc" id="L168">			final Curve indexCurveWithSeason = new CurveFromProductOfCurves(name, referenceDate, indexCurve, seasonCurve);</span>
+<span class="nc" id="L169">			final PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurveWithSeason, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1] + 1.0/365.0);</span>
+<span class="nc" id="L170">			return indexCurveWithFixing;</span>
+		}
+		else {
+<span class="nc" id="L173">			final Curve indexCurve = new IndexCurveFromDiscountCurve(name, currentProjectedIndexValue, discountCurve);</span>
+<span class="nc" id="L174">			final PiecewiseCurve indexCurveWithFixing = new PiecewiseCurve(indexCurve, curveOfFixings, -Double.MAX_VALUE, fixingTimes[fixingTimes.length-1]);</span>
+<span class="nc" id="L175">			return indexCurveWithFixing;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

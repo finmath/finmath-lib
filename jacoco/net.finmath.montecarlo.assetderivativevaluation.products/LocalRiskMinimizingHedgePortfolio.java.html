@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LocalRiskMinimizingHedgePortfolio.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">LocalRiskMinimizingHedgePortfolio.java</span></div><h1>LocalRiskMinimizingHedgePortfolio.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 27.04.2012
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * This class implements a mean variance hedged portfolio of a given product (a hedge simulator).
+ * The hedge is done using a given model, that is, the model generating the states and the model
+ * used to calculate the hedge portfolio may be different!
+ *
+ * &lt;br&gt;
+ * WARNING: If the model used for calculating the delta is &quot;slow&quot; (e.g., a Monte-Carlo simulation)
+ * then the calculation might take very long.
+ * &lt;br&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LocalRiskMinimizingHedgePortfolio extends AbstractAssetMonteCarloProduct {
+
+	// Model assumptions for the hedge
+	private final AbstractAssetMonteCarloProduct productToHedge;
+	private final AssetModelMonteCarloSimulationModel modelUsedForHedging;
+
+	private final TimeDiscretization timeDiscretizationForRebalancing;
+
+	private final int numberOfBins;
+
+	/**
+	 * Construction of a variance minimizing hedge portfolio.
+	 *
+	 * @param productToHedge The financial product for which the hedge portfolio should be constructed.
+	 * @param modelUsedForHedging The model used for calculating the hedge rations (deltas). This may differ from the model passed to &lt;code&gt;getValue&lt;/code&gt;.
+	 * @param timeDiscretizationForRebalancing The times at which the portfolio is re-structured.
+	 * @param numberOfBins The number of bins to use in the estimation of the conditional expectation.
+	 */
+	public LocalRiskMinimizingHedgePortfolio(final AbstractAssetMonteCarloProduct productToHedge,
+			final AssetModelMonteCarloSimulationModel modelUsedForHedging,
+			final TimeDiscretization timeDiscretizationForRebalancing,
+			final int numberOfBins) {
+<span class="nc" id="L53">		super();</span>
+<span class="nc" id="L54">		this.productToHedge = productToHedge;</span>
+<span class="nc" id="L55">		this.modelUsedForHedging = modelUsedForHedging;</span>
+<span class="nc" id="L56">		this.timeDiscretizationForRebalancing = timeDiscretizationForRebalancing;</span>
+<span class="nc" id="L57">		this.numberOfBins = numberOfBins;</span>
+<span class="nc" id="L58">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+
+		// Ask the model for its discretization
+<span class="nc" id="L64">		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);</span>
+<span class="nc" id="L65">		final int numberOfPath			= model.getNumberOfPaths();</span>
+
+		/*
+		 *  Going forward in time we monitor the hedge portfolio on each path.
+		 */
+
+		/*
+		 *  Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
+		 */
+<span class="nc" id="L74">		final RandomVariable numeraireToday  = model.getNumeraire(0.0);</span>
+<span class="nc" id="L75">		final double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);</span>
+
+		// We store the composition of the hedge portfolio (depending on the path)
+<span class="nc" id="L78">		RandomVariable amountOfNumeraireAsset		= numeraireToday.invert().mult(valueOfOptionAccordingHedgeModel);</span>
+<span class="nc" id="L79">		RandomVariable amountOfUderlyingAsset		= model.getRandomVariableForConstant(0.0);</span>
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		for(int timeIndex = 0; timeIndex&lt;timeDiscretizationForRebalancing.getNumberOfTimes()-1; timeIndex++) {</span>
+<span class="nc" id="L82">			final double time		=	timeDiscretizationForRebalancing.getTime(timeIndex);</span>
+<span class="nc" id="L83">			final double timeNext	=	timeDiscretizationForRebalancing.getTime(timeIndex+1);</span>
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			if(time &gt; evaluationTime) {</span>
+<span class="nc" id="L86">				break;</span>
+			}
+
+			// Get value of underlying and numeraire assets
+<span class="nc" id="L90">			final RandomVariable underlyingAtTime = modelUsedForHedging.getAssetValue(time,0);</span>
+<span class="nc" id="L91">			final RandomVariable numeraireAtTime  = modelUsedForHedging.getNumeraire(time);</span>
+<span class="nc" id="L92">			final RandomVariable underlyingAtTimeNext = modelUsedForHedging.getAssetValue(timeNext,0);</span>
+<span class="nc" id="L93">			final RandomVariable numeraireAtTimeNext  = modelUsedForHedging.getNumeraire(timeNext);</span>
+
+<span class="nc" id="L95">			final RandomVariable productAtTime		= productToHedge.getValue(time, modelUsedForHedging);</span>
+<span class="nc" id="L96">			final RandomVariable productAtTimeNext	= productToHedge.getValue(timeNext, modelUsedForHedging);</span>
+
+<span class="nc" id="L98">			final RandomVariable[] basisFunctionsEstimator = getBasisFunctions(modelUsedForHedging.getAssetValue(time,0));</span>
+<span class="nc" id="L99">			final RandomVariable[] basisFunctionsPredictor = getBasisFunctions(model.getAssetValue(time,0));</span>
+
+<span class="nc" id="L101">			final MonteCarloConditionalExpectationRegression condExpectationHedging	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsEstimator);</span>
+<span class="nc" id="L102">			final MonteCarloConditionalExpectationRegression condExpectationValuation	= new MonteCarloConditionalExpectationRegression(basisFunctionsEstimator, basisFunctionsPredictor);</span>
+
+<span class="nc" id="L104">			final RandomVariable underlyingRebased = underlyingAtTimeNext.div(numeraireAtTimeNext);</span>
+<span class="nc" id="L105">			final RandomVariable underlyingRebasedExpected = condExpectationHedging.getConditionalExpectation(underlyingRebased);</span>
+<span class="nc" id="L106">			final RandomVariable underlyingRebasedMartingale = underlyingRebased.sub(underlyingRebasedExpected);</span>
+
+<span class="nc" id="L108">			final RandomVariable derivativeRebased = productAtTimeNext.div(numeraireAtTimeNext);</span>
+<span class="nc" id="L109">			final RandomVariable derivativeRebasedExpected = condExpectationHedging.getConditionalExpectation(derivativeRebased);</span>
+<span class="nc" id="L110">			final RandomVariable derivativeRebasedMartingale = derivativeRebased.sub(derivativeRebasedExpected);</span>
+
+<span class="nc" id="L112">			final RandomVariable derivativeTimesUnderlying = derivativeRebasedMartingale.mult(underlyingRebasedMartingale);</span>
+<span class="nc" id="L113">			final RandomVariable derivativeTimesUnderlyingExpected = condExpectationValuation.getConditionalExpectation(derivativeTimesUnderlying);</span>
+
+<span class="nc" id="L115">			final RandomVariable underlyingRabasedMartingaleSquared = underlyingRebasedMartingale.squared();</span>
+<span class="nc" id="L116">			final RandomVariable underlyingRabasedMartingaleSquaredExpected = condExpectationValuation.getConditionalExpectation(underlyingRabasedMartingaleSquared);</span>
+
+<span class="nc" id="L118">			final RandomVariable delta = derivativeTimesUnderlyingExpected.div(underlyingRabasedMartingaleSquaredExpected);</span>
+
+<span class="nc" id="L120">			final RandomVariable underlyingValue = model.getAssetValue(time,0);</span>
+<span class="nc" id="L121">			final RandomVariable numeraireValue  = model.getNumeraire(time);</span>
+
+			// Determine the delta hedge
+<span class="nc" id="L124">			final RandomVariable newNumberOfStocks		= delta;</span>
+<span class="nc" id="L125">			final RandomVariable stocksToBuy				= newNumberOfStocks.sub(amountOfUderlyingAsset);</span>
+
+			// Ensure self financing
+<span class="nc" id="L128">			final RandomVariable numeraireAssetsToBuy		= stocksToBuy.mult(underlyingValue).div(numeraireValue).mult(-1);</span>
+<span class="nc" id="L129">			final RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.add(numeraireAssetsToBuy);</span>
+
+			// Update portfolio
+<span class="nc" id="L132">			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;</span>
+<span class="nc" id="L133">			amountOfUderlyingAsset	= newNumberOfStocks;</span>
+		}
+
+		/*
+		 * At maturity, calculate the value of the replication portfolio
+		 */
+
+		// Get value of underlying and numeraire assets
+<span class="nc" id="L141">		final RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);</span>
+<span class="nc" id="L142">		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);</span>
+
+<span class="nc" id="L144">		final RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime).add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));</span>
+
+<span class="nc" id="L146">		return portfolioValue;</span>
+	}
+
+	/**
+	 * Create basis functions for a binning.
+	 *
+	 * @param underlying
+	 * @return
+	 */
+	private RandomVariable[] getBasisFunctions(final RandomVariable underlying) {
+<span class="nc" id="L156">		final double min = underlying.getMin();</span>
+<span class="nc" id="L157">		final double max = underlying.getMax();</span>
+
+<span class="nc" id="L159">		final ArrayList&lt;RandomVariable&gt; basisFunctionList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L160">		final double[] discretization = (new TimeDiscretizationFromArray(min, numberOfBins, (max-min)/numberOfBins)).getAsDoubleArray();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		for(final double discretizationStep : discretization) {</span>
+<span class="nc" id="L162">			final RandomVariable indicator = underlying.sub(discretizationStep).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+<span class="nc" id="L163">			basisFunctionList.add(indicator);</span>
+		}
+
+<span class="nc" id="L166">		return basisFunctionList.toArray(new RandomVariable[0]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

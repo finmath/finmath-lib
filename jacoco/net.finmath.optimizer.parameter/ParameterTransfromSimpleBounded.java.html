@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParameterTransfromSimpleBounded.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer.parameter</a> &gt; <span class="el_source">ParameterTransfromSimpleBounded.java</span></div><h1>ParameterTransfromSimpleBounded.java</h1><pre class="source lang-java linenums">package net.finmath.optimizer.parameter;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+public class ParameterTransfromSimpleBounded implements ParameterTransfrom {
+
+	private final RandomVariable[] parameterLowerBound;
+	private final RandomVariable[] parameterUpperBound;
+
+	public ParameterTransfromSimpleBounded(RandomVariable[] parameterLowerBound, RandomVariable[] parameterUpperBound) {
+<span class="nc" id="L12">		super();</span>
+<span class="nc" id="L13">		this.parameterLowerBound = parameterLowerBound;</span>
+<span class="nc" id="L14">		this.parameterUpperBound = parameterUpperBound;</span>
+<span class="nc" id="L15">	}</span>
+
+	public ParameterTransfromSimpleBounded(double[] parameterLowerBound, double[] parameterUpperBound) {
+<span class="nc" id="L18">		this(Scalar.arrayOf(parameterLowerBound), Scalar.arrayOf(parameterUpperBound));</span>
+<span class="nc" id="L19">	}</span>
+
+	@Override
+	public RandomVariable[] getModelParametersFrom(RandomVariable[] optimizerParameters) {
+<span class="nc" id="L23">		final RandomVariable[] parametersTransformed = new RandomVariable[optimizerParameters.length];</span>
+		// From (-infty, infty) to (0,infty)
+<span class="nc bnc" id="L25" title="All 2 branches missed.">		for(int i=0; i&lt;optimizerParameters.length; i++) {</span>
+<span class="nc" id="L26">			parametersTransformed[i] = optimizerParameters[i].mult(-1).exp();</span>
+		}
+		// If parameter should be monotone
+<span class="nc bnc" id="L29" title="All 2 branches missed.">		for(int i=1; i&lt;optimizerParameters.length; i++) {</span>
+			//			parametersTransformed[i] = parametersTransformed[i-1].add(parametersTransformed[i]);
+			continue;
+		}
+		// From (0,infty) to (a,b)
+<span class="nc bnc" id="L34" title="All 2 branches missed.">		for(int i=0; i&lt;optimizerParameters.length; i++) {</span>
+<span class="nc" id="L35">			parametersTransformed[i] = parametersTransformed[i].mult(-1).exp().mult(parameterUpperBound[i].sub(parameterLowerBound[i])).add(parameterLowerBound[i]);</span>
+		}
+<span class="nc" id="L37">		return parametersTransformed;</span>
+	}
+
+	@Override
+	public RandomVariable[] getOptimizerParametersFrom(RandomVariable[] modelParameters) {
+<span class="nc" id="L42">		final RandomVariable[] parameters = new RandomVariable[modelParameters.length];</span>
+		// From (a,b) to (0,infty)
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		for(int i=0; i&lt;modelParameters.length; i++) {</span>
+<span class="nc" id="L45">			parameters[i] = modelParameters[i].sub(parameterLowerBound[i]).div(parameterUpperBound[i].sub(parameterLowerBound[i])).log().mult(-1);</span>
+		}
+		// If parameter should be monotone
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		for(int i=parameters.length-1; i&gt;=1; i--) {</span>
+			//			parameters[i] = parameters[i] - parameters[i-1];
+			continue;
+		}
+		// From (0,infty) to (-infty, infty)
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="nc" id="L54">			parameters[i] = parameters[i].log().mult(-1);</span>
+		}
+<span class="nc" id="L56">		return parameters;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

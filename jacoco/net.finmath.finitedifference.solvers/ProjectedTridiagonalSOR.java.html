@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProjectedTridiagonalSOR.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">ProjectedTridiagonalSOR.java</span></div><h1>ProjectedTridiagonalSOR.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+/**
+ * Utility class providing a projected successive over-relaxation (PSOR)
+ * algorithm for tridiagonal linear complementarity problems.
+ * &lt;p&gt;
+ * The class is intended for problems of the form
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ *     A x &gt;= b
+ *     x &gt;= obstacle
+ *     (A x - b)_i (x_i - obstacle_i) = 0
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * where {@code A} is a tridiagonal matrix, {@code b} is the right-hand side,
+ * and {@code obstacle} is the lower obstacle or payoff constraint.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The method combines a Gauss-Seidel iteration with over-relaxation and a
+ * pointwise projection onto the admissible set defined by the obstacle. It is
+ * particularly useful for finite difference discretizations of variational
+ * inequalities, for example in the pricing of American-style options.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Two overloads of the solver are provided: one accepting a
+ * {@link TridiagonalMatrix} container and one accepting the three diagonals
+ * directly. Additional utility methods compute the infinity norm of the
+ * complementarity residual for a candidate solution.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The caller must provide arrays of consistent length, a positive system
+ * dimension, and a tridiagonal system with non-zero diagonal entries.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class ProjectedTridiagonalSOR {
+
+	/**
+	 * Creates no instances of this utility class.
+	 */
+	private ProjectedTridiagonalSOR() {
+	}
+
+	/**
+	 * Solves a tridiagonal linear complementarity problem using projected SOR.
+	 * &lt;p&gt;
+	 * This is a convenience overload accepting the system matrix in
+	 * {@link TridiagonalMatrix} form.
+	 * &lt;/p&gt;
+	 *
+	 * @param matrix The tridiagonal system matrix.
+	 * @param rhs The right-hand side vector {@code b}.
+	 * @param obstacle The obstacle vector defining the lower bound constraint
+	 *         {@code x &gt;= obstacle}.
+	 * @param initialGuess The initial iterate used to start the PSOR iteration.
+	 * @param omega The relaxation parameter. Values in the interval
+	 * 		{@code (0, 2)} are typically used in practice.
+	 * @param maxIterations The maximum number of PSOR iterations.
+	 * @param tolerance The stopping tolerance for the maximum absolute change
+	 * 		between two consecutive iterates. If {@code tolerance &lt;= 0}, the
+	 * 		iteration runs for the full number of iterations.
+	 * @return An approximate solution of the tridiagonal linear complementarity
+	 *     problem.
+	 */
+	public static double[] solve(
+			final TridiagonalMatrix matrix,
+			final double[] rhs,
+			final double[] obstacle,
+			final double[] initialGuess,
+			final double omega,
+			final int maxIterations,
+			final double tolerance) {
+
+<span class="nc" id="L78">		return solve(</span>
+<span class="nc" id="L79">				matrix.getLowerDiagonal(),</span>
+<span class="nc" id="L80">				matrix.getMainDiagonal(),</span>
+<span class="nc" id="L81">				matrix.getUpperDiagonal(),</span>
+				rhs,
+				obstacle,
+				initialGuess,
+				omega,
+				maxIterations,
+				tolerance);
+	}
+
+	/**
+	 * Solves a tridiagonal linear complementarity problem using projected SOR.
+	 * &lt;p&gt;
+	 * Starting from the provided initial guess, the method performs
+	 * Gauss-Seidel-style updates, applies over-relaxation, and then projects
+	 * each
+	 * updated component onto the obstacle constraint. Before the iteration
+	 * starts,
+	 * the initial guess is projected onto the admissible region
+	 * {@code x &gt;= obstacle}.
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * At each iteration, the method monitors the maximum absolute update size.
+	 * If
+	 * this quantity falls below the specified tolerance, the iteration is
+	 * stopped
+	 * early.
+	 * &lt;/p&gt;
+	 *
+	 * @param lower The lower diagonal of the tridiagonal system matrix.
+	 * @param diag The main diagonal of the tridiagonal system matrix.
+	 * @param upper The upper diagonal of the tridiagonal system matrix.
+	 * @param rhs The right-hand side vector {@code b}.
+	 * @param obstacle The obstacle vector defining the lower bound constraint
+	 * 		{@code x &gt;= obstacle}.
+	 * @param initialGuess The initial iterate used to start the PSOR iteration.
+	 * @param omega The relaxation parameter. Values in the interval
+	 * 		{@code (0, 2)} are typically used in practice.
+	 * @param maxIterations The maximum number of PSOR iterations.
+	 * @param tolerance The stopping tolerance for the maximum absolute change
+	 * 		between two consecutive iterates. If {@code tolerance &lt;= 0}, the
+	 * 		iteration runs for the full number of iterations.
+	 * @return An approximate solution of the tridiagonal linear complementarity
+	 *     problem.
+	 * @throws ArithmeticException If a zero diagonal entry is encountered
+	 *     during
+	 * 		the iteration.
+	 */
+	public static double[] solve(
+			final double[] lower,
+			final double[] diag,
+			final double[] upper,
+			final double[] rhs,
+			final double[] obstacle,
+			final double[] initialGuess,
+			final double omega,
+			final int maxIterations,
+			final double tolerance) {
+
+<span class="nc" id="L140">		validateInputs(lower, diag, upper, rhs, obstacle, initialGuess);</span>
+
+<span class="nc" id="L142">		final int n = diag.length;</span>
+<span class="nc" id="L143">		final double[] x = initialGuess.clone();</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">		for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L146">			x[i] = Math.max(x[i], obstacle[i]);</span>
+		}
+
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		for (int iter = 0; iter &lt; maxIterations; iter++) {</span>
+<span class="nc" id="L150">			double maxChange = 0.0;</span>
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L153">				final double aii = diag[i];</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">				if (aii == 0.0) {</span>
+<span class="nc" id="L155">					throw new ArithmeticException(&quot;Zero diagonal entry encountered at i=&quot; + i);</span>
+				}
+
+<span class="nc bnc" id="L158" title="All 2 branches missed.">				final double left = i &gt; 0 ? lower[i] * x[i - 1] : 0.0;</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">				final double right = i &lt; n - 1 ? upper[i] * x[i + 1] : 0.0;</span>
+
+<span class="nc" id="L161">				final double gaussSeidelValue = (rhs[i] - left - right) / aii;</span>
+<span class="nc" id="L162">				final double relaxedValue = (1.0 - omega) * x[i] + omega * gaussSeidelValue;</span>
+<span class="nc" id="L163">				final double projectedValue = Math.max(obstacle[i], relaxedValue);</span>
+
+<span class="nc" id="L165">				maxChange = Math.max(maxChange, Math.abs(projectedValue - x[i]));</span>
+<span class="nc" id="L166">				x[i] = projectedValue;</span>
+			}
+
+<span class="nc bnc" id="L169" title="All 4 branches missed.">			if (tolerance &gt; 0.0 &amp;&amp; maxChange &lt;= tolerance) {</span>
+<span class="nc" id="L170">				break;</span>
+			}
+		}
+
+<span class="nc" id="L174">		return x;</span>
+	}
+
+	/**
+	 * Computes the infinity norm of the complementarity residual for a
+	 * candidate
+	 * solution.
+	 * &lt;p&gt;
+	 * This is a convenience overload accepting the system matrix in
+	 * {@link TridiagonalMatrix} form.
+	 * &lt;/p&gt;
+	 *
+	 * @param matrix The tridiagonal system matrix.
+	 * @param rhs The right-hand side vector {@code b}.
+	 * @param obstacle The obstacle vector.
+	 * @param x The candidate solution vector.
+	 * @return The infinity norm of the complementarity residual.
+	 */
+	public static double complementarityResidualInfNorm(
+			final TridiagonalMatrix matrix,
+			final double[] rhs,
+			final double[] obstacle,
+			final double[] x) {
+
+<span class="nc" id="L198">		return complementarityResidualInfNorm(</span>
+<span class="nc" id="L199">				matrix.getLowerDiagonal(),</span>
+<span class="nc" id="L200">				matrix.getMainDiagonal(),</span>
+<span class="nc" id="L201">				matrix.getUpperDiagonal(),</span>
+				rhs,
+				obstacle,
+				x);
+	}
+
+	/**
+	 * Computes the infinity norm of the complementarity residual for a
+	 * candidate
+	 * solution.
+	 * &lt;p&gt;
+	 * For each component, the residual combines:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 * &lt;li&gt;the primal feasibility violation {@code max(0, obstacle[i] -
+	 * x[i])},&lt;/li&gt;
+	 * &lt;li&gt;the dual feasibility violation {@code max(0, rhs[i] - (A
+	 * x)[i])},&lt;/li&gt;
+	 *   &lt;li&gt;the complementarity defect
+	 *       {@code |(x[i] - obstacle[i]) * ((A x)[i] - rhs[i])|}.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * &lt;p&gt;
+	 * The method returns the maximum of these quantities over all components.
+	 * A value close to zero indicates that the complementarity conditions are
+	 * nearly satisfied.
+	 * &lt;/p&gt;
+	 *
+	 * @param lower The lower diagonal of the tridiagonal system matrix.
+	 * @param diag The main diagonal of the tridiagonal system matrix.
+	 * @param upper The upper diagonal of the tridiagonal system matrix.
+	 * @param rhs The right-hand side vector {@code b}.
+	 * @param obstacle The obstacle vector.
+	 * @param x The candidate solution vector.
+	 * @return The infinity norm of the complementarity residual.
+	 */
+	public static double complementarityResidualInfNorm(
+			final double[] lower,
+			final double[] diag,
+			final double[] upper,
+			final double[] rhs,
+			final double[] obstacle,
+			final double[] x) {
+
+<span class="nc" id="L244">		validateInputs(lower, diag, upper, rhs, obstacle, x);</span>
+
+<span class="nc" id="L246">		double maxResidual = 0.0;</span>
+<span class="nc bnc" id="L247" title="All 2 branches missed.">		for (int i = 0; i &lt; diag.length; i++) {</span>
+			final double ax =
+<span class="nc bnc" id="L249" title="All 2 branches missed.">					(i &gt; 0 ? lower[i] * x[i - 1] : 0.0)</span>
+					+ diag[i] * x[i]
+<span class="nc bnc" id="L251" title="All 2 branches missed.">							+ (i &lt; diag.length - 1 ? upper[i] * x[i + 1] : 0.0);</span>
+
+<span class="nc" id="L253">			final double primalViolation = Math.max(0.0, obstacle[i] - x[i]);</span>
+<span class="nc" id="L254">			final double dualViolation = Math.max(0.0, rhs[i] - ax);</span>
+<span class="nc" id="L255">			final double slack = x[i] - obstacle[i];</span>
+<span class="nc" id="L256">			final double residual = Math.max(</span>
+<span class="nc" id="L257">					Math.max(primalViolation, dualViolation),</span>
+<span class="nc" id="L258">					Math.abs(slack * (ax - rhs[i])));</span>
+
+<span class="nc" id="L260">			maxResidual = Math.max(maxResidual, residual);</span>
+		}
+
+<span class="nc" id="L263">		return maxResidual;</span>
+	}
+
+	/**
+	 * Validates that all input arrays are non-null, have positive length, and
+	 * share the same dimension.
+	 *
+	 * @param lower The lower diagonal array.
+	 * @param diag The main diagonal array.
+	 * @param upper The upper diagonal array.
+	 * @param rhs The right-hand side vector.
+	 * @param obstacle The obstacle vector.
+	 * @param initialGuess The initial guess or candidate solution vector.
+	 * @throws IllegalArgumentException If an input array is {@code null}, if
+	 *     the
+	 * system dimension is zero, or if the array lengths are inconsistent.
+	 */
+	private static void validateInputs(
+			final double[] lower,
+			final double[] diag,
+			final double[] upper,
+			final double[] rhs,
+			final double[] obstacle,
+			final double[] initialGuess) {
+
+<span class="nc bnc" id="L288" title="All 12 branches missed.">		if (lower == null || diag == null || upper == null || rhs == null || obstacle == null || initialGuess == null) {</span>
+<span class="nc" id="L289">			throw new IllegalArgumentException(&quot;Input arrays must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L291" title="All 2 branches missed.">		if (diag.length == 0) {</span>
+<span class="nc" id="L292">			throw new IllegalArgumentException(&quot;System dimension must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L294" title="All 10 branches missed.">		if (lower.length != diag.length</span>
+				|| upper.length != diag.length
+				|| rhs.length != diag.length
+				|| obstacle.length != diag.length
+				|| initialGuess.length != diag.length) {
+<span class="nc" id="L299">			throw new IllegalArgumentException(&quot;All arrays must have the same length.&quot;);</span>
+		}
+<span class="nc" id="L301">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

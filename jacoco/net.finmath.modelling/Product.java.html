@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Product.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling</a> &gt; <span class="el_source">Product.java</span></div><h1>Product.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 11.10.2013
+ */
+
+package net.finmath.modelling;
+
+import java.util.Map;
+
+/**
+ * Interface implemented by all financial product which may be valued by a model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public interface Product {
+
+	/**
+	 * Return the valuation of the product using the given model.
+	 *
+	 * Implement this method using a checked cast of the model to a derived model for which the product
+	 * provides a valuation algorithm. Example: an interest rate product requires that the passed model
+	 * object implements the interface of an interest rate model. Since there is no polymorphism on
+	 * arguments (see Double Dynamic Dispatch), we reply on a checked cast.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param model The model under which the product is valued.
+	 * @return Object containing the value of the product using the given model.
+	 */
+	Object getValue(double evaluationTime, Model model);
+
+	/**
+	 * Return the valuation of the product using the given model.
+	 *
+	 * Implement this method using a checked cast of the model to a derived model for which the product
+	 * provides a valuation algorithm. Example: an interest rate product requires that the passed model
+	 * object implements the interface of an interest rate model. Since there is no polymorphism on
+	 * arguments (see Double Dynamic Dispatch), we reply on a checked cast.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param model The model under which the product is valued.
+	 * @return Map containing the value of the product using the given model.
+	 */
+<span class="nc" id="L45">	default Map&lt;String, Object&gt; getValues(final double evaluationTime, final Model model) { throw new UnsupportedOperationException(); }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

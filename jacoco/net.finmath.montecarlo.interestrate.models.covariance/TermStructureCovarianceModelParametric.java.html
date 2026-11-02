@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TermStructureCovarianceModelParametric.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">TermStructureCovarianceModelParametric.java</span></div><h1>TermStructureCovarianceModelParametric.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 24.12.2016
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationFromTermStructureModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
+import net.finmath.optimizer.OptimizerFactory;
+import net.finmath.optimizer.OptimizerFactoryLevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
+
+/**
+ * A base class and interface description for the instantaneous covariance of
+ * an forward rate interest rate model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+<span class="fc" id="L39">public abstract class TermStructureCovarianceModelParametric implements TermStructureCovarianceModel, TermStructureTenorTimeScaling, TermStructureFactorLoadingsModelParametric {</span>
+
+<span class="fc" id="L41">	private static final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+	/**
+	 * Get the parameters of determining this parametric
+	 * covariance model. The parameters are usually free parameters
+	 * which may be used in calibration.
+	 *
+	 * @return Parameter vector.
+	 */
+	@Override
+	public abstract double[]	getParameter();
+
+	@Override
+	public abstract TermStructureCovarianceModelParametric clone();
+
+	/**
+	 * Return an instance of this model using a new set of parameters.
+	 * Note: To improve performance it is admissible to return the same instance of the object given that the parameters have not changed. Models should be immutable.
+	 *
+	 * @param parameters The new set of parameters.
+	 * @return An instance of AbstractLIBORCovarianceModelParametric with modified parameters.
+	 */
+	@Override
+	public abstract TermStructureCovarianceModelParametric getCloneWithModifiedParameters(double[] parameters);
+
+	/**
+	 * Return a calibrated clone of the covariance model.
+	 *
+	 * @param calibrationModel Model to be used for the calibration.
+	 * @param calibrationProducts Vector of calibration products.
+	 * @param calibrationParameters Property map of calibration parameters.
+	 * @return A clone of this model, using the calibrated parameters.
+	 * @throws CalculationException Exception indicating failure in calibration.
+	 */
+	public TermStructureCovarianceModelParametric getCloneCalibrated(final TermStructureModel calibrationModel, final CalibrationProduct[] calibrationProducts, Map&lt;String, Object&gt; calibrationParameters) throws CalculationException {
+
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if(calibrationParameters == null) {</span>
+<span class="nc" id="L78">			calibrationParameters = new HashMap&lt;&gt;();</span>
+		}
+<span class="fc" id="L80">		final Integer numberOfPathsParameter	= (Integer)calibrationParameters.get(&quot;numberOfPaths&quot;);</span>
+<span class="fc" id="L81">		final Integer seedParameter			= (Integer)calibrationParameters.get(&quot;seed&quot;);</span>
+<span class="fc" id="L82">		final Integer maxIterationsParameter	= (Integer)calibrationParameters.get(&quot;maxIterations&quot;);</span>
+<span class="fc" id="L83">		final Double	parameterStepParameter	= (Double)calibrationParameters.get(&quot;parameterStep&quot;);</span>
+<span class="fc" id="L84">		final Double	accuracyParameter		= (Double)calibrationParameters.get(&quot;accuracy&quot;);</span>
+<span class="fc" id="L85">		final BrownianMotion brownianMotionParameter	= (BrownianMotion)calibrationParameters.get(&quot;brownianMotion&quot;);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">		if(brownianMotionParameter == null) {</span>
+<span class="nc" id="L87">			throw new IllegalArgumentException(&quot;Calibration requires a Brownian motion to be specified under the key 'brownianMotion'.&quot;);</span>
+		}
+
+<span class="fc" id="L90">		final double[] initialParameters = this.getParameter();</span>
+<span class="fc" id="L91">		final double[] lowerBound = new double[initialParameters.length];</span>
+<span class="fc" id="L92">		final double[] upperBound = new double[initialParameters.length];</span>
+<span class="fc" id="L93">		final double[] parameterStep = new double[initialParameters.length];</span>
+<span class="fc" id="L94">		final double[] zero = new double[calibrationProducts.length];</span>
+<span class="fc" id="L95">		Arrays.fill(lowerBound, 0);</span>
+<span class="fc" id="L96">		Arrays.fill(upperBound, Double.POSITIVE_INFINITY);</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">		Arrays.fill(parameterStep, parameterStepParameter != null ? parameterStepParameter.doubleValue() : 1E-4);</span>
+<span class="fc" id="L98">		Arrays.fill(zero, 0);</span>
+
+		/*
+		 * We allow for 2 simultaneous calibration models.
+		 * Note: In the case of a Monte-Carlo calibration, the memory requirement is that of
+		 * one model with 2 times the number of paths. In the case of an analytic calibration
+		 * memory requirement is not the limiting factor.
+		 */
+<span class="fc" id="L106">		final int numberOfThreads = 2;</span>
+<span class="fc" id="L107">		final OptimizerFactory optimizerFactoryParameter = (OptimizerFactory)calibrationParameters.get(&quot;optimizerFactory&quot;);</span>
+
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		final int numberOfPaths	= numberOfPathsParameter != null ? numberOfPathsParameter.intValue() : 2000;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		final int seed			= seedParameter != null ? seedParameter.intValue() : 31415;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		final int maxIterations	= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 400;</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		final double accuracy		= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-7;</span>
+<span class="fc" id="L113">		final BrownianMotion brownianMotion = brownianMotionParameter;</span>
+<span class="fc bfc" id="L114" title="All 2 branches covered.">		final OptimizerFactory optimizerFactory = optimizerFactoryParameter != null ? optimizerFactoryParameter : new OptimizerFactoryLevenbergMarquardt(maxIterations, accuracy, numberOfThreads);</span>
+
+<span class="fc" id="L116">		final int numberOfThreadsForProductValuation = 2 * Math.max(2, Runtime.getRuntime().availableProcessors());</span>
+<span class="fc" id="L117">		final ExecutorService executor = null;//Executors.newFixedThreadPool(numberOfThreadsForProductValuation);</span>
+
+<span class="fc" id="L119">		final ObjectiveFunction calibrationError = new ObjectiveFunction() {</span>
+			// Calculate model values for given parameters
+			@Override
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
+
+<span class="fc" id="L124">				final TermStructureCovarianceModelParametric calibrationCovarianceModel = TermStructureCovarianceModelParametric.this.getCloneWithModifiedParameters(parameters);</span>
+
+				// Create a term structure model with the new covariance structure.
+<span class="fc" id="L127">				final HashMap&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L128">				data.put(&quot;covarianceModel&quot;, calibrationCovarianceModel);</span>
+				TermStructureModel model;
+				try {
+<span class="fc" id="L131">					model = calibrationModel.getCloneWithModifiedData(data);</span>
+<span class="nc" id="L132">				} catch (final CalculationException e) {</span>
+<span class="nc" id="L133">					throw new SolverException(e);</span>
+<span class="fc" id="L134">				}</span>
+<span class="fc" id="L135">				final EulerSchemeFromProcessModel process = new EulerSchemeFromProcessModel(model, brownianMotion);</span>
+<span class="fc" id="L136">				final TermStructureMonteCarloSimulationFromTermStructureModel lIBORMonteCarloSimulationFromTermStructureModel =  new TermStructureMonteCarloSimulationFromTermStructureModel(model, process);</span>
+
+<span class="fc" id="L138">				final ArrayList&lt;Future&lt;Double&gt;&gt; valueFutures = new ArrayList&lt;&gt;(calibrationProducts.length);</span>
+<span class="fc bfc" id="L139" title="All 2 branches covered.">				for(int calibrationProductIndex=0; calibrationProductIndex&lt;calibrationProducts.length; calibrationProductIndex++) {</span>
+<span class="fc" id="L140">					final int workerCalibrationProductIndex = calibrationProductIndex;</span>
+<span class="fc" id="L141">					final Callable&lt;Double&gt; worker = new  Callable&lt;Double&gt;() {</span>
+						@Override
+						public Double call() {
+							try {
+<span class="fc" id="L145">								return calibrationProducts[workerCalibrationProductIndex].getProduct().getValue(0.0,lIBORMonteCarloSimulationFromTermStructureModel).sub(calibrationProducts[workerCalibrationProductIndex].getTargetValue()).mult(calibrationProducts[workerCalibrationProductIndex].getWeight()).getAverage();</span>
+<span class="fc" id="L146">							} catch (final Exception e) {</span>
+								// We do not signal exceptions to keep the solver working and automatically exclude non-working calibration products.
+<span class="fc" id="L148">								return 0.0;</span>
+							}
+						}
+					};
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">					if(executor != null) {</span>
+<span class="nc" id="L153">						final Future&lt;Double&gt; valueFuture = executor.submit(worker);</span>
+<span class="nc" id="L154">						valueFutures.add(calibrationProductIndex, valueFuture);</span>
+<span class="nc" id="L155">					}</span>
+					else {
+<span class="fc" id="L157">						final FutureTask&lt;Double&gt; valueFutureTask = new FutureTask&lt;&gt;(worker);</span>
+<span class="fc" id="L158">						valueFutureTask.run();</span>
+<span class="fc" id="L159">						valueFutures.add(calibrationProductIndex, valueFutureTask);</span>
+					}
+				}
+<span class="fc bfc" id="L162" title="All 2 branches covered.">				for(int calibrationProductIndex=0; calibrationProductIndex&lt;calibrationProducts.length; calibrationProductIndex++) {</span>
+					try {
+<span class="fc" id="L164">						final double value = valueFutures.get(calibrationProductIndex).get();</span>
+<span class="fc" id="L165">						values[calibrationProductIndex] = value;</span>
+					}
+<span class="nc" id="L167">					catch (final InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L168">						throw new SolverException(e);</span>
+<span class="fc" id="L169">					}</span>
+				}
+
+				// Log error
+<span class="fc" id="L173">				double error = 0.0;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">				for (int valueIndex = 0; valueIndex &lt; values.length; valueIndex++) {</span>
+<span class="fc" id="L175">					final double deviation = values[valueIndex];</span>
+<span class="fc" id="L176">					error += deviation * deviation;</span>
+				}
+<span class="fc" id="L178">				logger.info(&quot;Current error: &quot; + Math.sqrt(error/values.length));</span>
+<span class="fc" id="L179">			}</span>
+		};
+
+<span class="fc" id="L182">		final Optimizer optimizer = optimizerFactory.getOptimizer(calibrationError, initialParameters, lowerBound, upperBound, parameterStep, zero);</span>
+		try {
+<span class="fc" id="L184">			optimizer.run();</span>
+		}
+<span class="nc" id="L186">		catch(final SolverException e) {</span>
+<span class="nc" id="L187">			throw new CalculationException(e);</span>
+		}
+		finally {
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">			if(executor != null) {</span>
+<span class="nc" id="L191">				executor.shutdown();</span>
+			}
+		}
+
+		// Get covariance model corresponding to the best parameter set.
+<span class="fc" id="L196">		final double[] bestParameters = optimizer.getBestFitParameters();</span>
+<span class="fc" id="L197">		final TermStructureCovarianceModelParametric calibrationCovarianceModel = this.getCloneWithModifiedParameters(bestParameters);</span>
+
+		// Diagnostic output
+<span class="pc bpc" id="L200" title="1 of 2 branches missed.">		if (logger.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L201">			logger.fine(&quot;The solver required &quot; + optimizer.getIterations() + &quot; iterations. The best fit parameters are:&quot;);</span>
+
+<span class="nc" id="L203">			String logString = &quot;Best parameters:&quot;;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">			for(int i=0; i&lt;bestParameters.length; i++) {</span>
+<span class="nc" id="L205">				logString += &quot;\tparameter[&quot;+i+&quot;]: &quot; + bestParameters[i];</span>
+			}
+<span class="nc" id="L207">			logger.fine(logString);</span>
+		}
+
+<span class="fc" id="L210">		return calibrationCovarianceModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResolvedSwaptionHullWhiteModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.boundaries</a> &gt; <span class="el_source">ResolvedSwaptionHullWhiteModelBoundary.java</span></div><h1>ResolvedSwaptionHullWhiteModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.boundaries;
+
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.interestrate.models.FDMHullWhiteModel;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+import net.finmath.finitedifference.interestrate.products.Swaption;
+
+/**
+ * Boundary wrapper for {@link Swaption.ResolvedSwaption} under
+ * {@link FDMHullWhiteModel}.
+ *
+ * &lt;p&gt;
+ * The internal product {@link Swaption.ResolvedSwaption} is only an adapter
+ * used
+ * to resolve exercise dates and event conditions. Boundary conditions should
+ * still be taken from the original outer {@link Swaption}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This wrapper allows the boundary factory to keep using the runtime product
+ * class name while delegating all boundary logic to
+ * {@link SwaptionHullWhiteModelBoundary}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class ResolvedSwaptionHullWhiteModelBoundary implements FiniteDifferenceInterestRateBoundary {
+
+	/**
+	 * The delegate.
+	 */
+	private final SwaptionHullWhiteModelBoundary delegate;
+
+	/**
+	 * Creates the boundary wrapper.
+	 *
+	 * @param model The Hull-White model.
+	 */
+<span class="nc" id="L39">	public ResolvedSwaptionHullWhiteModelBoundary(final FDMHullWhiteModel model) {</span>
+<span class="nc" id="L40">		this.delegate = new SwaptionHullWhiteModelBoundary(model);</span>
+<span class="nc" id="L41">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L49">		final Swaption originalSwaption = unwrap(product);</span>
+
+<span class="nc" id="L51">		return delegate.getBoundaryConditionsAtLowerBoundary(</span>
+				originalSwaption,
+				time,
+				stateVariables
+				);
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L64">		final Swaption originalSwaption = unwrap(product);</span>
+
+<span class="nc" id="L66">		return delegate.getBoundaryConditionsAtUpperBoundary(</span>
+				originalSwaption,
+				time,
+				stateVariables
+				);
+	}
+
+	private Swaption unwrap(final FiniteDifferenceInterestRateProduct product) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		if (!(product instanceof Swaption.ResolvedSwaption)) {</span>
+<span class="nc" id="L75">			throw new IllegalArgumentException(</span>
+					&quot;ResolvedSwaptionHullWhiteModelBoundary requires a Swaption.ResolvedSwaption product.&quot;
+					);
+		}
+
+<span class="nc" id="L80">		return ((Swaption.ResolvedSwaption) product).getOriginalSwaption();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

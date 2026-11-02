@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractVolatilitySurface.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">AbstractVolatilitySurface.java</span></div><h1>AbstractVolatilitySurface.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 17.02.2013
+ */
+package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Abstract base class for a volatility surface. It stores the name of the surface and
+ * provides some convenient way of getting values.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractVolatilitySurface implements VolatilitySurface, Cloneable {
+
+	private	final	LocalDate	referenceDate;
+	private final	String		name;
+
+	private ForwardCurve forwardCurve;
+	private DiscountCurve discountCurve;
+	private QuotingConvention quotingConvention;
+	private DayCountConvention daycountConvention;
+
+	public AbstractVolatilitySurface(final String name, final LocalDate referenceDate, final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve, final QuotingConvention quotingConvention, final DayCountConvention daycountConvention) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.name = name;</span>
+<span class="fc" id="L37">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L38">		this.forwardCurve = forwardCurve;</span>
+<span class="fc" id="L39">		this.discountCurve = discountCurve;</span>
+<span class="fc" id="L40">		this.quotingConvention = quotingConvention;</span>
+<span class="fc" id="L41">		this.daycountConvention = daycountConvention;</span>
+<span class="fc" id="L42">	}</span>
+
+	public AbstractVolatilitySurface(final String name, final LocalDate referenceDate) {
+<span class="nc" id="L45">		super();</span>
+<span class="nc" id="L46">		this.name = name;</span>
+<span class="nc" id="L47">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L48">	}</span>
+
+	@Override
+	public String getName() {
+<span class="fc" id="L52">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L57">		return referenceDate;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L62">		return super.toString() + &quot;\n\&quot;&quot; + this.getName() + &quot;\&quot;&quot;;</span>
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L67">		return super.clone();</span>
+	}
+
+	@Override
+	public QuotingConvention getQuotingConvention() {
+<span class="fc" id="L72">		return quotingConvention;</span>
+	}
+
+	/**
+	 * Convert the value of a caplet from one quoting convention to another quoting convention.
+	 *
+	 * @param model An analytic model providing the context when fetching required market date.
+	 * @param optionMaturity Option maturity of the caplet.
+	 * @param optionStrike Option strike of the caplet.
+	 * @param value Value of the caplet given in the form of &lt;code&gt;fromQuotingConvention&lt;/code&gt;.
+	 * @param fromQuotingConvention The quoting convention of the given value.
+	 * @param toQuotingConvention The quoting convention requested.
+	 * @return Value of the caplet given in the form of &lt;code&gt;toQuotingConvention&lt;/code&gt;.
+	 */
+	public double convertFromTo(final AnalyticModel model, final double optionMaturity, final double optionStrike, final double value, final QuotingConvention fromQuotingConvention, final QuotingConvention toQuotingConvention) {
+
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		if(fromQuotingConvention.equals(toQuotingConvention)) {</span>
+<span class="fc" id="L89">			return value;</span>
+		}
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		if(getDiscountCurve() == null) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;);</span>
+		}
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">		if(getForwardCurve() == null) {</span>
+<span class="nc" id="L96">			throw new IllegalArgumentException(&quot;Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;);</span>
+		}
+
+<span class="fc" id="L99">		final double periodStart = optionMaturity;</span>
+<span class="fc" id="L100">		final double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);</span>
+
+<span class="fc" id="L102">		final double forward = getForwardCurve().getForward(model, periodStart);</span>
+
+		double daycountFraction;
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if(getDaycountConvention() != null) {</span>
+<span class="nc" id="L106">			final LocalDate startDate = referenceDate.plusDays((int)Math.round(periodStart*365));</span>
+<span class="nc" id="L107">			final LocalDate endDate   = referenceDate.plusDays((int)Math.round(periodEnd*365));</span>
+<span class="nc" id="L108">			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);</span>
+<span class="nc" id="L109">		}</span>
+		else {
+<span class="fc" id="L111">			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);</span>
+		}
+
+<span class="fc" id="L114">		final double payoffUnit = getDiscountCurve().getDiscountFactor(optionMaturity+getForwardCurve().getPaymentOffset(optionMaturity)) * daycountFraction;</span>
+
+<span class="fc bfc" id="L116" title="All 4 branches covered.">		if(toQuotingConvention.equals(QuotingConvention.PRICE) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {</span>
+<span class="fc" id="L117">			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);</span>
+		}
+<span class="pc bpc" id="L119" title="1 of 4 branches missed.">		else if(toQuotingConvention.equals(QuotingConvention.PRICE) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {</span>
+<span class="fc" id="L120">			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);</span>
+		}
+<span class="fc bfc" id="L122" title="All 4 branches covered.">		else if(toQuotingConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.PRICE)) {</span>
+<span class="fc" id="L123">			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);</span>
+		}
+<span class="fc bfc" id="L125" title="All 4 branches covered.">		else if(toQuotingConvention.equals(QuotingConvention.VOLATILITYNORMAL) &amp;&amp; fromQuotingConvention.equals(QuotingConvention.PRICE)) {</span>
+<span class="fc" id="L126">			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);</span>
+		}
+		else {
+<span class="fc" id="L129">			return convertFromTo(model, optionMaturity, optionStrike, convertFromTo(model, optionMaturity, optionStrike, value, fromQuotingConvention, QuotingConvention.PRICE), QuotingConvention.PRICE, toQuotingConvention);</span>
+		}
+	}
+
+	/**
+	 * Convert the value of a caplet from one quoting convention to another quoting convention.
+	 *
+	 * @param optionMaturity Option maturity of the caplet.
+	 * @param optionStrike Option strike of the caplet.
+	 * @param value Value of the caplet given in the form of &lt;code&gt;fromQuotingConvention&lt;/code&gt;.
+	 * @param fromQuotingConvention The quoting convention of the given value.
+	 * @param toQuotingConvention The quoting convention requested.
+	 * @return Value of the caplet given in the form of &lt;code&gt;toQuotingConvention&lt;/code&gt;.
+	 */
+	public double convertFromTo(final double optionMaturity, final double optionStrike, final double value, final QuotingConvention fromQuotingConvention, final QuotingConvention toQuotingConvention) {
+<span class="fc" id="L144">		return convertFromTo(null, optionMaturity, optionStrike, value, fromQuotingConvention, toQuotingConvention);</span>
+	}
+
+	public ForwardCurve getForwardCurve() {
+<span class="fc" id="L148">		return forwardCurve;</span>
+	}
+
+	public DiscountCurve getDiscountCurve() {
+<span class="fc" id="L152">		return discountCurve;</span>
+	}
+
+	public DayCountConvention getDaycountConvention() {
+<span class="fc" id="L156">		return daycountConvention;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMMultiAssetBlackScholesModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMMultiAssetBlackScholesModel.java</span></div><h1>FDMMultiAssetBlackScholesModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.NonPositiveDefiniteMatrixException;
+import org.apache.commons.math3.linear.RealMatrix;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite-difference model for a multi-asset Black-Scholes market with constant
+ * volatilities and constant instantaneous correlation.
+ *
+ * &lt;p&gt;
+ * The model is dimension agnostic and describes an arbitrary number
+ * {@code n &gt;= 1} of risky assets
+ * {@code (S_1, ..., S_n)}. For asset {@code i}, the dynamics under the
+ * pricing measure are
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * dS_i(t) = (r(t) - q_i(t)) S_i(t) dt + sigma_i S_i(t) dW_i(t),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * with instantaneous covariation structure
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * d&amp;lt;W_i, W_j&amp;gt;_t = rho_{i,j} dt.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Here {@code r(t)} is the risk-free rate implied by a single risk-free
+ * discount
+ * curve, while each asset has its own dividend-yield discount curve and hence
+ * its own dividend yield {@code q_i(t)}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If {@code L} denotes a Cholesky factor of the correlation matrix
+ * {@code rho}, then the factor-loading matrix is chosen as
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * b_{i,j}(t,S) = sigma_i S_i L_{i,j},
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * which yields the instantaneous covariance matrix
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * (b b^T)_{i,j} = rho_{i,j} sigma_i sigma_j S_i S_j.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The class is a model abstraction only. It is intentionally agnostic with
+ * respect to the dimensional limits of the available PDE solvers. In
+ * particular,
+ * the model may be created for any dimension, even if a given finite-difference
+ * solver currently supports only dimensions one, two, or three.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For boundary conditions, this first implementation returns
+ * {@link StandardBoundaryCondition#none()} in every spatial direction by
+ * default.
+ * This keeps the model generic and leaves product-specific asymptotic boundary
+ * design to specialized boundary logic introduced later.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMMultiAssetBlackScholesModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The time floor.
+	 */
+	private static final double TIME_FLOOR = 1E-6;
+	/**
+	 * The correlation tolerance.
+	 */
+	private static final double CORRELATION_TOLERANCE = 1E-10;
+
+	/**
+	 * The initial values.
+	 */
+	private final double[] initialValues;
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curves.
+	 */
+	private final DiscountCurve[] dividendYieldCurves;
+	/**
+	 * The volatilities.
+	 */
+	private final double[] volatilities;
+	/**
+	 * The correlation matrix.
+	 */
+	private final double[][] correlationMatrix;
+	/**
+	 * The cholesky factor.
+	 */
+	private final double[][] choleskyFactor;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Creates a multi-asset Black-Scholes finite-difference model.
+	 *
+	 * @param initialValues Initial asset values.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurves Dividend-yield discount curves, one per asset.
+	 * @param volatilities Constant volatilities, one per asset.
+	 * @param correlationMatrix Instantaneous correlation matrix.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMMultiAssetBlackScholesModel(
+			final double[] initialValues,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve[] dividendYieldCurves,
+			final double[] volatilities,
+			final double[][] correlationMatrix,
+<span class="nc" id="L152">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc bnc" id="L154" title="All 4 branches missed.">		if (initialValues == null || initialValues.length == 0) {</span>
+<span class="nc" id="L155">			throw new IllegalArgumentException(&quot;initialValues must contain at least one asset.&quot;);</span>
+		}
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if (riskFreeCurve == null) {</span>
+<span class="nc" id="L158">			throw new IllegalArgumentException(&quot;riskFreeCurve must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		if (dividendYieldCurves == null) {</span>
+<span class="nc" id="L161">			throw new IllegalArgumentException(&quot;dividendYieldCurves must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		if (volatilities == null) {</span>
+<span class="nc" id="L164">			throw new IllegalArgumentException(&quot;volatilities must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		if (correlationMatrix == null) {</span>
+<span class="nc" id="L167">			throw new IllegalArgumentException(&quot;correlationMatrix must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L169" title="All 2 branches missed.">		if (spaceTimeDiscretization == null) {</span>
+<span class="nc" id="L170">			throw new IllegalArgumentException(&quot;spaceTimeDiscretization must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L173">		final int numberOfAssets = initialValues.length;</span>
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		if (dividendYieldCurves.length != numberOfAssets) {</span>
+<span class="nc" id="L176">			throw new IllegalArgumentException(</span>
+					&quot;dividendYieldCurves must have the same length as initialValues.&quot;);
+		}
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		if (volatilities.length != numberOfAssets) {</span>
+<span class="nc" id="L180">			throw new IllegalArgumentException(</span>
+					&quot;volatilities must have the same length as initialValues.&quot;);
+		}
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		if (spaceTimeDiscretization.getNumberOfSpaceGrids() != numberOfAssets) {</span>
+<span class="nc" id="L184">			throw new IllegalArgumentException(</span>
+					&quot;The number of space grids must match the model dimension.&quot;);
+		}
+
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfAssets; i++) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">			if (initialValues[i] &lt;= 0.0) {</span>
+<span class="nc" id="L190">				throw new IllegalArgumentException(&quot;All initial asset values must be strictly positive.&quot;);</span>
+			}
+<span class="nc bnc" id="L192" title="All 2 branches missed.">			if (dividendYieldCurves[i] == null) {</span>
+<span class="nc" id="L193">				throw new IllegalArgumentException(&quot;Dividend-yield curves must not contain null entries.&quot;);</span>
+			}
+<span class="nc bnc" id="L195" title="All 2 branches missed.">			if (volatilities[i] &lt; 0.0) {</span>
+<span class="nc" id="L196">				throw new IllegalArgumentException(&quot;Volatilities must be non-negative.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L200">		validateCorrelationMatrix(correlationMatrix, numberOfAssets);</span>
+
+<span class="nc" id="L202">		this.initialValues = initialValues.clone();</span>
+<span class="nc" id="L203">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L204">		this.dividendYieldCurves = dividendYieldCurves.clone();</span>
+<span class="nc" id="L205">		this.volatilities = volatilities.clone();</span>
+<span class="nc" id="L206">		this.correlationMatrix = deepCopyMatrix(correlationMatrix);</span>
+<span class="nc" id="L207">		this.choleskyFactor = computeCholeskyFactor(correlationMatrix);</span>
+<span class="nc" id="L208">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L209">	}</span>
+
+	/**
+	 * Creates a multi-asset Black-Scholes finite-difference model from constant
+	 * rates and constant volatilities.
+	 *
+	 * @param initialValues Initial asset values.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRates Constant dividend-yield rates, one per asset.
+	 * @param volatilities Constant volatilities, one per asset.
+	 * @param correlationMatrix Instantaneous correlation matrix.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMMultiAssetBlackScholesModel(
+			final double[] initialValues,
+			final double riskFreeRate,
+			final double[] dividendYieldRates,
+			final double[] volatilities,
+			final double[][] correlationMatrix,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L229">		this(</span>
+				initialValues,
+<span class="nc" id="L231">				createFlatDiscountCurve(&quot;riskFreeCurve&quot;, riskFreeRate),</span>
+<span class="nc" id="L232">				createFlatDividendCurves(dividendYieldRates),</span>
+				volatilities,
+				correlationMatrix,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L237">	}</span>
+
+	/**
+	 * Creates a multi-asset Black-Scholes finite-difference model with zero
+	 * dividend
+	 * yield for every asset.
+	 *
+	 * @param initialValues Initial asset values.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param volatilities Constant volatilities, one per asset.
+	 * @param correlationMatrix Instantaneous correlation matrix.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMMultiAssetBlackScholesModel(
+			final double[] initialValues,
+			final DiscountCurve riskFreeCurve,
+			final double[] volatilities,
+			final double[][] correlationMatrix,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+<span class="nc" id="L256">		this(</span>
+				initialValues,
+				riskFreeCurve,
+<span class="nc" id="L259">				createZeroDividendCurves(initialValues.length),</span>
+				volatilities,
+				correlationMatrix,
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L264">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L268">		return riskFreeCurve;</span>
+	}
+
+	/**
+	 * Returns the legacy single-asset dividend-yield accessor.
+	 *
+	 * &lt;p&gt;
+	 * For true multi-asset models with more than one dividend curve, callers
+	 * should
+	 * use {@link #getDividendYieldCurves()} instead.
+	 * &lt;/p&gt;
+	 *
+	 * @return The unique dividend-yield curve if the model has dimension one.
+	 */
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="nc bnc" id="L284" title="All 2 branches missed.">		if (dividendYieldCurves.length == 1) {</span>
+<span class="nc" id="L285">			return dividendYieldCurves[0];</span>
+		}
+
+<span class="nc" id="L288">		throw new UnsupportedOperationException(</span>
+				&quot;Multi-asset model: use getDividendYieldCurves() instead of getDividendYieldCurve().&quot;);
+	}
+
+	@Override
+	public DiscountCurve[] getDividendYieldCurves() {
+<span class="nc" id="L294">		return dividendYieldCurves.clone();</span>
+	}
+
+	/**
+	 * Returns the number of risky assets of the model.
+	 *
+	 * @return The number of risky assets.
+	 */
+	public int getNumberOfAssets() {
+<span class="nc" id="L303">		return initialValues.length;</span>
+	}
+
+	/**
+	 * Returns the asset volatilities.
+	 *
+	 * @return The volatilities.
+	 */
+	public double[] getVolatilities() {
+<span class="nc" id="L312">		return volatilities.clone();</span>
+	}
+
+	/**
+	 * Returns the instantaneous correlation matrix.
+	 *
+	 * @return The correlation matrix.
+	 */
+	public double[][] getCorrelationMatrix() {
+<span class="nc" id="L321">		return deepCopyMatrix(correlationMatrix);</span>
+	}
+
+	@Override
+	public double[] getInitialValue() {
+<span class="nc" id="L326">		return initialValues.clone();</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc" id="L331">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L333">		final double effectiveTime = Math.max(time, TIME_FLOOR);</span>
+
+<span class="nc" id="L335">		final double riskFreeRate = getAnnualizedZeroRate(riskFreeCurve, effectiveTime);</span>
+<span class="nc" id="L336">		final double[] drift = new double[initialValues.length];</span>
+
+<span class="nc bnc" id="L338" title="All 2 branches missed.">		for (int i = 0; i &lt; initialValues.length; i++) {</span>
+<span class="nc" id="L339">			final double dividendYieldRate = getAnnualizedZeroRate(dividendYieldCurves[i], effectiveTime);</span>
+<span class="nc" id="L340">			drift[i] = (riskFreeRate - dividendYieldRate) * stateVariables[i];</span>
+		}
+
+<span class="nc" id="L343">		return drift;</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc" id="L348">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L350">		final int numberOfAssets = initialValues.length;</span>
+<span class="nc" id="L351">		final double[][] factorLoading = new double[numberOfAssets][numberOfAssets];</span>
+
+<span class="nc bnc" id="L353" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfAssets; i++) {</span>
+<span class="nc" id="L354">			final double sigmaTimesState = volatilities[i] * stateVariables[i];</span>
+
+<span class="nc bnc" id="L356" title="All 2 branches missed.">			for (int j = 0; j &lt; numberOfAssets; j++) {</span>
+<span class="nc" id="L357">				factorLoading[i][j] = sigmaTimesState * choleskyFactor[i][j];</span>
+			}
+		}
+
+<span class="nc" id="L361">		return factorLoading;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L366">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L375">		final FiniteDifferenceBoundary boundary =</span>
+<span class="nc" id="L376">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="nc" id="L378">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L387">		final FiniteDifferenceBoundary boundary =</span>
+<span class="nc" id="L388">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="nc" id="L390">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L397">		return new FDMMultiAssetBlackScholesModel(</span>
+				initialValues,
+				riskFreeCurve,
+				dividendYieldCurves,
+				volatilities,
+				correlationMatrix,
+				newSpaceTimeDiscretization
+				);
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L408" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != initialValues.length) {</span>
+<span class="nc" id="L409">			throw new IllegalArgumentException(</span>
+					&quot;stateVariables must have the same dimension as the model.&quot;);
+		}
+<span class="nc" id="L412">	}</span>
+
+	private static void validateCorrelationMatrix(final double[][] correlationMatrix, final int dimension) {
+<span class="nc bnc" id="L415" title="All 2 branches missed.">		if (correlationMatrix.length != dimension) {</span>
+<span class="nc" id="L416">			throw new IllegalArgumentException(</span>
+					&quot;correlationMatrix must be square and match the model dimension.&quot;);
+		}
+
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="nc bnc" id="L421" title="All 4 branches missed.">			if (correlationMatrix[i] == null || correlationMatrix[i].length != dimension) {</span>
+<span class="nc" id="L422">				throw new IllegalArgumentException(</span>
+						&quot;correlationMatrix must be square and match the model dimension.&quot;);
+			}
+
+<span class="nc bnc" id="L426" title="All 2 branches missed.">			if (Math.abs(correlationMatrix[i][i] - 1.0) &gt; CORRELATION_TOLERANCE) {</span>
+<span class="nc" id="L427">				throw new IllegalArgumentException(</span>
+						&quot;The diagonal entries of correlationMatrix must be equal to 1.&quot;);
+			}
+
+<span class="nc bnc" id="L431" title="All 2 branches missed.">			for (int j = 0; j &lt; dimension; j++) {</span>
+<span class="nc" id="L432">				final double rho = correlationMatrix[i][j];</span>
+
+<span class="nc bnc" id="L434" title="All 4 branches missed.">				if (rho &lt; -1.0 - CORRELATION_TOLERANCE || rho &gt; 1.0 + CORRELATION_TOLERANCE) {</span>
+<span class="nc" id="L435">					throw new IllegalArgumentException(</span>
+							&quot;All correlation-matrix entries must lie in [-1,1].&quot;);
+				}
+
+<span class="nc bnc" id="L439" title="All 2 branches missed.">				if (Math.abs(rho - correlationMatrix[j][i]) &gt; CORRELATION_TOLERANCE) {</span>
+<span class="nc" id="L440">					throw new IllegalArgumentException(&quot;correlationMatrix must be symmetric.&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L444">	}</span>
+
+	private static double[][] computeCholeskyFactor(final double[][] correlationMatrix) {
+		try {
+<span class="nc" id="L448">			final RealMatrix matrix = new Array2DRowRealMatrix(correlationMatrix);</span>
+<span class="nc" id="L449">			return new CholeskyDecomposition(matrix, 1E-12, 1E-12).getL().getData();</span>
+<span class="nc" id="L450">		} catch (final NonPositiveDefiniteMatrixException exception) {</span>
+<span class="nc" id="L451">			throw new IllegalArgumentException(</span>
+					&quot;correlationMatrix must be positive definite for Cholesky decomposition.&quot;,
+					exception
+					);
+		}
+	}
+
+	private static double getAnnualizedZeroRate(final DiscountCurve curve, final double time) {
+<span class="nc" id="L459">		final double safeTime = Math.max(time, TIME_FLOOR);</span>
+<span class="nc" id="L460">		final double discountFactor = curve.getDiscountFactor(safeTime);</span>
+<span class="nc" id="L461">		return -Math.log(discountFactor) / safeTime;</span>
+	}
+
+	private static double[][] deepCopyMatrix(final double[][] matrix) {
+<span class="nc" id="L465">		final double[][] copy = new double[matrix.length][];</span>
+<span class="nc bnc" id="L466" title="All 2 branches missed.">		for (int i = 0; i &lt; matrix.length; i++) {</span>
+<span class="nc" id="L467">			copy[i] = matrix[i].clone();</span>
+		}
+<span class="nc" id="L469">		return copy;</span>
+	}
+
+	private static DiscountCurve[] createZeroDividendCurves(final int dimension) {
+<span class="nc" id="L473">		final DiscountCurve[] curves = new DiscountCurve[dimension];</span>
+
+<span class="nc bnc" id="L475" title="All 2 branches missed.">		for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="nc" id="L476">			curves[i] = createFlatDiscountCurve(&quot;dividendCurve&quot; + i, 0.0);</span>
+		}
+
+<span class="nc" id="L479">		return curves;</span>
+	}
+
+	private static DiscountCurve[] createFlatDividendCurves(final double[] dividendYieldRates) {
+<span class="nc bnc" id="L483" title="All 4 branches missed.">		if (dividendYieldRates == null || dividendYieldRates.length == 0) {</span>
+<span class="nc" id="L484">			throw new IllegalArgumentException(</span>
+					&quot;dividendYieldRates must contain at least one entry.&quot;);
+		}
+
+<span class="nc" id="L488">		final DiscountCurve[] curves = new DiscountCurve[dividendYieldRates.length];</span>
+
+<span class="nc bnc" id="L490" title="All 2 branches missed.">		for (int i = 0; i &lt; dividendYieldRates.length; i++) {</span>
+<span class="nc" id="L491">			curves[i] = createFlatDiscountCurve(&quot;dividendCurve&quot; + i, dividendYieldRates[i]);</span>
+		}
+
+<span class="nc" id="L494">		return curves;</span>
+	}
+
+	private static DiscountCurve createFlatDiscountCurve(final String name, final double rate) {
+<span class="nc" id="L498">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L499">		final double[] givenAnnualizedZeroRates = new double[] {rate, rate };</span>
+
+<span class="nc" id="L501">		return DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				name,
+<span class="nc" id="L503">				LocalDate.of(2010, 8, 1),</span>
+				times,
+				givenAnnualizedZeroRates,
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT,
+				InterpolationEntity.VALUE
+				);
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L514">		return &quot;MultiAssetBlackScholesModel [initialValues=&quot; + Arrays.toString(initialValues)</span>
+<span class="nc" id="L515">		+ &quot;, volatilities=&quot; + Arrays.toString(volatilities)</span>
+		+ &quot;, dimension=&quot; + initialValues.length
+		+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

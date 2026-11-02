@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlackScholesModelWithCurves.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.models</a> &gt; <span class="el_source">BlackScholesModelWithCurves.java</span></div><h1>BlackScholesModelWithCurves.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.models;
+
+import java.util.Map;
+
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a Black Scholes Model, that is, it provides the drift and volatility specification
+ * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
+ *
+ * The model is
+ * \[
+ * 	dS = r S dt + \sigma S dW, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ *
+ * The class provides the model of S to an &lt;code&gt;{@link net.finmath.montecarlo.process.MonteCarloProcess}&lt;/code&gt; via the specification of
+ * \( f = exp \), \( \mu = r - \frac{1}{2} \sigma^2 \), \( \lambda_{1,1} = \sigma \), i.e.,
+ * of the SDE
+ * \[
+ * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(S_{0}),
+ * \]
+ * with \( S = f(X) \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
+ */
+public class BlackScholesModelWithCurves extends AbstractProcessModel {
+
+	private final RandomVariable initialValue;
+	private final RandomVariable volatility;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForDiscountRate;
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	// Cache for arrays provided though AbstractProcessModel
+	private final RandomVariable[]	initialState;
+	private final RandomVariable	driftAdjustment;
+	private final RandomVariable[]	factorLoadings;
+
+	/**
+	 * Create a Black-Scholes specification implementing AbstractProcessModel.
+	 *
+	 * @param initialValue Spot value.
+	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
+	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 */
+	public BlackScholesModelWithCurves(
+			final RandomVariable initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final RandomVariable volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+<span class="fc" id="L70">			final RandomVariableFactory randomVariableFactory) {</span>
+<span class="fc" id="L71">		this.initialValue = initialValue;</span>
+<span class="fc" id="L72">		this.volatility = volatility;</span>
+<span class="fc" id="L73">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L74">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L75">		this.randomVariableFactory = randomVariableFactory;</span>
+
+<span class="fc" id="L77">		initialState = new RandomVariable[] { initialValue.log() };</span>
+<span class="fc" id="L78">		driftAdjustment = volatility.squared().div(-2.0);</span>
+<span class="fc" id="L79">		factorLoadings = new RandomVariable[] { volatility };</span>
+<span class="fc" id="L80">	}</span>
+
+	/**
+	 * Create a Black-Scholes specification implementing AbstractProcessModel.
+	 *
+	 * @param initialValue Spot value.
+	 * @param discountCurveForForwardRate The curve used for calcuation of the forward.
+	 * @param volatility The log volatility.
+	 * @param discountCurveForDiscountRate The curve used for calcualtion of the disocunt factor / numeraire.
+	 * @param randomVariableFactory The random variable factory used to create random variables from constants.
+	 */
+	public BlackScholesModelWithCurves(
+			final Double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final Double volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="fc" id="L97">		this(randomVariableFactory.createRandomVariable(initialValue), discountCurveForForwardRate, randomVariableFactory.createRandomVariable(volatility), discountCurveForDiscountRate, randomVariableFactory);</span>
+<span class="fc" id="L98">	}</span>
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="fc" id="L102">		return initialState;</span>
+	}
+
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="fc" id="L107">		final double time = process.getTime(timeIndex);</span>
+<span class="fc" id="L108">		final double timeNext = process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L110">		final double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);</span>
+
+<span class="fc" id="L112">		return new RandomVariable[] { driftAdjustment.add(rate) };</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L117">		return factorLoadings;</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L122">		return randomVariable.exp();</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L127">		return randomVariable.log();</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+<span class="fc" id="L132">		final double discounFactorForDiscounting = discountCurveForDiscountRate.getDiscountFactor(time);</span>
+
+<span class="fc" id="L134">		return randomVariableFactory.createRandomVariable(1.0/discounFactorForDiscounting);</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L139">		return 1;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L144">		return 1;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L149">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public BlackScholesModelWithCurves getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		final RandomVariable	newInitialValue	= dataModified.get(&quot;initialValue&quot;) != null	? (RandomVariable)dataModified.get(&quot;initialValue&quot;) : initialValue;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		final RandomVariable	newVolatility	= dataModified.get(&quot;volatility&quot;) != null	? (RandomVariable)dataModified.get(&quot;volatility&quot;) 	: volatility;</span>
+
+<span class="nc" id="L160">		return new BlackScholesModelWithCurves(newInitialValue, discountCurveForForwardRate, newVolatility, discountCurveForDiscountRate, randomVariableFactory);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L165">		return super.toString() + &quot;\n&quot; +</span>
+				&quot;BlackScholesModel:\n&quot; +
+				&quot;  initial value...:&quot; + initialValue + &quot;\n&quot; +
+				&quot;  forward curve...:&quot; + discountCurveForForwardRate + &quot;\n&quot; +
+				&quot;  discount curve..:&quot; + discountCurveForDiscountRate + &quot;\n&quot; +
+<span class="nc" id="L170">				&quot;  volatiliy.......:&quot; + getVolatility();</span>
+	}
+
+	/**
+	 * Return the initial value of this model.
+	 *
+	 * @return the initial value of this model.
+	 */
+	@Override
+	public RandomVariable[] getInitialValue(final MonteCarloProcess process) {
+<span class="nc" id="L180">		return new RandomVariable[] { initialValue };</span>
+	}
+
+	/**
+	 * Returns the volatility parameter of this model.
+	 *
+	 * @return Returns the volatility.
+	 */
+	public RandomVariable getVolatility() {
+<span class="nc" id="L189">		return factorLoadings[0];</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,71 @@
+/*
+ * finmath branding, loaded after the standard Javadoc stylesheet.
+ * Leave navigation, tables, scrolling and responsive layout to the generating
+ * JDK: its HTML structure and corresponding CSS change between releases.
+ */
+
+:root {
+    --body-font-size: 14pt;
+    --block-font-size: 14pt;
+    --code-font-size: 14pt;
+    --nav-font-size: 12pt;
+    --body-text-color: #333;
+    --block-text-color: #474747;
+    --link-color: #4a6782;
+    --navbar-background-color: #800000;
+    --section-background-color: #f8f8f8;
+    --table-header-color: #dee3e9;
+    --odd-row-color: #eeeeef;
+}
+
+/* Also retain the typography on JDKs predating the CSS custom properties. */
+body {
+    color: #333;
+    font-family: 'DejaVu Sans', Arial, Helvetica, sans-serif;
+    font-size: 14pt;
+}
+
+pre, code, tt,
+.module-signature, .package-signature, .type-signature, .member-signature {
+    font-family: 'DejaVu Sans Mono', monospace;
+    font-size: 14pt;
+}
+
+div.block, dl.notes > dd {
+    font-family: 'DejaVu Serif', Georgia, "Times New Roman", Times, serif;
+    font-size: 14pt;
+}
+
+/* A CSS background works both at the documentation root and in resource-files. */
+.top-nav, .topNav {
+    background-color: #800000;
+    background-image: linear-gradient(#800000, #500000);
+    color: #fff;
+}
+
+.about-language, .aboutLanguage {
+    margin: 0;
+    padding: 0.35em 1em;
+    height: auto;
+}
+
+.logo-white, .logo-red {
+    display: inline-block;
+    padding: 0.35em 0.65em;
+    border: 1px solid #999;
+    line-height: 1.2;
+}
+
+.logo-white {
+    background: #fff;
+    color: #000;
+    padding-right: 0;
+    border-right: 0;
+}
+
+.logo-red {
+    background: #900;
+    color: #fff;
+    padding-left: 0;
+    border-left: 0;
+}

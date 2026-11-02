@@ -1,0 +1,836 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CalibratedCurves.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.calibration</a> &gt; <span class="el_source">CalibratedCurves.java</span></div><h1>CalibratedCurves.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 30.11.2012
+ */
+package net.finmath.marketdata.calibration;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveInterpolation;
+import net.finmath.marketdata.products.AnalyticProduct;
+import net.finmath.marketdata.products.Deposit;
+import net.finmath.marketdata.products.ForwardRateAgreement;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapLeg;
+import net.finmath.optimizer.SolverException;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Generate a collection of calibrated curves (discount curves, forward curves)
+ * from a vector of calibration products.
+ *
+ * An object of this class provides a calibration of curves (using multi-curves, forward curve, discount curve).
+ * Sometimes this is referred as curve bootstrapping, however the algorithm used here is not a bootstrap.
+ *
+ * The calibration products have to be provided via a vector of &lt;code&gt;CalibrationSpec&lt;/code&gt;s.
+ *
+ * The products provides are
+ * &lt;table&gt;
+ * &lt;caption&gt;List of calibration products types&lt;/caption&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;Value of Type String&lt;/td&gt;
+ * 		&lt;td&gt;Classes&lt;/td&gt;
+ * 		&lt;td&gt;Note&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;swap&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.Swap}&lt;/td&gt;
+ * 		&lt;td&gt;&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;swapleg&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.SwapLeg}&lt;/td&gt;
+ * 		&lt;td&gt;Only the receiver part of &lt;code&gt;CalibrationSpec&lt;/code&gt; is used.&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;swapwithresetonreceiver&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.SwapLeg}&lt;/td&gt;
+ * 		&lt;td&gt;&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;swapwithresetonpayer&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.SwapLeg}&lt;/td&gt;
+ * 		&lt;td&gt;&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;deposit&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.Deposit}&lt;/td&gt;
+ * 		&lt;td&gt;Only the receiver part of &lt;code&gt;CalibrationSpec&lt;/code&gt; is used.&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * 	&lt;tr&gt;
+ * 		&lt;td&gt;fra&lt;/td&gt;
+ * 		&lt;td&gt;{@link net.finmath.marketdata.products.ForwardRateAgreement}&lt;/td&gt;
+ * 		&lt;td&gt;Only the receiver part of &lt;code&gt;CalibrationSpec&lt;/code&gt; is used.&lt;/td&gt;
+ * 	&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * For a demo spreadsheet using this class see &lt;a href=&quot;http://finmath.net/topics/curvecalibration/&quot;&gt;finmath.net/topics/curvecalibration/&lt;/a&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CalibratedCurves {
+
+	private static final boolean isUseForwardCurve;
+	private static final boolean isCreateDefaultCurvesForMissingCurves;
+	static {
+		// Default value is true
+<span class="fc" id="L97">		isUseForwardCurve = Boolean.parseBoolean(System.getProperty(&quot;net.finmath.marketdata.calibration.CalibratedCurves.isUseForwardCurve&quot;,&quot;true&quot;));</span>
+		// Default value is false
+<span class="fc" id="L99">		isCreateDefaultCurvesForMissingCurves = Boolean.parseBoolean(System.getProperty(&quot;net.finmath.marketdata.calibration.CalibratedCurves.isCreateDefaultCurvesForMissingCurves&quot;,&quot;false&quot;));</span>
+<span class="fc" id="L100">	}</span>
+
+	/**
+	 * Specification of calibration product.
+	 *
+	 * @author Christian Fries
+	 */
+	public static class CalibrationSpec {
+
+		private String				symbol;
+
+		private final String				type;
+
+		private final	Schedule	swapTenorDefinitionReceiver;
+		private final String				forwardCurveReceiverName;
+		private final double				spreadReceiver;
+		private final String				discountCurveReceiverName;
+
+		private Schedule	swapTenorDefinitionPayer;
+		private String				forwardCurvePayerName;
+		private double				spreadPayer;
+		private String				discountCurvePayerName;
+
+		private final String				calibrationCurveName;
+		private final double				calibrationTime;
+
+		/**
+		 * Calibration specification.
+		 *
+		 * @param symbol A string identifying the calibration product. This string can be used in sensitivity calculation, allowing to bump the spread in a finite difference approximation. See &lt;code&gt;getCloneShifted&lt;/code&gt; method.
+		 * @param type The type of the calibration product.
+		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+		 * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+		 * @param discountCurveReceiverName The discount curve of the receiver leg.
+		 * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+		 * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+		 * @param spreadPayer The spread or fixed coupon of the payer leg.
+		 * @param discountCurvePayerName The discount curve of the payer leg.
+		 * @param calibrationCurveName The curve to calibrate, by this product.
+		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
+		 */
+		public CalibrationSpec(
+				final String symbol,
+				final String type,
+				final Schedule swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final Schedule swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
+<span class="fc" id="L153">			super();</span>
+<span class="fc" id="L154">			this.symbol = symbol;</span>
+<span class="fc" id="L155">			this.type = type;</span>
+<span class="fc" id="L156">			this.swapTenorDefinitionReceiver = swapTenorDefinitionReceiver;</span>
+<span class="fc" id="L157">			this.forwardCurveReceiverName = forwardCurveReceiverName;</span>
+<span class="fc" id="L158">			this.spreadReceiver = spreadReceiver;</span>
+<span class="fc" id="L159">			this.discountCurveReceiverName = discountCurveReceiverName;</span>
+<span class="fc" id="L160">			this.swapTenorDefinitionPayer = swapTenorDefinitionPayer;</span>
+<span class="fc" id="L161">			this.forwardCurvePayerName = forwardCurvePayerName;</span>
+<span class="fc" id="L162">			this.spreadPayer = spreadPayer;</span>
+<span class="fc" id="L163">			this.discountCurvePayerName = discountCurvePayerName;</span>
+<span class="fc" id="L164">			this.calibrationCurveName = calibrationCurveName;</span>
+<span class="fc" id="L165">			this.calibrationTime = calibrationTime;</span>
+<span class="fc" id="L166">		}</span>
+
+		/**
+		 * Calibration specification.
+		 *
+		 * @param type The type of the calibration product.
+		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+		 * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+		 * @param discountCurveReceiverName The discount curve of the receiver leg.
+		 * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+		 * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+		 * @param spreadPayer The spread or fixed coupon of the payer leg.
+		 * @param discountCurvePayerName The discount curve of the payer leg.
+		 * @param calibrationCurveName The curve to calibrate, by this product.
+		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
+		 */
+		public CalibrationSpec(
+				final String type,
+				final Schedule swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final Schedule swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
+<span class="nc" id="L193">			this(null, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);</span>
+<span class="nc" id="L194">		}</span>
+
+		/**
+		 * Calibration specification.
+		 *
+		 * @param type The type of the calibration product.
+		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+		 * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+		 * @param discountCurveReceiverName The discount curve of the receiver leg.
+		 * @param swapTenorDefinitionPayer The schedule of periods of the payer leg.
+		 * @param forwardCurvePayerName The forward curve of the payer leg (may be null).
+		 * @param spreadPayer The spread or fixed coupon of the payer leg.
+		 * @param discountCurvePayerName The discount curve of the payer leg.
+		 * @param calibrationCurveName The curve to calibrate, by this product.
+		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
+		 */
+		public CalibrationSpec(
+				final String type,
+				final double[] swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final double[] swapTenorDefinitionPayer,
+				final String forwardCurvePayerName, final double spreadPayer,
+				final String discountCurvePayerName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
+<span class="nc" id="L221">			super();</span>
+<span class="nc" id="L222">			this.type = type;</span>
+<span class="nc" id="L223">			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));</span>
+<span class="nc" id="L224">			this.forwardCurveReceiverName = forwardCurveReceiverName;</span>
+<span class="nc" id="L225">			this.spreadReceiver = spreadReceiver;</span>
+<span class="nc" id="L226">			this.discountCurveReceiverName = discountCurveReceiverName;</span>
+<span class="nc" id="L227">			this.swapTenorDefinitionPayer = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionPayer[0] /* initial */, swapTenorDefinitionPayer[1] /* numberOfTimeSteps */, swapTenorDefinitionPayer[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));</span>
+<span class="nc" id="L228">			this.forwardCurvePayerName = forwardCurvePayerName;</span>
+<span class="nc" id="L229">			this.spreadPayer = spreadPayer;</span>
+<span class="nc" id="L230">			this.discountCurvePayerName = discountCurvePayerName;</span>
+<span class="nc" id="L231">			this.calibrationCurveName = calibrationCurveName;</span>
+<span class="nc" id="L232">			this.calibrationTime = calibrationTime;</span>
+<span class="nc" id="L233">		}</span>
+
+		/**
+		 * Calibration specification.
+		 *
+		 * @param type The type of the calibration product.
+		 * @param swapTenorDefinitionReceiver The schedule of periods of the receiver leg.
+		 * @param forwardCurveReceiverName The forward curve of the receiver leg (may be null).
+		 * @param spreadReceiver The spread or fixed coupon of the receiver leg.
+		 * @param discountCurveReceiverName The discount curve of the receiver leg.
+		 * @param calibrationCurveName The curve to calibrate, by this product.
+		 * @param calibrationTime The time point in calibrationCurveName used to calibrate, by this product.
+		 */
+		public CalibrationSpec(
+				final String type,
+				final double[] swapTenorDefinitionReceiver,
+				final String forwardCurveReceiverName, final double spreadReceiver,
+				final String discountCurveReceiverName,
+				final String calibrationCurveName,
+				final double calibrationTime) {
+<span class="nc" id="L253">			super();</span>
+<span class="nc" id="L254">			this.type = type;</span>
+<span class="nc" id="L255">			this.swapTenorDefinitionReceiver = new RegularSchedule(new TimeDiscretizationFromArray(swapTenorDefinitionReceiver[0] /* initial */, swapTenorDefinitionReceiver[1] /* numberOfTimeSteps */, swapTenorDefinitionReceiver[2] /* deltaT */, TimeDiscretizationFromArray.ShortPeriodLocation.SHORT_PERIOD_AT_START));</span>
+<span class="nc" id="L256">			this.forwardCurveReceiverName = forwardCurveReceiverName;</span>
+<span class="nc" id="L257">			this.spreadReceiver = spreadReceiver;</span>
+<span class="nc" id="L258">			this.discountCurveReceiverName = discountCurveReceiverName;</span>
+<span class="nc" id="L259">			this.calibrationCurveName = calibrationCurveName;</span>
+<span class="nc" id="L260">			this.calibrationTime = calibrationTime;</span>
+<span class="nc" id="L261">		}</span>
+
+		public CalibrationSpec getCloneShifted(final double shift) {
+<span class="nc bnc" id="L264" title="All 8 branches missed.">			if(discountCurvePayerName == null || type.toLowerCase().equals(&quot;swapleg&quot;)  || type.toLowerCase().equals(&quot;deposit&quot;)  || type.toLowerCase().equals(&quot;fra&quot;)) {</span>
+<span class="nc" id="L265">				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver+shift, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer, discountCurvePayerName, calibrationCurveName, calibrationTime);</span>
+			}
+			else {
+<span class="nc" id="L268">				return new CalibrationSpec(symbol, type, swapTenorDefinitionReceiver, forwardCurveReceiverName, spreadReceiver, discountCurveReceiverName, swapTenorDefinitionPayer, forwardCurvePayerName, spreadPayer+shift, discountCurvePayerName, calibrationCurveName, calibrationTime);</span>
+			}
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L274">			return &quot;CalibrationSpec [symbol=&quot; + symbol + &quot;, type=&quot; + type + &quot;, swapTenorDefinitionReceiver=&quot;</span>
+					+ swapTenorDefinitionReceiver + &quot;, forwardCurveReceiverName=&quot; + forwardCurveReceiverName
+					+ &quot;, spreadReceiver=&quot; + spreadReceiver + &quot;, discountCurveReceiverName=&quot; + discountCurveReceiverName
+					+ &quot;, swapTenorDefinitionPayer=&quot; + swapTenorDefinitionPayer + &quot;, forwardCurvePayerName=&quot;
+					+ forwardCurvePayerName + &quot;, spreadPayer=&quot; + spreadPayer + &quot;, discountCurvePayerName=&quot;
+					+ discountCurvePayerName + &quot;, calibrationCurveName=&quot; + calibrationCurveName + &quot;, calibrationTime=&quot;
+					+ calibrationTime + &quot;]&quot;;
+		}
+
+		public String getSymbol() {
+<span class="nc" id="L284">			return symbol;</span>
+		}
+	}
+
+<span class="pc" id="L288">	private AnalyticModel				model				= new AnalyticModelFromCurvesAndVols();</span>
+<span class="pc" id="L289">	private final Set&lt;ParameterObject&gt;		objectsToCalibrate	= new LinkedHashSet&lt;&gt;();</span>
+<span class="pc" id="L290">	private final Vector&lt;AnalyticProduct&gt;	calibrationProducts			= new Vector&lt;&gt;();</span>
+<span class="pc" id="L291">	private final Vector&lt;String&gt;						calibrationProductsSymbols	= new Vector&lt;&gt;();</span>
+
+<span class="pc" id="L293">	private final List&lt;CalibrationSpec&gt;				calibrationSpecs	= new ArrayList&lt;&gt;();</span>
+
+	private final double evaluationTime;
+	private final double calibrationAccuracy;
+
+	private final int lastNumberOfInterations;
+	private double lastAccuracy;
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 *
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 *
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model.
+	 *
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+<span class="nc" id="L322">	public CalibratedCurves(final List&lt;CalibrationSpec&gt; calibrationSpecs, final AnalyticModel calibrationModel, final double evaluationTime, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">		if(calibrationModel != null) {</span>
+<span class="nc" id="L324">			model	= calibrationModel.getCloneForParameter(null);</span>
+		}
+<span class="nc" id="L326">		this.evaluationTime = evaluationTime;</span>
+<span class="nc" id="L327">		this.calibrationAccuracy = calibrationAccuracy;</span>
+
+<span class="nc bnc" id="L329" title="All 2 branches missed.">		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {</span>
+<span class="nc" id="L330">			add(calibrationSpec);</span>
+<span class="nc" id="L331">		}</span>
+
+<span class="nc" id="L333">		lastNumberOfInterations = calibrate(calibrationAccuracy);</span>
+<span class="nc" id="L334">	}</span>
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 *
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 *
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model.
+	 *
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+<span class="fc" id="L357">	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel, final double evaluationTime, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {</span>
+<span class="pc bpc" id="L358" title="1 of 2 branches missed.">		if(calibrationModel != null) {</span>
+<span class="fc" id="L359">			model	= calibrationModel.getCloneForParameter(null);</span>
+		}
+<span class="fc" id="L361">		this.evaluationTime = evaluationTime;</span>
+<span class="fc" id="L362">		this.calibrationAccuracy = calibrationAccuracy;</span>
+
+<span class="fc bfc" id="L364" title="All 2 branches covered.">		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {</span>
+<span class="fc" id="L365">			add(calibrationSpec);</span>
+		}
+
+<span class="fc" id="L368">		lastNumberOfInterations = calibrate(calibrationAccuracy);</span>
+<span class="fc" id="L369">	}</span>
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 *
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 *
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model.
+	 *
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @param calibrationAccuracy Error tolerance of the solver. Set to 0 if you need machine precision.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel, final double calibrationAccuracy) throws SolverException, CloneNotSupportedException {
+<span class="fc" id="L392">		this(calibrationSpecs, calibrationModel, 0.0, calibrationAccuracy);</span>
+<span class="fc" id="L393">	}</span>
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products and a given model.
+	 *
+	 * If the model already contains a curve referenced as calibration curve that
+	 * curve is replaced by a clone, retaining the given curve information and
+	 * adding a new calibration point.
+	 *
+	 * If the model does not contain the curve referenced as calibration curve, the
+	 * curve will be added to the model.
+	 *
+	 * Use case: You already have a discount curve as part of the model and like
+	 * to calibrate an additional curve to an additional set of instruments.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @param calibrationModel A given model used to value the calibration products.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs, final AnalyticModelFromCurvesAndVols calibrationModel) throws SolverException, CloneNotSupportedException {
+<span class="nc" id="L415">		this(calibrationSpecs, calibrationModel, 0.0);</span>
+<span class="nc" id="L416">	}</span>
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(final Collection&lt;CalibrationSpec&gt; calibrationSpecs) throws SolverException, CloneNotSupportedException {
+<span class="nc" id="L427">		this(calibrationSpecs.toArray(new CalibrationSpec[calibrationSpecs.size()]), null);</span>
+<span class="nc" id="L428">	}</span>
+
+	/**
+	 * Generate a collection of calibrated curves (discount curves, forward curves)
+	 * from a vector of calibration products.
+	 *
+	 * @param calibrationSpecs Array of calibration specs.
+	 * @throws net.finmath.optimizer.SolverException May be thrown if the solver does not cannot find a solution of the calibration problem.
+	 * @throws CloneNotSupportedException Thrown, when a curve could not be cloned.
+	 */
+	public CalibratedCurves(final CalibrationSpec[] calibrationSpecs) throws SolverException, CloneNotSupportedException {
+<span class="nc" id="L439">		this(calibrationSpecs, null, 0.0);</span>
+<span class="nc" id="L440">	}</span>
+
+	public AnalyticProduct getCalibrationProductForSpec(final CalibrationSpec calibrationSpec) {
+<span class="fc" id="L443">		String forwardCurveReceiverName = calibrationSpec.forwardCurveReceiverName;</span>
+<span class="fc" id="L444">		String forwardCurvePayerName	= calibrationSpec.forwardCurvePayerName;</span>
+
+		/*
+		 * If required, default curves are created if missing.
+		 */
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">		if(isCreateDefaultCurvesForMissingCurves) {</span>
+<span class="nc" id="L450">			createDiscountCurve(calibrationSpec.discountCurveReceiverName);</span>
+<span class="nc" id="L451">			createDiscountCurve(calibrationSpec.discountCurvePayerName);</span>
+
+<span class="nc" id="L453">			forwardCurveReceiverName	= createForwardCurve(calibrationSpec.swapTenorDefinitionReceiver, calibrationSpec.forwardCurveReceiverName);</span>
+<span class="nc" id="L454">			forwardCurvePayerName	= createForwardCurve(calibrationSpec.swapTenorDefinitionPayer, calibrationSpec.forwardCurvePayerName);</span>
+		}
+		else {
+<span class="fc" id="L457">			final Predicate&lt;String&gt; discountCurveMissing = new Predicate&lt;String&gt;() {</span>
+				@Override
+				public boolean test(final String curveName) {
+<span class="pc bpc" id="L460" title="2 of 6 branches missed.">					return curveName != null &amp;&amp; curveName.length() &gt; 0 &amp;&amp; model.getDiscountCurve(curveName) == null;</span>
+				}
+			};
+<span class="fc" id="L463">			final Predicate&lt;String&gt; forwardCurveMissing = new Predicate&lt;String&gt;() {</span>
+				@Override
+				public boolean test(final String curveName) {
+<span class="pc bpc" id="L466" title="1 of 6 branches missed.">					return curveName != null &amp;&amp; curveName.length() &gt; 0 &amp;&amp; model.getForwardCurve(curveName) == null;</span>
+				}
+			};
+<span class="pc bpc" id="L469" title="1 of 2 branches missed.">			if(discountCurveMissing.test(calibrationSpec.discountCurveReceiverName)) {</span>
+<span class="nc" id="L470">				throw new IllegalArgumentException(&quot;Discount curve &quot; + calibrationSpec.discountCurveReceiverName + &quot; missing. Needs to be part of model &quot; + model + &quot;.&quot;);</span>
+			}
+<span class="pc bpc" id="L472" title="1 of 2 branches missed.">			if(discountCurveMissing.test(calibrationSpec.discountCurvePayerName)) {</span>
+<span class="nc" id="L473">				throw new IllegalArgumentException(&quot;Discount curve &quot; + calibrationSpec.discountCurvePayerName + &quot; missing. Needs to be part of model &quot; + model + &quot;.&quot;);</span>
+			}
+<span class="pc bpc" id="L475" title="1 of 2 branches missed.">			if(forwardCurveMissing.test(calibrationSpec.forwardCurveReceiverName)) {</span>
+<span class="nc" id="L476">				throw new IllegalArgumentException(&quot;Forward curve &quot; + calibrationSpec.forwardCurveReceiverName + &quot; missing. Needs to be part of model &quot; + model + &quot;.&quot;);</span>
+			}
+<span class="pc bpc" id="L478" title="1 of 2 branches missed.">			if(forwardCurveMissing.test(calibrationSpec.forwardCurvePayerName)) {</span>
+<span class="nc" id="L479">				throw new IllegalArgumentException(&quot;Forward curve &quot; + calibrationSpec.forwardCurvePayerName + &quot; missing. Needs to be part of model &quot; + model + &quot;.&quot;);</span>
+			}
+		}
+
+<span class="fc" id="L483">		final Schedule tenorReceiver = calibrationSpec.swapTenorDefinitionReceiver;</span>
+<span class="fc" id="L484">		final Schedule tenorPayer	= calibrationSpec.swapTenorDefinitionPayer;</span>
+
+<span class="fc" id="L486">		AnalyticProduct product = null;</span>
+<span class="fc bfc" id="L487" title="All 2 branches covered.">		if(calibrationSpec.type.toLowerCase().equals(&quot;deposit&quot;)){</span>
+<span class="fc" id="L488">			product = new Deposit(tenorReceiver, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName);</span>
+		}
+<span class="fc bfc" id="L490" title="All 2 branches covered.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;fra&quot;)){</span>
+<span class="fc" id="L491">			product = new ForwardRateAgreement(tenorReceiver, calibrationSpec.spreadReceiver, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);</span>
+		}
+<span class="pc bpc" id="L493" title="1 of 2 branches missed.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;future&quot;)){</span>
+			// like a fra but future price needs to be translated into rate
+<span class="nc" id="L495">			product = new ForwardRateAgreement(calibrationSpec.swapTenorDefinitionReceiver, 1.0-calibrationSpec.spreadReceiver/100.0, forwardCurveReceiverName, calibrationSpec.discountCurveReceiverName);</span>
+		}
+<span class="pc bpc" id="L497" title="1 of 2 branches missed.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;swapleg&quot;)) {</span>
+			// note that a swapLeg is always assumed to have a notional reset
+<span class="nc" id="L499">			product = new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);</span>
+		}
+<span class="pc bpc" id="L501" title="1 of 2 branches missed.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;swap&quot;)) {</span>
+<span class="fc" id="L502">			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);</span>
+<span class="fc" id="L503">			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);</span>
+<span class="fc" id="L504">			product = new Swap(legReceiver, legPayer);</span>
+<span class="fc" id="L505">		}</span>
+<span class="nc bnc" id="L506" title="All 2 branches missed.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;swapwithresetonreceiver&quot;)) {</span>
+<span class="nc" id="L507">			final String discountCurveForNotionalResetName = calibrationSpec.discountCurvePayerName;</span>
+<span class="nc" id="L508">			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, discountCurveForNotionalResetName, true);</span>
+<span class="nc" id="L509">			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, true);</span>
+<span class="nc" id="L510">			product = new Swap(legReceiver, legPayer);</span>
+<span class="nc" id="L511">		}</span>
+<span class="nc bnc" id="L512" title="All 2 branches missed.">		else if(calibrationSpec.type.toLowerCase().equals(&quot;swapwithresetonpayer&quot;)) {</span>
+<span class="nc" id="L513">			final String discountCurveForNotionalResetName = calibrationSpec.discountCurveReceiverName;</span>
+<span class="nc" id="L514">			final SwapLeg	legReceiver	= new SwapLeg(tenorReceiver, forwardCurveReceiverName, calibrationSpec.spreadReceiver, calibrationSpec.discountCurveReceiverName, true);</span>
+<span class="nc" id="L515">			final SwapLeg	legPayer	= new SwapLeg(tenorPayer, forwardCurvePayerName, calibrationSpec.spreadPayer, calibrationSpec.discountCurvePayerName, discountCurveForNotionalResetName, true);</span>
+<span class="nc" id="L516">			product = new Swap(legReceiver, legPayer);</span>
+<span class="nc" id="L517">		}</span>
+
+		else {
+<span class="nc" id="L520">			throw new RuntimeException(&quot;Product of type &quot; + calibrationSpec.type + &quot; unknown.&quot;);</span>
+		}
+
+<span class="fc" id="L523">		return product;</span>
+	}
+
+	/**
+	 * Return the calibrated model, i.e., the model maintaining a collection of curves calibrated to the
+	 * given calibration specifications.
+	 *
+	 * @return The calibrated model.
+	 */
+	public AnalyticModel getModel() {
+<span class="fc" id="L533">		return model;</span>
+	}
+
+	/**
+	 * Get a curve for a given name.
+	 *
+	 * @param name Name of the curve
+	 * @return The curve model.
+	 */
+	public Curve getCurve(final String name) {
+<span class="nc" id="L543">		return model.getCurve(name);</span>
+	}
+
+	/**
+	 * Return the number of iterations needed to calibrate the model.
+	 *
+	 * @return The number of iterations needed to calibrate the model.
+	 */
+	public int getLastNumberOfInterations() {
+<span class="nc" id="L552">		return lastNumberOfInterations;</span>
+	}
+
+	/**
+	 * Returns the set curves calibrated to &quot;shifted&quot; market data, that is,
+	 * the market date of &lt;code&gt;this&lt;/code&gt; object, modified by the shifts
+	 * provided to this methods.
+	 *
+	 * @param symbol The symbol to shift. All other symbols remain unshifted.
+	 * @param shift The shift to apply to the symbol.
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShifted(final String symbol, final double shift) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+<span class="nc" id="L568">		final List&lt;CalibrationSpec&gt; calibrationSpecsShifted = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L569" title="All 2 branches missed.">		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {</span>
+<span class="nc bnc" id="L570" title="All 2 branches missed.">			if(calibrationSpec.symbol.equals(symbol)) {</span>
+<span class="nc" id="L571">				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));</span>
+			}
+			else {
+<span class="nc" id="L574">				calibrationSpecsShifted.add(calibrationSpec);</span>
+			}
+<span class="nc" id="L576">		}</span>
+
+<span class="nc" id="L578">		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);</span>
+	}
+
+	/**
+	 * Returns the set curves calibrated to &quot;shifted&quot; market data, that is,
+	 * the market date of &lt;code&gt;this&lt;/code&gt; object, modified by the shifts
+	 * provided to this methods.
+	 *
+	 * @param shifts A map of shifts associating each symbol with a shifts. If symbols are not part of this map, they remain unshifted.
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShifted(final Map&lt;String,Double&gt; shifts) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+<span class="nc" id="L593">		final List&lt;CalibrationSpec&gt; calibrationSpecsShifted = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L594" title="All 2 branches missed.">		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {</span>
+<span class="nc bnc" id="L595" title="All 2 branches missed.">			if(shifts.containsKey(calibrationSpec)) {</span>
+<span class="nc" id="L596">				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shifts.get(calibrationSpec)));</span>
+			}
+			else {
+<span class="nc" id="L599">				calibrationSpecsShifted.add(calibrationSpec);</span>
+			}
+<span class="nc" id="L601">		}</span>
+
+<span class="nc" id="L603">		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);</span>
+	}
+
+	/**
+	 * Returns the set curves calibrated to &quot;shifted&quot; market data, that is,
+	 * the market date of &lt;code&gt;this&lt;/code&gt; object, modified by the shifts
+	 * provided to this methods.
+	 *
+	 * This method will shift all symbols matching a given regular expression &lt;code&gt;Pattern&lt;/code&gt;.
+	 *
+	 * @see java.util.regex.Pattern
+	 *
+	 * @param symbolRegExp A pattern, identifying the symbols to shift.
+	 * @param shift The shift to apply to the symbol(s).
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShifted(final Pattern symbolRegExp, final double shift) throws SolverException, CloneNotSupportedException {
+		// Clone calibration specs, shifting the desired symbol
+<span class="nc" id="L623">		final List&lt;CalibrationSpec&gt; calibrationSpecsShifted = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L625" title="All 2 branches missed.">		for(final CalibrationSpec calibrationSpec : calibrationSpecs) {</span>
+<span class="nc" id="L626">			final Matcher matcher = symbolRegExp.matcher(calibrationSpec.symbol);</span>
+<span class="nc bnc" id="L627" title="All 2 branches missed.">			if(matcher.matches()) {</span>
+<span class="nc" id="L628">				calibrationSpecsShifted.add(calibrationSpec.getCloneShifted(shift));</span>
+			}
+			else {
+<span class="nc" id="L631">				calibrationSpecsShifted.add(calibrationSpec);</span>
+			}
+<span class="nc" id="L633">		}</span>
+
+<span class="nc" id="L635">		return new CalibratedCurves(calibrationSpecsShifted, model, evaluationTime, calibrationAccuracy);</span>
+	}
+
+	/**
+	 * Returns the set curves calibrated to &quot;shifted&quot; market data, that is,
+	 * the market date of &lt;code&gt;this&lt;/code&gt; object, modified by the shifts
+	 * provided to this methods.
+	 *
+	 * This method will shift all symbols matching a given regular expression.
+	 *
+	 * @see java.util.regex.Pattern
+	 *
+	 * @param symbolRegExp A string representing a regular expression, identifying the symbols to shift.
+	 * @param shift The shift to apply to the symbol(s).
+	 * @return A new set of calibrated curves, calibrated to shifted market data.
+	 * @throws SolverException The likely cause of this exception is a failure of the solver used in the calibration.
+	 * @throws CloneNotSupportedException The likely cause of this exception is the inability to clone or modify a curve.
+	 */
+	public CalibratedCurves getCloneShiftedForRegExp(final String symbolRegExp, final double shift) throws SolverException, CloneNotSupportedException {
+<span class="nc" id="L654">		return getCloneShifted(Pattern.compile(symbolRegExp), shift);</span>
+	}
+
+	/**
+	 * Return the accuracy achieved in the last calibration.
+	 *
+	 * @return The accuracy achieved in the last calibration.
+	 */
+	public double getLastAccuracy() {
+<span class="nc" id="L663">		return lastAccuracy;</span>
+	}
+
+	/**
+	 * Returns the first product found in the vector of calibration products
+	 * which matches the given symbol, where symbol is the String set in
+	 * the calibrationSpecs.
+	 *
+	 * @param symbol A given symbol string.
+	 * @return The product associated with that symbol.
+	 */
+	public AnalyticProduct getCalibrationProductForSymbol(final String symbol) {
+
+		/*
+		 * The internal data structure is not optimal here (a map would make more sense here),
+		 * if the user does not require access to the products, we would allow non-unique symbols.
+		 * Hence we store both in two side by side vectors.
+		 */
+<span class="nc bnc" id="L681" title="All 2 branches missed.">		for(int i=0; i&lt;calibrationProductsSymbols.size(); i++) {</span>
+<span class="nc" id="L682">			final String calibrationProductSymbol = calibrationProductsSymbols.get(i);</span>
+<span class="nc bnc" id="L683" title="All 2 branches missed.">			if(calibrationProductSymbol.equals(symbol)) {</span>
+<span class="nc" id="L684">				return calibrationProducts.get(i);</span>
+			}
+		}
+
+<span class="nc" id="L688">		return null;</span>
+	}
+
+	private int calibrate(final double accuracy) throws SolverException {
+<span class="fc" id="L692">		final Solver solver = new Solver(model, calibrationProducts, evaluationTime, accuracy);</span>
+<span class="fc" id="L693">		model = solver.getCalibratedModel(objectsToCalibrate);</span>
+
+<span class="fc" id="L695">		lastAccuracy = solver.getAccuracy();</span>
+
+<span class="fc" id="L697">		return solver.getIterations();</span>
+	}
+
+	/**
+	 * Add a calibration product to the set of calibration instruments.
+	 *
+	 * @param calibrationSpec The spec of the calibration product.
+	 * @throws CloneNotSupportedException Thrown if a curve could not be cloned / created.
+	 */
+	private String add(final CalibrationSpec calibrationSpec) throws CloneNotSupportedException
+	{
+<span class="fc" id="L708">		calibrationSpecs.add(calibrationSpec);</span>
+
+		/*
+		 * Add one point to the calibration curve and one new objective function
+		 */
+
+		// Create calibration product (will also create the curve if necessary)
+<span class="fc" id="L715">		calibrationProducts.add(getCalibrationProductForSpec(calibrationSpec));</span>
+<span class="fc" id="L716">		calibrationProductsSymbols.add(calibrationSpec.symbol);</span>
+
+		// Create parameter to calibrate
+
+		// Fetch old curve
+<span class="fc" id="L721">		final Curve calibrationCurveOld = model.getCurve(calibrationSpec.calibrationCurveName);</span>
+<span class="pc bpc" id="L722" title="1 of 2 branches missed.">		if(calibrationCurveOld == null) {</span>
+<span class="nc" id="L723">			throw new IllegalArgumentException(&quot;Calibration curve &quot; + calibrationSpec.calibrationCurveName + &quot; does not exist. This should not happen. Possible reason: The given calibration product does not depend on the given calibration curve.&quot;);</span>
+		}
+
+		// Remove old curve
+<span class="fc" id="L727">		objectsToCalibrate.remove(calibrationCurveOld);</span>
+
+		// Create and add new curve
+		double valueGuess;
+<span class="fc bfc" id="L731" title="All 2 branches covered.">		if(DiscountCurve.class.isInstance(calibrationCurveOld)) {</span>
+<span class="fc" id="L732">			valueGuess = 1.0;</span>
+		}
+<span class="pc bpc" id="L734" title="1 of 2 branches missed.">		else if(ForwardCurve.class.isInstance(calibrationCurveOld)) {</span>
+<span class="fc" id="L735">			valueGuess = 0.0;</span>
+		}
+		else {
+<span class="nc" id="L738">			valueGuess = 1.0;</span>
+		}
+
+		// Build new curve with one additional point
+<span class="fc" id="L742">		final Curve calibrationCurve = calibrationCurveOld</span>
+<span class="fc" id="L743">				.getCloneBuilder()</span>
+<span class="fc" id="L744">				.addPoint(calibrationSpec.calibrationTime, valueGuess, true)</span>
+<span class="fc" id="L745">				.build();</span>
+<span class="fc" id="L746">		model = model.addCurves(calibrationCurve);</span>
+<span class="fc" id="L747">		objectsToCalibrate.add(calibrationCurve);</span>
+
+<span class="fc" id="L749">		return calibrationSpec.type;</span>
+	}
+
+	/**
+	 * Get a discount curve from the model, if not existing create a discount curve.
+	 *
+	 * @param discountCurveName The name of the discount curve to create.
+	 * @return The discount factor curve associated with the given name.
+	 */
+	private DiscountCurve createDiscountCurve(final String discountCurveName) {
+<span class="nc" id="L759">		DiscountCurve discountCurve	= model.getDiscountCurve(discountCurveName);</span>
+<span class="nc bnc" id="L760" title="All 2 branches missed.">		if(discountCurve == null) {</span>
+<span class="nc" id="L761">			discountCurve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(discountCurveName, new double[] { 0.0 }, new double[] { 1.0 });</span>
+<span class="nc" id="L762">			model = model.addCurves(discountCurve);</span>
+		}
+
+<span class="nc" id="L765">		return discountCurve;</span>
+	}
+
+	/**
+	 * Get a forward curve from the model, if not existing create a forward curve.
+	 *
+	 * @param swapTenorDefinition The swap tenor associated with the forward curve.
+	 * @param forwardCurveName The name of the forward curve to create.
+	 * @return The forward curve associated with the given name.
+	 */
+	private String createForwardCurve(final Schedule swapTenorDefinition, final String forwardCurveName) {
+
+		/*
+		 * Temporary &quot;hack&quot; - we try to infer index maturity codes from curve name.
+		 */
+<span class="nc" id="L780">		String indexMaturityCode = null;</span>
+<span class="nc bnc" id="L781" title="All 6 branches missed.">		if(forwardCurveName.contains(&quot;_12M&quot;) || forwardCurveName.contains(&quot;-12M&quot;) || forwardCurveName.contains(&quot; 12M&quot;)) {</span>
+<span class="nc" id="L782">			indexMaturityCode = &quot;12M&quot;;</span>
+		}
+<span class="nc bnc" id="L784" title="All 6 branches missed.">		if(forwardCurveName.contains(&quot;_1M&quot;)	|| forwardCurveName.contains(&quot;-1M&quot;)	|| forwardCurveName.contains(&quot; 1M&quot;)) {</span>
+<span class="nc" id="L785">			indexMaturityCode = &quot;1M&quot;;</span>
+		}
+<span class="nc bnc" id="L787" title="All 6 branches missed.">		if(forwardCurveName.contains(&quot;_6M&quot;)	|| forwardCurveName.contains(&quot;-6M&quot;)	|| forwardCurveName.contains(&quot; 6M&quot;)) {</span>
+<span class="nc" id="L788">			indexMaturityCode = &quot;6M&quot;;</span>
+		}
+<span class="nc bnc" id="L790" title="All 6 branches missed.">		if(forwardCurveName.contains(&quot;_3M&quot;) || forwardCurveName.contains(&quot;-3M&quot;) || forwardCurveName.contains(&quot; 3M&quot;)) {</span>
+<span class="nc" id="L791">			indexMaturityCode = &quot;3M&quot;;</span>
+		}
+
+<span class="nc bnc" id="L794" title="All 4 branches missed.">		if(forwardCurveName == null || forwardCurveName.isEmpty()) {</span>
+<span class="nc" id="L795">			return null;</span>
+		}
+
+		// Check if the curves exists, if not create it
+<span class="nc" id="L799">		Curve	curve = model.getCurve(forwardCurveName);</span>
+
+<span class="nc" id="L801">		Curve	forwardCurve = null;</span>
+<span class="nc bnc" id="L802" title="All 2 branches missed.">		if(curve == null) {</span>
+			// Create a new forward curve
+<span class="nc bnc" id="L804" title="All 2 branches missed.">			if(isUseForwardCurve) {</span>
+<span class="nc" id="L805">				curve = new ForwardCurveInterpolation(forwardCurveName, swapTenorDefinition.getReferenceDate(), indexMaturityCode, ForwardCurveInterpolation.InterpolationEntityForward.FORWARD, null);</span>
+			}
+			else {
+				// Alternative: Model the forward curve through an underlying discount curve.
+<span class="nc" id="L809">				curve = DiscountCurveInterpolation.createDiscountCurveFromDiscountFactors(forwardCurveName, new double[] { 0.0 }, new double[] { 1.0 });</span>
+<span class="nc" id="L810">				model = model.addCurves(curve);</span>
+			}
+		}
+
+		// Check if the curve is a discount curve, if yes - create a forward curve wrapper.
+<span class="nc bnc" id="L815" title="All 2 branches missed.">		if(DiscountCurve.class.isInstance(curve)) {</span>
+			/*
+			 *  If the specified forward curve exits as a discount curve, we generate a forward curve
+			 *  by wrapping the discount curve and calculating the
+			 *  forward from discount factors using the formula (df(T)/df(T+Delta T) - 1) / Delta T).
+			 *
+			 *  If no index maturity is used, the forward curve is interpreted &quot;single curve&quot;, i.e.
+			 *  T+Delta T is always the payment.
+			 */
+<span class="nc" id="L824">			forwardCurve = new ForwardCurveFromDiscountCurve(curve.getName(), swapTenorDefinition.getReferenceDate(), indexMaturityCode);</span>
+		}
+		else {
+			// Use a given forward curve
+<span class="nc" id="L828">			forwardCurve = curve;</span>
+		}
+
+<span class="nc" id="L831">		model = model.addCurves(forwardCurve);</span>
+
+<span class="nc" id="L833">		return forwardCurve.getName();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

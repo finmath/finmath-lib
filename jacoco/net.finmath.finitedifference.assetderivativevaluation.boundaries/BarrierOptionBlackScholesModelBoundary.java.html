@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarrierOptionBlackScholesModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">BarrierOptionBlackScholesModelBoundary.java</span></div><h1>BarrierOptionBlackScholesModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.BarrierOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.BarrierType;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link BarrierOption} under the {@link
+ * FDMBlackScholesModel}.
+ *
+ * &lt;p&gt;
+ * This class supports the explicit boundary-condition API returning
+ * {@link BoundaryCondition} objects.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Conventions:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;For knock-out options, the rebate is paid at hit, so the barrier-side
+ *       boundary is pinned to the rebate.&lt;/li&gt;
+ *   &lt;li&gt;For knock-in options, the outer boundaries use the corresponding
+ *       vanilla Black-Scholes asymptotics.&lt;/li&gt;
+ * &lt;li&gt;The barrier is assumed to coincide with one spatial boundary of the grid
+ *       for direct knock-out pricing:
+ * down barriers at the lower boundary, up barriers at the upper boundary.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * In the direct two-state knock-in solver, the activated regime should use
+ * these
+ * vanilla asymptotic boundaries, while the inactive regime is coupled to the
+ * activated regime on the hit set.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BarrierOptionBlackScholesModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMBlackScholesModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L59">	public BarrierOptionBlackScholesModelBoundary(final FDMBlackScholesModel model) {</span>
+<span class="nc" id="L60">		this.model = model;</span>
+<span class="nc" id="L61">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L69">		final BarrierOption option = (BarrierOption) product;</span>
+<span class="nc" id="L70">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L71">		final CallOrPut sign = option.getCallOrPut();</span>
+
+		/*
+		 * For a down-and-out option, the lower boundary is the barrier-side
+		 * boundary,
+		 * so the value is pinned to the rebate (paid at hit).
+		 *
+		 * For all other cases, including down-in, use vanilla asymptotics.
+		 */
+<span class="nc bnc" id="L80" title="All 2 branches missed.">		if (barrierType == BarrierType.DOWN_OUT) {</span>
+<span class="nc" id="L81">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L82">					StandardBoundaryCondition.dirichlet(option.getRebate())</span>
+			};
+		}
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (sign == CallOrPut.CALL) {</span>
+			/*
+			 * Vanilla call asymptotic at S -&gt; 0.
+			 */
+<span class="nc" id="L90">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L91">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		} else {
+			/*
+			 * Vanilla put asymptotic at S -&gt; 0:
+			 * V(t,S) ~ K exp(-r(T-t)).
+			 */
+<span class="nc" id="L98">			time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L100">			final double discountFactorRiskFree =</span>
+<span class="nc" id="L101">					model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L102">			final double riskFreeRate =</span>
+<span class="nc" id="L103">					-Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L105">			final double strike = option.getStrike();</span>
+<span class="nc" id="L106">			final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L108">			final double value =</span>
+<span class="nc" id="L109">					strike * Math.exp(-riskFreeRate * (maturity - time));</span>
+
+<span class="nc" id="L111">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L112">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		}
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L123">		final BarrierOption option = (BarrierOption) product;</span>
+<span class="nc" id="L124">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L125">		final CallOrPut sign = option.getCallOrPut();</span>
+
+		/*
+		 * For an up-and-out option, the upper boundary is the barrier-side
+		 * boundary,
+		 * so the value is pinned to the rebate (paid at hit).
+		 *
+		 * For all other cases, including up-in, use vanilla asymptotics.
+		 */
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if (barrierType == BarrierType.UP_OUT) {</span>
+<span class="nc" id="L135">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L136">					StandardBoundaryCondition.dirichlet(option.getRebate())</span>
+			};
+		}
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">		if (sign == CallOrPut.CALL) {</span>
+			/*
+			 * Vanilla call asymptotic at large S:
+			 * V(t,S) ~ S exp(-q(T-t)) - K exp(-r(T-t)).
+			 */
+<span class="nc" id="L145">			time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L147">			final double discountFactorRiskFree =</span>
+<span class="nc" id="L148">					model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L149">			final double riskFreeRate =</span>
+<span class="nc" id="L150">					-Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L152">			final double discountFactorDividend =</span>
+<span class="nc" id="L153">					model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L154">			final double dividendYieldRate =</span>
+<span class="nc" id="L155">					-Math.log(discountFactorDividend) / time;</span>
+
+<span class="nc" id="L157">			final double strike = option.getStrike();</span>
+<span class="nc" id="L158">			final double maturity = option.getMaturity();</span>
+<span class="nc" id="L159">			final double stateVariable = stateVariables[0];</span>
+
+<span class="nc" id="L161">			final double dividendAdjustedStockPrice =</span>
+<span class="nc" id="L162">					stateVariable * Math.exp(-dividendYieldRate * (maturity - time));</span>
+
+<span class="nc" id="L164">			final double value =</span>
+					dividendAdjustedStockPrice
+<span class="nc" id="L166">					- strike * Math.exp(-riskFreeRate * (maturity - time));</span>
+
+<span class="nc" id="L168">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L169">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		} else {
+			/*
+			 * Vanilla put asymptotic at large S.
+			 */
+<span class="nc" id="L175">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L176">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

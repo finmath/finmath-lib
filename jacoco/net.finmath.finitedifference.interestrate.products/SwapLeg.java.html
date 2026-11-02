@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwapLeg.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.products</a> &gt; <span class="el_source">SwapLeg.java</span></div><h1>SwapLeg.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.products;
+
+import java.util.Arrays;
+
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.time.Schedule;
+
+/**
+ * Finite-difference valuation of a reduced-scope swap leg.
+ *
+ * &lt;p&gt;
+ * This class mirrors the role of the analytic and Monte Carlo swap-leg classes,
+ * but is adapted to the current Markovian finite-difference rates framework.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * A leg is specified by
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;a schedule,&lt;/li&gt;
+ *   &lt;li&gt;an optional forwarding-curve name,&lt;/li&gt;
+ *   &lt;li&gt;a notional for each period,&lt;/li&gt;
+ *   &lt;li&gt;a spread for each period,&lt;/li&gt;
+ *   &lt;li&gt;an optional flag for notional exchange.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * If {@code forwardCurveName} is {@code null} or empty, the leg is interpreted
+ * as a fixed leg and the spread is the fixed coupon rate.
+ * Otherwise the coupon in period {@code i} is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \bigl(F(t;T_i^{\mathrm{fix}},T_i^{\mathrm{pay}}) + s_i\bigr)\delta_i.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Reduced-scope Markovian assumption:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;fixed-leg periods with {@code periodStart &lt; evaluationTime} are ignored,&lt;/li&gt;
+ *   &lt;li&gt;floating-leg periods with {@code fixingDate &lt; evaluationTime} are ignored.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * This means the product is interpreted as the remaining forward-looking leg
+ * from the current evaluation time onward. The class is therefore intended for
+ * forward/running swap valuation in the PDE setting and for swaption
+ * underlyings. It does not attempt to encode already-fixed-but-not-yet-paid
+ * floating coupons as additional state variables.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Since the product is linear, valuation is performed directly from discount
+ * bonds and forward rates. No PDE solver is required.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class SwapLeg implements FiniteDifferenceInterestRateProduct {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The leg schedule.
+	 */
+	private final Schedule legSchedule;
+	/**
+	 * The forward curve name.
+	 */
+	private final String forwardCurveName;
+	/**
+	 * The notionals.
+	 */
+	private final double[] notionals;
+	/**
+	 * The spreads.
+	 */
+	private final double[] spreads;
+	/**
+	 * The is notional exchanged.
+	 */
+	private final boolean isNotionalExchanged;
+
+	/**
+	 * Creates a swap leg.
+	 *
+	 * @param legSchedule The leg schedule.
+	 * @param forwardCurveName The forwarding-curve name. If {@code null} or empty,
+	 *        the leg is interpreted as fixed.
+	 * @param notionals The notionals for all periods.
+	 * @param spreads The spreads or fixed coupon rates for all periods.
+	 * @param isNotionalExchanged If true, notional exchange is included.
+	 */
+	public SwapLeg(
+			final Schedule legSchedule,
+			final String forwardCurveName,
+			final double[] notionals,
+			final double[] spreads,
+<span class="nc" id="L105">			final boolean isNotionalExchanged) {</span>
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (legSchedule == null) {</span>
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;legSchedule must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if (legSchedule.getNumberOfPeriods() &lt;= 0) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;legSchedule must contain at least one period.&quot;);</span>
+		}
+<span class="nc bnc" id="L113" title="All 4 branches missed.">		if (notionals == null || notionals.length != legSchedule.getNumberOfPeriods()) {</span>
+<span class="nc" id="L114">			throw new IllegalArgumentException(</span>
+					&quot;notionals must have the same length as the number of schedule periods.&quot;
+					);
+		}
+<span class="nc bnc" id="L118" title="All 4 branches missed.">		if (spreads == null || spreads.length != legSchedule.getNumberOfPeriods()) {</span>
+<span class="nc" id="L119">			throw new IllegalArgumentException(</span>
+					&quot;spreads must have the same length as the number of schedule periods.&quot;
+					);
+		}
+
+<span class="nc" id="L124">		this.legSchedule = legSchedule;</span>
+<span class="nc" id="L125">		this.forwardCurveName = forwardCurveName;</span>
+<span class="nc" id="L126">		this.notionals = notionals.clone();</span>
+<span class="nc" id="L127">		this.spreads = spreads.clone();</span>
+<span class="nc" id="L128">		this.isNotionalExchanged = isNotionalExchanged;</span>
+
+<span class="nc" id="L130">		validateInputs();</span>
+<span class="nc" id="L131">	}</span>
+
+	/**
+	 * Creates a swap leg with constant notional equal to one and constant spread.
+	 *
+	 * @param legSchedule The leg schedule.
+	 * @param forwardCurveName The forwarding-curve name. If {@code null} or empty,
+	 *        the leg is interpreted as fixed.
+	 * @param spread The constant spread or fixed coupon rate.
+	 * @param isNotionalExchanged If true, notional exchange is included.
+	 */
+	public SwapLeg(
+			final Schedule legSchedule,
+			final String forwardCurveName,
+			final double spread,
+			final boolean isNotionalExchanged) {
+<span class="nc" id="L147">		this(</span>
+				legSchedule,
+				forwardCurveName,
+<span class="nc" id="L150">				createConstantArray(legSchedule, 1.0),</span>
+<span class="nc" id="L151">				createConstantArray(legSchedule, spread),</span>
+				isNotionalExchanged
+				);
+<span class="nc" id="L154">	}</span>
+
+	/**
+	 * Creates a swap leg with constant notional equal to one, constant spread,
+	 * and no notional exchange.
+	 *
+	 * @param legSchedule The leg schedule.
+	 * @param forwardCurveName The forwarding-curve name. If {@code null} or empty,
+	 *        the leg is interpreted as fixed.
+	 * @param spread The constant spread or fixed coupon rate.
+	 */
+	public SwapLeg(
+			final Schedule legSchedule,
+			final String forwardCurveName,
+			final double spread) {
+<span class="nc" id="L169">		this(legSchedule, forwardCurveName, spread, false);</span>
+<span class="nc" id="L170">	}</span>
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L177">		validateModel(model);</span>
+
+<span class="nc" id="L179">		final double[] xGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L180">		final double[] values = new double[xGrid.length];</span>
+
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L183">			values[i] = getValueAt(evaluationTime, xGrid[i], model);</span>
+		}
+
+<span class="nc" id="L186">		return values;</span>
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L192">		validateModel(model);</span>
+
+<span class="nc" id="L194">		final double[] xGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L195">		final int numberOfSpacePoints = xGrid.length;</span>
+<span class="nc" id="L196">		final int numberOfTimes = model.getSpaceTimeDiscretization().getTimeDiscretization().getNumberOfTimes();</span>
+
+<span class="nc" id="L198">		final double[][] values = new double[numberOfSpacePoints][numberOfTimes];</span>
+
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfTimes; timeIndex++) {</span>
+<span class="nc" id="L201">			final double evaluationTime = model.getSpaceTimeDiscretization().getTimeDiscretization().getTime(timeIndex);</span>
+
+<span class="nc bnc" id="L203" title="All 2 branches missed.">			for (int spaceIndex = 0; spaceIndex &lt; numberOfSpacePoints; spaceIndex++) {</span>
+<span class="nc" id="L204">				values[spaceIndex][timeIndex] = getValueAt(evaluationTime, xGrid[spaceIndex], model);</span>
+			}
+		}
+
+<span class="nc" id="L208">		return values;</span>
+	}
+
+	/**
+	 * Returns the leg value at the given evaluation time and state.
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param stateVariable The state variable.
+	 * @param model The finite-difference interest-rate model.
+	 * @return The leg value.
+	 */
+	public double getValueAt(
+			final double evaluationTime,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L224">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; legSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+
+<span class="nc" id="L228">			final double periodStart = legSchedule.getPeriodStart(periodIndex);</span>
+<span class="nc" id="L229">			final double fixingDate = legSchedule.getFixing(periodIndex);</span>
+<span class="nc" id="L230">			final double paymentDate = legSchedule.getPayment(periodIndex);</span>
+<span class="nc" id="L231">			final double periodLength = legSchedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L232">			final double notional = notionals[periodIndex];</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			if (isFixedLeg()) {</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">				if (periodStart &lt; evaluationTime - TIME_TOLERANCE) {</span>
+<span class="nc" id="L236">					continue;</span>
+				}
+			} else {
+<span class="nc bnc" id="L239" title="All 2 branches missed.">				if (fixingDate &lt; evaluationTime - TIME_TOLERANCE) {</span>
+<span class="nc" id="L240">					continue;</span>
+				}
+			}
+
+<span class="nc bnc" id="L244" title="All 2 branches missed.">			if (paymentDate &lt;= evaluationTime + TIME_TOLERANCE) {</span>
+<span class="nc" id="L245">				continue;</span>
+			}
+
+<span class="nc" id="L248">			double couponRate = spreads[periodIndex];</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">			if (!isFixedLeg()) {</span>
+<span class="nc" id="L250">				couponRate += model.getForwardRate(</span>
+						forwardCurveName,
+						evaluationTime,
+						fixingDate,
+						paymentDate,
+						stateVariable
+						);
+			}
+
+<span class="nc" id="L259">			value += notional</span>
+					* couponRate
+					* periodLength
+<span class="nc" id="L262">					* model.getDiscountBond(evaluationTime, paymentDate, stateVariable);</span>
+
+<span class="nc bnc" id="L264" title="All 2 branches missed.">			if (isNotionalExchanged) {</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">				if (periodStart &gt; evaluationTime + TIME_TOLERANCE) {</span>
+<span class="nc" id="L266">					value -= notional * model.getDiscountBond(evaluationTime, periodStart, stateVariable);</span>
+				}
+<span class="nc bnc" id="L268" title="All 2 branches missed.">				if (legSchedule.getPeriodEnd(periodIndex) &gt; evaluationTime + TIME_TOLERANCE) {</span>
+<span class="nc" id="L269">					value += notional * model.getDiscountBond(</span>
+							evaluationTime,
+<span class="nc" id="L271">							legSchedule.getPeriodEnd(periodIndex),</span>
+							stateVariable
+							);
+				}
+			}
+		}
+
+<span class="nc" id="L278">		return value;</span>
+	}
+
+	/**
+	 * Returns the schedule.
+	 *
+	 * @return The schedule.
+	 */
+	public Schedule getSchedule() {
+<span class="nc" id="L287">		return legSchedule;</span>
+	}
+
+	/**
+	 * Returns the forwarding-curve name.
+	 *
+	 * @return The forwarding-curve name, possibly {@code null}.
+	 */
+	public String getForwardCurveName() {
+<span class="nc" id="L296">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * Returns the notionals.
+	 *
+	 * @return The notionals.
+	 */
+	public double[] getNotionals() {
+<span class="nc" id="L305">		return notionals.clone();</span>
+	}
+
+	/**
+	 * Returns the spreads or fixed coupon rates.
+	 *
+	 * @return The spreads.
+	 */
+	public double[] getSpreads() {
+<span class="nc" id="L314">		return spreads.clone();</span>
+	}
+
+	/**
+	 * Returns whether notional exchange is included.
+	 *
+	 * @return True if notional exchange is included.
+	 */
+	public boolean isNotionalExchanged() {
+<span class="nc" id="L323">		return isNotionalExchanged;</span>
+	}
+
+	/**
+	 * Returns whether the leg is fixed.
+	 *
+	 * @return True if the leg is fixed.
+	 */
+	public boolean isFixedLeg() {
+<span class="nc bnc" id="L332" title="All 4 branches missed.">		return forwardCurveName == null || forwardCurveName.isEmpty();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L337">		return &quot;SwapLeg [legSchedule=&quot; + legSchedule</span>
+				+ &quot;, forwardCurveName=&quot; + forwardCurveName
+<span class="nc" id="L339">				+ &quot;, notionals=&quot; + Arrays.toString(notionals)</span>
+<span class="nc" id="L340">				+ &quot;, spreads=&quot; + Arrays.toString(spreads)</span>
+				+ &quot;, isNotionalExchanged=&quot; + isNotionalExchanged
+				+ &quot;]&quot;;
+	}
+
+	private void validateInputs() {
+<span class="nc bnc" id="L346" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; legSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc bnc" id="L347" title="All 2 branches missed.">			if (notionals[periodIndex] &lt; 0.0) {</span>
+<span class="nc" id="L348">				throw new IllegalArgumentException(&quot;All notionals must be non-negative.&quot;);</span>
+			}
+<span class="nc bnc" id="L350" title="All 2 branches missed.">			if (legSchedule.getFixing(periodIndex) &lt; 0.0) {</span>
+<span class="nc" id="L351">				throw new IllegalArgumentException(&quot;Schedule fixing times must be non-negative.&quot;);</span>
+			}
+<span class="nc bnc" id="L353" title="All 2 branches missed.">			if (legSchedule.getPayment(periodIndex) &lt;= legSchedule.getFixing(periodIndex)) {</span>
+<span class="nc" id="L354">				throw new IllegalArgumentException(&quot;Each payment time must be strictly later than fixing.&quot;);</span>
+			}
+<span class="nc bnc" id="L356" title="All 2 branches missed.">			if (legSchedule.getPeriodLength(periodIndex) &lt; 0.0) {</span>
+<span class="nc" id="L357">				throw new IllegalArgumentException(&quot;Schedule period lengths must be non-negative.&quot;);</span>
+			}
+		}
+<span class="nc" id="L360">	}</span>
+
+	private void validateModel(final FiniteDifferenceInterestRateModel model) {
+<span class="nc bnc" id="L363" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L364">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L366" title="All 2 branches missed.">		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {</span>
+<span class="nc" id="L367">			throw new IllegalArgumentException(</span>
+					&quot;SwapLeg currently supports only one-dimensional finite-difference interest-rate models.&quot;
+					);
+		}
+<span class="nc" id="L371">	}</span>
+
+	private static double[] createConstantArray(final Schedule schedule, final double value) {
+<span class="nc bnc" id="L374" title="All 2 branches missed.">		if (schedule == null) {</span>
+<span class="nc" id="L375">			throw new IllegalArgumentException(&quot;schedule must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L378">		final double[] array = new double[schedule.getNumberOfPeriods()];</span>
+<span class="nc" id="L379">		Arrays.fill(array, value);</span>
+<span class="nc" id="L380">		return array;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

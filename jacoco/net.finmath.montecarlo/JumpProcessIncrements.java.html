@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JumpProcessIncrements.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">JumpProcessIncrements.java</span></div><h1>JumpProcessIncrements.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Arrays;
+
+import net.finmath.functions.PoissonDistribution;
+import net.finmath.randomnumbers.MersenneTwister;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implementation of a time-discrete n-dimensional jump process
+ * &lt;i&gt;J = (J&lt;sub&gt;1&lt;/sub&gt;,...,J&lt;sub&gt;n&lt;/sub&gt;)&lt;/i&gt; where &lt;i&gt;J&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+ * a Poisson jump process and &lt;i&gt;J&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;, &lt;i&gt;J&lt;sub&gt;j&lt;/sub&gt;&lt;/i&gt; are
+ * independent for &lt;i&gt;i&lt;/i&gt; not equal &lt;i&gt;j&lt;/i&gt;.
+ *
+ * Here the dimension &lt;i&gt;n&lt;/i&gt; is called factors since the increments are used to
+ * generate multi-dimensional multi-factor processes and there one might
+ * use a different number of factors to generate processes of different
+ * dimension.
+ *
+ * The quadruppel (time discretization, jumpIntensities, number of paths, seed)
+ * defines the state of an object of this class.
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public class JumpProcessIncrements implements IndependentIncrements, Serializable {
+
+	private static final long serialVersionUID = -5430067621669213475L;
+
+	private final TimeDiscretization						timeDiscretization;
+
+	private final int			numberOfPaths;
+	private final int			seed;
+
+	private final double[]		jumpIntensities;
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	private transient	RandomVariable[][]	increments;
+<span class="nc" id="L50">	private	transient	Object						incrementsLazyInitLock = new Object();</span>
+
+	/**
+	 * Construct a jump process.
+	 *
+	 * The constructor allows to set the factory to be used for the construction of
+	 * random variables. This allows to generate increments represented
+	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
+	 * using float representations).
+	 *
+	 * @param timeDiscretization The time discretization used for the increments.
+	 * @param jumpIntensities The jump intensities, one for each factor.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param seed The seed of the random number generator.
+	 * @param randomVariableFactory Factory to be used to create random variable.
+	 */
+	public JumpProcessIncrements(
+			final TimeDiscretization timeDiscretization,
+			final double[] jumpIntensities,
+			final int numberOfPaths,
+			final int seed,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="nc" id="L72">		super();</span>
+<span class="nc" id="L73">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L74">		this.jumpIntensities	= jumpIntensities;</span>
+<span class="nc" id="L75">		this.numberOfPaths		= numberOfPaths;</span>
+<span class="nc" id="L76">		this.seed				= seed;</span>
+
+<span class="nc" id="L78">		this.randomVariableFactory = randomVariableFactory;</span>
+
+<span class="nc" id="L80">		increments	= null; 	// Lazy initialization</span>
+<span class="nc" id="L81">	}</span>
+
+	/**
+	 * Construct a jump process.
+	 *
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param jumpIntensities The vector of jump intensities, one intensity for each factor.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param seed The seed of the random number generator.
+	 */
+	public JumpProcessIncrements(
+			final TimeDiscretization timeDiscretization,
+			final double[] jumpIntensities,
+			final int numberOfPaths,
+			final int seed) {
+<span class="nc" id="L96">		this(timeDiscretization, jumpIntensities, numberOfPaths, seed, new RandomVariableFromArrayFactory());</span>
+<span class="nc" id="L97">	}</span>
+
+	@Override
+	public JumpProcessIncrements getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L101">		return new JumpProcessIncrements(getTimeDiscretization(), jumpIntensities, getNumberOfPaths(), seed);</span>
+	}
+
+	@Override
+	public JumpProcessIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
+		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+<span class="nc" id="L107">		return new JumpProcessIncrements(newTimeDiscretization, jumpIntensities, getNumberOfPaths(), getSeed());</span>
+	}
+
+	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+
+		// Thread safe lazy initialization
+<span class="nc" id="L114">		synchronized(incrementsLazyInitLock) {</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">			if(increments == null) {</span>
+<span class="nc" id="L116">				doGenerateIncrements();</span>
+			}
+<span class="nc" id="L118">		}</span>
+
+		/*
+		 *  We return an immutable object which ensures that the receiver does not alter the data.
+		 */
+<span class="nc" id="L123">		return increments[timeIndex][factor];</span>
+	}
+
+	/**
+	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
+	 */
+	private void doGenerateIncrements() {
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		if(increments != null) {</span>
+<span class="nc" id="L131">			return;	// Nothing to do</span>
+		}
+
+		// Create random number sequence generator
+<span class="nc" id="L135">		final MersenneTwister mersenneTwister = new MersenneTwister(seed);</span>
+
+		// Allocate memory
+<span class="nc" id="L138">		final double[][][] incrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length][numberOfPaths];</span>
+
+		// Pre-calculate Poisson distributions
+<span class="nc" id="L141">		final PoissonDistribution[][] poissonDistribution = new PoissonDistribution[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="nc bnc" id="L143" title="All 2 branches missed.">			for(int factorIndex=0; factorIndex&lt;jumpIntensities.length; factorIndex++) {</span>
+<span class="nc" id="L144">				poissonDistribution[timeIndex][factorIndex] = new PoissonDistribution(timeDiscretization.getTimeStep(timeIndex)*jumpIntensities[factorIndex]);</span>
+			}
+		}
+
+
+		/*
+		 * Generate independent increments.
+		 *
+		 * The inner loop goes over time and factors.
+		 * MersenneTwister is known to generate &quot;independent&quot; increments in 623 dimensions.
+		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
+		 */
+<span class="nc bnc" id="L156" title="All 2 branches missed.">		for(int pathIndex=0; pathIndex&lt;numberOfPaths; pathIndex++) {</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">			for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">				for(int factorIndex=0; factorIndex&lt;jumpIntensities.length; factorIndex++) {</span>
+<span class="nc" id="L159">					final double uniformIncrement = mersenneTwister.nextDouble();</span>
+<span class="nc" id="L160">					final double numberOfJumps = poissonDistribution[timeIndex][factorIndex].inverseCumulativeDistribution(uniformIncrement);</span>
+
+<span class="nc" id="L162">					incrementsArray[timeIndex][factorIndex][pathIndex] = numberOfJumps;</span>
+				}
+			}
+		}
+
+		// Allocate memory for RandomVariableFromDoubleArray wrapper objects.
+<span class="nc" id="L168">		increments = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][jumpIntensities.length];</span>
+
+		// Wrap the values in RandomVariableFromDoubleArray objects
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="nc" id="L172">			final double time = timeDiscretization.getTime(timeIndex+1);</span>
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			for(int factor=0; factor&lt;jumpIntensities.length; factor++) {</span>
+<span class="nc" id="L174">				increments[timeIndex][factor] =</span>
+<span class="nc" id="L175">						randomVariableFactory.createRandomVariable(time, incrementsArray[timeIndex][factor]);</span>
+			}
+		}
+<span class="nc" id="L178">	}</span>
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L182">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L187">		return jumpIntensities.length;</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L192">		return numberOfPaths;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L197">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	/**
+	 * @return Returns the seed.
+	 */
+	public int getSeed() {
+<span class="nc" id="L204">		return seed;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L209">		return &quot;JumpProcessIncrements [timeDiscretizationFromArray=&quot; + timeDiscretization + &quot;, numberOfPaths=&quot; + numberOfPaths</span>
+<span class="nc" id="L210">				+ &quot;, seed=&quot; + seed + &quot;, jumpIntensities=&quot; + Arrays.toString(jumpIntensities)</span>
+				+ &quot;, randomVariableFactory=&quot; + randomVariableFactory + &quot;]&quot;;
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L215">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L217">		incrementsLazyInitLock = new Object();</span>
+<span class="nc" id="L218">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

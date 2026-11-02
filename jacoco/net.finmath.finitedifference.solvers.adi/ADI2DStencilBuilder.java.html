@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ADI2DStencilBuilder.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">ADI2DStencilBuilder.java</span></div><h1>ADI2DStencilBuilder.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+
+/**
+ * Builds tridiagonal line matrices and exact directional operator actions
+ * for alternating direction implicit (ADI) solves for two-dimensional
+ * finite difference models.
+ *
+ * &lt;p&gt;
+ * The state variables are interpreted generically as
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;state variable 0: first spatial direction,&lt;/li&gt;
+ *   &lt;li&gt;state variable 1: second spatial direction.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The PDE operator is split into the directional parts
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code A1}: drift and diffusion terms in the first spatial
+ * direction.&lt;/li&gt;
+ * &lt;li&gt;{@code A2}: drift and diffusion terms in the second spatial
+ * direction.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * This builder returns tridiagonal matrices corresponding to
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * (I - theta * dt * A1)
+ * (I - theta * dt * A2)
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * and also provides exact applications of {@code A1} and {@code A2} to a
+ * flattened 2D state vector using the same coefficients.
+ * &lt;/p&gt;
+ */
+public class ADI2DStencilBuilder {
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceEquityModel model;
+	/**
+	 * The x0 grid.
+	 */
+	private final double[] x0Grid;
+	/**
+	 * The x1 grid.
+	 */
+	private final double[] x1Grid;
+
+	/**
+	 * The n0.
+	 */
+	private final int n0;
+	/**
+	 * The n1.
+	 */
+	private final int n1;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param x0Grid The value.
+	 * @param x1Grid The value.
+	 */
+	public ADI2DStencilBuilder(
+			final FiniteDifferenceEquityModel model,
+			final double[] x0Grid,
+<span class="fc" id="L75">			final double[] x1Grid) {</span>
+<span class="fc" id="L76">		this.model = model;</span>
+<span class="fc" id="L77">		this.x0Grid = x0Grid;</span>
+<span class="fc" id="L78">		this.x1Grid = x1Grid;</span>
+<span class="fc" id="L79">		this.n0 = x0Grid.length;</span>
+<span class="fc" id="L80">		this.n1 = x1Grid.length;</span>
+<span class="fc" id="L81">	}</span>
+
+	/**
+	 * Coefficients of the 1D three-point stencil
+	 *
+	 * &lt;pre&gt;
+	 * lower * u[i-1] + diag * u[i] + upper * u[i+1]
+	 * &lt;/pre&gt;
+	 */
+	public static final class DirectionalCoefficients {
+		/**
+		 * The lower.
+		 */
+		private final double lower;
+		/**
+		 * The diag.
+		 */
+		private final double diag;
+		/**
+		 * The upper.
+		 */
+		private final double upper;
+
+		/**
+		 * Performs the operation.
+		 *
+		 * @param lower The value.
+		 * @param diag The value.
+		 * @param upper The value.
+		 */
+		public DirectionalCoefficients(
+				final double lower,
+				final double diag,
+<span class="fc" id="L114">				final double upper) {</span>
+<span class="fc" id="L115">			this.lower = lower;</span>
+<span class="fc" id="L116">			this.diag = diag;</span>
+<span class="fc" id="L117">			this.upper = upper;</span>
+<span class="fc" id="L118">		}</span>
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double getLower() {
+<span class="fc" id="L126">			return lower;</span>
+		}
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double getDiag() {
+<span class="fc" id="L135">			return diag;</span>
+		}
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double getUpper() {
+<span class="fc" id="L144">			return upper;</span>
+		}
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param time The value.
+	 * @param dt The value.
+	 * @param theta The value.
+	 * @param x1Index The value.
+	 * @return The value.
+	 */
+	public TridiagonalMatrix buildFirstDirectionLineMatrix(
+			final double time,
+			final double dt,
+			final double theta,
+			final int x1Index) {
+
+<span class="fc" id="L163">		final TridiagonalMatrix m = new TridiagonalMatrix(n0);</span>
+
+<span class="fc" id="L165">		m.getMainDiagonal()[0] = 1.0;</span>
+<span class="fc" id="L166">		m.getMainDiagonal()[n0 - 1] = 1.0;</span>
+
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		for (int i = 1; i &lt; n0 - 1; i++) {</span>
+<span class="fc" id="L169">			final DirectionalCoefficients c = getFirstDirectionCoefficients(time, i, x1Index);</span>
+
+<span class="fc" id="L171">			m.getLowerDiagonal()[i] = -theta * dt * c.getLower();</span>
+<span class="fc" id="L172">			m.getMainDiagonal()[i]  = 1.0 - theta * dt * c.getDiag();</span>
+<span class="fc" id="L173">			m.getUpperDiagonal()[i] = -theta * dt * c.getUpper();</span>
+		}
+
+<span class="fc" id="L176">		return m;</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param time The value.
+	 * @param dt The value.
+	 * @param theta The value.
+	 * @param x0Index The value.
+	 * @return The value.
+	 */
+	public TridiagonalMatrix buildSecondDirectionLineMatrix(
+			final double time,
+			final double dt,
+			final double theta,
+			final int x0Index) {
+
+<span class="fc" id="L194">		final TridiagonalMatrix m = new TridiagonalMatrix(n1);</span>
+
+<span class="fc" id="L196">		m.getMainDiagonal()[0] = 1.0;</span>
+<span class="fc" id="L197">		m.getMainDiagonal()[n1 - 1] = 1.0;</span>
+
+<span class="fc bfc" id="L199" title="All 2 branches covered.">		for (int j = 1; j &lt; n1 - 1; j++) {</span>
+<span class="fc" id="L200">			final DirectionalCoefficients c = getSecondDirectionCoefficients(time, x0Index, j);</span>
+
+<span class="fc" id="L202">			m.getLowerDiagonal()[j] = -theta * dt * c.getLower();</span>
+<span class="fc" id="L203">			m.getMainDiagonal()[j]  = 1.0 - theta * dt * c.getDiag();</span>
+<span class="fc" id="L204">			m.getUpperDiagonal()[j] = -theta * dt * c.getUpper();</span>
+		}
+
+<span class="fc" id="L207">		return m;</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param u The value.
+	 * @param time The value.
+	 * @return The value.
+	 */
+	public double[] applyFirstDirectionOperator(final double[] u, final double time) {
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		if (u.length != n0 * n1) {</span>
+<span class="nc" id="L219">			throw new IllegalArgumentException(&quot;State vector has wrong length.&quot;);</span>
+		}
+
+<span class="nc" id="L222">		final double[] out = new double[u.length];</span>
+
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		for (int j = 0; j &lt; n1; j++) {</span>
+<span class="nc" id="L225">			applyFirstDirectionOperatorOnSlice(u, out, time, j);</span>
+		}
+
+<span class="nc" id="L228">		return out;</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param u The value.
+	 * @param time The value.
+	 * @return The value.
+	 */
+	public double[] applySecondDirectionOperator(final double[] u, final double time) {
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		if (u.length != n0 * n1) {</span>
+<span class="nc" id="L240">			throw new IllegalArgumentException(&quot;State vector has wrong length.&quot;);</span>
+		}
+
+<span class="nc" id="L243">		final double[] out = new double[u.length];</span>
+
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		for (int i = 0; i &lt; n0; i++) {</span>
+<span class="nc" id="L246">			applySecondDirectionOperatorOnSlice(u, out, time, i);</span>
+		}
+
+<span class="nc" id="L249">		return out;</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param u The value.
+	 * @param out The value.
+	 * @param time The value.
+	 * @param x1Index The value.
+	 */
+	public void applyFirstDirectionOperatorOnSlice(
+			final double[] u,
+			final double[] out,
+			final double time,
+			final int x1Index) {
+
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		for (int i = 1; i &lt; n0 - 1; i++) {</span>
+<span class="nc" id="L267">			final DirectionalCoefficients c = getFirstDirectionCoefficients(time, i, x1Index);</span>
+
+<span class="nc" id="L269">			final int k = flatten(i, x1Index);</span>
+<span class="nc" id="L270">			out[k] =</span>
+<span class="nc" id="L271">					c.getLower() * u[flatten(i - 1, x1Index)]</span>
+<span class="nc" id="L272">							+ c.getDiag() * u[k]</span>
+<span class="nc" id="L273">									+ c.getUpper() * u[flatten(i + 1, x1Index)];</span>
+		}
+<span class="nc" id="L275">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param u The value.
+	 * @param out The value.
+	 * @param time The value.
+	 * @param x0Index The value.
+	 */
+	public void applySecondDirectionOperatorOnSlice(
+			final double[] u,
+			final double[] out,
+			final double time,
+			final int x0Index) {
+
+<span class="nc bnc" id="L291" title="All 2 branches missed.">		for (int j = 1; j &lt; n1 - 1; j++) {</span>
+<span class="nc" id="L292">			final DirectionalCoefficients c = getSecondDirectionCoefficients(time, x0Index, j);</span>
+
+<span class="nc" id="L294">			final int k = flatten(x0Index, j);</span>
+<span class="nc" id="L295">			out[k] =</span>
+<span class="nc" id="L296">					c.getLower() * u[flatten(x0Index, j - 1)]</span>
+<span class="nc" id="L297">							+ c.getDiag() * u[k]</span>
+<span class="nc" id="L298">									+ c.getUpper() * u[flatten(x0Index, j + 1)];</span>
+		}
+<span class="nc" id="L300">	}</span>
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param time The value.
+	 * @param x0Index The value.
+	 * @param x1Index The value.
+	 * @return The value.
+	 */
+	public DirectionalCoefficients getFirstDirectionCoefficients(
+			final double time,
+			final int x0Index,
+			final int x1Index) {
+
+<span class="fc" id="L315">		final double x0 = x0Grid[x0Index];</span>
+<span class="fc" id="L316">		final double x1 = x1Grid[x1Index];</span>
+
+<span class="fc" id="L318">		final double[] drift = model.getDrift(time, x0, x1);</span>
+<span class="fc" id="L319">		final double[][] factorLoading = model.getFactorLoading(time, x0, x1);</span>
+
+<span class="fc" id="L321">		final double mu0 = drift[0];</span>
+
+<span class="fc" id="L323">		double a00 = 0.0;</span>
+<span class="fc bfc" id="L324" title="All 2 branches covered.">		for (int f = 0; f &lt; factorLoading[0].length; f++) {</span>
+<span class="fc" id="L325">			a00 += factorLoading[0][f] * factorLoading[0][f];</span>
+		}
+
+<span class="fc" id="L328">		final double dxDown = x0Grid[x0Index] - x0Grid[x0Index - 1];</span>
+<span class="fc" id="L329">		final double dxUp = x0Grid[x0Index + 1] - x0Grid[x0Index];</span>
+<span class="fc" id="L330">		final double dxSum = dxDown + dxUp;</span>
+<span class="fc" id="L331">		final double dxProd = dxDown * dxUp;</span>
+
+<span class="fc" id="L333">		final double lower = -mu0 / dxSum + a00 / (dxSum * dxDown);</span>
+<span class="fc" id="L334">		final double diag  = -a00 / dxProd;</span>
+<span class="fc" id="L335">		final double upper =  mu0 / dxSum + a00 / (dxSum * dxUp);</span>
+
+<span class="fc" id="L337">		return new DirectionalCoefficients(lower, diag, upper);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param time The value.
+	 * @param x0Index The value.
+	 * @param x1Index The value.
+	 * @return The value.
+	 */
+	public DirectionalCoefficients getSecondDirectionCoefficients(
+			final double time,
+			final int x0Index,
+			final int x1Index) {
+
+<span class="fc" id="L353">		final double x0 = x0Grid[x0Index];</span>
+<span class="fc" id="L354">		final double x1 = x1Grid[x1Index];</span>
+
+<span class="fc" id="L356">		final double[] drift = model.getDrift(time, x0, x1);</span>
+<span class="fc" id="L357">		final double[][] factorLoading = model.getFactorLoading(time, x0, x1);</span>
+
+<span class="fc" id="L359">		final double mu1 = drift[1];</span>
+
+<span class="fc" id="L361">		double a11 = 0.0;</span>
+<span class="fc bfc" id="L362" title="All 2 branches covered.">		for (int f = 0; f &lt; factorLoading[1].length; f++) {</span>
+<span class="fc" id="L363">			a11 += factorLoading[1][f] * factorLoading[1][f];</span>
+		}
+
+<span class="fc" id="L366">		final double dxDown = x1Grid[x1Index] - x1Grid[x1Index - 1];</span>
+<span class="fc" id="L367">		final double dxUp = x1Grid[x1Index + 1] - x1Grid[x1Index];</span>
+<span class="fc" id="L368">		final double dxSum = dxDown + dxUp;</span>
+<span class="fc" id="L369">		final double dxProd = dxDown * dxUp;</span>
+
+<span class="fc" id="L371">		final double lower = -mu1 / dxSum + a11 / (dxSum * dxDown);</span>
+<span class="fc" id="L372">		final double diag  = -a11 / dxProd;</span>
+<span class="fc" id="L373">		final double upper =  mu1 / dxSum + a11 / (dxSum * dxUp);</span>
+
+<span class="fc" id="L375">		return new DirectionalCoefficients(lower, diag, upper);</span>
+	}
+
+	private int flatten(final int i0, final int i1) {
+<span class="nc" id="L379">		return i0 + i1 * n0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

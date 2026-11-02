@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HestonModelMonteCarloFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.modelfactory</a> &gt; <span class="el_source">HestonModelMonteCarloFactory.java</span></div><h1>HestonModelMonteCarloFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2018
+ */
+
+package net.finmath.modelling.modelfactory;
+
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class HestonModelMonteCarloFactory implements ModelFactory&lt;HestonModelDescriptor&gt; {
+
+	private final net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme scheme;
+	private final RandomVariableFactory randomVariableFactory;
+	private final IndependentIncrements brownianMotion;
+
+
+	public HestonModelMonteCarloFactory(final Scheme scheme, final RandomVariableFactory randomVariableFactory,
+			final IndependentIncrements brownianMotion) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.scheme = scheme;</span>
+<span class="fc" id="L40">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L41">		this.brownianMotion = brownianMotion;</span>
+<span class="fc" id="L42">	}</span>
+
+
+	@Override
+	public DescribedModel&lt;HestonModelDescriptor&gt; getModelFromDescriptor(final HestonModelDescriptor modelDescriptor) {
+		class HestonMonteCarloModel extends MonteCarloAssetModel implements DescribedModel&lt;HestonModelDescriptor&gt; {
+
+<span class="fc" id="L49">			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());</span>
+
+			/**
+			 * @param model
+			 * @param process
+			 */
+<span class="fc" id="L55">			HestonMonteCarloModel(final ProcessModel model, final MonteCarloProcess process) {</span>
+<span class="fc" id="L56">				super(model, process);</span>
+<span class="fc" id="L57">			}</span>
+
+			@Override
+			public HestonModelDescriptor getDescriptor() {
+<span class="nc" id="L61">				return modelDescriptor;</span>
+			}
+
+			@Override
+			public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">				if(productDescriptor instanceof SingleAssetProductDescriptor) {</span>
+<span class="fc" id="L67">					return productFactory.getProductFromDescriptor(productDescriptor);</span>
+				}
+				else {
+<span class="nc" id="L70">					final String name = modelDescriptor.name();</span>
+<span class="nc" id="L71">					throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+				}
+			}
+		}
+
+<span class="fc" id="L76">		final HestonModel model = new HestonModel(modelDescriptor, scheme, randomVariableFactory);</span>
+
+<span class="fc" id="L78">		return new HestonMonteCarloModel(</span>
+				model,
+				new EulerSchemeFromProcessModel(model, brownianMotion)
+				);
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShortRateVolatilityModelPiecewiseConstant.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">ShortRateVolatilityModelPiecewiseConstant.java</span></div><h1>ShortRateVolatilityModelPiecewiseConstant.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 24.01.2016
+ */
+
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Arrays;
+
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Short rate volatility model with a piecewise constant volatility and a piecewise constant mean reversion.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ShortRateVolatilityModelPiecewiseConstant extends AbstractShortRateVolatilityModelParametric implements ShortRateVolatilityModel {
+
+	private static final long serialVersionUID = 4266489807755944607L;
+
+	private final TimeDiscretization timeDiscretization;
+	private final TimeDiscretization volatilityTimeDiscretization;
+
+	private RandomVariable[] volatility;
+	private RandomVariable[] meanReversion;
+	private final RandomVariableFactory randomVariableFactory;
+	private final boolean isVolatilityCalibrateable;
+	private final boolean isMeanReversionCalibrateable;
+
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final RandomVariable[] volatility, final RandomVariable[] meanReversion, final boolean isVolatilityCalibrateable, final boolean isMeanReversionCalibrateable) {
+<span class="fc" id="L36">		super(timeDiscretization);</span>
+
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		if(volatility.length != volatilityTimeDiscretization.getNumberOfTimes()) {</span>
+<span class="nc" id="L39">			throw new IllegalArgumentException(&quot;volatility.length should equal volatilityTimeDiscretization.getNumberOfTimes().&quot;);</span>
+		}
+
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		if(meanReversion.length != volatilityTimeDiscretization.getNumberOfTimes()) {</span>
+<span class="nc" id="L43">			throw new IllegalArgumentException(&quot;meanReversion.length should equal volatilityTimeDiscretization.getNumberOfTimes().&quot;);</span>
+		}
+
+<span class="fc" id="L46">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L47">		this.volatilityTimeDiscretization = volatilityTimeDiscretization;</span>
+<span class="fc" id="L48">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L49">		this.volatility = volatility;</span>
+<span class="fc" id="L50">		this.meanReversion = meanReversion;</span>
+<span class="fc" id="L51">		this.isVolatilityCalibrateable = isVolatilityCalibrateable;</span>
+<span class="fc" id="L52">		this.isMeanReversionCalibrateable = isMeanReversionCalibrateable;</span>
+<span class="fc" id="L53">	}</span>
+
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final double[] volatility, final double[] meanReversion, final boolean isVolatilityCalibrateable, final boolean isMeanReversionCalibrateable) {
+<span class="fc" id="L56">		super(timeDiscretization);</span>
+
+<span class="fc" id="L58">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L59">		this.volatilityTimeDiscretization = volatilityTimeDiscretization;</span>
+<span class="fc" id="L60">		this.randomVariableFactory = randomVariableFactory;</span>
+
+		//Check whether all parameter need to be calibrated
+<span class="fc" id="L63">		final double maxMaturity = timeDiscretization.getTime(timeDiscretization.getNumberOfTimes()-1);</span>
+<span class="fc" id="L64">		int volatilityIndex = 0;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		for(int volatilityTime=0; volatilityTime &lt; volatilityTimeDiscretization.getNumberOfTimes(); volatilityTime++) {</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">			if(volatilityTimeDiscretization.getTime(volatilityTime) &lt;= maxMaturity) {</span>
+<span class="fc" id="L67">				volatilityIndex++;</span>
+			}
+		}
+
+		// Fill volatility parameter
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		if(volatility.length == 1) {</span>
+<span class="fc" id="L73">			this.volatility = new RandomVariable[volatilityIndex];</span>
+<span class="fc" id="L74">			Arrays.fill(this.volatility, randomVariableFactory.createRandomVariable(volatility[0]));</span>
+		}
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		else if(volatility.length == volatilityIndex) {</span>
+<span class="nc" id="L77">			this.volatility = randomVariableFactory.createRandomVariableArray(volatility);</span>
+		}
+		else {
+<span class="nc" id="L80">			throw new IllegalArgumentException(&quot;Volatility length (&quot; + volatility.length + &quot;) does not match number of free parameters &quot; + volatilityIndex + &quot;.&quot;);</span>
+		}
+
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		if(volatilityIndex != this.volatility.length) {</span>
+<span class="nc" id="L84">			throw new IllegalArgumentException(&quot;volatility.length should equal volatilityTimeDiscretization.getNumberOfTimes().&quot;);</span>
+		}
+
+		// Mean reversion needs to be nonzero
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		for(int meanReversionIndex = 0; meanReversionIndex &lt; meanReversion.length; meanReversionIndex++) {</span>
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">			if(meanReversion[meanReversionIndex]==0) {</span>
+<span class="nc" id="L90">				throw new IllegalArgumentException(&quot;Mean reversion needs to be nonzero&quot;);</span>
+			}
+		}
+
+		// Fill mean reversion parameter (assume that volatility and mean reversion have the discretization)
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">		if(meanReversion.length == 1) {</span>
+<span class="fc" id="L96">			this.meanReversion = new RandomVariable[volatilityIndex];</span>
+<span class="fc" id="L97">			Arrays.fill(this.meanReversion, randomVariableFactory.createRandomVariable(meanReversion[0]));</span>
+		}
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		else if(meanReversion.length == volatilityIndex) {</span>
+<span class="nc" id="L100">			this.meanReversion = randomVariableFactory.createRandomVariableArray(meanReversion);</span>
+		}
+		else {
+<span class="nc" id="L103">			throw new IllegalArgumentException(&quot;Mean reversion length does not match number of free parameters.&quot;);</span>
+		}
+
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">		if(volatilityIndex != this.meanReversion.length) {</span>
+<span class="nc" id="L107">			throw new IllegalArgumentException(&quot;meanReversion.length should equal volatilityTimeDiscretization.getNumberOfTimes().&quot;);</span>
+		}
+
+<span class="fc" id="L110">		this.isVolatilityCalibrateable = isVolatilityCalibrateable;</span>
+<span class="fc" id="L111">		this.isMeanReversionCalibrateable = isMeanReversionCalibrateable;</span>
+<span class="fc" id="L112">	}</span>
+
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final double[] volatility, final double[] meanReversion, final boolean isVolatilityCalibrateable) {
+<span class="fc" id="L115">		this(randomVariableFactory, timeDiscretization, volatilityTimeDiscretization, volatility, meanReversion, isVolatilityCalibrateable, false);</span>
+<span class="fc" id="L116">	}</span>
+
+	public ShortRateVolatilityModelPiecewiseConstant(final RandomVariableFactory randomVariableFactory, final TimeDiscretization timeDiscretization, final TimeDiscretization volatilityTimeDiscretization, final RandomVariable[] volatility, final RandomVariable[] meanReversion, final boolean isVolatilityCalibrateable) {
+<span class="fc" id="L119">		this(randomVariableFactory, timeDiscretization, volatilityTimeDiscretization, volatility, meanReversion, isVolatilityCalibrateable, false);</span>
+<span class="fc" id="L120">	}</span>
+
+	@Override
+	public RandomVariable getVolatility(final int timeIndex) {
+
+		//Get time for a certain index
+<span class="fc" id="L126">		final double time = timeDiscretization.getTime(timeIndex);</span>
+
+		//Find index on the volatility discretization according to the time value
+<span class="fc" id="L129">		final int volatilityTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);</span>
+<span class="fc" id="L130">		return volatility[volatilityTimeIndex];</span>
+	}
+
+	public RandomVariable getVolatility(final double time) {
+
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		if(time &lt;= 0) {</span>
+			// Already fixed, no volatility
+<span class="nc" id="L137">			return new Scalar(0.0);</span>
+		}
+		else {
+<span class="nc" id="L140">			final int timeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);</span>
+<span class="nc" id="L141">			return volatility[timeIndex];</span>
+		}
+	}
+
+	@Override
+	public RandomVariable getMeanReversion(final int timeIndex) {
+
+		//Get time for a certain index
+<span class="fc" id="L149">		final double time = timeDiscretization.getTime(timeIndex);</span>
+
+<span class="fc" id="L151">		final int meanReversionTimeIndex = volatilityTimeDiscretization.getTimeIndexNearestLessOrEqual(time);</span>
+<span class="fc" id="L152">		return meanReversion[meanReversionTimeIndex];</span>
+	}
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">		final int volatilityParameterLength = (isVolatilityCalibrateable ? volatility.length : 0);</span>
+<span class="pc bpc" id="L158" title="1 of 2 branches missed.">		final int parameterLength = volatilityParameterLength + (isMeanReversionCalibrateable ? meanReversion.length : 0);</span>
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">		if(parameterLength == 0) {</span>
+<span class="nc" id="L160">			return null;</span>
+		}
+
+<span class="fc" id="L163">		final RandomVariable[] parameter = new RandomVariable[parameterLength];</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">		if(isVolatilityCalibrateable) {</span>
+<span class="fc" id="L165">			System.arraycopy(volatility, 0, parameter, 0, volatility.length);</span>
+		}
+
+<span class="pc bpc" id="L168" title="1 of 2 branches missed.">		if(isMeanReversionCalibrateable) {</span>
+<span class="nc" id="L169">			System.arraycopy(meanReversion, 0, parameter, volatilityParameterLength, meanReversion.length);</span>
+		}
+
+<span class="fc" id="L172">		return parameter;</span>
+	}
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L177">		return new ShortRateVolatilityModelPiecewiseConstant(</span>
+				randomVariableFactory,
+<span class="nc" id="L179">				super.getTimeDiscretization(),</span>
+				volatilityTimeDiscretization,
+				volatility,
+				meanReversion,
+				isVolatilityCalibrateable
+				);
+	}
+
+	@Override
+	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="nc" id="L189">		return new ShortRateVolatilityModelPiecewiseConstant(</span>
+				randomVariableFactory,
+<span class="nc" id="L191">				super.getTimeDiscretization(),</span>
+				volatilityTimeDiscretization,
+				parameters,
+				meanReversion,
+				isVolatilityCalibrateable
+				);
+	}
+
+	@Override
+	public AbstractShortRateVolatilityModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="fc" id="L201">		RandomVariable[] newVolatility = volatility;</span>
+<span class="fc" id="L202">		RandomVariable[] newMeanReversion = meanReversion;</span>
+
+<span class="pc bpc" id="L204" title="2 of 4 branches missed.">		if(isVolatilityCalibrateable &amp;&amp; !isMeanReversionCalibrateable) {</span>
+<span class="fc" id="L205">			newVolatility = randomVariableFactory.createRandomVariableArray(parameters);</span>
+		}
+<span class="nc bnc" id="L207" title="All 4 branches missed.">		else if(!isVolatilityCalibrateable &amp;&amp; isMeanReversionCalibrateable) {</span>
+<span class="nc" id="L208">			newMeanReversion = randomVariableFactory.createRandomVariableArray(parameters);</span>
+		}
+<span class="nc bnc" id="L210" title="All 4 branches missed.">		else if(isVolatilityCalibrateable &amp;&amp; isMeanReversionCalibrateable) {</span>
+<span class="nc" id="L211">			final double[] newVolatilityParameters = new double[volatility.length];</span>
+<span class="nc" id="L212">			final double[] newMeanReversionParameters = new double[meanReversion.length];</span>
+<span class="nc" id="L213">			System.arraycopy(parameters, 0, newVolatilityParameters, 0, newVolatilityParameters.length);</span>
+<span class="nc" id="L214">			System.arraycopy(parameters, newVolatilityParameters.length, newMeanReversionParameters, 0, newMeanReversionParameters.length);</span>
+
+<span class="nc" id="L216">			newVolatility = randomVariableFactory.createRandomVariableArray(newVolatilityParameters);</span>
+<span class="nc" id="L217">			newMeanReversion = randomVariableFactory.createRandomVariableArray(newMeanReversionParameters);</span>
+<span class="nc" id="L218">		}</span>
+		else {
+<span class="nc" id="L220">			return this;</span>
+		}
+
+<span class="fc" id="L223">		return new ShortRateVolatilityModelPiecewiseConstant(</span>
+				randomVariableFactory,
+<span class="fc" id="L225">				super.getTimeDiscretization(),</span>
+				volatilityTimeDiscretization,
+				newVolatility,
+				newMeanReversion,
+				isVolatilityCalibrateable
+				);
+	}
+
+	/**
+	 * Returns the time discretization used for the picewise constant volatility and mean reversion.
+	 *
+	 * @return The volatility discretization.
+	 */
+	public TimeDiscretization getVolatilityTimeDiscretization() {
+<span class="nc" id="L239">		return volatilityTimeDiscretization;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

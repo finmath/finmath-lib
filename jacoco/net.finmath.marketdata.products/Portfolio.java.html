@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Portfolio.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.products</a> &gt; <span class="el_source">Portfolio.java</span></div><h1>Portfolio.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 02.03.2014
+ */
+
+package net.finmath.marketdata.products;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.IntStream;
+
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * Implements the valuation of a portfolio of products implementing
+ * &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Portfolio extends AbstractAnalyticProduct implements AnalyticProduct {
+
+	private final ArrayList&lt;AnalyticProduct&gt;	products;
+	private final ArrayList&lt;Double&gt;					weights;
+
+	/**
+	 * Create a portfolio of products implementing
+	 * &lt;code&gt;AnalyticProductInterface&lt;/code&gt;. The portfolio consists
+	 * of an array of products and a corresponding array of weights.
+	 * The value of the portfolio is given by the sum over
+	 * &lt;code&gt;
+	 * 	weights[i] * products.get(i).getValue(evaluationTime, model)
+	 * &lt;/code&gt;
+	 *
+	 * Note that a product in the array of products may itself be
+	 * a &lt;code&gt;Portfolio&lt;/code&gt; (hence you may easily combine portfolios).
+	 *
+	 * @param products Array of products implementing &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+	 * @param weights Array of weights used in the valuation as a multiplicator.
+	 */
+	public Portfolio(final List&lt;AnalyticProduct&gt; products, final List&lt;Double&gt; weights) {
+<span class="nc" id="L45">		super();</span>
+<span class="nc" id="L46">		this.products = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L47">		this.weights = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L48">		this.products.addAll(products);</span>
+<span class="nc" id="L49">		this.weights.addAll(weights);</span>
+<span class="nc" id="L50">	}</span>
+
+	/**
+	 * Create a portfolio of products implementing
+	 * &lt;code&gt;AnalyticProductInterface&lt;/code&gt;. The portfolio consists
+	 * of an array of products and a corresponding array of weights.
+	 * The value of the portfolio is given by the sum over
+	 * &lt;code&gt;
+	 * 	weights[i] * products.get(i).getValue(evaluationTime, model)
+	 * &lt;/code&gt;
+	 *
+	 * The portfolio is created by taking all products and weights of a given portfolio
+	 * and adding other given products and weights.
+	 *
+	 * @param portfolio A given portfolio, which will become part of this portfolio.
+	 * @param products Array of products implementing &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+	 * @param weights Array of weights used in the valuation as a multiplicator.
+	 */
+	public Portfolio(final Portfolio portfolio, final List&lt;AnalyticProduct&gt; products, final List&lt;Double&gt; weights) {
+<span class="nc" id="L69">		super();</span>
+<span class="nc" id="L70">		this.products = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L71">		this.weights = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L72">		this.products.addAll(portfolio.getProducts());</span>
+<span class="nc" id="L73">		this.weights.addAll(portfolio.getWeights());</span>
+<span class="nc" id="L74">		this.products.addAll(products);</span>
+<span class="nc" id="L75">		this.weights.addAll(weights);</span>
+<span class="nc" id="L76">	}</span>
+
+	/**
+	 * Create a portfolio consisting of a single product with a given weight.
+	 *
+	 * @param product A product, implementing  implementing &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+	 * @param weight A weight used in the valuation as a multiplicator.
+	 */
+	public Portfolio(final AnalyticProduct product, final double weight) {
+<span class="nc" id="L85">		super();</span>
+<span class="nc" id="L86">		products = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L87">		weights = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L88">		products.add(product);</span>
+<span class="nc" id="L89">		weights.add(weight);</span>
+<span class="nc" id="L90">	}</span>
+
+	/**
+	 * Create a portfolio of products implementing
+	 * &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+	 *
+	 * The value of the portfolio is given by the sum over
+	 * &lt;code&gt;
+	 * 	products.get(i).getValue(evaluationTime, model)
+	 * &lt;/code&gt;
+	 *
+	 * Note that a product in the array of products may itself be
+	 * a &lt;code&gt;Portfolio&lt;/code&gt; (hence you may easily combine portfolios).
+	 *
+	 * @param products Array of products implementing &lt;code&gt;AnalyticProductInterface&lt;/code&gt;.
+	 */
+	public Portfolio(final List&lt;AnalyticProduct&gt; products) {
+<span class="nc" id="L107">		this(products, Collections.nCopies(products.size(), new Double(1.0)));</span>
+<span class="nc" id="L108">	}</span>
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="nc" id="L112">		return IntStream.range(0, products.size()).parallel().mapToDouble(</span>
+<span class="nc" id="L113">				new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="nc" id="L116">						return weights.get(i) * products.get(i).getValue(evaluationTime, model);</span>
+					}
+				}
+<span class="nc" id="L119">				).sum();</span>
+	}
+
+	/**
+	 * Returns the list of products as an unmodifiable list.
+	 * Calling &lt;code&gt;add&lt;/code&gt; on this list will result in an {@link UnsupportedOperationException}.
+	 *
+	 * @return The list of products as an unmodifiable list.
+	 */
+	public List&lt;AnalyticProduct&gt; getProducts() {
+<span class="nc" id="L129">		return Collections.unmodifiableList(products);</span>
+	}
+
+	/**
+	 * Returns the list of weights as an unmodifiable list.
+	 * Calling &lt;code&gt;add&lt;/code&gt; on this list will result in an {@link UnsupportedOperationException}.
+	 *
+	 * @return The list of weights as an unmodifiable list.
+	 */
+	public List&lt;Double&gt; getWeights() {
+<span class="nc" id="L139">		return Collections.unmodifiableList(weights);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

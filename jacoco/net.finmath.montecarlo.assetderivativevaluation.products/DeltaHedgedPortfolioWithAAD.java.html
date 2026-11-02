@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DeltaHedgedPortfolioWithAAD.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">DeltaHedgedPortfolioWithAAD.java</span></div><h1>DeltaHedgedPortfolioWithAAD.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 27.04.2012
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a delta hedged portfolio (a hedge simulator).
+ * The delta hedge uses numerical calculation of
+ * the delta and - in theory - works for any model implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;
+ * and any product implementing &lt;code&gt;AbstractAssetMonteCarloProduct&lt;/code&gt;.
+ * The results however somewhat depend on the choice of the internal regression basis functions.
+ *
+ * The &lt;code&gt;getValue&lt;/code&gt;-method returns the random variable \( \Pi(t) \) representing the value
+ * of the replication portfolio \( \Pi(t) = \phi_0(t) N(t) +  \phi_1(t) S(t) \).
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class DeltaHedgedPortfolioWithAAD extends AbstractAssetMonteCarloProduct {
+
+	// The financial product we like to replicate
+	private final AssetMonteCarloProduct productToReplicate;
+
+<span class="pc" id="L38">	private int			numberOfRegressionFunctions		= 20;</span>
+
+<span class="pc" id="L40">	private double lastOperationTimingValuation = Double.NaN;</span>
+<span class="pc" id="L41">	private double lastOperationTimingDerivative = Double.NaN;</span>
+
+	/**
+	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
+	 * the delta and - in theory - works for any model implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;
+	 * and any product implementing &lt;code&gt;AbstractAssetMonteCarloProduct&lt;/code&gt;.
+	 * The results however somewhat depend on the choice of the internal regression basis functions.
+	 *
+	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the &lt;code&gt;AbstractAssetMonteCarloProduct&lt;/code&gt; interface.
+	 * @param numberOfBins The number of bins used to aggregate the conditional expectation of the delta.
+	 */
+	public DeltaHedgedPortfolioWithAAD(final AssetMonteCarloProduct productToReplicate, final int numberOfBins) {
+<span class="nc" id="L53">		super();</span>
+<span class="nc" id="L54">		this.productToReplicate = productToReplicate;</span>
+<span class="nc" id="L55">		this.numberOfRegressionFunctions = numberOfBins;</span>
+<span class="nc" id="L56">	}</span>
+
+	/**
+	 * Construction of a delta hedge portfolio. The delta hedge uses numerical calculation of
+	 * the delta and - in theory - works for any model implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;
+	 * and any product implementing &lt;code&gt;AbstractAssetMonteCarloProduct&lt;/code&gt;.
+	 * The results however somewhat depend on the choice of the internal regression basis functions.
+	 *
+	 * @param productToReplicate The product for which the replication portfolio should be build. May be any product implementing the &lt;code&gt;AbstractAssetMonteCarloProduct&lt;/code&gt; interface.
+	 */
+	public DeltaHedgedPortfolioWithAAD(final AssetMonteCarloProduct productToReplicate) {
+<span class="fc" id="L67">		super();</span>
+<span class="fc" id="L68">		this.productToReplicate = productToReplicate;</span>
+<span class="fc" id="L69">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+
+		// Ask the model for its discretization
+<span class="fc" id="L75">		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);</span>
+
+		/*
+		 *  Going forward in time we monitor the hedge portfolio on each path.
+		 */
+
+<span class="fc" id="L81">		final long timingValuationStart = System.currentTimeMillis();</span>
+
+<span class="fc" id="L83">		final RandomVariable value = productToReplicate.getValue(model.getTime(0), model);</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">		if(!(value instanceof RandomVariableDifferentiable)) {</span>
+<span class="nc" id="L85">			throw new IllegalArgumentException(&quot;The product's getValue method, when used with the specified model, does not return a RandomVariableDifferentiable. Please check, if the model uses an appropriate RandomVariableFactory.&quot;);</span>
+		}
+
+<span class="fc" id="L88">		RandomVariable exerciseTime = null;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		if(productToReplicate instanceof BermudanOption) {</span>
+<span class="fc" id="L90">			exerciseTime = ((BermudanOption) productToReplicate).getLastValuationExerciseTime();</span>
+		}
+
+<span class="fc" id="L93">		final long timingValuationEnd = System.currentTimeMillis();</span>
+
+<span class="fc" id="L95">		final RandomVariable valueOfOption = model.getRandomVariableForConstant(value.getAverage());</span>
+
+		// Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
+<span class="fc" id="L98">		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);</span>
+<span class="fc" id="L99">		final RandomVariable numeraireToday  = model.getNumeraire(0.0);</span>
+
+		// We store the composition of the hedge portfolio (depending on the path)
+<span class="fc" id="L102">		RandomVariable amountOfNumeraireAsset = valueOfOption.div(numeraireToday);</span>
+<span class="fc" id="L103">		RandomVariable amountOfUderlyingAsset = model.getRandomVariableForConstant(0.0);</span>
+
+		// Delta of option to replicate
+<span class="fc" id="L106">		final long timingDerivativeStart = System.currentTimeMillis();</span>
+<span class="fc" id="L107">		final Map&lt;Long, RandomVariable&gt; gradient = ((RandomVariableDifferentiable)value).getGradient();</span>
+<span class="fc" id="L108">		final long timingDerivativeEnd = System.currentTimeMillis();</span>
+
+<span class="fc" id="L110">		lastOperationTimingValuation = (timingValuationEnd-timingValuationStart) / 1000.0;</span>
+<span class="fc" id="L111">		lastOperationTimingDerivative = (timingDerivativeEnd-timingDerivativeStart) / 1000.0;</span>
+
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		for(int timeIndex = 0; timeIndex&lt;timeIndexEvaluationTime; timeIndex++) {</span>
+			// Get value of underlying and numeraire assets
+<span class="fc" id="L115">			final RandomVariable underlyingAtTimeIndex = model.getAssetValue(timeIndex,0);</span>
+<span class="fc" id="L116">			final RandomVariable numeraireAtTimeIndex  = model.getNumeraire(timeIndex);</span>
+
+			// Get delta
+<span class="fc" id="L119">			RandomVariable delta = gradient.get(((RandomVariableDifferentiable)underlyingAtTimeIndex).getID());</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if(delta == null) {</span>
+<span class="nc" id="L121">				delta = underlyingAtTimeIndex.mult(0.0);</span>
+			}
+
+<span class="fc" id="L124">			delta = delta.mult(numeraireAtTimeIndex);</span>
+
+<span class="fc" id="L126">			RandomVariable indicator = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="fc bfc" id="L127" title="All 2 branches covered.">			if(exerciseTime != null) {</span>
+<span class="fc" id="L128">				indicator = exerciseTime.sub(model.getTime(timeIndex)+0.001).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+			}
+
+			// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
+<span class="fc" id="L132">			final ArrayList&lt;RandomVariable&gt; basisFunctions = getRegressionBasisFunctionsBinning(underlyingAtTimeIndex, indicator);</span>
+			//			ArrayList&lt;RandomVariable&gt; basisFunctions = getRegressionBasisFunctions(underlyingAtTimeIndex, indicator);
+
+<span class="fc" id="L135">			final ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));</span>
+
+<span class="fc" id="L137">			delta = delta.getConditionalExpectation(conditionalExpectationOperator);</span>
+
+			/*
+			 * Change the portfolio according to the trading strategy
+			 */
+
+			// Determine the delta hedge
+<span class="fc" id="L144">			final RandomVariable newNumberOfStocks	    	= delta;</span>
+<span class="fc" id="L145">			final RandomVariable stocksToBuy			    	= newNumberOfStocks.sub(amountOfUderlyingAsset);</span>
+
+			// Ensure self financing
+<span class="fc" id="L148">			final RandomVariable numeraireAssetsToSell   	= stocksToBuy.mult(underlyingAtTimeIndex).div(numeraireAtTimeIndex);</span>
+<span class="fc" id="L149">			final RandomVariable newNumberOfNumeraireAsset	= amountOfNumeraireAsset.sub(numeraireAssetsToSell);</span>
+
+			// Update portfolio
+<span class="fc" id="L152">			amountOfNumeraireAsset	= newNumberOfNumeraireAsset;</span>
+<span class="fc" id="L153">			amountOfUderlyingAsset	= newNumberOfStocks;</span>
+		}
+
+		/*
+		 * At maturity, calculate the value of the replication portfolio
+		 */
+
+		// Get value of underlying and numeraire assets
+<span class="fc" id="L161">		final RandomVariable underlyingAtEvaluationTime	= model.getAssetValue(evaluationTime,0);</span>
+<span class="fc" id="L162">		final RandomVariable numeraireAtEvaluationTime	= model.getNumeraire(evaluationTime);</span>
+
+<span class="fc" id="L164">		final RandomVariable portfolioValue = amountOfNumeraireAsset.mult(numeraireAtEvaluationTime)</span>
+<span class="fc" id="L165">				.add(amountOfUderlyingAsset.mult(underlyingAtEvaluationTime));</span>
+
+<span class="fc" id="L167">		return portfolioValue;</span>
+	}
+
+	public double getLastOperationTimingValuation() {
+<span class="fc" id="L171">		return lastOperationTimingValuation;</span>
+	}
+
+	public double getLastOperationTimingDerivative() {
+<span class="fc" id="L175">		return lastOperationTimingDerivative;</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getRegressionBasisFunctions(final RandomVariable underlying, final RandomVariable indicator) {
+<span class="nc" id="L179">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+		// Create basis functions - here: 1, S, S^2, S^3, S^4
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial&lt;numberOfRegressionFunctions; powerOfRegressionMonomial++) {</span>
+<span class="nc" id="L183">			basisFunctions.add(underlying.pow(powerOfRegressionMonomial).mult(indicator));</span>
+		}
+
+<span class="nc" id="L186">		return basisFunctions;</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getRegressionBasisFunctionsBinning(final RandomVariable underlying, final RandomVariable indicator) {
+<span class="fc" id="L190">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L192" title="All 2 branches covered.">		if(underlying.isDeterministic()) {</span>
+<span class="fc" id="L193">			basisFunctions.add(underlying);</span>
+		}
+		else {
+<span class="fc" id="L196">			final double[] values = underlying.getRealizations();</span>
+<span class="fc" id="L197">			Arrays.sort(values);</span>
+<span class="fc bfc" id="L198" title="All 2 branches covered.">			for(int i = 0; i&lt;numberOfRegressionFunctions; i++) {</span>
+<span class="fc" id="L199">				final double binLeft = values[(int)((double)i/(double)numberOfRegressionFunctions*values.length)];</span>
+<span class="fc" id="L200">				final RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0)).mult(indicator);</span>
+<span class="fc" id="L201">				basisFunctions.add(basisFunction);</span>
+			}
+		}
+
+<span class="fc" id="L205">		return basisFunctions;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

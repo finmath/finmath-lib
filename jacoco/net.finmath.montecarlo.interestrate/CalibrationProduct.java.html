@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CalibrationProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate</a> &gt; <span class="el_source">CalibrationProduct.java</span></div><h1>CalibrationProduct.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate;
+
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * A class for calibration products, that is a triple (P,V,w) where P is a product, V is a target value and w is a weight.
+ *
+ * @author Christian Fries
+ */
+public class CalibrationProduct {
+
+	private final String 	name;
+	private final AbstractTermStructureMonteCarloProduct		product;
+	private final RandomVariable						targetValue;
+	private final double								weight;
+	private final Integer								priority;
+
+	/**
+	 * Construct a calibration product. A calibration product consists of a product implementing {@link AbstractTermStructureMonteCarloProduct}, a target value
+	 * given as {@link RandomVariable} and a weight. In addition you may give a short name which may be printed by the logger.
+	 *
+	 * @param name A short name (for example a &quot;SYMBOL&quot; representing the product.
+	 * @param product The product.
+	 * @param targetValue The target value.
+	 * @param weight The calibration weight.
+	 * @param priority The priority (may be used when submitting the product for calculation)
+	 */
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight, final int priority) {
+<span class="fc" id="L36">		super();</span>
+<span class="fc" id="L37">		this.name			= name;</span>
+<span class="fc" id="L38">		this.product		= product;</span>
+<span class="fc" id="L39">		this.targetValue	= targetValue;</span>
+<span class="fc" id="L40">		this.weight			= weight;</span>
+<span class="fc" id="L41">		this.priority		= priority;</span>
+<span class="fc" id="L42">	}</span>
+
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
+<span class="fc" id="L45">		this(name, product, targetValue, weight, 0);</span>
+<span class="fc" id="L46">	}</span>
+
+	public CalibrationProduct(final String name, final AbstractTermStructureMonteCarloProduct product, final double targetValue, final double weight) {
+<span class="nc" id="L49">		this(name, product, new Scalar(targetValue), weight);</span>
+<span class="nc" id="L50">	}</span>
+
+	public CalibrationProduct(final AbstractTermStructureMonteCarloProduct product, final RandomVariable targetValue, final double weight) {
+<span class="fc" id="L53">		this(null, product, targetValue, weight);</span>
+<span class="fc" id="L54">	}</span>
+
+	public CalibrationProduct(final AbstractTermStructureMonteCarloProduct product, final double targetValue, final double weight) {
+<span class="fc" id="L57">		this(product, new Scalar(targetValue), weight);</span>
+<span class="fc" id="L58">	}</span>
+
+	/**
+	 * The method returns a short name for this calibration product. If no short name was given, the method returns &lt;code&gt;getProduct().toString()&lt;/code&gt;.
+	 *
+	 * @return A short name for this calibration product. If no short name was given, the method returns &lt;code&gt;getProduct().toString()&lt;/code&gt;
+	 */
+	public String getName() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if(name != null) {</span>
+<span class="nc" id="L67">			return name;</span>
+		} else {
+<span class="nc" id="L69">			return product.toString();</span>
+		}
+	}
+
+	/**
+	 * @return the product.
+	 */
+	public AbstractTermStructureMonteCarloProduct getProduct() {
+<span class="fc" id="L77">		return product;</span>
+	}
+
+	/**
+	 * @return the target value.
+	 */
+	public RandomVariable getTargetValue() {
+<span class="fc" id="L84">		return targetValue;</span>
+	}
+
+	/**
+	 * @return the calibrationWeight
+	 */
+	public double getWeight() {
+<span class="fc" id="L91">		return weight;</span>
+	}
+
+	/**
+	 * @return the priority
+	 */
+	public Integer getPriority() {
+<span class="fc" id="L98">		return priority;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L103">		return &quot;CalibrationProduct [product=&quot; + getProduct()</span>
+<span class="nc" id="L104">		+ &quot;, targetValue=&quot; + getTargetValue()</span>
+<span class="nc" id="L105">		+ &quot;, weight=&quot; + getWeight() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

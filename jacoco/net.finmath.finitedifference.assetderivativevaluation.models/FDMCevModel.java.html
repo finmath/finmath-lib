@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMCevModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMCevModel.java</span></div><h1>FDMCevModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite difference model for option pricing under the Constant Elasticity of
+ * Variance (CEV) model.
+ *
+ * &lt;p&gt;
+ * Under the risk-neutral measure the CEV dynamics are typically written as
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * {@code dS_t = (r(t) - q(t)) S_t dt + sigma * S_t^beta dW_t}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In this class, {@link #getDrift(double, double...)} returns the
+ * &lt;em&gt;absolute drift&lt;/em&gt;,
+ * and {@link #getFactorLoading(double, double...)} returns the &lt;em&gt;absolute
+ * factor loading&lt;/em&gt;.
+ * Hence, for CEV we return
+ * {@code sigma * S^(beta)}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMCevModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial value.
+	 */
+	private final double initialValue;
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+
+	/**
+	 * The sigma.
+	 */
+	private final double sigma;
+	/**
+	 * The beta.
+	 */
+	private final double beta;
+
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Minimum time used to avoid division by zero.
+	 */
+	private static final double MINIMUM_TIME = 1.0E-6;
+
+	/**
+	 * Creates a CEV model instance using explicit discount curves for {@code r}
+	 * and {@code q}.
+	 *
+	 * @param initialValue Initial spot {@code S(0)}.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param sigma CEV volatility scale parameter {@code sigma}.
+	 * @param beta CEV elasticity parameter {@code beta}.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMCevModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double sigma,
+			final double beta,
+<span class="nc" id="L87">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L89">		this.initialValue = initialValue;</span>
+<span class="nc" id="L90">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L91">		this.dividendYieldCurve = dividendYieldCurve;</span>
+<span class="nc" id="L92">		this.sigma = sigma;</span>
+<span class="nc" id="L93">		this.beta = beta;</span>
+<span class="nc" id="L94">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L95">	}</span>
+
+	/**
+	 * Creates a CEV model instance assuming zero dividend yield ({@code q =
+	 * 0}),
+	 * consistent with the constructor style of {@code FDMBlackScholesModel}.
+	 *
+	 * @param initialValue Initial spot {@code S(0)}.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param sigma CEV volatility scale parameter {@code sigma}.
+	 * @param beta CEV elasticity parameter {@code beta}.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMCevModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final double sigma,
+			final double beta,
+<span class="nc" id="L113">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L115">		this.initialValue = initialValue;</span>
+<span class="nc" id="L116">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="nc" id="L118">		final double[] times = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L119">		final double[] givenAnnualizedZeroRates = new double[] {0.0, 0.0 };</span>
+<span class="nc" id="L120">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L121">		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;</span>
+<span class="nc" id="L122">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L124">		this.dividendYieldCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				&quot;dividendCurve&quot;,
+				null,
+				times,
+				givenAnnualizedZeroRates,
+				interpolationMethod,
+				extrapolationMethod,
+				interpolationEntity
+				);
+
+<span class="nc" id="L134">		this.sigma = sigma;</span>
+<span class="nc" id="L135">		this.beta = beta;</span>
+<span class="nc" id="L136">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L137">	}</span>
+
+	/**
+	 * Creates a CEV model instance using constant rates {@code r} and {@code
+	 * q}.
+	 *
+	 * @param initialValue Initial spot {@code S(0)}.
+	 * @param riskFreeRate Constant risk-free rate {@code r}.
+	 * @param dividendYieldRate Constant dividend yield {@code q}.
+	 * @param sigma CEV volatility scale parameter {@code sigma}.
+	 * @param beta CEV elasticity parameter {@code beta}.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMCevModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double sigma,
+			final double beta,
+<span class="nc" id="L156">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L158">		this.initialValue = initialValue;</span>
+
+<span class="nc" id="L160">		final double[] timesR = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L161">		final double[] zeroRatesR = new double[] {riskFreeRate, riskFreeRate };</span>
+<span class="nc" id="L162">		final InterpolationMethod interpolationMethodR = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L163">		final InterpolationEntity interpolationEntityR = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L164">		final ExtrapolationMethod extrapolationMethodR = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L166">		this.riskFreeCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				&quot;riskFreeCurve&quot;,
+				null,
+				timesR,
+				zeroRatesR,
+				interpolationMethodR,
+				extrapolationMethodR,
+				interpolationEntityR
+				);
+
+<span class="nc" id="L176">		final double[] timesQ = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L177">		final double[] zeroRatesQ = new double[] {dividendYieldRate, dividendYieldRate };</span>
+<span class="nc" id="L178">		final InterpolationMethod interpolationMethodQ = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L179">		final InterpolationEntity interpolationEntityQ = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L180">		final ExtrapolationMethod extrapolationMethodQ = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L182">		this.dividendYieldCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				&quot;dividendCurve&quot;,
+				null,
+				timesQ,
+				zeroRatesQ,
+				interpolationMethodQ,
+				extrapolationMethodQ,
+				interpolationEntityQ
+				);
+
+<span class="nc" id="L192">		this.sigma = sigma;</span>
+<span class="nc" id="L193">		this.beta = beta;</span>
+<span class="nc" id="L194">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L195">	}</span>
+
+	/**
+	 * Creates a CEV model instance using constant {@code r} and assuming zero
+	 * dividend yield ({@code q = 0}).
+	 *
+	 * @param initialValue Initial spot {@code S(0)}.
+	 * @param riskFreeRate Constant risk-free rate {@code r}.
+	 * @param sigma CEV volatility scale parameter {@code sigma}.
+	 * @param beta CEV elasticity parameter {@code beta}.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 */
+	public FDMCevModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double sigma,
+			final double beta,
+<span class="nc" id="L212">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L214">		this.initialValue = initialValue;</span>
+
+<span class="nc" id="L216">		final double[] timesR = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L217">		final double[] zeroRatesR = new double[] {riskFreeRate, riskFreeRate };</span>
+<span class="nc" id="L218">		final InterpolationMethod interpolationMethodR = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L219">		final InterpolationEntity interpolationEntityR = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L220">		final ExtrapolationMethod extrapolationMethodR = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L222">		this.riskFreeCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				&quot;riskFreeCurve&quot;,
+				null,
+				timesR,
+				zeroRatesR,
+				interpolationMethodR,
+				extrapolationMethodR,
+				interpolationEntityR
+				);
+
+<span class="nc" id="L232">		final double[] timesQ = new double[] {0.0, 1.0 };</span>
+<span class="nc" id="L233">		final double[] zeroRatesQ = new double[] {0.0, 0.0 };</span>
+<span class="nc" id="L234">		final InterpolationMethod interpolationMethodQ = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L235">		final InterpolationEntity interpolationEntityQ = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L236">		final ExtrapolationMethod extrapolationMethodQ = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L238">		this.dividendYieldCurve = DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+				&quot;dividendCurve&quot;,
+				null,
+				timesQ,
+				zeroRatesQ,
+				interpolationMethodQ,
+				extrapolationMethodQ,
+				interpolationEntityQ
+				);
+
+<span class="nc" id="L248">		this.sigma = sigma;</span>
+<span class="nc" id="L249">		this.beta = beta;</span>
+<span class="nc" id="L250">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L251">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L255">		return riskFreeCurve;</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L260">		return dividendYieldCurve;</span>
+	}
+
+	/**
+	 * Returns the initial spot {@code S(0)}.
+	 *
+	 * @return The initial spot.
+	 */
+	@Override
+	public double[] getInitialValue() {
+<span class="nc" id="L270">		return new double[] {initialValue};</span>
+	}
+
+	/**
+	 * Returns the CEV volatility scale parameter {@code sigma}.
+	 *
+	 * @return {@code sigma}.
+	 */
+	public double getSigma() {
+<span class="nc" id="L279">		return sigma;</span>
+	}
+
+	/**
+	 * Returns the CEV elasticity parameter {@code beta}.
+	 *
+	 * @return {@code beta}.
+	 */
+	public double getBeta() {
+<span class="nc" id="L288">		return beta;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L293">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L298" title="All 2 branches missed.">		final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="nc" id="L300">		final double[] result = new double[1];</span>
+
+<span class="nc" id="L302">		final double rF = getRiskFreeCurve().getDiscountFactor(effectiveTime);</span>
+<span class="nc" id="L303">		final double riskFreeRate = -Math.log(rF) / effectiveTime;</span>
+
+<span class="nc" id="L305">		final double dY = getDividendYieldCurve().getDiscountFactor(effectiveTime);</span>
+<span class="nc" id="L306">		final double dividendYieldRate = -Math.log(dY) / effectiveTime;</span>
+
+<span class="nc" id="L308">		result[0] = (riskFreeRate - dividendYieldRate) * stateVariables[0];</span>
+<span class="nc" id="L309">		return result;</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L314" title="All 2 branches missed.">		final double S = stateVariables.length &gt; 0 ? stateVariables[0] : initialValue;</span>
+
+		final double loading;
+<span class="nc bnc" id="L317" title="All 2 branches missed.">		if (S &lt;= 0.0) {</span>
+<span class="nc" id="L318">			loading = 0.0;</span>
+		} else {
+<span class="nc" id="L320">			loading = sigma * Math.pow(S, beta);</span>
+		}
+
+<span class="nc" id="L323">		return new double[][] {{loading } };</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L332">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="nc" id="L333">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L342">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="nc" id="L343">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L349">		return new FDMCevModel(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				sigma,
+				beta,
+				newSpaceTimeDiscretization
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

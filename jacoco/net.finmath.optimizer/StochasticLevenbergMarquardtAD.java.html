@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StochasticLevenbergMarquardtAD.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">StochasticLevenbergMarquardtAD.java</span></div><h1>StochasticLevenbergMarquardtAD.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 16.06.2006
+ */
+package net.finmath.optimizer;
+
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
+ * algorithm.
+ * &lt;p&gt;
+ * The design avoids the need to define the objective function as a
+ * separate class. The objective function is defined by overriding a class
+ * method, see the sample code below.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The Levenberg-Marquardt solver is implemented in using multi-threading.
+ * The calculation of the derivatives (in case a specific implementation of
+ * {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)} is not
+ * provided) may be performed in parallel by setting the parameter &lt;code&gt;numberOfThreads&lt;/code&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * To use the solver inherit from it and implement the objective function as
+ * {@code setValues(RandomVariable[] parameters, RandomVariable[] values)} where values has
+ * to be set to the value of the objective functions for the given parameters.
+ * &lt;br&gt;
+ * You may also provide an a derivative for your objective function by
+ * additionally overriding the function {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)},
+ * otherwise the solver will calculate the derivative via finite differences.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * To reject a point, it is allowed to set an element of &lt;code&gt;values&lt;/code&gt; to {@link java.lang.Double#NaN}
+ * in the implementation of {@code setValues(RandomVariable[] parameters, RandomVariable[] values)}.
+ * Put differently: The solver handles NaN values in &lt;code&gt;values&lt;/code&gt; as an error larger than
+ * the current one (regardless of the current error) and rejects the point.
+ * &lt;br&gt;
+ * Note, however, that is is an error if the initial parameter guess results in an NaN value.
+ * That is, the solver should be initialized with an initial parameter in an admissible region.
+ * &lt;/p&gt;
+ *
+ * The following simple example finds a solution for the equation &lt;br&gt;
+ * &lt;table&gt;
+ * &lt;caption&gt;Sample linear system of equations.&lt;/caption&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 0.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 5.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 2.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 10.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;pre&gt;
+ * &lt;code&gt;
+ * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+ * 		// Override your objective function here
+ * 		public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
+ * 			values[0] = parameters[0] * 0.0 + parameters[1];
+ * 			values[1] = parameters[0] * 2.0 + parameters[1];
+ * 		}
+ * 	};
+ *
+ * 	// Set solver parameters
+ * 	optimizer.setInitialParameters(new RandomVariable[] { 0, 0 });
+ * 	optimizer.setWeights(new RandomVariable[] { 1, 1 });
+ * 	optimizer.setMaxIteration(100);
+ * 	optimizer.setTargetValues(new RandomVariable[] { 5, 10 });
+ *
+ * 	optimizer.run();
+ *
+ * 	RandomVariable[] bestParameters = optimizer.getBestFitParameters();
+ * &lt;/code&gt;
+ * &lt;/pre&gt;
+ *
+ * See the example in the main method below.
+ *
+ * &lt;p&gt;
+ * The class can be initialized to use a multi-threaded valuation. If initialized
+ * this way the implementation of &lt;code&gt;setValues&lt;/code&gt; must be thread-safe.
+ * The solver will evaluate the gradient of the value vector in parallel, i.e.,
+ * use as many threads as the number of parameters.
+ * &lt;/p&gt;
+ *
+ * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public abstract class StochasticLevenbergMarquardtAD extends StochasticLevenbergMarquardt {
+
+	private static final long serialVersionUID = -8852002990042152135L;
+<span class="fc" id="L104">	private static final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+	private final boolean isGradientValuationParallel;
+
+	public StochasticLevenbergMarquardtAD(final RegularizationMethod regularizationMethod,
+			final RandomVariable[] initialParameters,
+			final RandomVariable[] targetValues,
+			final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance,
+			final ExecutorService executorService,
+			final boolean isGradientValuationParallel) {
+<span class="fc" id="L114">		super(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService);</span>
+<span class="fc" id="L115">		this.isGradientValuationParallel = isGradientValuationParallel;</span>
+<span class="fc" id="L116">	}</span>
+
+	public StochasticLevenbergMarquardtAD(final RegularizationMethod regularizationMethod,
+			final RandomVariable[] initialParameters,
+			final RandomVariable[] targetValues,
+			final RandomVariable[] parameterSteps, final int maxIteration, final double errorTolerance,
+			final ExecutorService executorService) {
+<span class="fc" id="L123">		this(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIteration, errorTolerance, executorService, false /* isGradientValuationParallel */);</span>
+<span class="fc" id="L124">	}</span>
+
+
+	@Override
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
+		/*
+		 * Small modification to avoid growing operator trees.
+		 */
+<span class="fc bfc" id="L132" title="All 2 branches covered.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">			if(parameters[i] instanceof RandomVariableDifferentiable) {</span>
+<span class="fc" id="L134">				parameters[i] = ((RandomVariableDifferentiable) parameters[i]).getCloneIndependent();</span>
+			}
+		}
+
+<span class="fc" id="L138">		setValues(parameters, values);</span>
+<span class="fc" id="L139">	}</span>
+
+	@Override
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
+		/*
+		 * Check if random variable is differentiable
+		 */
+<span class="fc" id="L146">		boolean isParameterRandomVariableDifferentiable = true;</span>
+<span class="fc bfc" id="L147" title="All 4 branches covered.">		for(int parameterIndex=0; parameterIndex&lt;parameters.length &amp;&amp; isParameterRandomVariableDifferentiable; parameterIndex++) {</span>
+<span class="pc bpc" id="L148" title="1 of 4 branches missed.">			isParameterRandomVariableDifferentiable = (parameters[parameterIndex] instanceof RandomVariableDifferentiable) &amp;&amp; isParameterRandomVariableDifferentiable;</span>
+		}
+
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">		if(logger.isLoggable(Level.INFO)) {</span>
+<span class="fc" id="L152">			boolean isValueRandomVariableDifferentiable = true;</span>
+<span class="fc bfc" id="L153" title="All 4 branches covered.">			for(int valueIndex=0; valueIndex&lt;values.length &amp;&amp; isParameterRandomVariableDifferentiable; valueIndex++) {</span>
+<span class="fc bfc" id="L154" title="All 4 branches covered.">				isValueRandomVariableDifferentiable = (values[valueIndex] instanceof RandomVariableDifferentiable) &amp;&amp; isValueRandomVariableDifferentiable;</span>
+			}
+
+<span class="fc bfc" id="L157" title="All 2 branches covered.">			if(!isValueRandomVariableDifferentiable) {</span>
+<span class="fc" id="L158">				logger.info(&quot;Using &quot; + this.getClass().getSimpleName() + &quot; with random variables not implementing &quot; + RandomVariableDifferentiable.class.getSimpleName());</span>
+			}
+		}
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">		if(isParameterRandomVariableDifferentiable) {</span>
+<span class="fc" id="L163">			Map&lt;Integer,Map&lt;Long, RandomVariable&gt;&gt; gradients = null;</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">			if(isGradientValuationParallel) {</span>
+				// Parallel pre-calculation of gradients for each value function
+<span class="nc" id="L166">				gradients = IntStream.range(0, values.length).parallel().boxed().collect(Collectors.toConcurrentMap(Function.identity(), new Function&lt;Integer, Map&lt;Long, RandomVariable&gt;&gt;() {</span>
+					@Override
+					public Map&lt;Long, RandomVariable&gt; apply(final Integer valueIndex) {
+<span class="nc" id="L169">						return ((RandomVariableDifferentiable)values[valueIndex]).getGradient();</span>
+					}
+				}));
+			}
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">			for (int valueIndex = 0; valueIndex &lt; values.length; valueIndex++) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">				if(values[valueIndex] instanceof RandomVariableDifferentiable) {</span>
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">					final Map&lt;Long, RandomVariable&gt; gradient = gradients != null ? gradients.get(valueIndex) : ((RandomVariableDifferentiable)values[valueIndex]).getGradient();</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">					for (int parameterIndex = 0; parameterIndex &lt; parameters.length; parameterIndex++) {</span>
+<span class="fc" id="L178">						derivatives[parameterIndex][valueIndex] = gradient.get(((RandomVariableDifferentiable)parameters[parameterIndex]).getID());</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">						if(derivatives[parameterIndex][valueIndex] != null) {</span>
+<span class="fc" id="L180">							derivatives[parameterIndex][valueIndex] = derivatives[parameterIndex][valueIndex].average();</span>
+						}
+					}
+				}
+			}
+<span class="fc" id="L185">		}</span>
+		else {
+<span class="fc" id="L187">			setDerivatives(parameters, derivatives);</span>
+		}
+<span class="fc" id="L189">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

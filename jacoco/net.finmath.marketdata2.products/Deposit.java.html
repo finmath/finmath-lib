@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Deposit.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.products</a> &gt; <span class="el_source">Deposit.java</span></div><h1>Deposit.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata2.products;
+
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.marketdata2.model.curves.DiscountCurveInterface;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.Schedule;
+
+/**
+ * Implements the valuation of the (overnight) deposit (maturity t+1 or t+2). May be used in curve calibration.
+ *
+ * For definition and convention see Ametrano/Bianchetti (2013). Following the notation there,...
+ * &lt;ul&gt;
+ * 	&lt;li&gt;for deposit ON set spot offset = 0, start = 0D, maturity = 1D&lt;/li&gt;
+ *  &lt;li&gt;for deposit TN set spot offset = 1, start = 0D, maturity = 1D&lt;/li&gt;
+ *  &lt;li&gt;for deposit ST set spot offset = 2, start = 0D, maturity as given.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * Date rolling convention: &quot;following&quot; for T &amp;lt; 1M, &quot;modified following, eom&quot; for T &amp;ge; 1
+ *
+ * The getValue method returns the value df(T) * (1.0+rate*periodLength) - df(t),
+ * where t = schedule.getPeriodStart(0), T = schedule.getPayment(0) and df denotes discountCurve.getDiscountFactor.
+ *
+ * This corresponds to the valuation of an investment of 1 in t, paid back as (1.0+rate*periodLength) in time T.
+ *
+ * @author Rebecca Declara
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Deposit extends AbstractAnalyticProduct implements AnalyticProduct{
+
+	private final Schedule	schedule;
+	private final double				rate;
+	private final String				discountCurveName;
+
+	/**
+	 * @param schedule The schedule of the deposit consisting of one period, providing start, payment and periodLength.
+	 * @param rate The deposit rate.
+	 * @param discountCurveName The discount curve name.
+	 */
+	public Deposit(final Schedule schedule, final double rate, final String discountCurveName) {
+<span class="nc" id="L40">		super();</span>
+<span class="nc" id="L41">		this.schedule =  schedule;</span>
+<span class="nc" id="L42">		this.rate = rate;</span>
+<span class="nc" id="L43">		this.discountCurveName = discountCurveName;</span>
+
+		// Check schedule
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		if(schedule.getNumberOfPeriods() &gt; 1) {</span>
+<span class="nc" id="L47">			throw new IllegalArgumentException(&quot;Number of periods has to be 1: Change frequency to 'tenor'!&quot;);</span>
+		}
+<span class="nc" id="L49">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		if(model==null) {</span>
+<span class="nc" id="L54">			throw new IllegalArgumentException(&quot;model==null&quot;);</span>
+		}
+
+<span class="nc" id="L57">		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if(discountCurve == null) {</span>
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;No discount curve with name '&quot; + discountCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="nc" id="L62">		final double maturity = schedule.getPayment(0);</span>
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if (evaluationTime &gt; maturity)</span>
+		{
+<span class="nc" id="L66">			model.getRandomVariableForConstant(0.0); // after maturity the contract is worth nothing</span>
+		}
+
+<span class="nc" id="L69">		final double payoutDate	= schedule.getPeriodStart(0);</span>
+<span class="nc" id="L70">		final double periodLength = schedule.getPeriodLength(0);</span>
+<span class="nc" id="L71">		final RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);</span>
+<span class="nc" id="L72">		final RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);</span>
+
+		RandomVariable value;
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		if (evaluationTime &gt; payoutDate) {</span>
+<span class="nc" id="L76">			value = discountFactor.mult(1.0 + rate * periodLength);</span>
+		}
+		else {
+<span class="nc" id="L79">			value = discountFactor.mult(1.0 + rate * periodLength).sub(discountFactorPayout);</span>
+		}
+
+<span class="nc" id="L82">		return value.div(discountCurve.getDiscountFactor(model, evaluationTime));</span>
+	}
+
+	/**
+	 * Return the deposit rate implied by the given model's curve.
+	 *
+	 * @param model The given model containing the curve of name &lt;code&gt;discountCurveName&lt;/code&gt;.
+	 * @return The value of the deposit rate implied by the given model's curve.
+	 */
+	public RandomVariable getRate(final AnalyticModel model) {
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if(model==null) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;model==null&quot;);</span>
+		}
+
+<span class="nc" id="L96">		final DiscountCurveInterface discountCurve = model.getDiscountCurve(discountCurveName);</span>
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		if(discountCurve == null) {</span>
+<span class="nc" id="L98">			throw new IllegalArgumentException(&quot;No discount curve with name '&quot; + discountCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="nc" id="L101">		final double payoutDate = schedule.getPeriodStart(0);</span>
+<span class="nc" id="L102">		final double maturity = schedule.getPayment(0);</span>
+<span class="nc" id="L103">		final double periodLength = schedule.getPeriodLength(0);</span>
+
+<span class="nc" id="L105">		final RandomVariable discountFactor = discountCurve.getDiscountFactor(model, maturity);</span>
+<span class="nc" id="L106">		final RandomVariable discountFactorPayout = discountCurve.getDiscountFactor(model, payoutDate);</span>
+
+<span class="nc" id="L108">		return discountFactorPayout.div(discountFactor).sub(1).div(periodLength);</span>
+	}
+
+	public Schedule getSchedule() {
+<span class="nc" id="L112">		return schedule;</span>
+	}
+
+	public String getDiscountCurveName() {
+<span class="nc" id="L116">		return discountCurveName;</span>
+	}
+
+	public double getRate() {
+<span class="nc" id="L120">		return rate;</span>
+	}
+
+	public double getPeriodEndTime() {
+<span class="nc" id="L124">		final double tenorEnd = schedule.getPeriodEnd(0);</span>
+<span class="nc" id="L125">		return tenorEnd;</span>
+	}
+
+	public double getFixingTime() {
+<span class="nc" id="L129">		final double fixingDate = schedule.getFixing(0);</span>
+<span class="nc" id="L130">		return fixingDate;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L135">		return &quot;Deposit [schedule=&quot; + schedule + &quot;, rate=&quot; + rate + &quot;, forwardCurveName=&quot; + discountCurveName + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScheduleDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">ScheduleDescriptor.java</span></div><h1>ScheduleDescriptor.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
+import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.ScheduleGenerator.DaycountConvention;
+import net.finmath.time.ScheduleGenerator.Frequency;
+import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Descriptor for a schedule. All data to generate a schedule for any given reference date is stored. Either via a set of periods or conventions.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class ScheduleDescriptor {
+
+	private final InternalScheduleDescriptor descriptor;
+
+	/**
+	 * Construct a schedule descriptor via a list of periods and daycount convention.
+	 *
+	 * @param periods A list of &lt;code&gt;Period&lt;/code&gt; objects.
+	 * @param daycountConvention The common daycount convention.
+	 */
+	public ScheduleDescriptor(final List&lt;Period&gt; periods,
+			final DayCountConvention daycountConvention) {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">		descriptor = new ScheduleDescriptorFromPeriods(periods, daycountConvention);</span>
+<span class="nc" id="L40">	}</span>
+
+	/**
+	 * Extract a schedule descriptor from a schedule.
+	 *
+	 * @param schedule The schedule.
+	 */
+	public ScheduleDescriptor(final Schedule schedule) {
+<span class="fc" id="L48">		super();</span>
+<span class="fc" id="L49">		descriptor = new ScheduleDescriptorFromPeriods(schedule.getPeriods(), schedule.getDaycountconvention());</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * Construct a schedule descriptor via a set of parameters for a factory.
+	 *
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
+	 */
+	public ScheduleDescriptor(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+			final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+			final DateRollConvention dateRollConvention, final BusinessdayCalendar businessdayCalendar,
+			final int fixingOffsetDays, final int paymentOffsetDays, final boolean isUseEndOfMonth) {
+<span class="nc" id="L70">		super();</span>
+<span class="nc" id="L71">		descriptor = new ScheduleDescriptorFromGenerator(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays,</span>
+				paymentOffsetDays, isUseEndOfMonth);
+<span class="nc" id="L73">	}</span>
+
+	/**
+	 * Construct a schedule descriptor via a set of parameters for a factory.
+	 *
+	 * @param startDate The start date of the first period (unadjusted - adjustments take place during schedule generation).
+	 * @param maturityDate The end date of the last period (unadjusted - adjustments take place during schedule generation).
+	 * @param frequency The frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param abstractBusinessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 */
+	public ScheduleDescriptor(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+			final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+			final DateRollConvention dateRollConvention, final AbstractBusinessdayCalendar abstractBusinessdayCalendar, final int fixingOffsetDays,
+			final int paymentOffsetDays) {
+<span class="nc" id="L92">		this(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,</span>
+				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays, false);
+<span class="nc" id="L94">	}</span>
+
+	/**
+	 * Generate a schedule relative to the given reference date.
+	 *
+	 * @param referenceDate The desired reference date.
+	 * @return The schedule relative to the reference date.
+	 */
+	public Schedule getSchedule(final LocalDate referenceDate) {
+<span class="fc" id="L103">		return descriptor.getSchedule(referenceDate);</span>
+	}
+
+	/**
+	 * The number of periods any schedule from this descriptor will have.
+	 *
+	 * @return The number of periods.
+	 */
+	public int getNumberOfPeriods() {
+		// Note: the reference date is irrelevant for the periods.
+<span class="fc" id="L113">		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getNumberOfPeriods();</span>
+	}
+
+	/**
+	 * The periods of a schedule generated from this descriptor.
+	 *
+	 * @return The periods.
+	 */
+	public List&lt;Period&gt; getPeriods() {
+		// Note: the reference date is irrelevant for the periods.
+<span class="nc" id="L123">		return descriptor.getSchedule(LocalDate.of(1970,1,1)).getPeriods();</span>
+	}
+
+	/**
+	 * Private inner interface for the different kinds of schedule generation methods.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private interface InternalScheduleDescriptor {
+
+		/**
+		 * Generate a schedule relative to the given reference date.
+		 *
+		 * @param referenceDate The desired reference date.
+		 * @return The schedule relative to the reference date.
+		 */
+		Schedule getSchedule(LocalDate referenceDate);
+	}
+
+	/**
+	 * Private inner class to generate schedules via a list of periods and daycount convention.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class ScheduleDescriptorFromPeriods implements InternalScheduleDescriptor {
+
+		private final List&lt;Period&gt; periods;
+		private final DayCountConvention daycountConvention;
+
+		private ScheduleDescriptorFromPeriods(final List&lt;Period&gt; periods,
+				final DayCountConvention daycountConvention) {
+<span class="fc" id="L158">			super();</span>
+<span class="fc" id="L159">			this.periods = periods;</span>
+<span class="fc" id="L160">			this.daycountConvention = daycountConvention;</span>
+<span class="fc" id="L161">		}</span>
+
+		@Override
+		public Schedule getSchedule(final LocalDate referenceDate) {
+<span class="fc" id="L165">			return new ScheduleFromPeriods(referenceDate, periods, daycountConvention);</span>
+		}
+
+		public List&lt;Period&gt; getPeriods() {
+<span class="nc" id="L169">			return Collections.unmodifiableList(periods);</span>
+		}
+
+		public DayCountConvention getDaycountConvention() {
+<span class="nc" id="L173">			return daycountConvention;</span>
+		}
+	}
+
+	/**
+	 * Private inner class to generate schedule via conventions.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class ScheduleDescriptorFromGenerator implements InternalScheduleDescriptor {
+
+		private final LocalDate startDate;
+		private final LocalDate maturityDate;
+		private final Frequency frequency;
+		private final DaycountConvention daycountConvention;
+		private final ShortPeriodConvention shortPeriodConvention;
+		private final DateRollConvention dateRollConvention;
+		private final BusinessdayCalendar businessdayCalendar;
+		private final int fixingOffsetDays;
+		private final int paymentOffsetDays;
+		private final boolean isUseEndOfMonth;
+
+
+		private ScheduleDescriptorFromGenerator(final LocalDate startDate, final LocalDate maturityDate, final Frequency frequency,
+				final DaycountConvention daycountConvention, final ShortPeriodConvention shortPeriodConvention,
+				final DateRollConvention dateRollConvention, final BusinessdayCalendar businessdayCalendar,
+				final int fixingOffsetDays, final int paymentOffsetDays, final boolean isUseEndOfMonth) {
+<span class="nc" id="L202">			super();</span>
+<span class="nc" id="L203">			this.startDate = startDate;</span>
+<span class="nc" id="L204">			this.maturityDate = maturityDate;</span>
+<span class="nc" id="L205">			this.frequency = frequency;</span>
+<span class="nc" id="L206">			this.daycountConvention = daycountConvention;</span>
+<span class="nc" id="L207">			this.shortPeriodConvention = shortPeriodConvention;</span>
+<span class="nc" id="L208">			this.dateRollConvention = dateRollConvention;</span>
+<span class="nc" id="L209">			this.businessdayCalendar = businessdayCalendar;</span>
+<span class="nc" id="L210">			this.fixingOffsetDays = fixingOffsetDays;</span>
+<span class="nc" id="L211">			this.paymentOffsetDays = paymentOffsetDays;</span>
+<span class="nc" id="L212">			this.isUseEndOfMonth = isUseEndOfMonth;</span>
+<span class="nc" id="L213">		}</span>
+
+
+		@Override
+		public Schedule getSchedule(final LocalDate referenceDate) {
+<span class="nc" id="L218">			return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention, dateRollConvention,</span>
+					businessdayCalendar, fixingOffsetDays, paymentOffsetDays, isUseEndOfMonth);
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

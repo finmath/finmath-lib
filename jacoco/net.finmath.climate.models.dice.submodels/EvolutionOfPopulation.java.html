@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvolutionOfPopulation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">EvolutionOfPopulation.java</span></div><h1>EvolutionOfPopulation.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.Function;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * the evolution of the population (economy)
+ * \(
+ * 	L(t_{i+1}) = L(t_{i}) * (L(\infty)/L(t_{i})^{g}
+ * \)
+ *
+ * Note: The function depends on the time step size
+ * TODO Fix time stepping
+ *
+ * @author Christian Fries
+ */
+public class EvolutionOfPopulation implements Function&lt;Integer, Function&lt;Double, Double&gt;&gt; {
+
+	private final TimeDiscretization timeDiscretization;
+	private final double populationAsymptotic;	 // Asymptotic population (La)
+	private final double populationGrowth;		 // Population growth (lg) (in the original model this a per-5Y)
+
+	public EvolutionOfPopulation(TimeDiscretization timeDiscretization, double populationAsymptotic, double populationGrowth) {
+<span class="fc" id="L25">		super();</span>
+<span class="fc" id="L26">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L27">		this.populationAsymptotic = populationAsymptotic;</span>
+<span class="fc" id="L28">		this.populationGrowth = populationGrowth;</span>
+<span class="fc" id="L29">	}</span>
+
+	public EvolutionOfPopulation(TimeDiscretization timeDiscretization) {
+<span class="fc" id="L32">		this(timeDiscretization, 11500, 0.134/5); //original parameter is per 5 year time step, we rescale to 1Y</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	public Function&lt;Double, Double&gt; apply(Integer timeIndex) {
+<span class="fc" id="L37">		final double timeStep = timeDiscretization.getTimeStep(timeIndex);</span>
+<span class="fc" id="L38">		return (Double population) -&gt; {</span>
+<span class="fc" id="L39">			return population * Math.pow(populationAsymptotic/population,populationGrowth*timeStep);</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

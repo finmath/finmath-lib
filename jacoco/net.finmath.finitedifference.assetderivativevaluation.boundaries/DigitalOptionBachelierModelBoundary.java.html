@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalOptionBachelierModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DigitalOptionBachelierModelBoundary.java</span></div><h1>DigitalOptionBachelierModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DigitalOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DigitalPayoffType;
+
+/**
+ * Boundary conditions for {@link DigitalOption} under the
+ * {@link FDMBachelierModel}.
+ *
+ * &lt;p&gt;
+ * The boundary asymptotics depend on the exercise style:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;European exercise: discounted continuation asymptotics.&lt;/li&gt;
+ *   &lt;li&gt;Bermudan / American exercise: early-exercise asymptotics.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalOptionBachelierModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMBachelierModel model;
+
+	/**
+	 * Creates the boundary condition associated with a given
+	 * {@link FDMBachelierModel}.
+	 *
+	 * @param model The Bachelier model used to determine
+	 *              risk-free and dividend discount factors.
+	 */
+<span class="nc" id="L45">	public DigitalOptionBachelierModelBoundary(final FDMBachelierModel model) {</span>
+<span class="nc" id="L46">		this.model = model;</span>
+<span class="nc" id="L47">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L55">		final DigitalOption option = (DigitalOption) product;</span>
+<span class="nc" id="L56">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L57">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+<span class="nc" id="L58">		final Exercise exercise = option.getExercise();</span>
+
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if (sign == CallOrPut.CALL) {</span>
+<span class="nc" id="L61">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L62">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L66">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L70">					? getDiscountedCashValue(option, time)</span>
+<span class="nc" id="L71">							: option.getCashPayoff();</span>
+
+<span class="nc" id="L73">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L74">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L77">			final double stateVariable = stateVariables[0];</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L79">					? getDiscountedAssetValue(stateVariable, option, time)</span>
+<span class="nc" id="L80">							: stateVariable;</span>
+
+<span class="nc" id="L82">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L83">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		} else {
+<span class="nc" id="L86">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L96">		final DigitalOption option = (DigitalOption) product;</span>
+<span class="nc" id="L97">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L98">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+<span class="nc" id="L99">		final Exercise exercise = option.getExercise();</span>
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (sign == CallOrPut.PUT) {</span>
+<span class="nc" id="L102">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L103">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L107">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L111">					? getDiscountedCashValue(option, time)</span>
+<span class="nc" id="L112">							: option.getCashPayoff();</span>
+
+<span class="nc" id="L114">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L115">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L118">			final double stateVariable = stateVariables[0];</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L120">					? getDiscountedAssetValue(stateVariable, option, time)</span>
+<span class="nc" id="L121">							: stateVariable;</span>
+
+<span class="nc" id="L123">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L124">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		} else {
+<span class="nc" id="L127">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Returns true if the exercise is European.
+	 *
+	 * @param exercise The exercise specification.
+	 * @return True if and only if the exercise is European.
+	 */
+	private boolean isEuropeanExercise(final Exercise exercise) {
+<span class="nc bnc" id="L138" title="All 4 branches missed.">		return exercise != null &amp;&amp; exercise.isEuropean();</span>
+	}
+
+	/**
+	 * Returns the discounted cash payoff for a European cash-or-nothing
+	 * digital.
+	 *
+	 * @param option The digital option.
+	 * @param time The current model time.
+	 * @return Discounted cash payoff.
+	 */
+	private double getDiscountedCashValue(final DigitalOption option, final double time) {
+
+<span class="nc" id="L151">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L152">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L154">		final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L156">		return option.getCashPayoff() * Math.exp(-riskFreeRate * (maturity - time));</span>
+	}
+
+	/**
+	 * Returns the discounted stock asymptotic value for a European
+	 * asset-or-nothing digital.
+	 *
+	 * @param stateVariable The boundary stock level.
+	 * @param option The digital option.
+	 * @param time The current model time.
+	 * @return Discounted stock value.
+	 */
+	private double getDiscountedAssetValue(
+			final double stateVariable,
+			final DigitalOption option,
+			final double time) {
+
+<span class="nc" id="L173">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L174">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+
+<span class="nc" id="L176">		final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L178">		return stateVariable * Math.exp(-dividendYieldRate * (maturity - time));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

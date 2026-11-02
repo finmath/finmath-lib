@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ErrorEstimation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.data</a> &gt; <span class="el_source">ErrorEstimation.java</span></div><h1>ErrorEstimation.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.data;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.singleswaprate.products.CashSettledPayerSwaption;
+import net.finmath.singleswaprate.products.CashSettledReceiverSwaption;
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Provides several error estimates between values taken from market data and values taken from a model.
+ * The estimates first have to be generated, after which each estimate can be requested.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class ErrorEstimation {
+
+	private final LocalDate referenceDate;
+	private final SchedulePrototype fixMetaSchedule;
+	private final SchedulePrototype floatMetaSchedule;
+	private final AnnuityMappingType annuityMappingType;
+	private final String discountCurveName;
+	private final String forwardCurveName;
+	private final String volatilityCubeName;
+
+	private final double replicationLowerBound;
+	private final double replicationUpperBound;
+	private final int replicationNumberOfEvaluationPoints;
+
+	private final SwaptionDataLattice physicalPremiumsATM;
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
+
+	private double[] marketCash;
+	private double[] marketPhysical;
+
+	private double[] modelCash;
+	private double[] modelPhysical;
+
+	private double[] marketCashTenor;
+	private double[] modelCashTenor;
+	private int evaluatedMaturity;
+	private int evaluatedTermination;
+
+
+	/**
+	 * Create the class.
+	 *
+	 * @param referenceDate The reference date.
+	 * @param fixMetaSchedule The meta data with which to create schedules from the tenor grid for the fixed leg.
+	 * @param floatMetaSchedule The meta data with which to create schedules from the tenor grid for the float leg.
+	 * @param annuityMappingType The type of annuity mapping to use for cash settled swaptions.
+	 * @param physicalPremiumsATM The lattice containing atm physically settled swaption premiums.
+	 * @param cashPayerPremiums The lattice containing cash payer premiums.
+	 * @param cashReceiverPremiums The lattice containing cash receiver premiums.
+	 * @param discountCurveName The name of the discount curve in the model.
+	 * @param forwardCurveName The name of the forward curve in the model.
+	 * @param volatilityCubeName The name of the volatility cube in the model.
+	 * @param replicationLowerBound The lowest strike to use during replication.
+	 * @param replicationUpperBound The highest strike to use during replication.
+	 * @param replicationNumberOfEvaluationPoints The number of strikes to evaluate during replication.
+	 *
+	 * @throws IOException Thrown when there is a problem fetching data from the MarketDataHandler.
+	 */
+	public ErrorEstimation(final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule, final AnnuityMappingType annuityMappingType,
+			final SwaptionDataLattice physicalPremiumsATM, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final double replicationLowerBound, final double replicationUpperBound, final int replicationNumberOfEvaluationPoints) throws IOException {
+<span class="nc" id="L79">		super();</span>
+<span class="nc" id="L80">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L81">		this.fixMetaSchedule = fixMetaSchedule;</span>
+<span class="nc" id="L82">		this.floatMetaSchedule = floatMetaSchedule;</span>
+<span class="nc" id="L83">		this.annuityMappingType = annuityMappingType;</span>
+<span class="nc" id="L84">		this.discountCurveName = discountCurveName;</span>
+<span class="nc" id="L85">		this.forwardCurveName = forwardCurveName;</span>
+<span class="nc" id="L86">		this.volatilityCubeName = volatilityCubeName;</span>
+
+<span class="nc" id="L88">		this.replicationLowerBound = replicationLowerBound;</span>
+<span class="nc" id="L89">		this.replicationUpperBound = replicationUpperBound;</span>
+<span class="nc" id="L90">		this.replicationNumberOfEvaluationPoints = replicationNumberOfEvaluationPoints;</span>
+
+<span class="nc" id="L92">		this.physicalPremiumsATM = physicalPremiumsATM;</span>
+<span class="nc" id="L93">		this.cashPayerPremiums = cashPayerPremiums;</span>
+<span class="nc" id="L94">		this.cashReceiverPremiums = cashReceiverPremiums;</span>
+
+<span class="nc" id="L96">	}</span>
+
+	/**
+	 * Evaluate the market data against the model. The nodes to be evaluated on are given by a lattice.
+	 * The values of the lattice are not taken into account, only their position. If no lattice (null) is provided, all available data is evaluated.
+	 *
+	 * @param nodes A lattice indicating on which points errors should be evaluated. Optional.
+	 * @param model The model against which to evaluate.
+	 */
+	public void evaluate(SwaptionDataLattice nodes, final VolatilityCubeModel model) {
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if(nodes == null) {</span>
+<span class="nc" id="L108">			nodes = physicalPremiumsATM.append(cashPayerPremiums, model).append(cashReceiverPremiums, model);</span>
+		}
+
+<span class="nc" id="L111">		final ArrayList&lt;Double&gt; marketPhysicalList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L112">		final ArrayList&lt;Double&gt; modelPhysicalList = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L114">		final ArrayList&lt;Double&gt; marketCashPayer = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L115">		final ArrayList&lt;Double&gt; marketCashReceiver = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L116">		final ArrayList&lt;Double&gt; modelCashPayer = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L117">		final ArrayList&lt;Double&gt; modelCashReceiver = new ArrayList&lt;&gt;();</span>
+
+
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		for(final int maturity : nodes.getMaturities()) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">			for(final int termination : nodes.getTenors()) {</span>
+<span class="nc" id="L122">				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);</span>
+<span class="nc" id="L123">				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);</span>
+
+<span class="nc" id="L125">				final double optionMaturity 	= fixSchedule.getFixing(0);</span>
+<span class="nc" id="L126">				final double swapMaturity		= fixSchedule.getPayment(fixSchedule.getNumberOfPeriods()-1);</span>
+<span class="nc" id="L127">				final double annuity = SwapAnnuity.getSwapAnnuity(optionMaturity, fixSchedule, model.getDiscountCurve(discountCurveName), model);</span>
+<span class="nc" id="L128">				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+<span class="nc" id="L129">				final double volatility = model.getVolatilityCube(volatilityCubeName).getValue(model, swapMaturity, optionMaturity, swapRate,</span>
+						QuotingConvention.VOLATILITYNORMAL);
+
+<span class="nc" id="L132">				marketPhysicalList.add(physicalPremiumsATM.getValue(0, maturity, termination));</span>
+<span class="nc" id="L133">				modelPhysicalList.add(AnalyticFormulas.bachelierOptionValue(swapRate, volatility, optionMaturity, swapRate, annuity));</span>
+
+<span class="nc bnc" id="L135" title="All 2 branches missed.">				for(final int moneyness : cashPayerPremiums.getMoneyness()) {</span>
+
+<span class="nc bnc" id="L137" title="All 2 branches missed.">					if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)) {</span>
+<span class="nc" id="L138">						final double payerStrike = swapRate + moneyness / 10000.0;</span>
+
+<span class="nc" id="L140">						final CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,</span>
+								forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
+								replicationNumberOfEvaluationPoints);
+
+<span class="nc" id="L144">						marketCashPayer.add(cashPayerPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="nc" id="L145">						modelCashPayer.add(payer.getValue(optionMaturity, model));</span>
+					}
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">					if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)) {</span>
+<span class="nc" id="L149">						final double receiverStrike = swapRate - moneyness / 10000.0;</span>
+
+<span class="nc" id="L151">						final CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,</span>
+								forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
+								replicationNumberOfEvaluationPoints);
+
+<span class="nc" id="L155">						marketCashReceiver.add(cashReceiverPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="nc" id="L156">						modelCashReceiver.add(receiver.getValue(optionMaturity, model));</span>
+					}
+				}
+			}
+		}
+
+<span class="nc" id="L162">		marketPhysical = marketPhysicalList.stream().mapToDouble(Double::doubleValue).toArray();</span>
+<span class="nc" id="L163">		modelPhysical = modelPhysicalList.stream().mapToDouble(Double::doubleValue).toArray();</span>
+
+<span class="nc" id="L165">		marketCashPayer.addAll(marketCashReceiver);</span>
+<span class="nc" id="L166">		modelCashPayer.addAll(modelCashReceiver);</span>
+
+<span class="nc" id="L168">		marketCash = marketCashPayer.stream().mapToDouble(Double::doubleValue).toArray();</span>
+<span class="nc" id="L169">		modelCash = modelCashPayer.stream().mapToDouble(Double::doubleValue).toArray();</span>
+
+<span class="nc" id="L171">	}</span>
+
+	/**
+	 * Evaluate the market data against the model at a specific node of the tenor grid.
+	 *
+	 * @param maturity The maturity at which to evaluate.
+	 * @param termination The termination at which to evaluate.
+	 * @param model The model against which to evaluate.
+	 */
+	private void evaluateTenor(final int maturity, final int termination, final VolatilityCubeModel model) {
+
+<span class="nc" id="L182">		final ArrayList&lt;Double&gt; marketCashPayer = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L183">		final ArrayList&lt;Double&gt; marketCashReceiver = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L184">		final ArrayList&lt;Double&gt; modelCashPayer = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L185">		final ArrayList&lt;Double&gt; modelCashReceiver = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L187">		final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturity, termination);</span>
+<span class="nc" id="L188">		final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturity, termination);</span>
+
+<span class="nc" id="L190">		final double optionMaturity 	= fixSchedule.getFixing(0);</span>
+<span class="nc" id="L191">		final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+
+<span class="nc bnc" id="L193" title="All 2 branches missed.">		for(final int moneyness : cashPayerPremiums.getMoneyness()) {</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">			if(cashPayerPremiums.containsEntryFor(maturity, termination, moneyness)) {</span>
+<span class="nc" id="L195">				final double payerStrike = swapRate + moneyness / 10000.0;</span>
+
+<span class="nc" id="L197">				final CashSettledPayerSwaption payer = new CashSettledPayerSwaption(fixSchedule, floatSchedule, payerStrike, discountCurveName,</span>
+						forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
+						replicationNumberOfEvaluationPoints);
+
+<span class="nc" id="L201">				marketCashPayer.add(cashPayerPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="nc" id="L202">				modelCashPayer.add(payer.getValue(optionMaturity, model));</span>
+			}
+		}
+
+<span class="nc bnc" id="L206" title="All 2 branches missed.">		for(final int moneyness : cashReceiverPremiums.getMoneyness()) {</span>
+<span class="nc bnc" id="L207" title="All 2 branches missed.">			if(cashReceiverPremiums.containsEntryFor(maturity, termination, moneyness)) {</span>
+<span class="nc" id="L208">				final double receiverStrike = swapRate - moneyness / 10000.0;</span>
+
+<span class="nc" id="L210">				final CashSettledReceiverSwaption receiver = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, receiverStrike, discountCurveName,</span>
+						forwardCurveName, volatilityCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,
+						replicationNumberOfEvaluationPoints);
+
+<span class="nc" id="L214">				marketCashReceiver.add(cashReceiverPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="nc" id="L215">				modelCashReceiver.add(receiver.getValue(optionMaturity, model));</span>
+			}
+		}
+
+<span class="nc" id="L219">		marketCashPayer.addAll(marketCashReceiver);</span>
+<span class="nc" id="L220">		modelCashPayer.addAll(modelCashReceiver);</span>
+
+<span class="nc" id="L222">		marketCashTenor = marketCashPayer.stream().mapToDouble(Double::doubleValue).toArray();</span>
+<span class="nc" id="L223">		modelCashTenor = modelCashPayer.stream().mapToDouble(Double::doubleValue).toArray();</span>
+
+<span class="nc" id="L225">		evaluatedMaturity = maturity;</span>
+<span class="nc" id="L226">		evaluatedTermination = termination;</span>
+<span class="nc" id="L227">	}</span>
+
+	/**
+	 * Get the average error in cash settled swaption premiums.
+	 *
+	 * @return The average error in cash settled swaption premiums.
+	 */
+	public double getCashAverageError() {
+<span class="nc" id="L235">		double sum = 0;</span>
+<span class="nc" id="L236">		double c = 0;</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCash.length; i++) {</span>
+<span class="nc" id="L238">			final double y = Math.abs(marketCash[i] - modelCash[i]) - c;</span>
+<span class="nc" id="L239">			final double t = sum + y;</span>
+<span class="nc" id="L240">			c = (t - sum) -y;</span>
+<span class="nc" id="L241">			sum = t;</span>
+		}
+<span class="nc" id="L243">		return sum / marketCash.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in cash settled swaption premiums.
+	 *
+	 * @return The maximal error in cash settled swaption premiums.
+	 */
+	public double getCashMaxError() {
+<span class="nc" id="L252">		double max = 0;</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCash.length; i++) {</span>
+<span class="nc" id="L254">			max = Math.max(max, Math.abs(marketCash[i] - modelCash[i]));</span>
+		}
+<span class="nc" id="L256">		return max;</span>
+	}
+
+	/**
+	 * Get the average error in cash settled swaption premiums, in percent difference from the market data.
+	 *
+	 * @return The average error in cash settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getCashAverageErrorPercent() {
+<span class="nc" id="L265">		double sum = 0;</span>
+<span class="nc" id="L266">		double c = 0;</span>
+<span class="nc bnc" id="L267" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCash.length; i++) {</span>
+<span class="nc" id="L268">			final double y = Math.abs(modelCash[i] / marketCash[i] - 1) - c;</span>
+<span class="nc" id="L269">			final double t = sum + y;</span>
+<span class="nc" id="L270">			c = (t - sum) - y;</span>
+<span class="nc" id="L271">			sum = t;</span>
+		}
+<span class="nc" id="L273">		return sum / marketCash.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in cash settled swaption premiums, in percent difference from the market data.
+	 *
+	 * @return The maximal error in cash settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getCashMaxErrorPercent() {
+<span class="nc" id="L282">		double max = 0;</span>
+<span class="nc bnc" id="L283" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCash.length; i++) {</span>
+<span class="nc" id="L284">			max = Math.max(max, Math.abs(modelCash[i] / marketCash[i] - 1));</span>
+		}
+<span class="nc" id="L286">		return max;</span>
+	}
+
+	/**
+	 * Get the average error in physically settled swaption premiums.
+	 *
+	 * @return The average error in physically settled swaption premiums.
+	 */
+	public double getPhysicalAverageError() {
+<span class="nc" id="L295">		double sum = 0;</span>
+<span class="nc" id="L296">		double c = 0;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">		for(int i = 0; i &lt; marketPhysical.length; i++) {</span>
+<span class="nc" id="L298">			final double y = Math.abs(marketPhysical[i] - modelPhysical[i]) - c;</span>
+<span class="nc" id="L299">			final double t = sum + y;</span>
+<span class="nc" id="L300">			c = (t - sum) -y;</span>
+<span class="nc" id="L301">			sum = t;</span>
+		}
+<span class="nc" id="L303">		return sum / marketPhysical.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in physically settled swaption premiums.
+	 *
+	 * @return The maximal error in physically settled swaption premiums.
+	 */
+	public double getPhysicalMaxError() {
+<span class="nc" id="L312">		double max = 0;</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		for(int i = 0; i &lt; marketPhysical.length; i++) {</span>
+<span class="nc" id="L314">			max = Math.max(max, Math.abs(marketPhysical[i] - modelPhysical[i]));</span>
+		}
+<span class="nc" id="L316">		return max;</span>
+	}
+
+	/**
+	 * Get the average error in physically settled swaption premiums, in percent difference from the market data.
+	 *
+	 * @return The average error in physically settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getPhysicalAverageErrorPercent() {
+<span class="nc" id="L325">		double sum = 0;</span>
+<span class="nc" id="L326">		double c = 0;</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		for(int i = 0; i &lt; marketPhysical.length; i++) {</span>
+<span class="nc" id="L328">			final double y = Math.abs(modelPhysical[i] / marketPhysical[i] - 1) - c;</span>
+<span class="nc" id="L329">			final double t = sum + y;</span>
+<span class="nc" id="L330">			c = (t - sum) - y;</span>
+<span class="nc" id="L331">			sum = t;</span>
+		}
+<span class="nc" id="L333">		return sum / marketPhysical.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in physically settled swaption premiums, in percent difference from the market data.
+	 *
+	 * @return The maximal error in physically settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getPhysicalMaxErrorPercent() {
+<span class="nc" id="L342">		double max = 0;</span>
+<span class="nc bnc" id="L343" title="All 2 branches missed.">		for(int i = 0; i &lt; marketPhysical.length; i++) {</span>
+<span class="nc" id="L344">			max = Math.max(max, Math.abs(modelPhysical[i] / marketPhysical[i] - 1));</span>
+		}
+<span class="nc" id="L346">		return max;</span>
+	}
+
+	/**
+	 * Get the average error in cash settled swaption premiums at a specific node on the tenor grid.
+	 *
+	 * @param maturity The maturity at which to evaluate.
+	 * @param termination The termination at which to evaluate.
+	 * @param model The model against which to evaluate.
+	 * @return The average error in cash settled swaption premiums.
+	 */
+	public double getCashAverageError(final int maturity, final int termination, final VolatilityCubeModel model) {
+
+<span class="nc bnc" id="L359" title="All 4 branches missed.">		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {</span>
+<span class="nc" id="L360">			evaluateTenor(maturity, termination, model);</span>
+		}
+
+<span class="nc" id="L363">		double sum = 0;</span>
+<span class="nc" id="L364">		double c = 0;</span>
+<span class="nc bnc" id="L365" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCashTenor.length; i++) {</span>
+<span class="nc" id="L366">			final double y = Math.abs(marketCashTenor[i] - modelCashTenor[i]) - c;</span>
+<span class="nc" id="L367">			final double t = sum + y;</span>
+<span class="nc" id="L368">			c = (t - sum) -y;</span>
+<span class="nc" id="L369">			sum = t;</span>
+		}
+<span class="nc" id="L371">		return sum / marketCashTenor.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in cash settled swaption premiums at a specific node on the tenor grid.
+	 *
+	 * @param maturity The maturity at which to evaluate.
+	 * @param termination The termination at which to evaluate.
+	 * @param model The model against which to evaluate.
+	 * @return The maximal error in cash settled swaption premiums.
+	 */
+	public double getCashMaxError(final int maturity, final int termination, final VolatilityCubeModel model) {
+
+<span class="nc bnc" id="L384" title="All 4 branches missed.">		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {</span>
+<span class="nc" id="L385">			evaluateTenor(maturity, termination, model);</span>
+		}
+
+<span class="nc" id="L388">		double max = 0;</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCashTenor.length; i++) {</span>
+<span class="nc" id="L390">			max = Math.max(max, Math.abs(marketCashTenor[i] - modelCashTenor[i]));</span>
+		}
+<span class="nc" id="L392">		return max;</span>
+	}
+
+	/**
+	 * Get the average error in cash settled swaption premiums, in percent difference from the market data at a specific node on the tenor grid.
+	 *
+	 * @param maturity The maturity at which to evaluate.
+	 * @param termination The termination at which to evaluate.
+	 * @param model The model against which to evaluate.
+	 * @return The average error in cash settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getCashAverageErrorPercent(final int maturity, final int termination, final VolatilityCubeModel model) {
+
+<span class="nc bnc" id="L405" title="All 4 branches missed.">		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {</span>
+<span class="nc" id="L406">			evaluateTenor(maturity, termination, model);</span>
+		}
+
+<span class="nc" id="L409">		double sum = 0;</span>
+<span class="nc" id="L410">		double c = 0;</span>
+<span class="nc bnc" id="L411" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCashTenor.length; i++) {</span>
+<span class="nc" id="L412">			final double y = Math.abs(modelCashTenor[i] / marketCashTenor[i] - 1) - c;</span>
+<span class="nc" id="L413">			final double t = sum + y;</span>
+<span class="nc" id="L414">			c = (t - sum) - y;</span>
+<span class="nc" id="L415">			sum = t;</span>
+		}
+<span class="nc" id="L417">		return sum / marketCashTenor.length;</span>
+	}
+
+	/**
+	 * Get the maximal error in cash settled swaption premiums, in percent difference from the market data at a specific node on the tenor grid.
+	 *
+	 * @param maturity The maturity at which to evaluate.
+	 * @param termination The termination at which to evaluate.
+	 * @param model The model against which to evaluate.
+	 * @return The maximal error in cash settled swaption premiums, in percent difference from the market data.
+	 */
+	public double getCashMaxErrorPercent(final int maturity, final int termination, final VolatilityCubeModel model) {
+
+<span class="nc bnc" id="L430" title="All 4 branches missed.">		if( (maturity != evaluatedMaturity) || (termination != evaluatedTermination) ) {</span>
+<span class="nc" id="L431">			evaluateTenor(maturity, termination, model);</span>
+		}
+
+<span class="nc" id="L434">		double max = 0;</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">		for(int i = 0; i &lt; marketCashTenor.length; i++) {</span>
+<span class="nc" id="L436">			max = Math.max(max, Math.abs(modelCashTenor[i] / marketCashTenor[i] - 1));</span>
+		}
+<span class="nc" id="L438">		return max;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

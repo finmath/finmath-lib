@@ -1,0 +1,792 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMThetaMethod1DTwoState.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">FDMThetaMethod1DTwoState.java</span></div><h1>FDMThetaMethod1DTwoState.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceOneDimensionalKnockInProduct;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.BarrierType;
+
+/**
+ * Direct two-state theta-method solver for 1D knock-in barrier-style products.
+ *
+ * &lt;p&gt;
+ * Regime 0 = not yet activated (barrier not yet hit).
+ * Regime 1 = already activated (barrier has been hit).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This implementation is matrix-free:
+ * &lt;/p&gt;
+ *
+ * &lt;ul&gt;
+ * &lt;li&gt;The active regime is solved on the full grid using a tridiagonal theta
+ * step.&lt;/li&gt;
+ * &lt;li&gt;The inactive regime is solved only on the continuation-side subgrid.&lt;/li&gt;
+ * &lt;li&gt;On the already-hit region and at the barrier interface, the coupling
+ * between inactive
+ * and active regimes is governed by a {@link TwoStateActivationPolicy}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Supports European, Bermudan, and American exercise in the active regime.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMThetaMethod1DTwoState implements FDMSolver {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-10;
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceEquityModel model;
+	/**
+	 * The product.
+	 */
+	private final FiniteDifferenceOneDimensionalKnockInProduct product;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+	/**
+	 * The active boundary provider.
+	 */
+	private final TwoStateActiveBoundaryProvider activeBoundaryProvider;
+	/**
+	 * The activation policy.
+	 */
+	private final TwoStateActivationPolicy activationPolicy;
+
+	/**
+	 * Creates a direct two-state theta-method solver for one-dimensional knock-
+	 * in products.
+	 *
+	 * &lt;p&gt;
+	 * The solver evolves two coupled value functions:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 * &lt;li&gt;the &lt;em&gt;inactive&lt;/em&gt; regime, representing the contract value before
+	 * the barrier has been hit,&lt;/li&gt;
+	 * &lt;li&gt;the &lt;em&gt;active&lt;/em&gt; regime, representing the value after activation,
+	 * which behaves like the corresponding activated claim.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * &lt;p&gt;
+	 * The active regime is solved on the full spatial grid, while the inactive
+	 * regime is solved only on the
+	 * portion of the grid where the barrier has not yet been triggered. The
+	 * already-hit region and the
+	 * continuation-side interface are coupled through the default continuation-
+	 * style activation policy.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference equity model providing local PDE
+	 *     coefficients and discounting.
+	 * @param product The knock-in product to be valued.
+	 * @param spaceTimeDiscretization The spatial and temporal discretization,
+	 *     including the theta parameter.
+	 * @param exercise The exercise specification. Bermudan and American
+	 *     exercise are applied only to the active regime.
+	 * @param activeBoundaryProvider Provider for the boundary values of the
+	 *     already-activated regime.
+	 */
+	public FDMThetaMethod1DTwoState(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceOneDimensionalKnockInProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise,
+			final TwoStateActiveBoundaryProvider activeBoundaryProvider) {
+<span class="nc" id="L110">		this(</span>
+				model,
+				product,
+				spaceTimeDiscretization,
+				exercise,
+				activeBoundaryProvider,
+				new ContinuationActivationPolicy()
+				);
+<span class="nc" id="L118">	}</span>
+
+	/**
+	 * Creates a direct two-state theta-method solver with an explicit
+	 * activation policy.
+	 *
+	 * &lt;p&gt;
+	 * The activation policy controls:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;the inactive value on the already-hit region at maturity,&lt;/li&gt;
+	 * &lt;li&gt;the inactive value on the already-hit region during backward
+	 * stepping,&lt;/li&gt;
+	 * &lt;li&gt;the interface value seen by the continuation-side inactive PDE at the
+	 * barrier.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param model The finite-difference equity model providing local PDE
+	 *     coefficients and discounting.
+	 * @param product The knock-in product to be valued.
+	 * @param spaceTimeDiscretization The spatial and temporal discretization,
+	 *     including the theta parameter.
+	 * @param exercise The exercise specification. Bermudan and American
+	 *     exercise are applied only to the active regime.
+	 * @param activeBoundaryProvider Provider for the boundary values of the
+	 *     already-activated regime.
+	 * @param activationPolicy Policy governing activation coupling between
+	 *     inactive and active regimes.
+	 */
+	public FDMThetaMethod1DTwoState(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceOneDimensionalKnockInProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise,
+			final TwoStateActiveBoundaryProvider activeBoundaryProvider,
+<span class="nc" id="L153">			final TwoStateActivationPolicy activationPolicy) {</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L156">			throw new IllegalArgumentException(&quot;Model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (product == null) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;Product must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		if (spaceTimeDiscretization == null) {</span>
+<span class="nc" id="L162">			throw new IllegalArgumentException(&quot;Space-time discretization must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L164" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L165">			throw new IllegalArgumentException(&quot;Exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if (activeBoundaryProvider == null) {</span>
+<span class="nc" id="L168">			throw new IllegalArgumentException(&quot;Active boundary provider must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		if (activationPolicy == null) {</span>
+<span class="nc" id="L171">			throw new IllegalArgumentException(&quot;Activation policy must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L174">		this.model = model;</span>
+<span class="nc" id="L175">		this.product = product;</span>
+<span class="nc" id="L176">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L177">		this.exercise = exercise;</span>
+<span class="nc" id="L178">		this.activeBoundaryProvider = activeBoundaryProvider;</span>
+<span class="nc" id="L179">		this.activationPolicy = activationPolicy;</span>
+<span class="nc" id="L180">	}</span>
+
+	/**
+	 * Solves the two-state backward PDE on the full space-time grid and returns
+	 * the inactive-regime value surface.
+	 *
+	 * &lt;p&gt;
+	 * At maturity, the active regime equals the supplied activated payoff,
+	 * while the inactive regime equals either
+	 * the activation-policy value on the already-hit region or the product's
+	 * inactive terminal value on the
+	 * not-yet-hit region. The method then steps backward in time:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;solving the activated regime on the full grid,&lt;/li&gt;
+	 * &lt;li&gt;solving the non-activated regime on the continuation-side
+	 * subgrid,&lt;/li&gt;
+	 * &lt;li&gt;applying the activation policy on the already-hit region and at the
+	 * barrier interface.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * &lt;p&gt;
+	 * The returned surface stores the inactive-regime values only, since these
+	 * represent the contract
+	 * value prior to barrier activation.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The maturity time of the product.
+	 * @param valueAtMaturity The terminal payoff of the activated regime as a
+	 *     function of the state variable.
+	 * @return The inactive-regime solution surface indexed as {@code
+	 *     values[spaceIndex][timeIndex]}.
+	 */
+	@Override
+	public double[][] getValues(final double time, final DoubleUnaryOperator valueAtMaturity) {
+
+<span class="nc bnc" id="L216" title="All 6 branches missed.">		if (!exercise.isEuropean() &amp;&amp; !exercise.isBermudan() &amp;&amp; !exercise.isAmerican()) {</span>
+<span class="nc" id="L217">			throw new IllegalArgumentException(</span>
+					&quot;FDMThetaMethod1DTwoState currently supports only European, Bermudan, and American exercise.&quot;);
+		}
+
+<span class="nc" id="L221">		final BarrierType barrierType = product.getBarrierType();</span>
+<span class="nc bnc" id="L222" title="All 4 branches missed.">		if (barrierType != BarrierType.DOWN_IN &amp;&amp; barrierType != BarrierType.UP_IN) {</span>
+<span class="nc" id="L223">			throw new IllegalArgumentException(&quot;FDMThetaMethod1DTwoState is only for knock-in barrier options.&quot;);</span>
+		}
+
+<span class="nc" id="L226">		final double[] xGrid = spaceTimeDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L227">		final int nX = xGrid.length;</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">		if (nX &lt; 2) {</span>
+<span class="nc" id="L229">			throw new IllegalArgumentException(&quot;Need at least two grid points.&quot;);</span>
+		}
+
+<span class="nc" id="L232">		final int barrierIndex = findBarrierIndex(xGrid, product.getBarrierValue());</span>
+<span class="nc" id="L233">		final int timeLength = spaceTimeDiscretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="nc" id="L234">		final int numberOfTimeSteps = spaceTimeDiscretization.getTimeDiscretization().getNumberOfTimeSteps();</span>
+
+<span class="nc" id="L236">		double[] inactive = new double[nX];</span>
+<span class="nc" id="L237">		double[] active = new double[nX];</span>
+
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		for (int i = 0; i &lt; nX; i++) {</span>
+<span class="nc" id="L240">			final double x = xGrid[i];</span>
+<span class="nc" id="L241">			final double payoff = valueAtMaturity.applyAsDouble(x);</span>
+
+<span class="nc" id="L243">			active[i] = payoff;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">			inactive[i] = isAlreadyHitRegion(x, barrierType, product.getBarrierValue())</span>
+<span class="nc" id="L245">					? activationPolicy.getAlreadyHitValueAtMaturity(</span>
+							x,
+							payoff,
+<span class="nc" id="L248">							product.getInactiveValueAtMaturity())</span>
+<span class="nc" id="L249">							: product.getInactiveValueAtMaturity();</span>
+		}
+
+<span class="nc" id="L252">		final double[][] solutionSurface = new double[nX][timeLength];</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">		for (int i = 0; i &lt; nX; i++) {</span>
+<span class="nc" id="L254">			solutionSurface[i][0] = inactive[i];</span>
+		}
+
+<span class="nc bnc" id="L257" title="All 2 branches missed.">		for (int m = 0; m &lt; numberOfTimeSteps; m++) {</span>
+
+<span class="nc" id="L259">			final double deltaTau = spaceTimeDiscretization.getTimeDiscretization().getTimeStep(m);</span>
+
+<span class="nc" id="L261">			final double tm = spaceTimeDiscretization.getTimeDiscretization().getTime(numberOfTimeSteps - m);</span>
+<span class="nc" id="L262">			final double tmp1 = spaceTimeDiscretization.getTimeDiscretization().getTime(numberOfTimeSteps - (m + 1));</span>
+
+<span class="nc" id="L264">			final double tauMp1 = spaceTimeDiscretization.getTimeDiscretization().getTime(m + 1);</span>
+<span class="nc" id="L265">			final double currentTime = spaceTimeDiscretization.getTimeDiscretization().getLastTime() - tauMp1;</span>
+
+<span class="nc" id="L267">			final double lowerActiveBoundary = activeBoundaryProvider.getLowerBoundaryValue(currentTime, xGrid[0]);</span>
+<span class="nc" id="L268">			final double upperActiveBoundary = activeBoundaryProvider.getUpperBoundaryValue(currentTime, xGrid[nX - 1]);</span>
+
+<span class="nc" id="L270">			final boolean isExerciseDate =</span>
+<span class="nc" id="L271">					FiniteDifferenceExerciseUtil.isExerciseAllowedAtTimeToMaturity(tauMp1, exercise);</span>
+
+			final double[] nextActive;
+<span class="nc bnc" id="L274" title="All 4 branches missed.">			if (exercise.isAmerican() &amp;&amp; isExerciseDate) {</span>
+<span class="nc" id="L275">				nextActive = solveVanillaStepAmerican(</span>
+						xGrid,
+						active,
+						tm,
+						tmp1,
+						deltaTau,
+						lowerActiveBoundary,
+						upperActiveBoundary,
+						valueAtMaturity
+						);
+			} else {
+<span class="nc" id="L286">				final double[] nextActiveContinuation = solveVanillaStep(</span>
+						xGrid,
+						active,
+						tm,
+						tmp1,
+						deltaTau,
+						lowerActiveBoundary,
+						upperActiveBoundary
+						);
+
+<span class="nc bnc" id="L296" title="All 4 branches missed.">				if (exercise.isBermudan() &amp;&amp; isExerciseDate) {</span>
+<span class="nc" id="L297">					nextActive = applyBermudanExerciseProjection(</span>
+							nextActiveContinuation,
+							xGrid,
+							valueAtMaturity,
+							lowerActiveBoundary,
+							upperActiveBoundary
+							);
+				} else {
+<span class="nc" id="L305">					nextActive = nextActiveContinuation;</span>
+				}
+			}
+
+<span class="nc" id="L309">			final double[] nextInactive = new double[nX];</span>
+
+<span class="nc bnc" id="L311" title="All 3 branches missed.">			switch (barrierType) {</span>
+			case DOWN_IN:
+<span class="nc" id="L313">				fillDownInInactiveStep(</span>
+						xGrid,
+						barrierIndex,
+						inactive,
+						active,
+						nextActive,
+						nextInactive,
+						tm,
+						tmp1,
+						deltaTau,
+						currentTime);
+<span class="nc" id="L324">				break;</span>
+
+			case UP_IN:
+<span class="nc" id="L327">				fillUpInInactiveStep(</span>
+						xGrid,
+						barrierIndex,
+						inactive,
+						active,
+						nextActive,
+						nextInactive,
+						tm,
+						tmp1,
+						deltaTau,
+						currentTime);
+<span class="nc" id="L338">				break;</span>
+
+			default:
+<span class="nc" id="L341">				throw new IllegalArgumentException(&quot;Unsupported barrier type: &quot; + barrierType);</span>
+			}
+
+<span class="nc" id="L344">			active = nextActive;</span>
+<span class="nc" id="L345">			inactive = nextInactive;</span>
+
+<span class="nc bnc" id="L347" title="All 2 branches missed.">			for (int i = 0; i &lt; nX; i++) {</span>
+<span class="nc" id="L348">				solutionSurface[i][m + 1] = inactive[i];</span>
+			}
+		}
+
+<span class="nc" id="L352">		return solutionSurface;</span>
+	}
+
+	@Override
+	public double[][] getValues(final double time, final double[] valueAtMaturity) {
+
+<span class="nc" id="L358">		final double[] xGrid = spaceTimeDiscretization.getSpaceGrid(0).getGrid();</span>
+
+<span class="nc bnc" id="L360" title="All 2 branches missed.">		if (valueAtMaturity.length != xGrid.length) {</span>
+<span class="nc" id="L361">			throw new IllegalArgumentException(&quot;Terminal vector size does not match grid size.&quot;);</span>
+		}
+
+<span class="nc" id="L364">		return getValues(time, x -&gt; valueAtMaturity[findGridIndex(xGrid, x)]);</span>
+	}
+
+	/**
+	 * Returns the inactive-regime value vector at the requested evaluation
+	 * time.
+	 *
+	 * @param evaluationTime The time at which the value vector is requested.
+	 * @param time The maturity time of the claim.
+	 * @param valueAtMaturity The terminal payoff as a function of the state
+	 *     variable.
+	 * @return The inactive-regime value vector across the spatial grid at the
+	 *     specified evaluation time.
+	 */
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleUnaryOperator valueAtMaturity) {
+
+<span class="nc" id="L384">		final double[][] values = getValues(time, valueAtMaturity);</span>
+<span class="nc" id="L385">		final double tau = time - evaluationTime;</span>
+<span class="nc" id="L386">		final int timeIndex = spaceTimeDiscretization.getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc" id="L388">		final double[] column = new double[values.length];</span>
+<span class="nc bnc" id="L389" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L390">			column[i] = values[i][timeIndex];</span>
+		}
+<span class="nc" id="L392">		return column;</span>
+	}
+
+	private void fillDownInInactiveStep(
+			final double[] xGrid,
+			final int barrierIndex,
+			final double[] inactivePrevious,
+			final double[] activePrevious,
+			final double[] activeNext,
+			final double[] inactiveNext,
+			final double tm,
+			final double tmp1,
+			final double deltaTau,
+			final double currentTime) {
+
+<span class="nc bnc" id="L407" title="All 2 branches missed.">		for (int i = 0; i &lt;= barrierIndex; i++) {</span>
+<span class="nc" id="L408">			inactiveNext[i] = activationPolicy.getAlreadyHitValue(</span>
+					currentTime,
+					xGrid[i],
+					activeNext[i]
+					);
+		}
+
+<span class="nc bnc" id="L415" title="All 2 branches missed.">		if (barrierIndex == xGrid.length - 1) {</span>
+<span class="nc" id="L416">			return;</span>
+		}
+
+<span class="nc" id="L419">		final double[] subGrid = sliceGrid(xGrid, barrierIndex, xGrid.length - 1);</span>
+<span class="nc" id="L420">		final double[] previousSub = new double[subGrid.length];</span>
+
+<span class="nc bnc" id="L422" title="All 2 branches missed.">		for (int j = 0; j &lt; subGrid.length; j++) {</span>
+<span class="nc" id="L423">			previousSub[j] = inactivePrevious[barrierIndex + j];</span>
+		}
+
+<span class="nc" id="L426">		previousSub[0] = activationPolicy.getAlreadyHitValue(</span>
+				tm,
+				xGrid[barrierIndex],
+				activePrevious[barrierIndex]
+				);
+
+<span class="nc" id="L432">		final double discountedNoHitValue = getDiscountedNoHitValue(currentTime);</span>
+
+<span class="nc" id="L434">		final double interfaceValue = activationPolicy.getInterfaceValue(</span>
+				currentTime,
+				xGrid[barrierIndex],
+				activeNext[barrierIndex]
+				);
+
+<span class="nc" id="L440">		final double[] nextSub = solveVanillaStep(</span>
+				subGrid,
+				previousSub,
+				tm,
+				tmp1,
+				deltaTau,
+				interfaceValue,
+				discountedNoHitValue);
+
+<span class="nc bnc" id="L449" title="All 2 branches missed.">		for (int j = 0; j &lt; nextSub.length; j++) {</span>
+<span class="nc" id="L450">			inactiveNext[barrierIndex + j] = nextSub[j];</span>
+		}
+
+<span class="nc bnc" id="L453" title="All 2 branches missed.">		for (int i = 0; i &lt;= barrierIndex; i++) {</span>
+<span class="nc" id="L454">			inactiveNext[i] = activationPolicy.getAlreadyHitValue(</span>
+					currentTime,
+					xGrid[i],
+					activeNext[i]
+					);
+		}
+<span class="nc" id="L460">	}</span>
+
+	private void fillUpInInactiveStep(
+			final double[] xGrid,
+			final int barrierIndex,
+			final double[] inactivePrevious,
+			final double[] activePrevious,
+			final double[] activeNext,
+			final double[] inactiveNext,
+			final double tm,
+			final double tmp1,
+			final double deltaTau,
+			final double currentTime) {
+
+<span class="nc bnc" id="L474" title="All 2 branches missed.">		for (int i = barrierIndex; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L475">			inactiveNext[i] = activationPolicy.getAlreadyHitValue(</span>
+					currentTime,
+					xGrid[i],
+					activeNext[i]
+					);
+		}
+
+<span class="nc bnc" id="L482" title="All 2 branches missed.">		if (barrierIndex == 0) {</span>
+<span class="nc" id="L483">			return;</span>
+		}
+
+<span class="nc" id="L486">		final double[] subGrid = sliceGrid(xGrid, 0, barrierIndex);</span>
+<span class="nc" id="L487">		final double[] previousSub = new double[subGrid.length];</span>
+
+<span class="nc bnc" id="L489" title="All 2 branches missed.">		for (int j = 0; j &lt; subGrid.length; j++) {</span>
+<span class="nc" id="L490">			previousSub[j] = inactivePrevious[j];</span>
+		}
+
+<span class="nc" id="L493">		previousSub[subGrid.length - 1] = activationPolicy.getAlreadyHitValue(</span>
+				tm,
+				xGrid[barrierIndex],
+				activePrevious[barrierIndex]
+				);
+
+<span class="nc" id="L499">		final double discountedNoHitValue = getDiscountedNoHitValue(currentTime);</span>
+
+<span class="nc" id="L501">		final double interfaceValue = activationPolicy.getInterfaceValue(</span>
+				currentTime,
+				xGrid[barrierIndex],
+				activeNext[barrierIndex]
+				);
+
+<span class="nc" id="L507">		final double[] nextSub = solveVanillaStep(</span>
+				subGrid,
+				previousSub,
+				tm,
+				tmp1,
+				deltaTau,
+				discountedNoHitValue,
+				interfaceValue);
+
+<span class="nc bnc" id="L516" title="All 2 branches missed.">		for (int j = 0; j &lt; nextSub.length; j++) {</span>
+<span class="nc" id="L517">			inactiveNext[j] = nextSub[j];</span>
+		}
+
+<span class="nc bnc" id="L520" title="All 2 branches missed.">		for (int i = barrierIndex; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L521">			inactiveNext[i] = activationPolicy.getAlreadyHitValue(</span>
+					currentTime,
+					xGrid[i],
+					activeNext[i]
+					);
+		}
+<span class="nc" id="L527">	}</span>
+
+	private double[] solveVanillaStep(
+			final double[] xGrid,
+			final double[] previousValues,
+			final double tm,
+			final double tmp1,
+			final double deltaTau,
+			final double lowerBoundaryValue,
+			final double upperBoundaryValue) {
+
+<span class="nc" id="L538">		final int n = xGrid.length;</span>
+
+<span class="nc bnc" id="L540" title="All 2 branches missed.">		if (n != previousValues.length) {</span>
+<span class="nc" id="L541">			throw new IllegalArgumentException(&quot;Grid and solution vector size mismatch.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L544" title="All 2 branches missed.">		if (n == 1) {</span>
+<span class="nc" id="L545">			return new double[] {lowerBoundaryValue };</span>
+		}
+
+<span class="nc bnc" id="L548" title="All 2 branches missed.">		if (n == 2) {</span>
+<span class="nc" id="L549">			return new double[] {lowerBoundaryValue, upperBoundaryValue };</span>
+		}
+
+<span class="nc" id="L552">		final double theta = spaceTimeDiscretization.getTheta();</span>
+
+<span class="nc" id="L554">		final ThetaMethod1DAssembly.ModelCoefficients coefficients_m =</span>
+<span class="nc" id="L555">				ThetaMethod1DAssembly.buildModelCoefficients(model, xGrid, tm);</span>
+<span class="nc" id="L556">		final ThetaMethod1DAssembly.ModelCoefficients coefficients_mp1 =</span>
+<span class="nc" id="L557">				ThetaMethod1DAssembly.buildModelCoefficients(model, xGrid, tmp1);</span>
+
+<span class="nc" id="L559">		final TridiagonalMatrix lhs = new TridiagonalMatrix(n);</span>
+<span class="nc" id="L560">		final TridiagonalMatrix rhsOperator = new TridiagonalMatrix(n);</span>
+
+<span class="nc" id="L562">		ThetaMethod1DAssembly.buildThetaLeftHandSide(</span>
+				lhs,
+				xGrid,
+<span class="nc" id="L565">				coefficients_mp1.getDrift(),</span>
+<span class="nc" id="L566">				coefficients_mp1.getVariance(),</span>
+<span class="nc" id="L567">				coefficients_mp1.getShortRate(),</span>
+				deltaTau,
+				theta);
+
+<span class="nc" id="L571">		ThetaMethod1DAssembly.buildThetaRightHandSide(</span>
+				rhsOperator,
+				xGrid,
+<span class="nc" id="L574">				coefficients_m.getDrift(),</span>
+<span class="nc" id="L575">				coefficients_m.getVariance(),</span>
+<span class="nc" id="L576">				coefficients_m.getShortRate(),</span>
+				deltaTau,
+				theta);
+
+<span class="nc" id="L580">		final double[] rhs = ThetaMethod1DAssembly.apply(rhsOperator, previousValues);</span>
+
+<span class="nc" id="L582">		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, 0, lowerBoundaryValue);</span>
+<span class="nc" id="L583">		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, n - 1, upperBoundaryValue);</span>
+
+<span class="nc" id="L585">		final double[] next = ThomasSolver.solve(lhs.getLowerDiagonal(), lhs.getMainDiagonal(), lhs.getUpperDiagonal(), rhs);</span>
+<span class="nc" id="L586">		next[0] = lowerBoundaryValue;</span>
+<span class="nc" id="L587">		next[n - 1] = upperBoundaryValue;</span>
+
+<span class="nc" id="L589">		return next;</span>
+	}
+
+	/**
+	 * Returns the discounted value of the inactive terminal amount used at the
+	 * outer boundary
+	 * of the inactive regime.
+	 *
+	 * &lt;p&gt;
+	 * For classic knock-in barrier options, this is the rebate paid at maturity
+	 * if never activated.
+	 * For digital knock-ins, this is typically zero.
+	 * &lt;/p&gt;
+	 *
+	 * @param currentTime The current model time at which the boundary value is
+	 *     required.
+	 * @return The discounted inactive terminal value.
+	 */
+	private double getDiscountedNoHitValue(final double currentTime) {
+
+<span class="nc bnc" id="L609" title="All 2 branches missed.">		if (product.getInactiveValueAtMaturity() == 0.0) {</span>
+<span class="nc" id="L610">			return 0.0;</span>
+		}
+
+<span class="nc" id="L613">		final double t = Math.max(currentTime, EPSILON);</span>
+<span class="nc" id="L614">		final double maturity = product.getMaturity();</span>
+
+<span class="nc bnc" id="L616" title="All 2 branches missed.">		if (t &gt;= maturity) {</span>
+<span class="nc" id="L617">			return product.getInactiveValueAtMaturity();</span>
+		}
+
+<span class="nc" id="L620">		final double discountFactorAtCurrentTime = model.getRiskFreeCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L621">		final double discountFactorAtMaturity = model.getRiskFreeCurve().getDiscountFactor(maturity);</span>
+
+<span class="nc" id="L623">		return product.getInactiveValueAtMaturity() * discountFactorAtMaturity / discountFactorAtCurrentTime;</span>
+	}
+
+	private int findBarrierIndex(final double[] grid, final double barrier) {
+<span class="nc bnc" id="L627" title="All 2 branches missed.">		for (int i = 0; i &lt; grid.length; i++) {</span>
+<span class="nc bnc" id="L628" title="All 2 branches missed.">			if (Math.abs(grid[i] - barrier) &lt; 1E-12) {</span>
+<span class="nc" id="L629">				return i;</span>
+			}
+		}
+
+<span class="nc" id="L633">		throw new IllegalArgumentException(</span>
+				&quot;Barrier must coincide with a 1D grid node for direct two-state knock-in pricing.&quot;);
+	}
+
+	private double[] sliceGrid(final double[] grid, final int startInclusive, final int endInclusive) {
+<span class="nc" id="L638">		final double[] result = new double[endInclusive - startInclusive + 1];</span>
+<span class="nc bnc" id="L639" title="All 2 branches missed.">		for (int i = 0; i &lt; result.length; i++) {</span>
+<span class="nc" id="L640">			result[i] = grid[startInclusive + i];</span>
+		}
+<span class="nc" id="L642">		return result;</span>
+	}
+
+	private boolean isAlreadyHitRegion(
+			final double x,
+			final BarrierType barrierType,
+			final double barrier) {
+
+<span class="nc bnc" id="L650" title="All 3 branches missed.">		switch (barrierType) {</span>
+		case DOWN_IN:
+<span class="nc bnc" id="L652" title="All 2 branches missed.">			return x &lt;= barrier;</span>
+		case UP_IN:
+<span class="nc bnc" id="L654" title="All 2 branches missed.">			return x &gt;= barrier;</span>
+		default:
+<span class="nc" id="L656">			throw new IllegalArgumentException(&quot;Unsupported barrier type: &quot; + barrierType);</span>
+		}
+	}
+
+	private double[] solveVanillaStepAmerican(
+			final double[] xGrid,
+			final double[] previousValues,
+			final double tm,
+			final double tmp1,
+			final double deltaTau,
+			final double lowerBoundaryValue,
+			final double upperBoundaryValue,
+			final DoubleUnaryOperator exerciseValue) {
+
+<span class="nc" id="L670">		final int n = xGrid.length;</span>
+
+<span class="nc bnc" id="L672" title="All 2 branches missed.">		if (n != previousValues.length) {</span>
+<span class="nc" id="L673">			throw new IllegalArgumentException(&quot;Grid and solution vector size mismatch.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L676" title="All 2 branches missed.">		if (n == 1) {</span>
+<span class="nc" id="L677">			return new double[] {lowerBoundaryValue };</span>
+		}
+
+<span class="nc bnc" id="L680" title="All 2 branches missed.">		if (n == 2) {</span>
+<span class="nc" id="L681">			return new double[] {lowerBoundaryValue, upperBoundaryValue };</span>
+		}
+
+<span class="nc" id="L684">		final double theta = spaceTimeDiscretization.getTheta();</span>
+
+<span class="nc" id="L686">		final ThetaMethod1DAssembly.ModelCoefficients coefficients_m =</span>
+<span class="nc" id="L687">				ThetaMethod1DAssembly.buildModelCoefficients(model, xGrid, tm);</span>
+<span class="nc" id="L688">		final ThetaMethod1DAssembly.ModelCoefficients coefficients_mp1 =</span>
+<span class="nc" id="L689">				ThetaMethod1DAssembly.buildModelCoefficients(model, xGrid, tmp1);</span>
+
+<span class="nc" id="L691">		final TridiagonalMatrix lhs = new TridiagonalMatrix(n);</span>
+<span class="nc" id="L692">		final TridiagonalMatrix rhsOperator = new TridiagonalMatrix(n);</span>
+
+<span class="nc" id="L694">		ThetaMethod1DAssembly.buildThetaLeftHandSide(</span>
+				lhs,
+				xGrid,
+<span class="nc" id="L697">				coefficients_mp1.getDrift(),</span>
+<span class="nc" id="L698">				coefficients_mp1.getVariance(),</span>
+<span class="nc" id="L699">				coefficients_mp1.getShortRate(),</span>
+				deltaTau,
+				theta);
+
+<span class="nc" id="L703">		ThetaMethod1DAssembly.buildThetaRightHandSide(</span>
+				rhsOperator,
+				xGrid,
+<span class="nc" id="L706">				coefficients_m.getDrift(),</span>
+<span class="nc" id="L707">				coefficients_m.getVariance(),</span>
+<span class="nc" id="L708">				coefficients_m.getShortRate(),</span>
+				deltaTau,
+				theta);
+
+<span class="nc" id="L712">		final double[] rhs = ThetaMethod1DAssembly.apply(rhsOperator, previousValues);</span>
+
+<span class="nc" id="L714">		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, 0, lowerBoundaryValue);</span>
+<span class="nc" id="L715">		ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, n - 1, upperBoundaryValue);</span>
+
+<span class="nc" id="L717">		final double[] obstacle = buildActiveObstacleVector(</span>
+				xGrid,
+				exerciseValue,
+				lowerBoundaryValue,
+				upperBoundaryValue
+				);
+
+<span class="nc" id="L724">		final double[] next = ProjectedTridiagonalSOR.solve(</span>
+				lhs,
+				rhs,
+				obstacle,
+				previousValues,
+				1.2,
+				500,
+				1E-10
+				);
+
+<span class="nc" id="L734">		next[0] = lowerBoundaryValue;</span>
+<span class="nc" id="L735">		next[n - 1] = upperBoundaryValue;</span>
+
+<span class="nc" id="L737">		return next;</span>
+	}
+
+	private double[] applyBermudanExerciseProjection(
+			final double[] continuationValues,
+			final double[] xGrid,
+			final DoubleUnaryOperator exerciseValue,
+			final double lowerBoundaryValue,
+			final double upperBoundaryValue) {
+
+<span class="nc" id="L747">		final double[] exercisedValues = continuationValues.clone();</span>
+
+<span class="nc bnc" id="L749" title="All 2 branches missed.">		for (int i = 0; i &lt; exercisedValues.length; i++) {</span>
+<span class="nc bnc" id="L750" title="All 2 branches missed.">			if (i == 0) {</span>
+<span class="nc" id="L751">				exercisedValues[i] = lowerBoundaryValue;</span>
+<span class="nc bnc" id="L752" title="All 2 branches missed.">			} else if (i == exercisedValues.length - 1) {</span>
+<span class="nc" id="L753">				exercisedValues[i] = upperBoundaryValue;</span>
+			} else {
+<span class="nc" id="L755">				exercisedValues[i] = Math.max(exercisedValues[i], exerciseValue.applyAsDouble(xGrid[i]));</span>
+			}
+		}
+
+<span class="nc" id="L759">		return exercisedValues;</span>
+	}
+
+	private double[] buildActiveObstacleVector(
+			final double[] xGrid,
+			final DoubleUnaryOperator exerciseValue,
+			final double lowerBoundaryValue,
+			final double upperBoundaryValue) {
+
+<span class="nc" id="L768">		final double[] obstacle = new double[xGrid.length];</span>
+
+<span class="nc bnc" id="L770" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc bnc" id="L771" title="All 2 branches missed.">			if (i == 0) {</span>
+<span class="nc" id="L772">				obstacle[i] = lowerBoundaryValue;</span>
+<span class="nc bnc" id="L773" title="All 2 branches missed.">			} else if (i == xGrid.length - 1) {</span>
+<span class="nc" id="L774">				obstacle[i] = upperBoundaryValue;</span>
+			} else {
+<span class="nc" id="L776">				obstacle[i] = exerciseValue.applyAsDouble(xGrid[i]);</span>
+			}
+		}
+
+<span class="nc" id="L780">		return obstacle;</span>
+	}
+
+	private int findGridIndex(final double[] grid, final double value) {
+<span class="nc bnc" id="L784" title="All 2 branches missed.">		for (int i = 0; i &lt; grid.length; i++) {</span>
+<span class="nc bnc" id="L785" title="All 2 branches missed.">			if (Math.abs(grid[i] - value) &lt; 1E-12) {</span>
+<span class="nc" id="L786">				return i;</span>
+			}
+		}
+<span class="nc" id="L789">		throw new IllegalArgumentException(&quot;Point does not coincide with a grid node.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

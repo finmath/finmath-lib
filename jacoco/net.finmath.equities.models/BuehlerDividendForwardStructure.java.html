@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BuehlerDividendForwardStructure.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.models</a> &gt; <span class="el_source">BuehlerDividendForwardStructure.java</span></div><h1>BuehlerDividendForwardStructure.java</h1><pre class="source lang-java linenums">package net.finmath.equities.models;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+
+import net.finmath.equities.marketdata.AffineDividendStream;
+import net.finmath.equities.marketdata.YieldCurve;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * This class implements the forward structure for a stock with affine dividends
+ * according to Buehler's 2007 paper.
+ *
+ * @author Andreas Grotz
+ */
+<span class="fc" id="L16">public class BuehlerDividendForwardStructure implements EquityForwardStructure {</span>
+
+	private final LocalDate valuationDate;
+	private final double spot;
+	private final YieldCurve repoCurve;
+	private final AffineDividendStream dividendStream;
+	private final DayCountConvention dayCounter;
+	private final HashMap&lt;LocalDate, Double&gt; dividendTimes;
+
+	public BuehlerDividendForwardStructure(
+			final LocalDate valuationDate,
+			final double spot,
+			final YieldCurve repoCurve,
+			final AffineDividendStream dividendStream,
+<span class="fc" id="L30">			final DayCountConvention dayCounter) {</span>
+
+<span class="fc" id="L32">		this.valuationDate = valuationDate;</span>
+<span class="fc" id="L33">		this.spot = spot;</span>
+<span class="fc" id="L34">		this.repoCurve = repoCurve;</span>
+<span class="fc" id="L35">		this.dividendStream = dividendStream;</span>
+<span class="fc" id="L36">		this.dayCounter = dayCounter;</span>
+
+<span class="fc" id="L38">		dividendTimes = new HashMap&lt;LocalDate, Double&gt;();</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">		for(final LocalDate date : dividendStream.getDividendDates()) {</span>
+<span class="fc" id="L40">			dividendTimes.put(date, dayCounter.getDaycountFraction(valuationDate, date));</span>
+<span class="fc" id="L41">		}</span>
+
+<span class="fc" id="L43">		validate();</span>
+<span class="fc" id="L44">	}</span>
+
+	public void validate() {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		assert getFutureDividendFactor(valuationDate) &lt;= spot : &quot;PV of future dividends is larger than spot.&quot;;</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public BuehlerDividendForwardStructure cloneWithNewSpot(double newSpot) {
+<span class="fc" id="L52">		return new BuehlerDividendForwardStructure(</span>
+				this.valuationDate,
+				newSpot,
+				this.repoCurve,
+				this.dividendStream,
+				this.dayCounter);
+	}
+
+	@Override
+	public BuehlerDividendForwardStructure cloneWithNewDate(LocalDate newDate) {
+<span class="fc" id="L62">		return new BuehlerDividendForwardStructure(</span>
+				newDate,
+				this.spot,
+<span class="fc" id="L65">				this.repoCurve.rollToDate(newDate),</span>
+				this.dividendStream,
+				this.dayCounter);
+	}
+
+	@Override
+	public DividendModelType getDividendModel() {
+<span class="nc" id="L72">		return DividendModelType.Buehler;</span>
+	}
+
+	@Override
+	public LocalDate getValuationDate() {
+<span class="fc" id="L77">		return valuationDate;</span>
+	}
+
+	@Override
+	public double getSpot() {
+<span class="nc" id="L82">		return spot;</span>
+	}
+
+	@Override
+	public YieldCurve getRepoCurve() {
+<span class="nc" id="L87">		return repoCurve;</span>
+	}
+
+	@Override
+	public AffineDividendStream getDividendStream() {
+<span class="fc" id="L92">		return dividendStream;</span>
+	}
+
+	@Override
+	public double getGrowthDiscountFactor(double startTime, double endTime) {
+<span class="fc" id="L97">		double df = 1.0;</span>
+<span class="fc bfc" id="L98" title="All 2 branches covered.">		for(final LocalDate date : dividendStream.getDividendDates()) {</span>
+<span class="fc" id="L99">			final double dividendTime = dividendTimes.get(date);</span>
+<span class="fc bfc" id="L100" title="All 4 branches covered.">			if(dividendTime &gt; startTime &amp;&amp; dividendTime &lt;= endTime) {</span>
+<span class="fc" id="L101">				df *= (1.0 - dividendStream.getProportionalDividendFactor(date));</span>
+			}
+<span class="fc" id="L103">		}</span>
+
+<span class="fc" id="L105">		return df / repoCurve.getForwardDiscountFactor(startTime, endTime);</span>
+	}
+
+	@Override
+	public double getGrowthDiscountFactor(LocalDate startDate, LocalDate endDate) {
+<span class="fc" id="L110">		final double startTime = dayCounter.getDaycountFraction(valuationDate, startDate);</span>
+<span class="fc" id="L111">		final double endTime = dayCounter.getDaycountFraction(valuationDate, endDate);</span>
+<span class="fc" id="L112">		return getGrowthDiscountFactor(startTime, endTime);</span>
+	}
+
+	@Override
+	public double getFutureDividendFactor(double valTime) {
+<span class="fc" id="L117">		double df = 0.0;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		for(final LocalDate date : dividendStream.getDividendDates()) {</span>
+<span class="fc" id="L119">			final double dividendTime = dividendTimes.get(date);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">			if(dividendTime &gt; valTime) {</span>
+<span class="fc" id="L121">				df += dividendStream.getCashDividend(date) / getGrowthDiscountFactor(valTime, dividendTime);</span>
+			}
+<span class="fc" id="L123">		}</span>
+<span class="fc" id="L124">		return df;</span>
+	}
+
+	@Override
+	public double getFutureDividendFactor(LocalDate valDate) {
+<span class="fc" id="L129">		final double valTime = dayCounter.getDaycountFraction(valuationDate, valDate);</span>
+<span class="fc" id="L130">		return getFutureDividendFactor(valTime);</span>
+	}
+
+	@Override
+	public double getForward(double expiryTime) {
+<span class="fc" id="L135">		double forward = spot * getGrowthDiscountFactor(0.0, expiryTime);</span>
+<span class="fc bfc" id="L136" title="All 2 branches covered.">		for(final LocalDate date : dividendStream.getDividendDates()) {</span>
+<span class="fc" id="L137">			final double dividendTime = dividendTimes.get(date);</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">			if(dividendTime &lt;= expiryTime) {</span>
+<span class="fc" id="L139">				forward -= dividendStream.getCashDividend(date) * getGrowthDiscountFactor(dividendTime, expiryTime);</span>
+			}
+<span class="fc" id="L141">		}</span>
+<span class="fc" id="L142">		return forward;</span>
+	}
+
+	@Override
+	public double getForward(LocalDate expiryDate) {
+<span class="fc" id="L147">		final double expiryTime = dayCounter.getDaycountFraction(valuationDate, expiryDate);</span>
+<span class="fc" id="L148">		return getForward(expiryTime);</span>
+	}
+
+	@Override
+	public double getDividendAdjustedStrike(double strike, double expiryTime) {
+<span class="fc" id="L153">		return strike - getFutureDividendFactor(expiryTime);</span>
+	}
+
+	@Override
+	public double getDividendAdjustedStrike(double strike, LocalDate expiryDate) {
+<span class="fc" id="L158">		return strike - getFutureDividendFactor(expiryDate);</span>
+	}
+
+	@Override
+	public double getLogMoneyness(double strike, double expiryTime) {
+<span class="fc" id="L163">		return Math.log(</span>
+<span class="fc" id="L164">				getDividendAdjustedStrike(strike, expiryTime)</span>
+<span class="fc" id="L165">				/ getDividendAdjustedStrike(getForward(expiryTime), expiryTime));</span>
+	}
+
+	@Override
+	public double getLogMoneyness(double strike, LocalDate expiryDate) {
+<span class="fc" id="L170">		return Math.log(</span>
+<span class="fc" id="L171">				getDividendAdjustedStrike(strike, expiryDate)</span>
+<span class="fc" id="L172">				/ getDividendAdjustedStrike(getForward(expiryDate), expiryDate));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

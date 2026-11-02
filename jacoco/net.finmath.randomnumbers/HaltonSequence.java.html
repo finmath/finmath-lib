@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HaltonSequence.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.randomnumbers</a> &gt; <span class="el_source">HaltonSequence.java</span></div><h1>HaltonSequence.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 21 May 2018
+ */
+package net.finmath.randomnumbers;
+
+import java.util.concurrent.atomic.AtomicLong;
+
+/**
+ * Implements a multi-dimensional Halton sequence (quasi random numbers) with the given bases.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class HaltonSequence implements RandomNumberGenerator {
+
+	private static final long serialVersionUID = -4799340450248196350L;
+
+	private final int[] base;
+
+<span class="fc" id="L22">	private final AtomicLong currentIndex = new AtomicLong();</span>
+
+	/**
+	 * Constructs a Halton sequence with the given bases.
+	 *
+	 * The bases should be integers without common divisor greater than 1, for example, prime numbers.
+	 *
+	 * @param base The array of base integers. The length of the array defines the dimension of the sequence.
+	 */
+<span class="fc" id="L31">	public HaltonSequence(final int[] base) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">		for(int i=0; i&lt;base.length; i++) {</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">			if(base[i] &lt;= 1) {</span>
+<span class="nc" id="L34">				throw new IllegalArgumentException(&quot;base needs to be larger than 1&quot;);</span>
+			}
+		}
+
+<span class="fc" id="L38">		this.base = base;</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+	public double[] getNext() {
+<span class="fc" id="L43">		return getHaltonNumber(currentIndex.getAndIncrement());</span>
+	}
+
+	@Override
+	public int getDimension() {
+<span class="fc" id="L48">		return base.length;</span>
+	}
+
+	public double[] getHaltonNumber(final long index) {
+<span class="fc" id="L52">		final double[] x = new double[base.length];</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">		for(int dimension = 0; dimension&lt;base.length; dimension++) {</span>
+<span class="fc" id="L54">			x[dimension] = getHaltonNumberForGivenBase(index, base[dimension]);</span>
+		}
+<span class="fc" id="L56">		return x;</span>
+	}
+
+	public double getHaltonNumber(final long index, final int dimension) {
+<span class="nc" id="L60">		return getHaltonNumberForGivenBase(index, base[dimension]);</span>
+	}
+
+	/**
+	 * Return a Halton number, sequence starting at index = 0, base &amp;gt; 1.
+	 *
+	 * @param index The index of the sequence.
+	 * @param base The base of the sequence. Has to be greater than one (this is not checked).
+	 * @return The Halton number.
+	 */
+	public static double getHaltonNumberForGivenBase(long index, final int base) {
+<span class="fc" id="L71">		index += 1;</span>
+
+<span class="fc" id="L73">		double x = 0.0;</span>
+<span class="fc" id="L74">		double factor = 1.0 / base;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">		while(index &gt; 0) {</span>
+<span class="fc" id="L76">			x += (index % base) * factor;</span>
+<span class="fc" id="L77">			factor /= base;</span>
+<span class="fc" id="L78">			index /= base;</span>
+		}
+
+<span class="fc" id="L81">		return x;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrownianMotionView.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">BrownianMotionView.java</span></div><h1>BrownianMotionView.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 16 Jan 2015
+ */
+
+package net.finmath.montecarlo;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * A Brownian motion which is defined by some factors of a given Brownian motion,
+ * i.e., for a given multi-factorial Brownian motion W, this Brownian motion is
+ * given by ( W(i[0]), W(i[1]) W(i[2]), ..., W(i[n-1]) )
+ * where i is a given array of integers.
+ *
+ * You may use this class to change the number of factors and/or the order of
+ * a given Brownian motion.
+ *
+ * You may use this, to create a link between two models, where each model requires
+ * an individual object of type {@link BrownianMotion}.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class BrownianMotionView implements BrownianMotion {
+
+	private final BrownianMotion		brownianMotion;
+	private final Integer[]					factors;
+
+	/**
+	 * Create a sub-view on a Brownian motion. The result is an object
+	 * implementing {@link BrownianMotion}, i.e. a Brownian motion,
+	 * which maps factor indices to possilby other factors of the given Brownian motion.
+	 *
+	 * You may use this class to change the number of factors and/or the order.
+	 *
+	 * @param brownianMotion A given Brownian motion.
+	 * @param factors A map of indices i &amp;rarr; j for i = 0,1,2,3,... given as an array of j's
+	 */
+	public BrownianMotionView(final BrownianMotion brownianMotion, final Integer[] factors) {
+<span class="fc" id="L43">		super();</span>
+<span class="fc" id="L44">		this.brownianMotion = brownianMotion;</span>
+<span class="fc" id="L45">		this.factors = factors;</span>
+<span class="fc" id="L46">	}</span>
+
+	@Override
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
+<span class="fc" id="L50">		return brownianMotion.getBrownianIncrement(timeIndex, factors[factor]);</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L55">		return brownianMotion.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="fc" id="L60">		return factors.length;</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="fc" id="L65">		return brownianMotion.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L70">		return brownianMotion.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L75">		return new BrownianMotionView(brownianMotion.getCloneWithModifiedSeed(seed), factors);</span>
+	}
+
+	@Override
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
+<span class="nc" id="L80">		return new BrownianMotionView(brownianMotion.getCloneWithModifiedTimeDiscretization(newTimeDiscretization), factors);</span>
+	}
+
+	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+<span class="fc" id="L85">		return getBrownianIncrement(timeIndex, factor);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

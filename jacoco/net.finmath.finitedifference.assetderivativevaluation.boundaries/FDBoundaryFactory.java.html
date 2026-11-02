@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDBoundaryFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">FDBoundaryFactory.java</span></div><h1>FDBoundaryFactory.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import java.lang.reflect.Constructor;
+
+import net.finmath.finitedifference.FiniteDifferenceModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+
+/**
+ * Factory for creating {@link FiniteDifferenceBoundary} instances.
+ *
+ * &lt;p&gt;
+ * The factory creates a boundary class based on naming conventions.
+ * Given a product and a model, it constructs the boundary class name
+ * as
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ *     &amp;lt;ProductSimpleName&amp;gt;&amp;lt;ModelCoreName&amp;gt;Boundary
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where {@code ModelCoreName} is obtained by removing the prefix
+ * {@code &quot;FDM&quot;} from the model class name.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The boundary class must:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Be located in the same package as this factory&lt;/li&gt;
+ *   &lt;li&gt;Provide a constructor accepting the concrete model type&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Andrea Mazzon
+ */
+<span class="nc" id="L36">public final class FDBoundaryFactory {</span>
+
+	/**
+	 * Creates a {@link FiniteDifferenceBoundary} corresponding to the
+	 * given model and product.
+	 *
+	 * @param model   The finite difference model.
+	 * @param product The finite difference product.
+	 * @return The corresponding boundary implementation.
+	 * @throws IllegalArgumentException If the boundary class cannot be created.
+	 */
+	public static FiniteDifferenceBoundary createBoundary(
+			final FiniteDifferenceModel model,
+			final FiniteDifferenceEquityProduct product) {
+
+<span class="fc" id="L51">		final String modelSimpleName = model.getClass().getSimpleName();</span>
+<span class="fc" id="L52">		final String modelCoreName = modelSimpleName.replaceFirst(&quot;^FDM&quot;, &quot;&quot;);</span>
+<span class="fc" id="L53">		final String packageName = FDBoundaryFactory.class.getPackage().getName();</span>
+
+<span class="fc" id="L55">		Class&lt;?&gt; productClass = product.getClass();</span>
+
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		while (productClass != null</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">				&amp;&amp; FiniteDifferenceEquityProduct.class.isAssignableFrom(productClass)) {</span>
+
+<span class="fc" id="L60">			final String boundaryClassName =</span>
+					packageName + &quot;.&quot;
+<span class="fc" id="L62">							+ productClass.getSimpleName()</span>
+							+ modelCoreName
+							+ &quot;Boundary&quot;;
+
+			try {
+<span class="fc" id="L67">				final Class&lt;?&gt; boundaryClass = Class.forName(boundaryClassName);</span>
+<span class="fc" id="L68">				final Constructor&lt;?&gt; constructor = boundaryClass.getConstructor(model.getClass());</span>
+<span class="fc" id="L69">				return (FiniteDifferenceBoundary) constructor.newInstance(model);</span>
+			}
+<span class="fc" id="L71">			catch (final ClassNotFoundException ignored) {</span>
+<span class="fc" id="L72">				productClass = productClass.getSuperclass();</span>
+			}
+<span class="nc" id="L74">			catch (final ReflectiveOperationException e) {</span>
+<span class="nc" id="L75">				throw new IllegalArgumentException(</span>
+						&quot;Cannot instantiate boundary &quot; + boundaryClassName
+<span class="nc" id="L77">						+ &quot; for model type &quot; + model.getClass()</span>
+<span class="nc" id="L78">						+ &quot; and product type &quot; + product.getClass(),</span>
+						e
+						);
+<span class="fc" id="L81">			}</span>
+<span class="fc" id="L82">		}</span>
+
+<span class="nc" id="L84">		throw new IllegalArgumentException(</span>
+				&quot;Cannot create boundary for model type &quot;
+<span class="nc" id="L86">						+ model.getClass()</span>
+						+ &quot; and product type &quot;
+<span class="nc" id="L88">						+ product.getClass()</span>
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

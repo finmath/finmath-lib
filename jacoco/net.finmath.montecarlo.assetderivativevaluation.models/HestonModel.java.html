@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HestonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.models</a> &gt; <span class="el_source">HestonModel.java</span></div><h1>HestonModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.01.2012
+ */
+package net.finmath.montecarlo.assetderivativevaluation.models;
+
+import java.util.Map;
+
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * This class implements a Heston Model, that is, it provides the drift and volatility specification
+ * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
+ *
+ * The model is
+ * \[
+ * 	dS(t) = r^{\text{c}} S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * \]
+ * \[
+ * 	dW_{1} dW_{2} = \rho dt
+ * \]
+ * \[
+ * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is a Brownian motion.
+ *
+ * The class provides the model of (S,V) to an &lt;code&gt;{@link net.finmath.montecarlo.process.MonteCarloProcess}&lt;/code&gt; via the specification of
+ * \( f_{1} = exp , f_{2} = identity \), \( \mu_{1} = r^{\text{c}} - \frac{1}{2} V^{+}(t) , \mu_{2} = \kappa ( \theta - V^{+}(t) ) \), \( \lambda_{1,1} = \sqrt{V^{+}(t)} , \lambda_{1,2} = 0  ,\lambda_{2,1} = \xi \sqrt{V^+(t)} \rho  , \lambda_{2,2} = \xi \sqrt{V^+(t)} \sqrt{1-\rho^{2}} \), i.e.,
+ * of the SDE
+ * \[
+ * 	dX_{1} = \mu_{1} dt + \lambda_{1,1} dW_{1} + \lambda_{1,2} dW_{2}, \quad X_{1}(0) = \log(S_{0}),
+ * \]
+ * \[
+ * 	dX_{2} = \mu_{2} dt + \lambda_{2,1} dW_{1} + \lambda_{2,2} dW_{2}, \quad X_{2}(0) = V_{0} = \sigma^2,
+ * \]
+ * with \( S = f_{1}(X_{1}) , V = f_{2}(X_{2}) \).
+ * See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
+ *
+ * Here \( V^{+} \) denotes a &lt;i&gt;truncated&lt;/i&gt; value of V. Different truncation schemes are available:
+ * &lt;code&gt;FULL_TRUNCATION&lt;/code&gt;: \( V^{+} = max(V,0) \),
+ * &lt;code&gt;REFLECTION&lt;/code&gt;: \( V^{+} = abs(V) \).
+ *
+ * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
+ * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
+ * a dividend yield.
+ *
+ * The free parameters of this model are:
+ * &lt;dl&gt;
+ * 	&lt;dt&gt;\( S_{0} \)&lt;/dt&gt; &lt;dd&gt;spot - initial value of S&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{c}} \)&lt;/dt&gt; &lt;dd&gt;the risk free rate&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \sigma \)&lt;/dt&gt; &lt;dd&gt;the initial volatility level&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{d}} \)&lt;/dt&gt; &lt;dd&gt;the discount rate&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \xi \)&lt;/dt&gt; &lt;dd&gt;the volatility of volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \theta \)&lt;/dt&gt; &lt;dd&gt;the mean reversion level of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \kappa \)&lt;/dt&gt; &lt;dd&gt;the mean reversion speed of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \rho \)&lt;/dt&gt; &lt;dd&gt;the correlation of the Brownian drivers&lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
+ */
+public class HestonModel extends AbstractProcessModel {
+
+	/**
+	 * Truncation schemes to be used in the calculation of drift and diffusion coefficients.
+	 */
+<span class="fc" id="L80">	public enum Scheme {</span>
+		/**
+		 * Reflection scheme, that is V is replaced by Math.abs(V), where V denotes the current realization of V(t).
+		 */
+<span class="fc" id="L84">		REFLECTION,</span>
+
+		/**
+		 * Full truncation scheme, that is V is replaced by Math.max(V,0), where V denotes the current realization of V(t).
+		 */
+<span class="fc" id="L89">		FULL_TRUNCATION</span>
+	}
+
+<span class="fc" id="L92">	private static final RandomVariable ZERO = new Scalar(0.0);</span>
+
+	private final RandomVariable initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final RandomVariable riskFreeRate;		// Constant rate, used if discountCurveForForwardRate is null
+
+	private final RandomVariable volatility;
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
+
+	private final RandomVariable theta;
+	private final RandomVariable kappa;
+	private final RandomVariable xi;
+	private final RandomVariable rho;
+	private final RandomVariable rhoBar;			// Precalculated Math.sqrt(1 - rho*rho);
+
+	private final Scheme scheme;
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	/*
+	 * The interface definition requires that we provide the initial value, the drift and the volatility in terms of random variables.
+	 * We construct the corresponding random variables here and will return (immutable) references to them.
+	 */
+<span class="fc" id="L118">	private final RandomVariable[]	initialValueVector	= new RandomVariable[2];</span>
+
+	/**
+	 * Create the model from a descriptor.
+	 *
+	 * @param descriptor A descriptor of the model.
+	 * @param scheme The scheme.
+	 * @param randomVariableFactory A random variable factory to be used for the parameters.
+	 */
+	public HestonModel(final HestonModelDescriptor descriptor, 			final Scheme scheme,
+			final RandomVariableFactory randomVariableFactory
+			) {
+<span class="fc" id="L130">		this(</span>
+<span class="fc" id="L131">				randomVariableFactory.createRandomVariable(descriptor.getInitialValue()),</span>
+<span class="fc" id="L132">				descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L133">				randomVariableFactory.createRandomVariable(descriptor.getVolatility()),</span>
+<span class="fc" id="L134">				descriptor.getDiscountCurveForDiscountRate(),</span>
+<span class="fc" id="L135">				randomVariableFactory.createRandomVariable(descriptor.getTheta()),</span>
+<span class="fc" id="L136">				randomVariableFactory.createRandomVariable(descriptor.getKappa()),</span>
+<span class="fc" id="L137">				randomVariableFactory.createRandomVariable(descriptor.getXi()),</span>
+<span class="fc" id="L138">				randomVariableFactory.createRandomVariable(descriptor.getRho()),</span>
+				scheme,
+				randomVariableFactory
+				);
+<span class="fc" id="L142">	}</span>
+
+	/**
+	 * Create a Heston model.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate the discount curve  \( df^{\text{c}} \) used to calculate the risk free rate \( r^{\text{c}}(t_{i},t_{i+1}) = \frac{\ln(\frac{df^{\text{c}}(t_{i})}{df^{\text{c}}(t_{i+1})}}{t_{i+1}-t_{i}} \)
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountCurveForDiscountRate the discount curve  \( df^{\text{d}} \) used to calculate the numeraire, \( r^{\text{d}}(t_{i},t_{i+1}) = \frac{\ln(\frac{df^{\text{d}}(t_{i})}{df^{\text{d}}(t_{i+1})}}{t_{i+1}-t_{i}} \)
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 * @param scheme The truncation scheme, that is, either reflection (V &amp;rarr; abs(V)) or truncation (V &amp;rarr; max(V,0)).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public HestonModel(
+			final RandomVariable initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final RandomVariable volatility,
+			final DiscountCurve discountCurveForDiscountRate,
+			final RandomVariable theta,
+			final RandomVariable kappa,
+			final RandomVariable xi,
+			final RandomVariable rho,
+			final Scheme scheme,
+			final RandomVariableFactory randomVariableFactory
+			) {
+<span class="fc" id="L170">		super();</span>
+
+<span class="fc" id="L172">		this.initialValue	= initialValue;</span>
+<span class="fc" id="L173">		this.discountCurveForForwardRate	= discountCurveForForwardRate;</span>
+<span class="fc" id="L174">		riskFreeRate = null;</span>
+<span class="fc" id="L175">		this.volatility		= volatility;</span>
+<span class="fc" id="L176">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L177">		discountRate = null;</span>
+<span class="fc" id="L178">		this.theta			= theta;</span>
+<span class="fc" id="L179">		this.kappa			= kappa;</span>
+<span class="fc" id="L180">		this.xi				= xi;</span>
+<span class="fc" id="L181">		this.rho			= rho;</span>
+<span class="fc" id="L182">		rhoBar			= rho.squared().sub(1).mult(-1).sqrt();</span>
+
+<span class="fc" id="L184">		this.scheme			= scheme;</span>
+
+<span class="fc" id="L186">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L187">	}</span>
+
+	/**
+	 * Create a Heston model.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 * @param scheme The truncation scheme, that is, either reflection (V &amp;rarr; abs(V)) or truncation (V &amp;rarr; max(V,0)).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public HestonModel(
+			final RandomVariable initialValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable volatility,
+			final RandomVariable discountRate,
+			final RandomVariable theta,
+			final RandomVariable kappa,
+			final RandomVariable xi,
+			final RandomVariable rho,
+			final Scheme scheme,
+			final RandomVariableFactory randomVariableFactory
+			) {
+<span class="fc" id="L215">		super();</span>
+
+<span class="fc" id="L217">		this.initialValue	= initialValue;</span>
+<span class="fc" id="L218">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L219">		this.riskFreeRate	= riskFreeRate;</span>
+<span class="fc" id="L220">		this.volatility		= volatility;</span>
+<span class="fc" id="L221">		this.discountRate	= discountRate;</span>
+<span class="fc" id="L222">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L223">		this.theta			= theta;</span>
+<span class="fc" id="L224">		this.kappa			= kappa;</span>
+<span class="fc" id="L225">		this.xi				= xi;</span>
+<span class="fc" id="L226">		this.rho			= rho;</span>
+<span class="fc" id="L227">		rhoBar			= rho.squared().sub(1).mult(-1).sqrt();</span>
+
+<span class="fc" id="L229">		this.scheme			= scheme;</span>
+
+<span class="fc" id="L231">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L232">	}</span>
+
+	/**
+	 * Create a Heston model.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param theta The longterm mean reversion level of V (a reasonable value is volatility*volatility).
+	 * @param kappa The mean reversion speed.
+	 * @param xi The volatility of the volatility (of V).
+	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
+	 * @param scheme The truncation scheme, that is, either reflection (V &amp;rarr; abs(V)) or truncation (V &amp;rarr; max(V,0)).
+	 * @param randomVariableFactory The factory to be used to construct random variables..
+	 */
+	public HestonModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double discountRate,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final Scheme scheme,
+			final RandomVariableFactory randomVariableFactory
+			) {
+<span class="fc" id="L260">		this(</span>
+<span class="fc" id="L261">				randomVariableFactory.createRandomVariable(initialValue),</span>
+<span class="fc" id="L262">				randomVariableFactory.createRandomVariable(riskFreeRate),</span>
+<span class="fc" id="L263">				randomVariableFactory.createRandomVariable(volatility),</span>
+<span class="fc" id="L264">				randomVariableFactory.createRandomVariable(discountRate),</span>
+<span class="fc" id="L265">				randomVariableFactory.createRandomVariable(theta),</span>
+<span class="fc" id="L266">				randomVariableFactory.createRandomVariable(kappa),</span>
+<span class="fc" id="L267">				randomVariableFactory.createRandomVariable(xi),</span>
+<span class="fc" id="L268">				randomVariableFactory.createRandomVariable(rho),</span>
+				scheme,
+				randomVariableFactory);
+<span class="fc" id="L271">	}</span>
+
+	/**
+	 * Create a Heston model.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param discountRate The discount rate used in the numeraire.
+	 * @param theta The longterm mean reversion level of V (a reasonable value is volatility*volatility).
+	 * @param kappa The mean reversion speed.
+	 * @param xi The volatility of the volatility (of V).
+	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
+	 * @param scheme The truncation scheme, that is, either reflection (V &amp;rarr; abs(V)) or truncation (V &amp;rarr; max(V,0)).
+	 */
+	public HestonModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double discountRate,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final Scheme scheme
+			) {
+<span class="fc" id="L297">		this(initialValue, riskFreeRate, volatility, discountRate, theta, kappa, xi, rho, scheme, new RandomVariableFromArrayFactory());</span>
+<span class="fc" id="L298">	}</span>
+
+	/**
+	 * Create a Heston model.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param theta The longterm mean reversion level of V (a reasonable value is volatility*volatility).
+	 * @param kappa The mean reversion speed.
+	 * @param xi The volatility of the volatility (of V).
+	 * @param rho The instantaneous correlation of the Brownian drivers (aka leverage).
+	 * @param scheme The truncation scheme, that is, either reflection (V &amp;rarr; abs(V)) or truncation (V &amp;rarr; max(V,0)).
+	 */
+	public HestonModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final Scheme scheme
+			) {
+<span class="fc" id="L322">		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho, scheme, new RandomVariableFromArrayFactory());</span>
+<span class="fc" id="L323">	}</span>
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+		// Since the underlying process is configured to simulate log(S), the initial value and the drift are transformed accordingly.
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">		if(initialValueVector[0] == null) 	{</span>
+<span class="fc" id="L329">			initialValueVector[0] = initialValue.log();</span>
+<span class="fc" id="L330">			initialValueVector[1] = volatility.squared();</span>
+		}
+
+<span class="fc" id="L333">		return initialValueVector;</span>
+	}
+
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		RandomVariable stochasticVariance;
+<span class="pc bpc" id="L339" title="1 of 2 branches missed.">		if(scheme == Scheme.FULL_TRUNCATION) {</span>
+<span class="fc" id="L340">			stochasticVariance = realizationAtTimeIndex[1].floor(0.0);</span>
+<span class="nc bnc" id="L341" title="All 2 branches missed.">		} else if(scheme == Scheme.REFLECTION) {</span>
+<span class="nc" id="L342">			stochasticVariance = realizationAtTimeIndex[1].abs();</span>
+		} else {
+<span class="nc" id="L344">			throw new UnsupportedOperationException(&quot;Scheme &quot; + scheme.name() + &quot; not supported.&quot;);</span>
+		}
+
+<span class="fc" id="L347">		final RandomVariable[] drift = new RandomVariable[2];</span>
+
+<span class="fc" id="L349">		RandomVariable riskFreeRateAtTimeStep = null;</span>
+<span class="fc bfc" id="L350" title="All 2 branches covered.">		if(discountCurveForForwardRate != null) {</span>
+<span class="fc" id="L351">			final double time		= process.getTime(timeIndex);</span>
+<span class="fc" id="L352">			final double timeNext	= process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L354">			final double rate = Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time);</span>
+<span class="fc" id="L355">			riskFreeRateAtTimeStep = randomVariableFactory.createRandomVariable(rate);</span>
+<span class="fc" id="L356">		}</span>
+		else {
+<span class="fc" id="L358">			riskFreeRateAtTimeStep = riskFreeRate;</span>
+		}
+
+<span class="fc" id="L361">		drift[0] = riskFreeRateAtTimeStep.sub(stochasticVariance.div(2.0));</span>
+<span class="fc" id="L362">		drift[1] = theta.sub(stochasticVariance).mult(kappa);</span>
+
+<span class="fc" id="L364">		return drift;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+		RandomVariable stochasticVolatility;
+<span class="pc bpc" id="L370" title="1 of 2 branches missed.">		if(scheme == Scheme.FULL_TRUNCATION) {</span>
+<span class="fc" id="L371">			stochasticVolatility = realizationAtTimeIndex[1].floor(0.0).sqrt();</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">		} else if(scheme == Scheme.REFLECTION) {</span>
+<span class="nc" id="L373">			stochasticVolatility = realizationAtTimeIndex[1].abs().sqrt();</span>
+		} else {
+<span class="nc" id="L375">			throw new UnsupportedOperationException(&quot;Scheme &quot; + scheme.name() + &quot; not supported.&quot;);</span>
+		}
+
+<span class="fc" id="L378">		final RandomVariable[] factorLoadings = new RandomVariable[2];</span>
+
+<span class="fc bfc" id="L380" title="All 2 branches covered.">		if(component == 0) {</span>
+<span class="fc" id="L381">			factorLoadings[0] = stochasticVolatility;</span>
+<span class="fc" id="L382">			factorLoadings[1] = ZERO;</span>
+		}
+<span class="pc bpc" id="L384" title="1 of 2 branches missed.">		else if(component == 1) {</span>
+<span class="fc" id="L385">			final RandomVariable volatility = stochasticVolatility.mult(xi);</span>
+<span class="fc" id="L386">			factorLoadings[0] = volatility.mult(rho);</span>
+<span class="fc" id="L387">			factorLoadings[1] = volatility.mult(rhoBar);</span>
+<span class="fc" id="L388">		}</span>
+		else {
+<span class="nc" id="L390">			throw new UnsupportedOperationException(&quot;Component &quot; + component + &quot; does not exist.&quot;);</span>
+		}
+
+<span class="fc" id="L393">		return factorLoadings;</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc bfc" id="L398" title="All 2 branches covered.">		if(componentIndex == 0) {</span>
+<span class="fc" id="L399">			return randomVariable.exp();</span>
+		}
+<span class="pc bpc" id="L401" title="1 of 2 branches missed.">		else if(componentIndex == 1) {</span>
+<span class="fc" id="L402">			return randomVariable;</span>
+		}
+		else {
+<span class="nc" id="L405">			throw new UnsupportedOperationException(&quot;Component &quot; + componentIndex + &quot; does not exist.&quot;);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc bfc" id="L411" title="All 2 branches covered.">		if(componentIndex == 0) {</span>
+<span class="fc" id="L412">			return randomVariable.log();</span>
+		}
+<span class="pc bpc" id="L414" title="1 of 2 branches missed.">		else if(componentIndex == 1) {</span>
+<span class="fc" id="L415">			return randomVariable;</span>
+		}
+		else {
+<span class="nc" id="L418">			throw new UnsupportedOperationException(&quot;Component &quot; + componentIndex + &quot; does not exist.&quot;);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+<span class="fc bfc" id="L424" title="All 2 branches covered.">		if(discountCurveForDiscountRate != null) {</span>
+<span class="fc" id="L425">			return randomVariableFactory.createRandomVariable(1.0/discountCurveForDiscountRate.getDiscountFactor(time));</span>
+		}
+		else {
+<span class="fc" id="L428">			return discountRate.mult(time).exp();</span>
+		}
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L434">		return 2;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L439">		return 1;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L444">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public HestonModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc" id="L452">		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault(&quot;randomVariableFactory&quot;, randomVariableFactory);</span>
+
+<span class="nc" id="L454">		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;initialValue&quot;), initialValue);</span>
+<span class="nc" id="L455">		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;riskFreeRate&quot;), riskFreeRate);</span>
+<span class="nc" id="L456">		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;volatility&quot;), volatility);</span>
+<span class="nc" id="L457">		final RandomVariable newDiscountRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;discountRate&quot;), discountRate);</span>
+
+<span class="nc" id="L459">		final RandomVariable newTheta	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;theta&quot;), theta);</span>
+<span class="nc" id="L460">		final RandomVariable newKappa	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;kappa&quot;), kappa);</span>
+<span class="nc" id="L461">		final RandomVariable newXi		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;xi&quot;), xi);</span>
+<span class="nc" id="L462">		final RandomVariable newRho		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;rho&quot;), rho);</span>
+
+<span class="nc" id="L464">		return new HestonModel(newInitialValue, newRiskFreeRate, newVolatility, newDiscountRate, newTheta, newKappa, newXi, newRho, scheme, randomVariableFactory);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L469">		return &quot;HestonModel [initialValue=&quot; + initialValue + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, volatility=&quot;</span>
+				+ volatility + &quot;, theta=&quot; + theta + &quot;, kappa=&quot; + kappa + &quot;, xi=&quot; + xi + &quot;, rho=&quot; + rho + &quot;, scheme=&quot;
+				+ scheme + &quot;]&quot;;
+	}
+
+	public RandomVariable getInitialValue() {
+<span class="nc" id="L475">		return initialValue;</span>
+	}
+
+	/**
+	 * Returns the risk free rate parameter of this model.
+	 *
+	 * @return Returns the riskFreeRate.
+	 */
+	public RandomVariable getRiskFreeRate() {
+<span class="nc" id="L484">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * Returns the volatility parameter of this model.
+	 *
+	 * @return Returns the volatility.
+	 */
+	public RandomVariable getVolatility() {
+<span class="nc" id="L493">		return volatility;</span>
+	}
+
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L497">		return discountCurveForForwardRate;</span>
+	}
+
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L501">		return discountCurveForDiscountRate;</span>
+	}
+
+	public RandomVariable getTheta() {
+<span class="nc" id="L505">		return theta;</span>
+	}
+
+	public RandomVariable getKappa() {
+<span class="nc" id="L509">		return kappa;</span>
+	}
+
+	public RandomVariable getXi() {
+<span class="nc" id="L513">		return xi;</span>
+	}
+
+	public RandomVariable getRho() {
+<span class="nc" id="L517">		return rho;</span>
+	}
+
+	public Scheme getScheme() {
+<span class="nc" id="L521">		return scheme;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

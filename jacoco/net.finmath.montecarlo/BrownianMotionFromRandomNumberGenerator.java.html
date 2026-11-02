@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BrownianMotionFromRandomNumberGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">BrownianMotionFromRandomNumberGenerator.java</span></div><h1>BrownianMotionFromRandomNumberGenerator.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+import org.apache.commons.lang3.Validate;
+
+import net.finmath.randomnumbers.RandomNumberGenerator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implementation of a time-discrete n-dimensional Brownian motion
+ * &lt;i&gt;W = (W&lt;sub&gt;1&lt;/sub&gt;,...,W&lt;sub&gt;n&lt;/sub&gt;)&lt;/i&gt; where &lt;i&gt;W&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+ * a Brownian motion and &lt;i&gt;W&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;, &lt;i&gt;W&lt;sub&gt;j&lt;/sub&gt;&lt;/i&gt; are
+ * independent for &lt;i&gt;i&lt;/i&gt; not equal &lt;i&gt;j&lt;/i&gt;.
+ *
+ * For a correlated Brownian motion with see
+ * {@link net.finmath.montecarlo.CorrelatedBrownianMotion}.
+ *
+ * Here the dimension &lt;i&gt;n&lt;/i&gt; is called factors since this Brownian motion is used to
+ * generate multi-dimensional multi-factor Ito processes and there one might
+ * use a different number of factors to generate Ito processes of different
+ * dimension.
+ *
+ * The quadruppel (time discretization, number of factors, number of paths, seed)
+ * defines the state of an object of this class, i.e., BrownianMotionLazyInit for which
+ * there parameters agree, generate the same random numbers.
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public class BrownianMotionFromRandomNumberGenerator implements BrownianMotion, Serializable {
+
+	private static final long serialVersionUID = -5430067621669213475L;
+
+	private final TimeDiscretization						timeDiscretization;
+
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
+	private final RandomNumberGenerator randomNumberGenerator;
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	private transient	RandomVariable[][]	brownianIncrements;
+<span class="nc" id="L53">	private transient 	Object				brownianIncrementsLazyInitLock = new Object();</span>
+
+	/**
+	 * Construct a Brownian motion.
+	 *
+	 * The constructor allows to set the factory to be used for the construction of
+	 * random variables. This allows to generate Brownian increments represented
+	 * by different implementations of the RandomVariable (e.g. the RandomVariableFromFloatArray internally
+	 * using float representations).
+	 *
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param numberOfFactors Number of factors.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param randomNumberGenerator A random number generator for n-dimensional uniform random numbers (n = numberOfTimeSteps*numberOfFactors).
+	 * @param randomVariableFactory Factory to be used to create random variable.
+	 */
+	public BrownianMotionFromRandomNumberGenerator(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final RandomNumberGenerator randomNumberGenerator,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="nc" id="L75">		super();</span>
+<span class="nc" id="L76">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L77">		this.numberOfFactors	= numberOfFactors;</span>
+<span class="nc" id="L78">		this.numberOfPaths		= numberOfPaths;</span>
+<span class="nc" id="L79">		this.randomNumberGenerator = randomNumberGenerator;</span>
+
+<span class="nc" id="L81">		this.randomVariableFactory = randomVariableFactory;</span>
+
+<span class="nc" id="L83">		brownianIncrements	= null; 	// Lazy initialization</span>
+
+<span class="nc" id="L85">		Validate.notNull(timeDiscretization);</span>
+<span class="nc" id="L86">		Validate.notNull(randomNumberGenerator);</span>
+<span class="nc" id="L87">		final int requiredDimension = numberOfFactors*timeDiscretization.getNumberOfTimeSteps();</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		Validate.isTrue(randomNumberGenerator.getDimension() &gt;= requiredDimension, &quot;Dimension of RandomNumberGenerator required to be at least %d.&quot;, requiredDimension);</span>
+<span class="nc" id="L89">	}</span>
+
+	/**
+	 * Construct a Brownian motion.
+	 *
+	 * @param timeDiscretization The time discretization used for the Brownian increments.
+	 * @param numberOfFactors Number of factors.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param randomNumberGenerator A random number generator for n-dimensional uniform random numbers (n = numberOfTimeSteps*numberOfFactors).
+	 */
+	public BrownianMotionFromRandomNumberGenerator(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final RandomNumberGenerator randomNumberGenerator) {
+<span class="nc" id="L104">		this(timeDiscretization, numberOfFactors, numberOfPaths, randomNumberGenerator, new RandomVariableFromArrayFactory());</span>
+<span class="nc" id="L105">	}</span>
+
+	@Override
+	public BrownianMotion getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L109">		return new BrownianMotionFromRandomNumberGenerator(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), randomNumberGenerator);</span>
+	}
+
+	@Override
+	public BrownianMotion getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
+		/// @TODO This can be improved: a complete recreation of the Brownian motion wouldn't be necessary!
+<span class="nc" id="L115">		return new BrownianMotionFromRandomNumberGenerator(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), randomNumberGenerator);</span>
+	}
+
+	@Override
+	public RandomVariable getBrownianIncrement(final int timeIndex, final int factor) {
+
+		// Thread safe lazy initialization
+<span class="nc" id="L122">		synchronized(brownianIncrementsLazyInitLock) {</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			if(brownianIncrements == null) {</span>
+<span class="nc" id="L124">				doGenerateBrownianMotion();</span>
+			}
+<span class="nc" id="L126">		}</span>
+
+		/*
+		 *  We return an immutable object which ensures that the receiver does not alter the data.
+		 */
+<span class="nc" id="L131">		return brownianIncrements[timeIndex][factor];</span>
+	}
+
+	/**
+	 * Lazy initialization of brownianIncrement. Synchronized to ensure thread safety of lazy init.
+	 */
+	private void doGenerateBrownianMotion() {
+<span class="nc bnc" id="L138" title="All 2 branches missed.">		if(brownianIncrements != null) {</span>
+<span class="nc" id="L139">			return;	// Nothing to do</span>
+		}
+
+		// Allocate memory
+<span class="nc" id="L143">		final double[][][] brownianIncrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];</span>
+
+		// Pre-calculate square roots of deltaT
+<span class="nc" id="L146">		final double[] sqrtOfTimeStep = new double[timeDiscretization.getNumberOfTimeSteps()];</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;sqrtOfTimeStep.length; timeIndex++) {</span>
+<span class="nc" id="L148">			sqrtOfTimeStep[timeIndex] = Math.sqrt(timeDiscretization.getTimeStep(timeIndex));</span>
+		}
+
+		/*
+		 * Generate normal distributed independent increments.
+		 *
+		 * The inner loop goes over time and factors. Time and factors determine the dimension
+		 * of a vector of independent random variables (i.i.d., apart from the scaling with the sqrt(timeStep) size).
+		 *
+		 * Since we want to generate samples of that vector, the loop over path is the outer loop.
+		 */
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		for(int path=0; path&lt;numberOfPaths; path++) {</span>
+<span class="nc" id="L160">			final double[] randomNumbers = randomNumberGenerator.getNext();</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="nc" id="L162">				final double sqrtDeltaT = sqrtOfTimeStep[timeIndex];</span>
+				// Generate uncorrelated Brownian increment
+<span class="nc bnc" id="L164" title="All 2 branches missed.">				for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="nc" id="L165">					final double uniformIncrement = randomNumbers[timeIndex * numberOfFactors + factor];</span>
+<span class="nc" id="L166">					brownianIncrementsArray[timeIndex][factor][path] = net.finmath.functions.NormalDistribution.inverseCumulativeDistribution(uniformIncrement) * sqrtDeltaT;</span>
+				}
+			}
+		}
+
+		// Allocate memory for RandomVariableFromDoubleArray wrapper objects.
+<span class="nc" id="L172">		brownianIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];</span>
+
+		// Wrap the values in RandomVariableFromDoubleArray objects
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="nc" id="L176">			final double time = timeDiscretization.getTime(timeIndex+1);</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">			for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="nc" id="L178">				brownianIncrements[timeIndex][factor] =</span>
+<span class="nc" id="L179">						randomVariableFactory.createRandomVariable(time, brownianIncrementsArray[timeIndex][factor]);</span>
+			}
+		}
+<span class="nc" id="L182">	}</span>
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L186">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L191">		return numberOfFactors;</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L196">		return numberOfPaths;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L201">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L206">		return super.toString()</span>
+<span class="nc" id="L207">				+ &quot;\n&quot; + &quot;timeDiscretizationFromArray: &quot; + timeDiscretization.toString()</span>
+				+ &quot;\n&quot; + &quot;numberOfPaths: &quot; + numberOfPaths
+				+ &quot;\n&quot; + &quot;numberOfFactors: &quot; + numberOfFactors
+				+ &quot;\n&quot; + &quot;randomNumberGenerator: &quot; + randomNumberGenerator;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		if (this == o) {</span>
+<span class="nc" id="L216">			return true;</span>
+		}
+<span class="nc bnc" id="L218" title="All 4 branches missed.">		if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L219">			return false;</span>
+		}
+
+<span class="nc" id="L222">		final BrownianMotionFromRandomNumberGenerator that = (BrownianMotionFromRandomNumberGenerator) o;</span>
+
+<span class="nc bnc" id="L224" title="All 6 branches missed.">		if ((numberOfFactors != that.numberOfFactors) || (numberOfPaths != that.numberOfPaths) || (randomNumberGenerator != that.randomNumberGenerator)) {</span>
+<span class="nc" id="L225">			return false;</span>
+		}
+<span class="nc" id="L227">		return timeDiscretization.equals(that.timeDiscretization);</span>
+	}
+
+	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+<span class="nc" id="L232">		return getBrownianIncrement(timeIndex, factor);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L237">		int result = timeDiscretization.hashCode();</span>
+<span class="nc" id="L238">		result = 31 * result + numberOfFactors;</span>
+<span class="nc" id="L239">		result = 31 * result + numberOfPaths;</span>
+<span class="nc" id="L240">		result = 31 * result + randomNumberGenerator.hashCode();</span>
+<span class="nc" id="L241">		return result;</span>
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L245">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L247">		brownianIncrementsLazyInitLock = new Object();</span>
+<span class="nc" id="L248">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalBarrierOptionBlackScholesModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DigitalBarrierOptionBlackScholesModelBoundary.java</span></div><h1>DigitalBarrierOptionBlackScholesModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DigitalBarrierOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.BarrierType;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DigitalPayoffType;
+
+/**
+ * Boundary conditions for {@link DigitalBarrierOption} under the
+ * {@link FDMBlackScholesModel}.
+ *
+ * &lt;p&gt;
+ * Conventions:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;For knock-out options, the barrier-side boundary is pinned to 0.0.&lt;/li&gt;
+ *   &lt;li&gt;On the continuation side, digital asymptotics are used.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalBarrierOptionBlackScholesModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMBlackScholesModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L43">	public DigitalBarrierOptionBlackScholesModelBoundary(final FDMBlackScholesModel model) {</span>
+<span class="nc" id="L44">		this.model = model;</span>
+<span class="nc" id="L45">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L53">		final DigitalBarrierOption option = (DigitalBarrierOption) product;</span>
+<span class="nc" id="L54">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L55">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L56">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+
+<span class="nc bnc" id="L58" title="All 4 branches missed.">		if ((barrierType == BarrierType.DOWN_OUT) || (sign == CallOrPut.CALL)) {</span>
+<span class="nc" id="L59">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L60">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L64">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L67">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L68">					StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+			};
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L71">			final double stateVariable = stateVariables[0];</span>
+<span class="nc" id="L72">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L73">					StandardBoundaryCondition.dirichlet(getDiscountedAssetValue(stateVariable, option, time))</span>
+			};
+		} else {
+<span class="nc" id="L76">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L86">		final DigitalBarrierOption option = (DigitalBarrierOption) product;</span>
+<span class="nc" id="L87">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L88">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L89">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+
+<span class="nc bnc" id="L91" title="All 4 branches missed.">		if ((barrierType == BarrierType.UP_OUT) || (sign == CallOrPut.PUT)) {</span>
+<span class="nc" id="L92">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L93">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L97">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L100">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L101">					StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+			};
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L104">			final double stateVariable = stateVariables[0];</span>
+<span class="nc" id="L105">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L106">					StandardBoundaryCondition.dirichlet(getDiscountedAssetValue(stateVariable, option, time))</span>
+			};
+		} else {
+<span class="nc" id="L109">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	private double getDiscountedCashValue(final DigitalBarrierOption option, final double time) {
+<span class="nc" id="L114">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L115">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+<span class="nc" id="L116">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L117">		return option.getCashPayoff() * Math.exp(-riskFreeRate * (maturity - time));</span>
+	}
+
+	private double getDiscountedAssetValue(
+			final double stateVariable,
+			final DigitalBarrierOption option,
+			final double time) {
+
+<span class="nc" id="L125">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L126">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+<span class="nc" id="L127">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L128">		return stateVariable * Math.exp(-dividendYieldRate * (maturity - time));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

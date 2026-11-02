@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceGridLayout.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.utilities</a> &gt; <span class="el_source">FiniteDifferenceGridLayout.java</span></div><h1>FiniteDifferenceGridLayout.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.utilities;
+
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+
+/**
+ * Layout helper for finite-difference value vectors on multi-dimensional grids.
+ *
+ * &lt;p&gt;
+ * Finite-difference products return values as flattened spatial vectors. This
+ * class centralizes the flattening convention used by the library. For a
+ * spatial grid with shape {@code n0, n1, ..., nd}, the flattened index is
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * i0 + n0 * i1 + n0 * n1 * i2 + ...
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * The layout is inferred from a {@link SpaceTimeDiscretization}. It can be used
+ * to validate value vectors and value surfaces, and to convert between
+ * multi-index coordinates and flattened vector indices.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FiniteDifferenceGridLayout {
+
+	/**
+	 * The discretization.
+	 */
+	private final SpaceTimeDiscretization discretization;
+	/**
+	 * The dimension.
+	 */
+	private final int dimension;
+	/**
+	 * The shape.
+	 */
+	private final int[] shape;
+	/**
+	 * The strides.
+	 */
+	private final int[] strides;
+	/**
+	 * The number of spatial points.
+	 */
+	private final int numberOfSpatialPoints;
+
+	/**
+	 * Creates a grid layout from a space-time discretization.
+	 *
+	 * @param discretization The space-time discretization.
+	 * @throws IllegalArgumentException Thrown if {@code discretization} is
+	 *         {@code null} or if one of its spatial grids is empty.
+	 */
+<span class="fc" id="L56">	public FiniteDifferenceGridLayout(final SpaceTimeDiscretization discretization) {</span>
+<span class="pc bpc" id="L57" title="1 of 2 branches missed.">		if (discretization == null) {</span>
+<span class="nc" id="L58">			throw new IllegalArgumentException(&quot;discretization must not be null.&quot;);</span>
+		}
+
+<span class="fc" id="L61">		this.discretization = discretization;</span>
+<span class="fc" id="L62">		this.dimension = discretization.getNumberOfSpaceGrids();</span>
+
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		if (dimension &lt;= 0) {</span>
+<span class="nc" id="L65">			throw new IllegalArgumentException(&quot;The discretization must contain at least one spatial grid.&quot;);</span>
+		}
+
+<span class="fc" id="L68">		shape = new int[dimension];</span>
+<span class="fc" id="L69">		strides = new int[dimension];</span>
+
+<span class="fc" id="L71">		int product = 1;</span>
+<span class="fc bfc" id="L72" title="All 2 branches covered.">		for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="fc" id="L73">			final int length = discretization.getSpaceGrid(i).getGrid().length;</span>
+
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">			if (length &lt;= 0) {</span>
+<span class="nc" id="L76">				throw new IllegalArgumentException(&quot;Spatial grids must not be empty.&quot;);</span>
+			}
+
+<span class="fc" id="L79">			shape[i] = length;</span>
+<span class="fc" id="L80">			strides[i] = product;</span>
+<span class="fc" id="L81">			product *= length;</span>
+		}
+
+<span class="fc" id="L84">		numberOfSpatialPoints = product;</span>
+<span class="fc" id="L85">	}</span>
+
+	/**
+	 * Creates a grid layout from a space-time discretization.
+	 *
+	 * @param discretization The space-time discretization.
+	 * @return The corresponding grid layout.
+	 */
+	public static FiniteDifferenceGridLayout of(final SpaceTimeDiscretization discretization) {
+<span class="fc" id="L94">		return new FiniteDifferenceGridLayout(discretization);</span>
+	}
+
+	/**
+	 * Returns the underlying space-time discretization.
+	 *
+	 * @return The space-time discretization.
+	 */
+	public SpaceTimeDiscretization getDiscretization() {
+<span class="nc" id="L103">		return discretization;</span>
+	}
+
+	/**
+	 * Returns the number of spatial dimensions.
+	 *
+	 * @return The number of spatial dimensions.
+	 */
+	public int getDimension() {
+<span class="fc" id="L112">		return dimension;</span>
+	}
+
+	/**
+	 * Returns the spatial shape.
+	 *
+	 * @return A copy of the spatial shape.
+	 */
+	public int[] getShape() {
+<span class="nc" id="L121">		return shape.clone();</span>
+	}
+
+	/**
+	 * Returns the number of grid points in a given spatial dimension.
+	 *
+	 * @param dimension The spatial dimension.
+	 * @return The number of grid points in the given dimension.
+	 */
+	public int getShape(final int dimension) {
+<span class="nc" id="L131">		validateDimension(dimension);</span>
+<span class="nc" id="L132">		return shape[dimension];</span>
+	}
+
+	/**
+	 * Returns the flattening stride for a given spatial dimension.
+	 *
+	 * @param dimension The spatial dimension.
+	 * @return The flattening stride.
+	 */
+	public int getStride(final int dimension) {
+<span class="nc" id="L142">		validateDimension(dimension);</span>
+<span class="nc" id="L143">		return strides[dimension];</span>
+	}
+
+	/**
+	 * Returns the total number of spatial grid points.
+	 *
+	 * @return The total number of spatial grid points.
+	 */
+	public int getNumberOfSpatialPoints() {
+<span class="nc" id="L152">		return numberOfSpatialPoints;</span>
+	}
+
+	/**
+	 * Flattens a multi-dimensional spatial index.
+	 *
+	 * @param indices The spatial indices, one per dimension.
+	 * @return The flattened vector index.
+	 * @throws IllegalArgumentException Thrown if the number of indices does not
+	 *         match the spatial dimension or if an index is out of range.
+	 */
+	public int flatten(final int... indices) {
+<span class="pc bpc" id="L164" title="2 of 4 branches missed.">		if (indices == null || indices.length != dimension) {</span>
+<span class="nc" id="L165">			throw new IllegalArgumentException(&quot;The number of indices must match the spatial dimension.&quot;);</span>
+		}
+
+<span class="fc" id="L168">		int flatIndex = 0;</span>
+<span class="fc bfc" id="L169" title="All 2 branches covered.">		for (int i = 0; i &lt; dimension; i++) {</span>
+<span class="pc bpc" id="L170" title="2 of 4 branches missed.">			if (indices[i] &lt; 0 || indices[i] &gt;= shape[i]) {</span>
+<span class="nc" id="L171">				throw new IllegalArgumentException(&quot;Spatial index out of range.&quot;);</span>
+			}
+
+<span class="fc" id="L174">			flatIndex += indices[i] * strides[i];</span>
+		}
+
+<span class="fc" id="L177">		return flatIndex;</span>
+	}
+
+	/**
+	 * Converts a flattened vector index into a multi-dimensional spatial index.
+	 *
+	 * @param flatIndex The flattened vector index.
+	 * @return The corresponding spatial multi-index.
+	 * @throws IllegalArgumentException Thrown if {@code flatIndex} is out of
+	 *     range.
+	 */
+	public int[] unflatten(final int flatIndex) {
+<span class="nc bnc" id="L189" title="All 4 branches missed.">		if (flatIndex &lt; 0 || flatIndex &gt;= numberOfSpatialPoints) {</span>
+<span class="nc" id="L190">			throw new IllegalArgumentException(&quot;flatIndex out of range.&quot;);</span>
+		}
+
+<span class="nc" id="L193">		final int[] indices = new int[dimension];</span>
+<span class="nc" id="L194">		int remainingIndex = flatIndex;</span>
+
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		for (int i = dimension - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L197">			indices[i] = remainingIndex / strides[i];</span>
+<span class="nc" id="L198">			remainingIndex -= indices[i] * strides[i];</span>
+		}
+
+<span class="nc" id="L201">		return indices;</span>
+	}
+
+	/**
+	 * Validates that a value vector matches the spatial layout.
+	 *
+	 * @param values The value vector.
+	 * @throws IllegalArgumentException Thrown if {@code values} is {@code null}
+	 *         or if its length does not match the number of spatial points.
+	 */
+	public void validateVector(final double[] values) {
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">		if (values == null) {</span>
+<span class="nc" id="L213">			throw new IllegalArgumentException(&quot;values must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		if (values.length != numberOfSpatialPoints) {</span>
+<span class="nc" id="L216">			throw new IllegalArgumentException(</span>
+					&quot;Value vector length does not match the spatial grid layout.&quot;
+					);
+		}
+<span class="fc" id="L220">	}</span>
+
+	/**
+	 * Validates that a value surface matches the spatial layout.
+	 *
+	 * @param values The value surface indexed by flattened space point and time
+	 *     index.
+	 * @throws IllegalArgumentException Thrown if {@code values} is {@code null}
+	 * or if its first dimension does not match the number of spatial points.
+	 */
+	public void validateSurface(final double[][] values) {
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		if (values == null) {</span>
+<span class="nc" id="L232">			throw new IllegalArgumentException(&quot;values must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (values.length != numberOfSpatialPoints) {</span>
+<span class="nc" id="L235">			throw new IllegalArgumentException(</span>
+					&quot;Value surface first dimension does not match the spatial grid layout.&quot;
+					);
+		}
+<span class="nc bnc" id="L239" title="All 4 branches missed.">		if (values.length &gt; 0 &amp;&amp; values[0] == null) {</span>
+<span class="nc" id="L240">			throw new IllegalArgumentException(&quot;Value surface rows must not be null.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L243" title="All 2 branches missed.">		final int numberOfTimes = values.length == 0 ? 0 : values[0].length;</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">		for (int i = 1; i &lt; values.length; i++) {</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">			if (values[i] == null) {</span>
+<span class="nc" id="L246">				throw new IllegalArgumentException(&quot;Value surface rows must not be null.&quot;);</span>
+			}
+<span class="nc bnc" id="L248" title="All 2 branches missed.">			if (values[i].length != numberOfTimes) {</span>
+<span class="nc" id="L249">				throw new IllegalArgumentException(&quot;Value surface must be rectangular.&quot;);</span>
+			}
+		}
+<span class="nc" id="L252">	}</span>
+
+	private void validateDimension(final int dimension) {
+<span class="nc bnc" id="L255" title="All 4 branches missed.">		if (dimension &lt; 0 || dimension &gt;= this.dimension) {</span>
+<span class="nc" id="L256">			throw new IllegalArgumentException(&quot;dimension out of range.&quot;);</span>
+		}
+<span class="nc" id="L258">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenorConverter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatility.caplet.tenorconversion</a> &gt; <span class="el_source">TenorConverter.java</span></div><h1>TenorConverter.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatility.caplet.tenorconversion;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.marketdata.model.volatility.caplet.CapTenorStructure;
+import net.finmath.marketdata.model.volatility.caplet.CapletVolatilitySurface;
+
+/**
+ * This class implements a caplet volatility tenor converter. Given a correlationprovider,
+ * the current caplet vol data and the new tenor it converts the volatilities to the new tenor using
+ * the method suggested in the paper by Schlenkrich.
+ *
+ * @author Daniel Willhalm
+ */
+public class TenorConverter {
+	private final int currentTenorInMonths;
+	private final int newTenorInMonths;
+	private final double[] capletFixingTimeVectorInYears;
+	private final double[] strikeVector;
+	private final double[][] capletVolatilities;
+	private final CapletVolatilitySurface capletVolatilitySurface;
+	private final CorrelationProvider correlationProvider;
+
+	private final DiscountCurve discountCurve, discountForForwardCurveOldTenor, discountForForwardCurveNewTenor;
+	private final ForwardCurve forwardCurveOldTenor;
+	private final ForwardCurve forwardCurveNewTenor;
+
+	private final String indexForDiscount, indexOldTenor, indexNewTenor;
+
+	private transient AnalyticModel analyticModel;
+
+	/**
+	 * The constructor of the tenor conversion class
+	 *
+	 * @param correlationProvider The correlation provider.
+	 * @param currentTenorInMonths The tenor of the current caplet volatilities.
+	 * @param newTenorInMonths The target tenor.
+	 * @param capletFixingTimeVectorInYears The fixing times of the caplets.
+	 * @param strikeVector The strikes of the caplets.
+	 * @param capletVolatilities The caplet volatilities.
+	 * @param capTenorStructure Enum determining the currency.
+	 * @param analyticModel2 The analytic model containing the curves.
+	 * @param indexForDiscount Index of the discount curve.
+	 * @param indexOldTenor Index of the old forward curve.
+	 * @param indexNewTenor Index of the new forward curve.
+	 */
+	public TenorConverter(final CorrelationProvider correlationProvider, final int currentTenorInMonths,
+			final int newTenorInMonths, final double[] capletFixingTimeVectorInYears, final double[] strikeVector,
+			final double[][] capletVolatilities, final CapTenorStructure capTenorStructure,
+			final AnalyticModel analyticModel2, final String indexForDiscount,
+<span class="nc" id="L54">			final String indexOldTenor, final String indexNewTenor) {</span>
+<span class="nc" id="L55">		this.currentTenorInMonths = currentTenorInMonths;</span>
+<span class="nc" id="L56">		this.newTenorInMonths = newTenorInMonths;</span>
+<span class="nc" id="L57">		this.capletFixingTimeVectorInYears = capletFixingTimeVectorInYears;</span>
+<span class="nc" id="L58">		this.strikeVector = strikeVector;</span>
+<span class="nc" id="L59">		this.capletVolatilities = capletVolatilities;</span>
+<span class="nc" id="L60">		this.correlationProvider = correlationProvider;</span>
+
+<span class="nc" id="L62">		this.indexForDiscount = indexForDiscount;</span>
+<span class="nc" id="L63">		this.indexOldTenor = indexOldTenor;</span>
+<span class="nc" id="L64">		this.indexNewTenor = indexNewTenor;</span>
+
+<span class="nc" id="L66">		String currency = null;</span>
+<span class="nc bnc" id="L67" title="All 3 branches missed.">		switch (capTenorStructure) {</span>
+		case EUR:
+<span class="nc" id="L69">			currency = &quot;EUR&quot;;</span>
+<span class="nc" id="L70">			break;</span>
+		case USD:
+<span class="nc" id="L72">			currency = &quot;USD&quot;;</span>
+<span class="nc" id="L73">			break;</span>
+		default:
+<span class="nc" id="L75">			throw new IllegalArgumentException(&quot;Unknown currency &quot; + capTenorStructure + &quot;.&quot;);</span>
+		}
+
+<span class="nc" id="L78">		this.analyticModel = analyticModel2;</span>
+<span class="nc" id="L79">		discountCurve = analyticModel2.getDiscountCurve(currency + &quot;_&quot; + indexForDiscount);</span>
+<span class="nc" id="L80">		discountForForwardCurveOldTenor = null;</span>
+<span class="nc" id="L81">		discountForForwardCurveNewTenor = null;</span>
+<span class="nc" id="L82">		forwardCurveOldTenor = this.analyticModel.getForwardCurve(&quot;Forward_&quot; + currency + &quot;_&quot; + indexNewTenor);</span>
+<span class="nc" id="L83">		forwardCurveNewTenor = this.analyticModel.getForwardCurve(&quot;Forward_&quot; + currency + &quot;_&quot; + indexNewTenor);</span>
+<span class="nc" id="L84">		capletVolatilitySurface = new CapletVolatilitySurface(&quot;Tenor &quot; + this.currentTenorInMonths + &quot; Months&quot;, discountCurve.getReferenceDate(), this.capletVolatilities, this.capletFixingTimeVectorInYears, this.strikeVector, forwardCurveOldTenor, QuotingConvention.VOLATILITYLOGNORMAL, discountCurve);</span>
+<span class="nc" id="L85">	}</span>
+
+	/**
+	 * Method that converts the current tenor caplet volatilities to the new tenor.
+	 *
+	 * @return Caplet volatility matrix adapted to the new tenor.
+	 * @throws CalculationException Thrown if conversion fails arithmetically.
+	 */
+	public double[][] convertTenor() throws CalculationException {
+		//based on paper by Schlenkrich
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (currentTenorInMonths == newTenorInMonths) {</span>
+<span class="nc" id="L96">			throw new CalculationException(&quot;old and new tenor collide.&quot;);</span>
+		}
+<span class="nc" id="L98">		double[][] newCapletVolatilities = null;</span>
+		//long tenor conversion
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		if (currentTenorInMonths &lt; newTenorInMonths) {</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">			if (newTenorInMonths % currentTenorInMonths != 0) {</span>
+<span class="nc" id="L102">				throw new CalculationException(&quot;The new tenor has to be divisible by the old tenor or the other way round.&quot;);</span>
+			}
+<span class="nc" id="L104">			final int n = newTenorInMonths/currentTenorInMonths;</span>
+<span class="nc" id="L105">			final double[] newCapletFixingTimeVectorInYears = new double[(capletFixingTimeVectorInYears.length+1)/n-1];</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">			for (int i = 0; i &lt; newCapletFixingTimeVectorInYears.length; i++) {</span>
+<span class="nc" id="L107">				newCapletFixingTimeVectorInYears[i] = capletFixingTimeVectorInYears[n-1+n*i];</span>
+			}
+<span class="nc" id="L109">			newCapletVolatilities = new double[(capletFixingTimeVectorInYears.length+1)/n-1][strikeVector.length];</span>
+
+<span class="nc bnc" id="L111" title="All 2 branches missed.">			for (int j = 0; j &lt; strikeVector.length; j++) {</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">				for (int i = 0; i &lt; newCapletFixingTimeVectorInYears.length; i++) {</span>
+<span class="nc" id="L113">					final double[] nu = new double[n];</span>
+<span class="nc" id="L114">					double sumNu = 0.0;</span>
+<span class="nc" id="L115">					final double[] K = new double[n];</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">					for (int k = 0; k &lt; n; k++) {</span>
+<span class="nc" id="L117">						nu[k] = currentTenorInMonths*(1.0 + newTenorInMonths/12.0*forwardCurveNewTenor.getForward(analyticModel, newCapletFixingTimeVectorInYears[i]))/(newTenorInMonths*(1.0 + currentTenorInMonths/12.0*forwardCurveOldTenor.getForward(analyticModel, newCapletFixingTimeVectorInYears[i]+k*currentTenorInMonths/12.0)));</span>
+<span class="nc" id="L118">						sumNu += nu[k];</span>
+					}
+<span class="nc bnc" id="L120" title="All 2 branches missed.">					for (int k = 0; k &lt; n; k++) {</span>
+<span class="nc" id="L121">						K[k] = (strikeVector[j]-(forwardCurveNewTenor.getForward(analyticModel, newCapletFixingTimeVectorInYears[i])-sumNu*forwardCurveOldTenor.getForward(analyticModel, newCapletFixingTimeVectorInYears[i]+k*currentTenorInMonths/12.0)))/sumNu;</span>
+					}
+<span class="nc bnc" id="L123" title="All 2 branches missed.">					for (int k1 = 0; k1 &lt; n; k1++) {</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">						for (int k2 = 0; k2 &lt; n; k2++) {</span>
+<span class="nc" id="L125">							newCapletVolatilities[i][j] += nu[k1] * nu[k2]</span>
+<span class="nc" id="L126">									* correlationProvider.getCorrelation(currentTenorInMonths,</span>
+											newCapletFixingTimeVectorInYears[i] + k1 * currentTenorInMonths / 12.0,
+											newCapletFixingTimeVectorInYears[i] + k2 * currentTenorInMonths / 12.0,
+											analyticModel, indexForDiscount)
+<span class="nc" id="L130">									* capletVolatilitySurface.getValue(analyticModel,</span>
+											newCapletFixingTimeVectorInYears[i] + k1 * currentTenorInMonths / 12.0,
+											K[k1], QuotingConvention.VOLATILITYLOGNORMAL)
+<span class="nc" id="L133">									* capletVolatilitySurface.getValue(analyticModel,</span>
+											newCapletFixingTimeVectorInYears[i] + k2 * currentTenorInMonths / 12.0,
+											K[k2], QuotingConvention.VOLATILITYLOGNORMAL);
+						}
+					}
+<span class="nc" id="L138">					newCapletVolatilities[i][j] = Math.sqrt(newCapletVolatilities[i][j]);</span>
+				}
+			}
+		}
+		//short tenor conversion
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		if (currentTenorInMonths &gt; newTenorInMonths) {</span>
+<span class="nc bnc" id="L144" title="All 2 branches missed.">			if (currentTenorInMonths % newTenorInMonths != 0) {</span>
+<span class="nc" id="L145">				throw new CalculationException(&quot;The new tenor has to be divisible by the old tenor or the other way round.&quot;);</span>
+			}
+<span class="nc" id="L147">			final int n = currentTenorInMonths/newTenorInMonths;</span>
+<span class="nc" id="L148">			final double[] newCapletFixingTimeVectorInYears = new double[(capletFixingTimeVectorInYears.length+1)*n-1];</span>
+<span class="nc" id="L149">			final double[] firstLongCapletFixingTimeVectorInYears = new double[(capletFixingTimeVectorInYears.length+1)*n-1];</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">			for (int i = 0; i &lt; newCapletFixingTimeVectorInYears.length; i+=n) {</span>
+<span class="nc" id="L151">				newCapletFixingTimeVectorInYears[i] = capletFixingTimeVectorInYears[0]/n*(i+1);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">				if (i &lt; n-1) {</span>
+<span class="nc" id="L153">					firstLongCapletFixingTimeVectorInYears[i] = capletFixingTimeVectorInYears[0];</span>
+				}
+				else {
+<span class="nc" id="L156">					firstLongCapletFixingTimeVectorInYears[i] = capletFixingTimeVectorInYears[(i+1)/n-1];</span>
+				}
+			}
+<span class="nc" id="L159">			newCapletVolatilities = new double[(capletFixingTimeVectorInYears.length+1)*n-1][strikeVector.length];</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			for (int j = 0; j &lt; strikeVector.length; j++) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">				for (int i = 0; i &lt; newCapletFixingTimeVectorInYears.length; i++) {</span>
+<span class="nc" id="L162">					final double[] nu = new double[n];</span>
+<span class="nc" id="L163">					double sumNuNuRho = 0.0;</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">					for (int k = 0; k &lt; n; k++) {</span>
+<span class="nc" id="L165">						nu[k] = newTenorInMonths*(1.0 + currentTenorInMonths/12.0*forwardCurveNewTenor.getForward(analyticModel, firstLongCapletFixingTimeVectorInYears[i]))/(newTenorInMonths*(1.0 + currentTenorInMonths/12.0*forwardCurveOldTenor.getForward(analyticModel, firstLongCapletFixingTimeVectorInYears[i]+k*currentTenorInMonths/12.0)));</span>
+					}
+<span class="nc bnc" id="L167" title="All 2 branches missed.">					for (int k1 = 0; k1 &lt; n; k1++) {</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">						for (int k2 = 0; k2 &lt; n; k2++) {</span>
+<span class="nc" id="L169">							sumNuNuRho += nu[k1]*nu[k2]*correlationProvider.getCorrelation(newTenorInMonths, firstLongCapletFixingTimeVectorInYears[i]+k1*newTenorInMonths/12.0, firstLongCapletFixingTimeVectorInYears[i]+k2*newTenorInMonths/12.0, analyticModel, indexForDiscount);</span>
+						}
+					}
+<span class="nc bnc" id="L172" title="All 2 branches missed.">					if (i &lt; n-1) {</span>
+<span class="nc" id="L173">						newCapletVolatilities[i][j] = capletVolatilitySurface.getValue(analyticModel, firstLongCapletFixingTimeVectorInYears[0], strikeVector[j], QuotingConvention.VOLATILITYLOGNORMAL)/Math.sqrt(sumNuNuRho);</span>
+					}
+					else {
+<span class="nc" id="L176">						newCapletVolatilities[i][j] = capletVolatilitySurface.getValue(analyticModel, firstLongCapletFixingTimeVectorInYears[i], strikeVector[j], QuotingConvention.VOLATILITYLOGNORMAL)/Math.sqrt(sumNuNuRho);</span>
+					}
+				}
+			}
+		}
+<span class="nc" id="L181">		return newCapletVolatilities;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionOnBond.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.products</a> &gt; <span class="el_source">OptionOnBond.java</span></div><h1>OptionOnBond.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.products;
+
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Finite-difference valuation of a European option on a deterministic-cashflow
+ * bond.
+ *
+ * &lt;p&gt;
+ * The underlying bond is assumed to be a {@link Bond}, that is, a bond with
+ * deterministic fixed cashflows. Let {@code T} denote the option exercise date,
+ * {@code B(T,x)} the bond value at exercise as a function of the model state,
+ * {@code K} the strike, and {@code \omega \in \{+1,-1\}} the call/put sign.
+ * The payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \bigl( \omega ( B(T,x) - K ) \bigr)^{+}.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Since the underlying bond has deterministic cashflows, its value at exercise
+ * can be computed directly from the interest-rate model through the remaining
+ * discount bonds:
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * B(T,x) = \sum_{i:\,T_i \ge T} C_i P(T,T_i;x),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code C_i} are the remaining bond cashflows and {@code P(T,T_i;x)} is
+ * the discount bond implied by the model.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The current implementation is intended for one-dimensional finite-difference
+ * interest-rate models used with {@link FDMThetaMethod1D}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class OptionOnBond implements FiniteDifferenceInterestRateProduct {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The underlying bond.
+	 */
+	private final Bond underlyingBond;
+	/**
+	 * The exercise date.
+	 */
+	private final double exerciseDate;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+
+	/**
+	 * Creates a European option on a deterministic-cashflow bond.
+	 *
+	 * @param underlyingBond The underlying bond.
+	 * @param exerciseDate The option exercise date.
+	 * @param strike The strike.
+	 * @param callOrPut The call/put indicator.
+	 */
+	public OptionOnBond(
+			final Bond underlyingBond,
+			final double exerciseDate,
+			final double strike,
+<span class="nc" id="L87">			final CallOrPut callOrPut) {</span>
+
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if (underlyingBond == null) {</span>
+<span class="nc" id="L90">			throw new IllegalArgumentException(&quot;underlyingBond must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (exerciseDate &lt; 0.0) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;exerciseDate must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (strike &lt; 0.0) {</span>
+<span class="nc" id="L96">			throw new IllegalArgumentException(&quot;strike must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (callOrPut == null) {</span>
+<span class="nc" id="L99">			throw new IllegalArgumentException(&quot;callOrPut must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (exerciseDate - underlyingBond.getMaturity() &gt; TIME_TOLERANCE) {</span>
+<span class="nc" id="L102">			throw new IllegalArgumentException(</span>
+					&quot;exerciseDate must not be later than the maturity of the underlying bond.&quot;);
+		}
+
+<span class="nc" id="L106">		this.underlyingBond = underlyingBond;</span>
+<span class="nc" id="L107">		this.exerciseDate = exerciseDate;</span>
+<span class="nc" id="L108">		this.strike = strike;</span>
+<span class="nc" id="L109">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L110">	}</span>
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L117">		validateModel(model);</span>
+
+<span class="nc" id="L119">		final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+				model,
+				this,
+<span class="nc" id="L122">				model.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(exerciseDate)
+				);
+
+<span class="nc" id="L126">		return solver.getValue(</span>
+				evaluationTime,
+				exerciseDate,
+<span class="nc" id="L129">				buildTerminalValues(model)</span>
+				);
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L136">		validateModel(model);</span>
+
+<span class="nc" id="L138">		final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+				model,
+				this,
+<span class="nc" id="L141">				model.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(exerciseDate)
+				);
+
+<span class="nc" id="L145">		return solver.getValues(</span>
+				exerciseDate,
+<span class="nc" id="L147">				buildTerminalValues(model)</span>
+				);
+	}
+
+	/**
+	 * Returns the underlying bond.
+	 *
+	 * @return The underlying bond.
+	 */
+	public Bond getUnderlyingBond() {
+<span class="nc" id="L157">		return underlyingBond;</span>
+	}
+
+	/**
+	 * Returns the exercise date.
+	 *
+	 * @return The exercise date.
+	 */
+	public double getExerciseDate() {
+<span class="nc" id="L166">		return exerciseDate;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L175">		return strike;</span>
+	}
+
+	/**
+	 * Returns the call/put indicator.
+	 *
+	 * @return The call/put indicator.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L184">		return callOrPut;</span>
+	}
+
+	private void validateModel(final FiniteDifferenceInterestRateModel model) {
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L189">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {</span>
+<span class="nc" id="L192">			throw new IllegalArgumentException(</span>
+					&quot;OptionOnBond currently supports only one-dimensional finite-difference interest-rate models.&quot;
+					);
+		}
+<span class="nc" id="L196">	}</span>
+
+	private double[] buildTerminalValues(final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L199">		final SpaceTimeDiscretization discretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L200">		final double[] xGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L201">		final double[] terminalValues = new double[xGrid.length];</span>
+
+<span class="nc bnc" id="L203" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L204">			final double bondValueAtExercise = getUnderlyingBondValueAtExercise(model, xGrid[i]);</span>
+<span class="nc" id="L205">			terminalValues[i] = Math.max(</span>
+<span class="nc" id="L206">					callOrPut.toInteger() * (bondValueAtExercise - strike),</span>
+					0.0
+					);
+		}
+
+<span class="nc" id="L211">		return terminalValues;</span>
+	}
+
+	private double getUnderlyingBondValueAtExercise(
+			final FiniteDifferenceInterestRateModel model,
+			final double stateVariable) {
+
+<span class="nc" id="L218">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L220" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; underlyingBond.getSchedule().getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L221">			final double paymentTime = underlyingBond.getSchedule().getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L223" title="All 2 branches missed.">			if (paymentTime &lt; exerciseDate - TIME_TOLERANCE) {</span>
+<span class="nc" id="L224">				continue;</span>
+			}
+
+<span class="nc" id="L227">			final double cashflow = underlyingBond.getCashflow(periodIndex);</span>
+<span class="nc" id="L228">			value += cashflow * model.getDiscountBond(</span>
+					exerciseDate,
+					paymentTime,
+					stateVariable
+					);
+		}
+
+<span class="nc" id="L235">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

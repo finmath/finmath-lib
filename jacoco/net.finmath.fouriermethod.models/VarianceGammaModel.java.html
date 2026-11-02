@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VarianceGammaModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.models</a> &gt; <span class="el_source">VarianceGammaModel.java</span></div><h1>VarianceGammaModel.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.models;
+
+import java.time.LocalDate;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * Implements the characteristic function of a Variance Gamma model.
+ *
+ * The Variange Gamma model is constructed from a subordinated Brownian motion, where the subordinator is given
+ * by a Gamma process.
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class VarianceGammaModel implements CharacteristicFunctionModel {
+
+	private final LocalDate referenceDate;
+
+	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final double sigma;
+	private final double theta;
+	private final double nu;
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
+	 */
+	public VarianceGammaModel(final LocalDate referenceDate, final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
+<span class="fc" id="L49">		super();</span>
+<span class="fc" id="L50">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L51">		this.initialValue = initialValue;</span>
+<span class="fc" id="L52">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L53">		riskFreeRate = Double.NaN;</span>
+<span class="fc" id="L54">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L55">		discountRate = Double.NaN;</span>
+<span class="fc" id="L56">		this.sigma = sigma;</span>
+<span class="fc" id="L57">		this.theta = theta;</span>
+<span class="fc" id="L58">		this.nu = nu;</span>
+<span class="fc" id="L59">	}</span>
+
+	/**
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
+	 * @param discountRate The constant rate used for discounting.
+	 */
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
+			final double nu) {
+<span class="fc" id="L73">		super();</span>
+<span class="fc" id="L74">		referenceDate = null;</span>
+<span class="fc" id="L75">		this.initialValue = initialValue;</span>
+<span class="fc" id="L76">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L77">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L78">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L79">		this.discountRate = discountRate;</span>
+<span class="fc" id="L80">		this.sigma = sigma;</span>
+<span class="fc" id="L81">		this.theta = theta;</span>
+<span class="fc" id="L82">		this.nu = nu;</span>
+<span class="fc" id="L83">	}</span>
+
+	@Override
+	public CharacteristicFunction apply(final double time) {
+<span class="fc" id="L87">		final double logDiscountFactorForForward = this.getLogDiscountFactorForForward(time);</span>
+<span class="fc" id="L88">		final double logDiscountFactorForDiscounting = this.getLogDiscountFactorForDiscounting(time);</span>
+
+<span class="fc" id="L90">		return new CharacteristicFunction() {</span>
+			@Override
+			public Complex apply(final Complex argument) {
+<span class="fc" id="L93">				final Complex iargument = argument.multiply(Complex.I);</span>
+<span class="fc" id="L94">				final Complex denominator = ((Complex.ONE).subtract(iargument.multiply(theta*nu))).add(argument.multiply(argument).multiply(0.5*sigma*sigma*nu));</span>
+<span class="fc" id="L95">				final Complex firstLevyExponent = (((Complex.ONE).divide(denominator)).log()).multiply(time/nu);</span>
+<span class="fc" id="L96">				final Complex compensator =  iargument.multiply(time/nu * Math.log(1/(1.0-theta*nu-0.5*sigma*sigma*nu)));</span>
+
+<span class="fc" id="L98">				return (firstLevyExponent.subtract(compensator)</span>
+<span class="fc" id="L99">						.add(iargument.multiply(Math.log(initialValue)-logDiscountFactorForForward))</span>
+<span class="fc" id="L100">						.add(logDiscountFactorForDiscounting))</span>
+<span class="fc" id="L101">						.exp();</span>
+			}
+		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(final double time) {
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(final double time) {
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * @return the referenceDate: The date corresponding to t = 0 (when dealing with {@link FloatingpointDate}s.
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L131">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	@Override
+	public double getInitialValue() {
+<span class="nc" id="L139">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L147">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	@Override
+	public double getRiskFreeRate() {
+<span class="nc" id="L155">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L163">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	@Override
+	public double getDiscountRate() {
+<span class="nc" id="L171">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public double getSigma() {
+<span class="nc" id="L178">		return sigma;</span>
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+<span class="nc" id="L185">		return theta;</span>
+	}
+
+	/**
+	 * @return the nu
+	 */
+	public double getNu() {
+<span class="nc" id="L192">		return nu;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L197">		return &quot;VarianceGammaModel [referenceDate=&quot; + referenceDate + &quot;, initialValue=&quot; + initialValue</span>
+				+ &quot;, discountCurveForForwardRate=&quot; + discountCurveForForwardRate + &quot;, riskFreeRate=&quot; + riskFreeRate
+				+ &quot;, discountCurveForDiscountRate=&quot; + discountCurveForDiscountRate + &quot;, discountRate=&quot; + discountRate
+				+ &quot;, sigma=&quot; + sigma + &quot;, theta=&quot; + theta + &quot;, nu=&quot; + nu + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

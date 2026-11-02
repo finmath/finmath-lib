@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceHedgedPortfolio.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">FiniteDifferenceHedgedPortfolio.java</span></div><h1>FiniteDifferenceHedgedPortfolio.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 10.06.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a delta and delta-gamma hedged portfolio of an European option (a hedge simulator).
+ *
+ * The hedge is done under the assumption of a Black Scholes Model (even if the pricing model is a different one).
+ *
+ * In case of the gamma hedge and the vega hedge, note that we make the assumption that the
+ * market trades these option according to Black-Scholes parameters assumed in hedging.
+ * While this is a simple model, it is to some extend reasonable, when we assume that the
+ * hedge is done by calculating delta from a calibrated model (where the risk free rate and
+ * the volatility are &quot;market implied&quot;).
+ *
+ * That said, this class evaluates the hedge portfolio given that the market implies a given
+ * risk free rate and volatility, while the underlying follows a given (possibly different) stochastic
+ * process.
+ *
+ * @author Christian Fries
+ * @version 1.3
+ * @since finmath-lib 4.1.0
+ */
+public class FiniteDifferenceHedgedPortfolio extends AbstractAssetMonteCarloProduct {
+
+<span class="nc" id="L36">	public enum HedgeStrategy {</span>
+<span class="nc" id="L37">		deltaHedge,</span>
+<span class="nc" id="L38">		deltaGammaHedge,</span>
+	}
+
+	// Model assumptions for the hedge
+	private final AbstractAssetMonteCarloProduct productToHedge;
+	private final AssetModelMonteCarloSimulationModel modelUsedForHedging;
+
+	// Hedge portfolio
+	private final ArrayList&lt;AbstractAssetMonteCarloProduct&gt; hedgeProducts;
+
+	private final HedgeStrategy hedgeStrategy;
+
+	/**
+	 * Construction of a hedge portfolio.
+	 *
+	 * @param productToHedge The product for which the hedge portfolio should be constructed.
+	 * @param modelUsedForHedging The model used for calculation of the hedge ratios.
+	 * @param hedgeProducts The products constituting the hedge portfolio.
+	 * @param hedgeStrategy	Specification of the hedge strategy to be used (delta, delta-gamma, etc.).
+	 */
+	public FiniteDifferenceHedgedPortfolio(
+			final AbstractAssetMonteCarloProduct productToHedge,
+			final AssetModelMonteCarloSimulationModel modelUsedForHedging,
+			final ArrayList&lt;AbstractAssetMonteCarloProduct&gt; hedgeProducts,
+			final HedgeStrategy hedgeStrategy) {
+<span class="nc" id="L63">		super();</span>
+<span class="nc" id="L64">		this.productToHedge = productToHedge;</span>
+<span class="nc" id="L65">		this.modelUsedForHedging = modelUsedForHedging;</span>
+<span class="nc" id="L66">		this.hedgeProducts = hedgeProducts;</span>
+<span class="nc" id="L67">		this.hedgeStrategy = hedgeStrategy;</span>
+<span class="nc" id="L68">	}</span>
+
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+
+		// Ask the model for its discretization
+<span class="nc" id="L75">		final int timeIndexEvaluationTime	= model.getTimeIndex(evaluationTime);</span>
+<span class="nc" id="L76">		final int numberOfPath			= model.getNumberOfPaths();</span>
+
+		/*
+		 *  Going forward in time we monitor the hedge portfolio on each path.
+		 */
+
+		// We store the composition of the hedge portfolio (depending on the path)
+<span class="nc" id="L83">		final ArrayList&lt;RandomVariable&gt;	amountOfHedgeAssets = new ArrayList&lt;&gt;(hedgeProducts.size());</span>
+
+		/*
+		 * Initialize the portfolio to zero stocks and as much cash as the Black-Scholes Model predicts we need.
+		 */
+<span class="nc" id="L88">		final RandomVariable underlyingToday = model.getAssetValue(0.0,0);</span>
+<span class="nc" id="L89">		final double initialValue = underlyingToday.get(0);</span>
+
+<span class="nc" id="L91">		final double valueOfOptionAccordingHedgeModel = productToHedge.getValue(modelUsedForHedging);</span>
+
+<span class="nc" id="L93">		return new RandomVariableFromDoubleArray(evaluationTime, 0.0);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

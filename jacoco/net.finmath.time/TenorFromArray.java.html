@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TenorFromArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">TenorFromArray.java</span></div><h1>TenorFromArray.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 03.09.2013
+ */
+
+package net.finmath.time;
+
+import java.time.LocalDate;
+
+/**
+ * Implements a time discretization based on dates using a reference
+ * date and an daycount convention / year fraction.
+ *
+ * The time as a double is represented as the year fraction from the reference date.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class TenorFromArray extends TimeDiscretizationFromArray implements Tenor {
+
+	private static final long serialVersionUID = 4027884423439197483L;
+
+	private			LocalDate					referenceDate;
+	private 		LocalDate[]					dates;
+
+	/**
+	 * @param dates A set of dates.
+	 * @param referenceDate The reference date, which defines t=0 with respect to the internal double representation.
+	 */
+	public TenorFromArray(final LocalDate[] dates, final LocalDate referenceDate) {
+<span class="nc" id="L32">		super(createTimeDiscretizationFromDates(dates, referenceDate));</span>
+<span class="nc" id="L33">		this.dates				= dates;</span>
+<span class="nc" id="L34">		this.referenceDate		= referenceDate;</span>
+<span class="nc" id="L35">	}</span>
+
+	/**
+	 * @param dates
+	 * @param referenceDate
+	 * @return A time discretization corresponding to the given dates, relative to the reference date, using the internal day count fraction.
+	 */
+	private static double[] createTimeDiscretizationFromDates(final LocalDate[] dates, final LocalDate referenceDate) {
+
+<span class="nc" id="L44">		final double[] timeDiscretization = new double[dates.length];</span>
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.length; timeIndex++) {</span>
+<span class="nc" id="L47">			timeDiscretization[timeIndex] =</span>
+<span class="nc" id="L48">					FloatingpointDate.getFloatingPointDateFromDate(referenceDate, dates[timeIndex]);</span>
+		}
+
+<span class="nc" id="L51">		return timeDiscretization;</span>
+	}
+
+	/**
+	 * Construct a tenor from a time discretization.
+	 *
+	 * @param timeDiscretization A time discretization.
+	 */
+	public TenorFromArray(final double[] timeDiscretization) {
+<span class="nc" id="L60">		super(timeDiscretization);</span>
+		// TODO Auto-generated constructor stub
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * Construct a tenor from a time discretization.
+	 *
+	 * @param timeDiscretization A time discretization.
+	 */
+	public TenorFromArray(final Double[] timeDiscretization) {
+<span class="nc" id="L70">		super(timeDiscretization);</span>
+		// TODO Auto-generated constructor stub
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Construct a tenor from meta data.
+	 *
+	 * @param initial First discretization point.
+	 * @param numberOfTimeSteps Number of time steps.
+	 * @param deltaT Time step size.
+	 */
+	public TenorFromArray(final double initial, final int numberOfTimeSteps, final double deltaT) {
+<span class="nc" id="L82">		super(initial, numberOfTimeSteps, deltaT);</span>
+		// TODO Auto-generated constructor stub
+<span class="nc" id="L84">	}</span>
+
+	/**
+	 * Construct a tenor from meta data.
+	 *
+	 * @param initial First discretization point.
+	 * @param last Last time steps.
+	 * @param deltaT Time step size.
+	 * @param shortPeriodLocation Placement of the stub period.
+	 */
+	public TenorFromArray(final double initial, final double last, final double deltaT, final ShortPeriodLocation shortPeriodLocation) {
+<span class="nc" id="L95">		super(initial, last, deltaT, shortPeriodLocation);</span>
+		// TODO Auto-generated constructor stub
+<span class="nc" id="L97">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.Tenor#getReferenceDate()
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L104">		return referenceDate;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.Tenor#getDate(int)
+	 */
+	@Override
+	public LocalDate getDate(final int timeIndex) {
+<span class="nc" id="L112">		return dates[timeIndex];</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.Tenor#getDaycountFraction(int)
+	 */
+	@Override
+	public double getDaycountFraction(final int timeIndex) {
+<span class="nc" id="L120">		return this.getTimeStep(timeIndex);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L125">		String datesOutputString = &quot;[&quot;;</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		for(int iDate=0; iDate&lt;dates.length; iDate++) {</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">			datesOutputString += dates[iDate].toString() + (iDate==dates.length-1 ? &quot;&quot; : &quot;, &quot;);</span>
+		}
+<span class="nc" id="L129">		datesOutputString += &quot;]&quot;;</span>
+
+<span class="nc" id="L131">		return &quot;TenorFromArray [referenceDate=&quot; + referenceDate + &quot;, dates=&quot; + datesOutputString + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

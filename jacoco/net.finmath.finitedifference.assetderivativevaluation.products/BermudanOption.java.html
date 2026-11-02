@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BermudanOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">BermudanOption.java</span></div><h1>BermudanOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.modelling.BermudanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Finite difference valuation of a Bermudan option on a single asset.
+ *
+ * &lt;p&gt;
+ * Exercise times are specified in running time and converted internally to the
+ * solver's time-to-maturity coordinates through
+ * {@link FiniteDifferenceExerciseUtil}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BermudanOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put sign.
+	 */
+	private final CallOrPut callOrPutSign;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param exerciseTimes The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public BermudanOption(
+			final String underlyingName,
+			final double[] exerciseTimes,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L61">		this(</span>
+				underlyingName,
+				exerciseTimes,
+				strike,
+<span class="nc" id="L65">				mapCallOrPut(callOrPutSign)</span>
+				);
+<span class="nc" id="L67">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param underlyingName The value.
+	 * @param exerciseTimes The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public BermudanOption(
+			final String underlyingName,
+			final double[] exerciseTimes,
+			final double strike,
+<span class="nc" id="L81">			final CallOrPut callOrPutSign) {</span>
+
+<span class="nc bnc" id="L83" title="All 4 branches missed.">		if (exerciseTimes == null || exerciseTimes.length == 0) {</span>
+<span class="nc" id="L84">			throw new IllegalArgumentException(&quot;Exercise times must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc" id="L87">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L88">		this.exercise = new BermudanExercise(exerciseTimes);</span>
+<span class="nc" id="L89">		this.maturity = this.exercise.getMaturity();</span>
+<span class="nc" id="L90">		this.strike = strike;</span>
+<span class="nc" id="L91">		this.callOrPutSign = callOrPutSign;</span>
+<span class="nc" id="L92">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param exerciseTimes The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public BermudanOption(
+			final double[] exerciseTimes,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L105">		this(null, exerciseTimes, strike, callOrPutSign);</span>
+<span class="nc" id="L106">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param exerciseTimes The value.
+	 * @param strike The value.
+	 * @param callOrPutSign The value.
+	 */
+	public BermudanOption(
+			final double[] exerciseTimes,
+			final double strike,
+			final CallOrPut callOrPutSign) {
+<span class="nc" id="L119">		this(null, exerciseTimes, strike, callOrPutSign);</span>
+<span class="nc" id="L120">	}</span>
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L124">		final SpaceTimeDiscretization refinedDiscretization = getRefinedSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L125">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, refinedDiscretization, exercise);</span>
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L128">			return solver.getValue(</span>
+					evaluationTime,
+					maturity,
+<span class="nc" id="L131">					assetValue -&gt; Math.max(assetValue - strike, 0.0)</span>
+					);
+		} else {
+<span class="nc" id="L134">			return solver.getValue(</span>
+					evaluationTime,
+					maturity,
+<span class="nc" id="L137">					assetValue -&gt; Math.max(strike - assetValue, 0.0)</span>
+					);
+		}
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L144">		final SpaceTimeDiscretization refinedDiscretization = getRefinedSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L145">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, refinedDiscretization, exercise);</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L148">			return solver.getValues(maturity, assetValue -&gt; Math.max(assetValue - strike, 0.0));</span>
+		} else {
+<span class="nc" id="L150">			return solver.getValues(maturity, assetValue -&gt; Math.max(strike - assetValue, 0.0));</span>
+		}
+	}
+
+	private SpaceTimeDiscretization getRefinedSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L155">		final SpaceTimeDiscretization base = model.getSpaceTimeDiscretization();</span>
+
+<span class="nc" id="L157">		final TimeDiscretization refinedTimeDiscretization =</span>
+<span class="nc" id="L158">				FiniteDifferenceExerciseUtil.refineTimeDiscretization(</span>
+<span class="nc" id="L159">						base.getTimeDiscretization(),</span>
+						exercise
+						);
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		if (base.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L164">			return new SpaceTimeDiscretization(</span>
+<span class="nc" id="L165">					base.getSpaceGrid(0),</span>
+					refinedTimeDiscretization,
+<span class="nc" id="L167">					base.getTheta(),</span>
+<span class="nc" id="L168">					new double[] {base.getCenter(0) }</span>
+					);
+		}
+
+<span class="nc" id="L172">		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L173">		final Grid[] spaceGrids = new Grid[numberOfSpaceGrids];</span>
+<span class="nc" id="L174">		final double[] center = new double[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L177">			spaceGrids[i] = base.getSpaceGrid(i);</span>
+<span class="nc" id="L178">			center[i] = base.getCenter(i);</span>
+		}
+
+<span class="nc" id="L181">		return new SpaceTimeDiscretization(</span>
+				spaceGrids,
+				refinedTimeDiscretization,
+<span class="nc" id="L184">				base.getTheta(),</span>
+				center
+				);
+	}
+
+	private static CallOrPut mapCallOrPut(final double callOrPutSign) {
+<span class="nc bnc" id="L190" title="All 2 branches missed.">		if (callOrPutSign == 1.0) {</span>
+<span class="nc" id="L191">			return CallOrPut.CALL;</span>
+		}
+<span class="nc bnc" id="L193" title="All 2 branches missed.">		if (callOrPutSign == -1.0) {</span>
+<span class="nc" id="L194">			return CallOrPut.PUT;</span>
+		}
+<span class="nc" id="L196">		throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L205">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L214">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getStrike() {
+<span class="nc" id="L223">		return strike;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L232">		return callOrPutSign;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L241">		return exercise;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,643 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DupireLocalVolatility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">DupireLocalVolatility.java</span></div><h1>DupireLocalVolatility.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.util.Objects;
+
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+
+/**
+ * Local volatility provider based on an interpolated option surface.
+ *
+ * &lt;p&gt;
+ * The class supports two formulas:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;Dupire's formula from option prices,&lt;/li&gt;
+ * &lt;li&gt;Gatheral's formula from Black-Scholes implied lognormal
+ * volatilities.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The class is a concrete implementation of {@link LocalVolatility}. It is
+ * intended to be framework-neutral and may be used by finite-difference models
+ * and Monte Carlo models alike.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The supplied {@link OptionSurfaceDataInterpolated} remains responsible only
+ * for interpolation and quoting-convention conversion. This class is
+ * responsible
+ * only for computing the local volatility from that surface.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If the formula is set to {@link LocalVolatilityFormula#AUTOMATIC}, then:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;{@link QuotingConvention#PRICE} uses Dupire's price formula,&lt;/li&gt;
+ * &lt;li&gt;{@link QuotingConvention#VOLATILITYLOGNORMAL} uses Gatheral's
+ * formula.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * If a formula is selected explicitly, the constructor creates the appropriate
+ * converted surface at the original nodes by using
+ * {@link OptionSurfaceDataInterpolated#getCloneForQuotingConvention(QuotingConv
+ * ention)}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DupireLocalVolatility implements LocalVolatility {
+
+	/**
+	 * Formula used to compute the local volatility.
+	 *
+	 * @author Alessandro Gnoatto
+	 */
+<span class="nc" id="L57">	public enum LocalVolatilityFormula {</span>
+
+		/**
+		 * Infer the formula from the surface quoting convention.
+		 */
+<span class="nc" id="L62">		AUTOMATIC,</span>
+
+		/**
+		 * Use Dupire's formula from option prices.
+		 */
+<span class="nc" id="L67">		DUPIRE_FROM_PRICES,</span>
+
+		/**
+		 * Use Gatheral's formula from Black-Scholes implied lognormal
+		 * volatilities.
+		 */
+<span class="nc" id="L73">		GATHERAL_FROM_IMPLIED_VOLATILITIES</span>
+	}
+
+	/**
+	 * Policy for negative or numerically unstable local variances.
+	 *
+	 * @author Alessandro Gnoatto
+	 */
+<span class="nc" id="L81">	public enum NegativeLocalVarianceHandling {</span>
+
+		/**
+		 * Replace negative values by a variance floor.
+		 */
+<span class="nc" id="L86">		FLOOR_AT_ZERO,</span>
+
+		/**
+		 * Take the absolute value. This reproduces the behavior of the original
+		 * prototype but may hide arbitrage or interpolation issues.
+		 */
+<span class="nc" id="L92">		ABSOLUTE_VALUE,</span>
+
+		/**
+		 * Throw an exception if the local variance is below the floor.
+		 */
+<span class="nc" id="L97">		THROW_EXCEPTION</span>
+	}
+
+	/**
+	 * The default time epsilon.
+	 */
+	private static final double DEFAULT_TIME_EPSILON = 1E-5;
+	/**
+	 * The default strike epsilon factor.
+	 */
+	private static final double DEFAULT_STRIKE_EPSILON_FACTOR = 1E-5;
+	/**
+	 * The default variance floor.
+	 */
+	private static final double DEFAULT_VARIANCE_FLOOR = 0.0;
+
+	/**
+	 * The quote surface.
+	 */
+	private final OptionSurfaceDataInterpolated quoteSurface;
+	/**
+	 * The formula surface.
+	 */
+	private final OptionSurfaceDataInterpolated formulaSurface;
+
+	/**
+	 * The requested formula.
+	 */
+	private final LocalVolatilityFormula requestedFormula;
+	/**
+	 * The effective formula.
+	 */
+	private final LocalVolatilityFormula effectiveFormula;
+
+	/**
+	 * The time epsilon.
+	 */
+	private final double timeEpsilon;
+	/**
+	 * The strike epsilon factor.
+	 */
+	private final double strikeEpsilonFactor;
+	/**
+	 * The variance floor.
+	 */
+	private final double varianceFloor;
+
+	/**
+	 * The negative local variance handling.
+	 */
+	private final NegativeLocalVarianceHandling negativeLocalVarianceHandling;
+
+	/**
+	 * Creates a Dupire local volatility provider using automatic formula
+	 * selection.
+	 *
+	 * @param quoteSurface The interpolated option surface.
+	 */
+	public DupireLocalVolatility(final OptionSurfaceDataInterpolated quoteSurface) {
+<span class="nc" id="L156">		this(</span>
+				quoteSurface,
+				LocalVolatilityFormula.AUTOMATIC,
+				DEFAULT_TIME_EPSILON,
+				DEFAULT_STRIKE_EPSILON_FACTOR,
+				DEFAULT_VARIANCE_FLOOR,
+				NegativeLocalVarianceHandling.FLOOR_AT_ZERO
+				);
+<span class="nc" id="L164">	}</span>
+
+	/**
+	 * Creates a Dupire local volatility provider using the selected formula.
+	 *
+	 * @param quoteSurface The interpolated option surface.
+	 * @param formula The formula to be used.
+	 */
+	public DupireLocalVolatility(
+			final OptionSurfaceDataInterpolated quoteSurface,
+			final LocalVolatilityFormula formula) {
+
+<span class="nc" id="L176">		this(</span>
+				quoteSurface,
+				formula,
+				DEFAULT_TIME_EPSILON,
+				DEFAULT_STRIKE_EPSILON_FACTOR,
+				DEFAULT_VARIANCE_FLOOR,
+				NegativeLocalVarianceHandling.FLOOR_AT_ZERO
+				);
+<span class="nc" id="L184">	}</span>
+
+	/**
+	 * Creates a Dupire local volatility provider.
+	 *
+	 * @param quoteSurface The interpolated option surface.
+	 * @param formula The formula to be used.
+	 * @param timeEpsilon The finite-difference bump in time.
+	 * @param strikeEpsilonFactor The relative finite-difference bump in strike.
+	 * @param varianceFloor The local variance floor.
+	 * @param negativeLocalVarianceHandling The policy for negative local
+	 *     variances.
+	 */
+	public DupireLocalVolatility(
+			final OptionSurfaceDataInterpolated quoteSurface,
+			final LocalVolatilityFormula formula,
+			final double timeEpsilon,
+			final double strikeEpsilonFactor,
+			final double varianceFloor,
+<span class="nc" id="L203">			final NegativeLocalVarianceHandling negativeLocalVarianceHandling) {</span>
+
+<span class="nc" id="L205">		this.quoteSurface = Objects.requireNonNull(quoteSurface, &quot;quoteSurface&quot;);</span>
+<span class="nc" id="L206">		this.requestedFormula = Objects.requireNonNull(formula, &quot;formula&quot;);</span>
+<span class="nc" id="L207">		this.effectiveFormula = resolveFormula(quoteSurface, formula);</span>
+<span class="nc" id="L208">		this.formulaSurface = createFormulaSurface(quoteSurface, effectiveFormula);</span>
+
+<span class="nc bnc" id="L210" title="All 6 branches missed.">		if (timeEpsilon &lt;= 0.0 || Double.isNaN(timeEpsilon) || Double.isInfinite(timeEpsilon)) {</span>
+<span class="nc" id="L211">			throw new IllegalArgumentException(&quot;timeEpsilon must be positive and finite.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		if (strikeEpsilonFactor &lt;= 0.0</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">				|| Double.isNaN(strikeEpsilonFactor)</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				|| Double.isInfinite(strikeEpsilonFactor)) {</span>
+<span class="nc" id="L217">			throw new IllegalArgumentException(&quot;strikeEpsilonFactor must be positive and finite.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L220" title="All 6 branches missed.">		if (varianceFloor &lt; 0.0 || Double.isNaN(varianceFloor) || Double.isInfinite(varianceFloor)) {</span>
+<span class="nc" id="L221">			throw new IllegalArgumentException(&quot;varianceFloor must be non-negative and finite.&quot;);</span>
+		}
+
+<span class="nc" id="L224">		this.timeEpsilon = timeEpsilon;</span>
+<span class="nc" id="L225">		this.strikeEpsilonFactor = strikeEpsilonFactor;</span>
+<span class="nc" id="L226">		this.varianceFloor = varianceFloor;</span>
+<span class="nc" id="L227">		this.negativeLocalVarianceHandling =</span>
+<span class="nc" id="L228">				Objects.requireNonNull(negativeLocalVarianceHandling, &quot;negativeLocalVarianceHandling&quot;);</span>
+<span class="nc" id="L229">	}</span>
+
+	@Override
+	public double getValue(final double time, final double assetValue) {
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (assetValue &lt;= 0.0) {</span>
+<span class="nc" id="L235">			return 0.0;</span>
+		}
+
+		final double localVariance;
+
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		if (effectiveFormula == LocalVolatilityFormula.DUPIRE_FROM_PRICES) {</span>
+<span class="nc" id="L241">			localVariance = getLocalVarianceFromOptionPrices(time, assetValue);</span>
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		} else if (effectiveFormula == LocalVolatilityFormula.GATHERAL_FROM_IMPLIED_VOLATILITIES) {</span>
+<span class="nc" id="L243">			localVariance = getLocalVarianceFromImpliedVolatilities(time, assetValue);</span>
+		} else {
+<span class="nc" id="L245">			throw new IllegalStateException(&quot;Unresolved local volatility formula.&quot;);</span>
+		}
+
+<span class="nc" id="L248">		return Math.sqrt(handleLocalVariance(localVariance, time, assetValue));</span>
+	}
+
+	/**
+	 * Returns the local variance from Dupire's formula applied to option
+	 * prices.
+	 *
+	 * @param time The option maturity.
+	 * @param strike The strike, interpreted as the asset value at which local
+	 *     volatility is evaluated.
+	 * @return The local variance.
+	 */
+	public double getLocalVarianceFromOptionPrices(final double time, final double strike) {
+
+<span class="nc" id="L262">		final double t = makeTimeSafe(time);</span>
+<span class="nc" id="L263">		final double k = makeStrikeSafe(strike);</span>
+
+<span class="nc" id="L265">		final double price = formulaSurface.getValue(t, k, QuotingConvention.PRICE);</span>
+
+<span class="nc" id="L267">		final double r = getRiskFreeRate(t);</span>
+<span class="nc" id="L268">		final double q = getDividendYieldRate(t);</span>
+
+<span class="nc" id="L270">		final double dT = getFirstTimeDerivative(formulaSurface, t, k, QuotingConvention.PRICE, price);</span>
+<span class="nc" id="L271">		final double dK = getFirstStrikeDerivative(formulaSurface, t, k, QuotingConvention.PRICE, price);</span>
+<span class="nc" id="L272">		final double dKK = getSecondStrikeDerivative(formulaSurface, t, k, QuotingConvention.PRICE, price);</span>
+
+<span class="nc" id="L274">		final double numerator = 2.0 * (dT + q * price + (r - q) * k * dK);</span>
+<span class="nc" id="L275">		final double denominator = k * k * dKK;</span>
+
+<span class="nc bnc" id="L277" title="All 2 branches missed.">		if (Math.abs(denominator) &lt; 1E-16) {</span>
+<span class="nc" id="L278">			throw new ArithmeticException(</span>
+					&quot;Dupire denominator is numerically zero at time &quot;
+							+ t + &quot; and strike &quot; + k + &quot;.&quot;
+					);
+		}
+
+<span class="nc" id="L284">		return numerator / denominator;</span>
+	}
+
+	/**
+	 * Returns the local volatility from Dupire's formula applied to option
+	 * prices.
+	 *
+	 * @param time The option maturity.
+	 * @param strike The strike, interpreted as the asset value at which local
+	 *     volatility is evaluated.
+	 * @return The local volatility.
+	 */
+	public double getLocalVolatilityFromOptionPrices(final double time, final double strike) {
+<span class="nc" id="L297">		return Math.sqrt(handleLocalVariance(getLocalVarianceFromOptionPrices(time, strike), time, strike));</span>
+	}
+
+	/**
+	 * Returns the local variance from Gatheral's implied-volatility formula.
+	 *
+	 * @param time The option maturity.
+	 * @param strike The strike, interpreted as the asset value at which local
+	 *     volatility is evaluated.
+	 * @return The local variance.
+	 */
+	public double getLocalVarianceFromImpliedVolatilities(final double time, final double strike) {
+
+<span class="nc" id="L310">		final double t = makeTimeSafe(time);</span>
+<span class="nc" id="L311">		final double k = makeStrikeSafe(strike);</span>
+
+<span class="nc" id="L313">		final double volatility =</span>
+<span class="nc" id="L314">				formulaSurface.getValue(t, k, QuotingConvention.VOLATILITYLOGNORMAL);</span>
+
+<span class="nc bnc" id="L316" title="All 2 branches missed.">		if (volatility &lt;= 0.0) {</span>
+<span class="nc" id="L317">			return 0.0;</span>
+		}
+
+<span class="nc" id="L320">		final double forward = getForward(t);</span>
+<span class="nc" id="L321">		final double drift = Math.log(forward / getSpot()) / t;</span>
+
+<span class="nc" id="L323">		final double dT = getFirstTimeDerivative(</span>
+				formulaSurface,
+				t,
+				k,
+				QuotingConvention.VOLATILITYLOGNORMAL,
+				volatility
+				);
+
+<span class="nc" id="L331">		final double dK = getFirstStrikeDerivative(</span>
+				formulaSurface,
+				t,
+				k,
+				QuotingConvention.VOLATILITYLOGNORMAL,
+				volatility
+				);
+
+<span class="nc" id="L339">		final double dKK = getSecondStrikeDerivative(</span>
+				formulaSurface,
+				t,
+				k,
+				QuotingConvention.VOLATILITYLOGNORMAL,
+				volatility
+				);
+
+<span class="nc" id="L347">		final double h1 =</span>
+<span class="nc" id="L348">				(Math.log(getSpot() / k) + (drift + 0.5 * volatility * volatility) * t)</span>
+				/ volatility;
+
+<span class="nc" id="L351">		final double h2 = h1 - volatility * t;</span>
+
+<span class="nc" id="L353">		final double numerator =</span>
+				volatility * volatility
+				+ 2.0 * volatility * t * (dT + drift * k * dK);
+
+<span class="nc" id="L357">		final double denominator =</span>
+				1.0
+				+ 2.0 * h1 * k * dK
+				+ k * k * (h1 * h2 * dK * dK + t * volatility * dKK);
+
+<span class="nc bnc" id="L362" title="All 2 branches missed.">		if (Math.abs(denominator) &lt; 1E-16) {</span>
+<span class="nc" id="L363">			throw new ArithmeticException(</span>
+					&quot;Gatheral denominator is numerically zero at time &quot;
+							+ t + &quot; and strike &quot; + k + &quot;.&quot;
+					);
+		}
+
+<span class="nc" id="L369">		return numerator / denominator;</span>
+	}
+
+	/**
+	 * Returns the local volatility from Gatheral's implied-volatility formula.
+	 *
+	 * @param time The option maturity.
+	 * @param strike The strike, interpreted as the asset value at which local
+	 *     volatility is evaluated.
+	 * @return The local volatility.
+	 */
+	public double getLocalVolatilityFromImpliedVolatilities(final double time, final double strike) {
+<span class="nc" id="L381">		return Math.sqrt(handleLocalVariance(getLocalVarianceFromImpliedVolatilities(time, strike), time, strike));</span>
+	}
+
+	/**
+	 * Returns the input quote surface.
+	 *
+	 * @return The input quote surface.
+	 */
+	public OptionSurfaceDataInterpolated getQuoteSurface() {
+<span class="nc" id="L390">		return quoteSurface;</span>
+	}
+
+	/**
+	 * Returns the surface actually used by the formula.
+	 * &lt;p&gt;
+	 * For Dupire from prices, this is a price surface. For Gatheral, this is a
+	 * lognormal implied-volatility surface.
+	 * &lt;/p&gt;
+	 *
+	 * @return The formula surface.
+	 */
+	public OptionSurfaceDataInterpolated getFormulaSurface() {
+<span class="nc" id="L403">		return formulaSurface;</span>
+	}
+
+	/**
+	 * Returns the requested formula.
+	 *
+	 * @return The requested formula.
+	 */
+	public LocalVolatilityFormula getRequestedFormula() {
+<span class="nc" id="L412">		return requestedFormula;</span>
+	}
+
+	/**
+	 * Returns the effective formula.
+	 *
+	 * @return The effective formula.
+	 */
+	public LocalVolatilityFormula getEffectiveFormula() {
+<span class="nc" id="L421">		return effectiveFormula;</span>
+	}
+
+	/**
+	 * Returns the finite-difference bump in time.
+	 *
+	 * @return The time bump.
+	 */
+	public double getTimeEpsilon() {
+<span class="nc" id="L430">		return timeEpsilon;</span>
+	}
+
+	/**
+	 * Returns the relative finite-difference bump in strike.
+	 *
+	 * @return The strike bump factor.
+	 */
+	public double getStrikeEpsilonFactor() {
+<span class="nc" id="L439">		return strikeEpsilonFactor;</span>
+	}
+
+	/**
+	 * Returns the local variance floor.
+	 *
+	 * @return The variance floor.
+	 */
+	public double getVarianceFloor() {
+<span class="nc" id="L448">		return varianceFloor;</span>
+	}
+
+	/**
+	 * Returns the negative local variance handling policy.
+	 *
+	 * @return The policy.
+	 */
+	public NegativeLocalVarianceHandling getNegativeLocalVarianceHandling() {
+<span class="nc" id="L457">		return negativeLocalVarianceHandling;</span>
+	}
+
+	private static LocalVolatilityFormula resolveFormula(
+			final OptionSurfaceDataInterpolated surface,
+			final LocalVolatilityFormula formula) {
+
+<span class="nc bnc" id="L464" title="All 2 branches missed.">		if (formula != LocalVolatilityFormula.AUTOMATIC) {</span>
+<span class="nc" id="L465">			return formula;</span>
+		}
+
+<span class="nc bnc" id="L468" title="All 2 branches missed.">		if (surface.getQuotingConvention() == QuotingConvention.PRICE) {</span>
+<span class="nc" id="L469">			return LocalVolatilityFormula.DUPIRE_FROM_PRICES;</span>
+		}
+
+<span class="nc bnc" id="L472" title="All 2 branches missed.">		if (surface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL) {</span>
+<span class="nc" id="L473">			return LocalVolatilityFormula.GATHERAL_FROM_IMPLIED_VOLATILITIES;</span>
+		}
+
+<span class="nc" id="L476">		throw new IllegalArgumentException(</span>
+				&quot;Automatic local volatility formula selection supports only PRICE &quot;
+						+ &quot;and VOLATILITYLOGNORMAL surfaces.&quot;
+				);
+	}
+
+	private static OptionSurfaceDataInterpolated createFormulaSurface(
+			final OptionSurfaceDataInterpolated surface,
+			final LocalVolatilityFormula formula) {
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">		if (formula == LocalVolatilityFormula.DUPIRE_FROM_PRICES) {</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">			return surface.getQuotingConvention() == QuotingConvention.PRICE</span>
+<span class="nc" id="L488">					? surface</span>
+<span class="nc" id="L489">							: surface.getCloneForQuotingConvention(QuotingConvention.PRICE);</span>
+		}
+
+<span class="nc bnc" id="L492" title="All 2 branches missed.">		if (formula == LocalVolatilityFormula.GATHERAL_FROM_IMPLIED_VOLATILITIES) {</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">			return surface.getQuotingConvention() == QuotingConvention.VOLATILITYLOGNORMAL</span>
+<span class="nc" id="L494">					? surface</span>
+<span class="nc" id="L495">							: surface.getCloneForQuotingConvention(QuotingConvention.VOLATILITYLOGNORMAL);</span>
+		}
+
+<span class="nc" id="L498">		throw new IllegalArgumentException(&quot;Unsupported formula: &quot; + formula);</span>
+	}
+
+	private double getFirstTimeDerivative(
+			final OptionSurfaceDataInterpolated surface,
+			final double time,
+			final double strike,
+			final QuotingConvention quotingConvention,
+			final double mid) {
+
+<span class="nc bnc" id="L508" title="All 2 branches missed.">		if (time &lt;= timeEpsilon) {</span>
+<span class="nc" id="L509">			final double up = surface.getValue(time + timeEpsilon, strike, quotingConvention);</span>
+<span class="nc" id="L510">			return (up - mid) / timeEpsilon;</span>
+		}
+
+<span class="nc" id="L513">		final double up = surface.getValue(time + timeEpsilon, strike, quotingConvention);</span>
+<span class="nc" id="L514">		final double down = surface.getValue(time - timeEpsilon, strike, quotingConvention);</span>
+
+<span class="nc" id="L516">		return (up - down) / (2.0 * timeEpsilon);</span>
+	}
+
+	private double getFirstStrikeDerivative(
+			final OptionSurfaceDataInterpolated surface,
+			final double time,
+			final double strike,
+			final QuotingConvention quotingConvention,
+			final double mid) {
+
+<span class="nc" id="L526">		final double eps = getStrikeEpsilon();</span>
+
+<span class="nc bnc" id="L528" title="All 2 branches missed.">		if (strike &lt;= eps) {</span>
+<span class="nc" id="L529">			final double up = surface.getValue(time, strike + eps, quotingConvention);</span>
+<span class="nc" id="L530">			return (up - mid) / eps;</span>
+		}
+
+<span class="nc" id="L533">		final double up = surface.getValue(time, strike + eps, quotingConvention);</span>
+<span class="nc" id="L534">		final double down = surface.getValue(time, strike - eps, quotingConvention);</span>
+
+<span class="nc" id="L536">		return (up - down) / (2.0 * eps);</span>
+	}
+
+	private double getSecondStrikeDerivative(
+			final OptionSurfaceDataInterpolated surface,
+			final double time,
+			final double strike,
+			final QuotingConvention quotingConvention,
+			final double mid) {
+
+<span class="nc" id="L546">		final double eps = getStrikeEpsilon();</span>
+
+		final double center;
+		final double offset;
+
+<span class="nc bnc" id="L551" title="All 2 branches missed.">		if (strike &lt;= eps) {</span>
+<span class="nc" id="L552">			offset = eps - strike;</span>
+<span class="nc" id="L553">			center = surface.getValue(time, strike + offset, quotingConvention);</span>
+		} else {
+<span class="nc" id="L555">			offset = 0.0;</span>
+<span class="nc" id="L556">			center = mid;</span>
+		}
+
+<span class="nc" id="L559">		final double up = surface.getValue(time, strike + eps + offset, quotingConvention);</span>
+<span class="nc" id="L560">		final double down = surface.getValue(time, strike - eps + offset, quotingConvention);</span>
+
+<span class="nc" id="L562">		return (up + down - 2.0 * center) / (eps * eps);</span>
+	}
+
+	private double handleLocalVariance(
+			final double localVariance,
+			final double time,
+			final double strike) {
+
+<span class="nc bnc" id="L570" title="All 4 branches missed.">		if (Double.isNaN(localVariance) || Double.isInfinite(localVariance)) {</span>
+<span class="nc" id="L571">			throw new ArithmeticException(</span>
+					&quot;Local variance is not finite at time &quot;
+							+ time + &quot; and strike &quot; + strike + &quot;.&quot;
+					);
+		}
+
+<span class="nc bnc" id="L577" title="All 2 branches missed.">		if (localVariance &gt;= varianceFloor) {</span>
+<span class="nc" id="L578">			return localVariance;</span>
+		}
+
+<span class="nc bnc" id="L581" title="All 2 branches missed.">		if (negativeLocalVarianceHandling == NegativeLocalVarianceHandling.FLOOR_AT_ZERO) {</span>
+<span class="nc" id="L582">			return varianceFloor;</span>
+		}
+
+<span class="nc bnc" id="L585" title="All 2 branches missed.">		if (negativeLocalVarianceHandling == NegativeLocalVarianceHandling.ABSOLUTE_VALUE) {</span>
+<span class="nc" id="L586">			return Math.max(Math.abs(localVariance), varianceFloor);</span>
+		}
+
+<span class="nc" id="L589">		throw new ArithmeticException(</span>
+				&quot;Negative local variance &quot; + localVariance
+				+ &quot; at time &quot; + time
+				+ &quot; and strike &quot; + strike + &quot;.&quot;
+				);
+	}
+
+	private double makeTimeSafe(final double time) {
+
+<span class="nc bnc" id="L598" title="All 4 branches missed.">		if (Double.isNaN(time) || Double.isInfinite(time)) {</span>
+<span class="nc" id="L599">			throw new IllegalArgumentException(&quot;time must be finite.&quot;);</span>
+		}
+
+<span class="nc" id="L602">		return Math.max(time, timeEpsilon);</span>
+	}
+
+	private double makeStrikeSafe(final double strike) {
+
+<span class="nc bnc" id="L607" title="All 4 branches missed.">		if (Double.isNaN(strike) || Double.isInfinite(strike)) {</span>
+<span class="nc" id="L608">			throw new IllegalArgumentException(&quot;strike must be finite.&quot;);</span>
+		}
+
+<span class="nc" id="L611">		return Math.max(strike, getStrikeEpsilon());</span>
+	}
+
+	private double getStrikeEpsilon() {
+<span class="nc" id="L615">		return Math.max(Math.abs(getSpot()) * strikeEpsilonFactor, strikeEpsilonFactor);</span>
+	}
+
+	private double getSpot() {
+<span class="nc" id="L619">		return formulaSurface.getEquityForwardCurve().getValue(0.0);</span>
+	}
+
+	private double getForward(final double time) {
+<span class="nc" id="L623">		return formulaSurface.getEquityForwardCurve().getValue(time);</span>
+	}
+
+	private double getDiscountFactor(final double time) {
+<span class="nc" id="L627">		return formulaSurface.getDiscountCurve().getDiscountFactor(time);</span>
+	}
+
+	private double getRiskFreeRate(final double time) {
+<span class="nc" id="L631">		return -Math.log(getDiscountFactor(time)) / time;</span>
+	}
+
+	private double getDividendYieldRate(final double time) {
+
+<span class="nc" id="L636">		final double spot = getSpot();</span>
+<span class="nc" id="L637">		final double forward = getForward(time);</span>
+<span class="nc" id="L638">		final double riskFreeRate = getRiskFreeRate(time);</span>
+
+<span class="nc" id="L640">		return riskFreeRate - Math.log(forward / spot) / time;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

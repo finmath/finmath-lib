@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NumerairePerformanceOnScheduleIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">NumerairePerformanceOnScheduleIndex.java</span></div><h1>NumerairePerformanceOnScheduleIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 01.01.2019
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+
+/**
+ * A (floating) rate index representing the performance of the numeraire asset.
+ *
+ * The index is given give
+ * \( F = \frac{1}{dc(t-s)} ( N(t)/N(s) - 1 ) \).
+ * where \( s \) denotes the period start and  \( t \) denotes the period end and dc is a given daycount convention.
+ *
+ * The index fetches fixing, payment and daycount conventions, etc. from a given schedule.
+ * The index fails to evaluate
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class NumerairePerformanceOnScheduleIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 1L;
+
+	private final Schedule schedule;
+
+	public NumerairePerformanceOnScheduleIndex(final String name, final String currency, final Schedule schedule) {
+<span class="nc" id="L42">		super(name, currency);</span>
+<span class="nc" id="L43">		this.schedule = schedule;</span>
+<span class="nc" id="L44">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		/*
+		 * The periodLength may be a given float or (more exact) derived from the rolling convetions.
+		 */
+<span class="nc" id="L52">		final double fixingTime = evaluationTime;</span>
+<span class="nc" id="L53">		final Period period = getPeriod(FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate(), fixingTime));</span>
+
+<span class="nc" id="L55">		final LocalDate paymentDate = period.getPayment();</span>
+<span class="nc" id="L56">		final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), paymentDate);</span>
+
+<span class="nc" id="L58">		final double periodLength = schedule.getDaycountconvention().getDaycountFraction(period.getPeriodStart(), period.getPeriodEnd());</span>
+
+		/*
+		 * Fetch numeraire performance rate from model
+		 */
+<span class="nc" id="L63">		final RandomVariable numeraireAtStart = model.getNumeraire(fixingTime);</span>
+<span class="nc" id="L64">		final RandomVariable numeraireAtEnd = model.getNumeraire(paymentTime);</span>
+
+<span class="nc" id="L66">		RandomVariable numeraireRatio = numeraireAtEnd.div(numeraireAtStart);</span>
+
+<span class="nc bnc" id="L68" title="All 4 branches missed.">		if(getName() != null &amp;&amp; !model.getModel().getDiscountCurve().getName().equals(getName())) {</span>
+			// Perform a multiplicative adjustment on the forward bonds
+<span class="nc" id="L70">			final AnalyticModel analyticModel = model.getModel().getAnalyticModel();</span>
+<span class="nc" id="L71">			final DiscountCurve indexDiscountCurve = analyticModel.getDiscountCurve(getName());</span>
+<span class="nc" id="L72">			final DiscountCurve modelDisountCurve = model.getModel().getDiscountCurve();</span>
+<span class="nc" id="L73">			final double forwardBondOnIndexCurve = indexDiscountCurve.getDiscountFactor(analyticModel, fixingTime)/indexDiscountCurve.getDiscountFactor(analyticModel, paymentTime);</span>
+<span class="nc" id="L74">			final double forwardBondOnModelCurve = modelDisountCurve.getDiscountFactor(analyticModel, fixingTime)/modelDisountCurve.getDiscountFactor(analyticModel, paymentTime);</span>
+<span class="nc" id="L75">			final double adjustment = forwardBondOnModelCurve/forwardBondOnIndexCurve;</span>
+<span class="nc" id="L76">			numeraireRatio = numeraireRatio.mult(adjustment);</span>
+		}
+
+<span class="nc" id="L79">		final RandomVariable forwardRate = numeraireRatio.sub(1.0).div(periodLength);</span>
+
+<span class="nc" id="L81">		return forwardRate;</span>
+	}
+
+	private Period getPeriod(final LocalDateTime localDateTime) {
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		for(final Period period : schedule.getPeriods()) {</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">			if(period.getFixing().isEqual(localDateTime.toLocalDate())) {</span>
+<span class="nc" id="L87">				return period;</span>
+			}
+<span class="nc" id="L89">		}</span>
+
+<span class="nc" id="L91">		return null;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L96">		final Set&lt;String&gt; underlyingNames = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L97">		underlyingNames.add(getName());</span>
+<span class="nc" id="L98">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L103">		return &quot;NumerairePerformanceOnScheduleIndex [schedule=&quot; + schedule + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

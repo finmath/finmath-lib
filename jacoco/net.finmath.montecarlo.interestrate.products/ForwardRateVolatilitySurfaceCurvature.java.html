@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardRateVolatilitySurfaceCurvature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">ForwardRateVolatilitySurfaceCurvature.java</span></div><h1>ForwardRateVolatilitySurfaceCurvature.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 30.03.2014
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.models.covariance.LIBORCovarianceModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements the calculation of the curvature of the volatility surface of the forward rates.
+ *
+ * &lt;br&gt;
+ *
+ * The value returned by the &lt;code&gt;{@link #getValue(double, TermStructureMonteCarloSimulationModel)}&lt;/code&gt; method is calculated as follows:
+ * For each forward rate's instantaneous volatility &lt;i&gt;&amp;sigma;(t)&lt;/i&gt; we calculate
+ * \[	\sqrt{ \frac{1}{t_{n} - t_{1}} \sum_{i=1}^{n-1} ( f(t_{i}) )^{2} \cdot (t_{i+1} - t_{i}) } \]
+ * (this is the root mean square / L2 norm of &lt;i&gt;f&lt;/i&gt;) where
+ * \[	f(t_{i}) = \frac{ x_{i+2} - 2 x_{i+1} + x_{i} }{ (t_{i+2} - t_{i+1}) (t_{i+1} - t_{i}) } \]
+ * and where
+ * &lt;i&gt;
+ * 	x&lt;sub&gt;i&lt;/sub&gt; = &amp;sigma;&lt;sup&gt;2&lt;/sup&gt;(t&lt;sub&gt;i&lt;/sub&gt;)
+ * &lt;/i&gt; is the
+ * instantaneous variance of a specific forward rate.
+ *
+ * The value returned is then calculated as the average of all those curvatures for all forward rates.
+ *
+ * Note: A tolerance level can be specified. See the documentation of the constructor &lt;code&gt;{@link #ForwardRateVolatilitySurfaceCurvature(double)}&lt;/code&gt;.
+ *
+ * &lt;br&gt;
+ * &lt;br&gt;
+ *
+ * While this is not a common financial product, this class can be helpful in calibration procedures, e.g.
+ * to put an additional constrain on the smoothness / curvature of the model surface.
+ *
+ * &lt;br&gt;
+ * A rough interpretation of this product is a follows: If the value 0.25 is returned, then
+ * - on average - the variance of the forward rate oscillates by 0.25 per year, i.e. it moves up by 0.25 and back.
+ * This corresponds to a movement of 0.5 and back per year for the volatility.
+ * Given that you have 100 other calibrations products, and the weight of all (including this one) is 1.0, then
+ * 0.1% deviation of the other calibration products is considered as severe as 0.1 movement per year in the variance (0.3 movement in volatility).
+ * Note: You can control the relation of these by weights.
+ *
+ * @author Christian Fries
+ * @date 12.04.2014.
+ * @version 1.0
+ */
+public class ForwardRateVolatilitySurfaceCurvature extends AbstractTermStructureMonteCarloProduct {
+
+<span class="nc" id="L55">	private double tolerance = 0.0;</span>
+
+	/**
+	 * Create the calculation of the curvature of the volatility surface of the forward rates
+	 */
+	public ForwardRateVolatilitySurfaceCurvature() {
+<span class="nc" id="L61">		super();</span>
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * Create the calculation of the curvature of the volatility surface of the forward rates.
+	 *
+	 * A tolerance level may be specified. In that case, the curvature
+	 * calculated by the getValue method is approximately
+	 * &lt;br&gt;
+	 * &lt;i&gt;max(&lt;code&gt;curvature&lt;/code&gt; - &lt;code&gt;tolerance&lt;/code&gt;, 0)&lt;/i&gt;.
+	 * &lt;br&gt;
+	 *
+	 * A rough interpretation of the tolerance is as follows:
+	 * With a tolerance = 0.04, then
+	 * &lt;ul&gt;
+	 * 	&lt;li&gt;
+	 * 		the variance can oscillate once from 0.0 to 0.04 and back within a year
+	 * 		without generating a penalty term
+	 * 		(i.e., the volatility is allowed to oscillate once from 0.0 to 0.2 and back within a year), or
+	 * 	&lt;/li&gt;
+	 * 	&lt;li&gt;
+	 * 		the variance can oscillate twice from 0.0 to 0.02 and back within a year
+	 * 		without generating a penalty term
+	 * 		(i.e., the volatility is allowed to oscillate twice from 0.0 to 0.14 (sqrt(0.02)) and back).
+	 * 	&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param tolerance The tolerance level.
+	 */
+	public ForwardRateVolatilitySurfaceCurvature(final double tolerance) {
+<span class="nc" id="L91">		super();</span>
+
+<span class="nc" id="L93">		this.tolerance = tolerance;</span>
+<span class="nc" id="L94">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) {
+<span class="nc" id="L98">		final ProcessModel modelBase = model.getModel();</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if(modelBase instanceof LIBORMarketModel) {</span>
+<span class="nc" id="L100">			return getValues(evaluationTime, (LIBORMarketModel)modelBase);</span>
+		} else {
+<span class="nc" id="L102">			throw new IllegalArgumentException(&quot;This product requires a simulation where the underlying model is of type LIBORMarketModel.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Calculates the squared curvature of the LIBOR instantaneous variance.
+	 *
+	 * @param evaluationTime Time at which the product is evaluated.
+	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
+	 * @return The squared curvature of the LIBOR instantaneous variance (reduced a possible tolerance). The return value is &amp;ge; 0.
+	 */
+	public RandomVariable getValues(final double evaluationTime, final LIBORMarketModel model) {
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		if(evaluationTime &gt; 0) {</span>
+<span class="nc" id="L115">			throw new RuntimeException(&quot;Forward start evaluation currently not supported.&quot;);</span>
+		}
+
+		// Fetch the covariance model of the model
+<span class="nc" id="L119">		final LIBORCovarianceModel covarianceModel = model.getCovarianceModel();</span>
+
+		// We sum over all forward rates
+<span class="nc" id="L122">		final int numberOfComponents = covarianceModel.getLiborPeriodDiscretization().getNumberOfTimeSteps();</span>
+
+		// Accumulator
+<span class="nc" id="L125">		RandomVariable	integratedLIBORCurvature	= new RandomVariableFromDoubleArray(0.0);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		for(int componentIndex = 0; componentIndex &lt; numberOfComponents; componentIndex++) {</span>
+
+			// Integrate from 0 up to the fixing of the rate
+<span class="nc" id="L129">			final double timeEnd		= covarianceModel.getLiborPeriodDiscretization().getTime(componentIndex);</span>
+<span class="nc" id="L130">			int timeEndIndex	= covarianceModel.getTimeDiscretization().getTimeIndex(timeEnd);</span>
+
+			// If timeEnd is not in the time discretization we get timeEndIndex = -insertionPoint-1. In that case, we use the index prior to the insertionPoint
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			if(timeEndIndex &lt; 0) {</span>
+<span class="nc" id="L134">				timeEndIndex = -timeEndIndex - 2;</span>
+			}
+
+			// Sum squared second derivative of the variance for all components at this time step
+<span class="nc" id="L138">			RandomVariable integratedLIBORCurvatureCurrentRate = new RandomVariableFromDoubleArray(0.0);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">			for(int timeIndex = 0; timeIndex &lt; timeEndIndex-2; timeIndex++) {</span>
+<span class="nc" id="L140">				final double timeStep1	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex);</span>
+<span class="nc" id="L141">				final double timeStep2	= covarianceModel.getTimeDiscretization().getTimeStep(timeIndex+1);</span>
+
+<span class="nc" id="L143">				final RandomVariable covarianceLeft		= covarianceModel.getCovariance(timeIndex+0, componentIndex, componentIndex, null);</span>
+<span class="nc" id="L144">				final RandomVariable covarianceCenter	= covarianceModel.getCovariance(timeIndex+1, componentIndex, componentIndex, null);</span>
+<span class="nc" id="L145">				final RandomVariable covarianceRight		= covarianceModel.getCovariance(timeIndex+2, componentIndex, componentIndex, null);</span>
+
+				// Calculate second derivative
+<span class="nc" id="L148">				RandomVariable curvatureSquared = covarianceRight.sub(covarianceCenter.mult(2.0)).add(covarianceLeft);</span>
+<span class="nc" id="L149">				curvatureSquared = curvatureSquared.div(timeStep1 * timeStep2);</span>
+
+				// Take square
+<span class="nc" id="L152">				curvatureSquared = curvatureSquared.squared();</span>
+
+				// Integrate over time
+<span class="nc" id="L155">				integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.add(curvatureSquared.mult(timeStep1));</span>
+			}
+
+			// Empty interval - skip
+<span class="nc bnc" id="L159" title="All 2 branches missed.">			if(timeEnd == 0) {</span>
+<span class="nc" id="L160">				continue;</span>
+			}
+
+			// Average over time
+<span class="nc" id="L164">			integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.div(timeEnd);</span>
+
+			// Take square root
+<span class="nc" id="L167">			integratedLIBORCurvatureCurrentRate = integratedLIBORCurvatureCurrentRate.sqrt();</span>
+
+			// Take max over all forward rates
+<span class="nc" id="L170">			integratedLIBORCurvature = integratedLIBORCurvature.add(integratedLIBORCurvatureCurrentRate);</span>
+		}
+
+<span class="nc" id="L173">		integratedLIBORCurvature = integratedLIBORCurvature.div(numberOfComponents);</span>
+<span class="nc" id="L174">		return integratedLIBORCurvature.sub(tolerance).floor(0.0);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

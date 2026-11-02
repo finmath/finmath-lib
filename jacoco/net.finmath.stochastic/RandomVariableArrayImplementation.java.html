@@ -1,0 +1,601 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableArrayImplementation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.stochastic</a> &gt; <span class="el_source">RandomVariableArrayImplementation.java</span></div><h1>RandomVariableArrayImplementation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2009
+ */
+package net.finmath.stochastic;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+
+/**
+ * An implementation of &lt;code&gt;RandomVariableArray&lt;/code&gt; implementing an array of
+ * &lt;code&gt;RandomVariable&lt;/code&gt; objects,
+ * implementing the &lt;code&gt;RandomVariable&lt;/code&gt; interface.
+ *
+ * @author Christian Fries
+ */
+public class RandomVariableArrayImplementation implements RandomVariableArray {
+
+	private static final long serialVersionUID = -5718980901166760522L;
+
+	private final RandomVariable[] elements;
+
+	public static RandomVariableArray of(final RandomVariable[] elements) {
+<span class="nc" id="L29">		return new RandomVariableArrayImplementation(elements.clone());</span>
+	}
+
+	private RandomVariableArrayImplementation(final RandomVariable[] elements) {
+<span class="nc" id="L33">		super();</span>
+
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if(elements.length == 0) {</span>
+<span class="nc" id="L36">			throw new IllegalArgumentException(&quot;Empty array.&quot;);</span>
+		}
+
+		// Ensure that all elements
+<span class="nc" id="L40">		final int level = getLevel(elements[0]);</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">		for(int i=1; i&lt;elements.length; i++) {</span>
+<span class="nc bnc" id="L42" title="All 2 branches missed.">			if(getLevel(elements[i]) != level) {</span>
+<span class="nc" id="L43">				throw new IllegalArgumentException(&quot;Elements must be of same array type.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L47">		this.elements = elements;</span>
+<span class="nc" id="L48">	}</span>
+
+	private int getLevel(final RandomVariable randomVariable) {
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if(randomVariable instanceof RandomVariableArray) {</span>
+<span class="nc" id="L52">			return ((RandomVariableArray) randomVariable).getLevel();</span>
+		}
+		else {
+<span class="nc" id="L55">			return 0;</span>
+		}
+	}
+
+	@Override
+	public int getNumberOfElements() {
+<span class="nc" id="L61">		return elements.length;</span>
+	}
+
+	@Override
+	public RandomVariable getElement(final int index) {
+<span class="nc" id="L66">		return elements[index];</span>
+	}
+
+	@Override
+	public RandomVariableArray map(final RandomOperator operator) {
+<span class="nc" id="L71">		final RandomVariable[] newElments = new RandomVariable[getNumberOfElements()];</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		for(int i=1; i&lt;elements.length; i++) {</span>
+<span class="nc" id="L73">			newElments[i] = operator.apply(elements[i]);</span>
+		}
+<span class="nc" id="L75">		return new RandomVariableArrayImplementation(newElments);</span>
+	}
+
+	@Override
+	public RandomVariable sumProduct(final RandomVariableArray array) {
+<span class="nc" id="L80">		RandomVariable result = elements[0].mult(array.getElement(0));</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		for(int i=1; i&lt;elements.length; i++) {</span>
+<span class="nc" id="L82">			result = result.add(elements[i].mult(array.getElement(i)));</span>
+		}
+<span class="nc" id="L84">		return result;</span>
+	}
+
+	/*
+	 * net.finmath.stochastic.RandomVariable
+	 */
+
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="nc" id="L93">		boolean equal = (randomVariable instanceof RandomVariableArray);</span>
+<span class="nc bnc" id="L94" title="All 4 branches missed.">		for(int i=0; i&lt;getNumberOfElements() &amp;&amp; equal; i++) {</span>
+<span class="nc" id="L95">			equal &amp;= getElement(i).equals(((RandomVariableArray)randomVariable).getElement(i));</span>
+		}
+<span class="nc" id="L97">		return equal;</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="nc" id="L102">		double time = Double.NEGATIVE_INFINITY;</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L104">			time = Math.max(getElement(i).getFiltrationTime(), time);</span>
+		}
+<span class="nc" id="L106">		return time;</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="nc" id="L111">		return 100;</span>
+	}
+
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="nc" id="L117">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public int size() {
+<span class="nc" id="L122">		int size = 1;</span>
+<span class="nc bnc" id="L123" title="All 2 branches missed.">		for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L124">			size = Math.max(size, getElement(i).size());</span>
+		}
+<span class="nc" id="L126">		return size;</span>
+	}
+
+	@Override
+	public boolean isDeterministic() {
+<span class="nc" id="L131">		boolean deterministic = true;</span>
+<span class="nc bnc" id="L132" title="All 4 branches missed.">		for(int i=0; i&lt;getNumberOfElements() &amp;&amp; deterministic; i++) {</span>
+<span class="nc" id="L133">			deterministic &amp;= getElement(i).isDeterministic();</span>
+		}
+<span class="nc" id="L135">		return deterministic;</span>
+	}
+
+	@Override
+	public double[] getRealizations() {
+<span class="nc" id="L140">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="nc" id="L145">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L150">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L155">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getMin() {
+<span class="nc" id="L160">		double min = Double.POSITIVE_INFINITY;</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">		for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L162">			min = Math.min(min, getElement(i).getMin());</span>
+		}
+<span class="nc" id="L164">		return min;</span>
+	}
+
+	@Override
+	public double getMax() {
+<span class="nc" id="L169">		double max = Double.NEGATIVE_INFINITY;</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L171">			max = Math.max(max, getElement(i).getMax());</span>
+		}
+<span class="nc" id="L173">		return max;</span>
+	}
+
+	@Override
+	public double getAverage() {
+<span class="nc" id="L178">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc" id="L183">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getVariance() {
+<span class="nc" id="L188">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc" id="L193">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getSampleVariance() {
+<span class="nc" id="L198">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getStandardDeviation() {
+<span class="nc" id="L203">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc" id="L208">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getStandardError() {
+<span class="nc" id="L213">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc" id="L218">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="nc" id="L223">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc" id="L228">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc" id="L233">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="nc" id="L238">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L243">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public RandomVariable cache() {
+<span class="nc" id="L248">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="nc" id="L253">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L256">				return x.apply(operator);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="nc" id="L263">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L266">				return x.apply(operator, argument);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L273">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L276">				return x.apply(operator, argument1, argument2);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="nc" id="L283">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L286">				return x.cap(cap);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="nc" id="L293">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L296">				return x.floor(floor);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable add(final double value) {
+<span class="nc" id="L303">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L306">				return x.add(value);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="nc" id="L313">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L316">				return x.sub(value);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="nc" id="L323">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L326">				return x.mult(value);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable div(final double value) {
+<span class="nc" id="L333">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L336">				return x.div(value);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="nc" id="L343">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L346">				return x.pow(exponent);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="nc" id="L353">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L356">				return x.average();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable squared() {
+<span class="nc" id="L363">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L366">				return x.squared();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable sqrt() {
+<span class="nc" id="L373">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L376">				return x.sqrt();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable exp() {
+<span class="nc" id="L383">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L386">				return x.exp();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable log() {
+<span class="nc" id="L393">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L396">				return x.log();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L403">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L406">				return x.sin();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L413">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L416">				return x.cos();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="nc" id="L423">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L426">				return x.add(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="nc" id="L433">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L436">				return x.sub(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L443">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L446">				return x.bus(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="nc" id="L453">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L456">				return x.mult(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="nc" id="L463">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L466">				return x.div(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L473">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L476">				return x.vid(randomVariable);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+<span class="nc" id="L483">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L486">				return x.cap(cap);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="nc" id="L493">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L496">				return x.cap(floor);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L503">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L506">				return x.accrue(rate, periodLength);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L513">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L516">				return x.discount(rate, periodLength);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="nc" id="L523">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L526">				return x.choose(valueIfTriggerNonNegative, valueIfTriggerNegative);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="nc" id="L533">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L536">				return x.invert();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="nc" id="L543">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L546">				return x.abs();</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="nc" id="L553">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L556">				return x.addProduct(factor1, factor2);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="nc" id="L563">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L566">				return x.addProduct(factor1, factor2);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L573">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L576">				return x.addRatio(numerator, denominator);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L583">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L586">				return x.subRatio(numerator, denominator);</span>
+			}
+		});
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="nc" id="L593">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L596">				return x.isNaN();</span>
+			}
+		});
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

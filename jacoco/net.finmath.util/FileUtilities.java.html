@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FileUtilities.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.util</a> &gt; <span class="el_source">FileUtilities.java</span></div><h1>FileUtilities.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 14.01.2018
+ */
+package net.finmath.util;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+/**
+ * Provides utility method to write an object to a file and read an object from a file.
+ *
+ * @author Christian Fries
+ */
+<span class="nc" id="L20">public class FileUtilities {</span>
+
+	public static Object loadObject(final File pathToFile) throws ClassNotFoundException, IOException {
+<span class="fc bfc" id="L23" title="All 2 branches covered.">		if(pathToFile == null) {</span>
+<span class="fc" id="L24">			return null;</span>
+		}
+
+		// Load serialized object
+<span class="fc" id="L28">		final FileInputStream fis = new FileInputStream(pathToFile);</span>
+<span class="fc" id="L29">		Object object = null;</span>
+<span class="fc" id="L30">		try(ObjectInputStream in = new ObjectInputStream(fis)) {</span>
+<span class="fc" id="L31">			object = in.readObject();</span>
+<span class="fc" id="L32">		} catch (final IOException e) {</span>
+<span class="fc" id="L33">			throw e;</span>
+<span class="fc" id="L34">		}</span>
+<span class="fc" id="L35">		return object;</span>
+	}
+
+	public static void writeObject(final File pathToFile, final Object object) throws IOException {
+		/*
+		 * Write object to file
+		 */
+<span class="fc" id="L42">		final FileOutputStream fos = new FileOutputStream(pathToFile, false /* append */);</span>
+<span class="fc" id="L43">		try(ObjectOutputStream out = new ObjectOutputStream(fos)) {</span>
+<span class="fc" id="L44">			out.writeObject(object);</span>
+<span class="fc" id="L45">			out.flush();</span>
+<span class="fc" id="L46">		} catch (final IOException e) {</span>
+<span class="fc" id="L47">			throw e;</span>
+<span class="fc" id="L48">		}</span>
+<span class="fc" id="L49">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

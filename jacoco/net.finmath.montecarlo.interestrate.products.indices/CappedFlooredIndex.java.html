@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CappedFlooredIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">CappedFlooredIndex.java</span></div><h1>CappedFlooredIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 06.12.2009
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * An capped and floored index paying min(max(index(t),floor(t)),cap(t)), where index, floor and cap are indices,
+ * i.e., objects implementing &lt;code&gt;AbstractIndex&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CappedFlooredIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 7835825574794506180L;
+
+	private final AbstractIndex index;
+	private final AbstractIndex cap;
+	private final AbstractIndex floor;
+
+	/**
+	 * Create an capped and floored index paying min(max(index(t),floor(t)),cap(t)).
+	 *
+	 * @param index An index.
+	 * @param cap An index.
+	 * @param floor An index.
+	 */
+	public CappedFlooredIndex(final AbstractIndex index, final AbstractIndex cap, final AbstractIndex floor) {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		this.index	= index;</span>
+<span class="fc" id="L39">		this.cap	= cap;</span>
+<span class="fc" id="L40">		this.floor	= floor;</span>
+<span class="fc" id="L41">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="fc" id="L45">		RandomVariable indexValues = index.getValue(evaluationTime, model);</span>
+
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		if(floor != null) {</span>
+<span class="fc" id="L48">			indexValues = indexValues.floor(floor.getValue(evaluationTime, model));</span>
+		}
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		if(cap != null) {</span>
+<span class="fc" id="L51">			indexValues = indexValues.cap(cap.getValue(evaluationTime, model));</span>
+		}
+
+<span class="fc" id="L54">		return indexValues;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		Set&lt;String&gt; underlyingNames			= index != null ? index.queryUnderlyings() : null;</span>
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		final Set&lt;String&gt;	underlyingNamesCap		= cap != null ? cap.queryUnderlyings() : null;</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		if(underlyingNamesCap != null) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">			if(underlyingNames != null) {</span>
+<span class="nc" id="L63">				underlyingNames.addAll(underlyingNamesCap);</span>
+			} else {
+<span class="nc" id="L65">				underlyingNames = underlyingNamesCap;</span>
+			}
+		}
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		final Set&lt;String&gt;	underlyingNamesFloor	= floor != null ? floor.queryUnderlyings() : null;</span>
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if(underlyingNamesFloor != null) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			if(underlyingNames != null) {</span>
+<span class="nc" id="L71">				underlyingNames.addAll(underlyingNamesFloor);</span>
+			} else {
+<span class="nc" id="L73">				underlyingNames = underlyingNamesFloor;</span>
+			}
+		}
+<span class="nc" id="L76">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L81">		return &quot;CappedFlooredIndex [index=&quot; + index + &quot;, cap=&quot; + cap</span>
+<span class="nc" id="L82">				+ &quot;, floor=&quot; + floor + &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

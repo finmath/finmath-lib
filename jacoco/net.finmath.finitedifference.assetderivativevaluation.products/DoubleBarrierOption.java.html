@@ -1,0 +1,2544 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DoubleBarrierOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">DoubleBarrierOption.java</span></div><h1>DoubleBarrierOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMHestonModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMSabrModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.ActivatedVectorEventState;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.DiscreteMonitoringSupport;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.ProductEventStateStack;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.grids.UniformGrid;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DoubleBarrierType;
+import net.finmath.modelling.products.MonitoringType;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Finite-difference valuation of a continuously monitored vanilla double-
+ * barrier option.
+ *
+ * &lt;p&gt;
+ * The product is defined by a strike &lt;i&gt;K&lt;/i&gt;, lower and upper barriers
+ * &lt;i&gt;L &amp;lt; U&lt;/i&gt;, maturity &lt;i&gt;T&lt;/i&gt;, and a call/put sign. Let &lt;i&gt;S(t)&lt;/i&gt;
+ * denote the
+ * underlying. The alive region is the open band
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;L &amp;lt; S(t) &amp;lt; U&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For a knock-out contract, the option survives only as long as the path
+ * remains inside
+ * the band. For a knock-in contract, the option becomes active once the path
+ * hits either
+ * barrier. Writing
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;&amp;tau; = inf { t in [0,T] : S(t) &amp;le; L or S(t) &amp;ge; U }&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * the corresponding payoffs are
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V(T) = 1_{&amp;tau; &amp;gt; T} max(&amp;omega;(S(T)-K),0)&lt;/i&gt; for knock-out,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V(T) = 1_{&amp;tau; &amp;le; T} max(&amp;omega;(S(T)-K),0)&lt;/i&gt; for knock-in,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where &lt;i&gt;&amp;omega; = 1&lt;/i&gt; for a call and &lt;i&gt;&amp;omega; = -1&lt;/i&gt; for a put.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This implementation supports:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;vanilla call / put payoffs,&lt;/li&gt;
+ * &lt;li&gt;{@link DoubleBarrierType#KNOCK_OUT} and {@link
+ * DoubleBarrierType#KNOCK_IN},&lt;/li&gt;
+ *   &lt;li&gt;European, Bermudan, and American exercise,&lt;/li&gt;
+ *   &lt;li&gt;one-dimensional models,&lt;/li&gt;
+ *   &lt;li&gt;two-dimensional Heston and SABR models.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The knock-out case is priced directly by imposing an internal-state
+ * constraint outside
+ * the alive band. The knock-in case is priced directly without parity
+ * decomposition:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;outside the alive band, the option is already activated and equals the
+ *       corresponding vanilla value,&lt;/li&gt;
+ *   &lt;li&gt;inside the alive band, a pre-hit PDE is solved on the band
+ * &lt;i&gt;(L,U)&lt;/i&gt; with time-dependent Dirichlet boundary data taken from the
+ * activated
+ *       vanilla branch at the two barriers,&lt;/li&gt;
+ * &lt;li&gt;for Bermudan and American exercise, the obstacle is applied only in the
+ * activated
+ * vanilla branch, while the pre-hit branch remains a pure continuation problem
+ * up to
+ *       barrier activation.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * In the one-dimensional case this leads to a PDE on the truncated spatial
+ * interval
+ * &lt;i&gt;(L,U)&lt;/i&gt;. In the two-dimensional case the same idea is applied while
+ * preserving the
+ * second state-variable grid and imposing barrier traces that depend on time
+ * and on the
+ * second state variable.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For discrete monitoring, barrier activation / knock-out is applied only at
+ * the supplied
+ * monitoring dates via event conditions. In the discretely monitored knock-in
+ * case, the
+ * activated branch is the true vanilla branch with the product exercise style,
+ * while the
+ * pre-hit branch is solved as a European continuation problem between
+ * monitoring dates.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DoubleBarrierOption implements
+FiniteDifferenceEquityEventProduct,
+FiniteDifferenceInternalStateConstraint {
+
+<span class="nc" id="L135">	private enum PricingMode {</span>
+		/**
+		 * The direct out.
+		 */
+<span class="nc" id="L139">		DIRECT_OUT,</span>
+		/**
+		 * The direct in 1d pre hit.
+		 */
+<span class="nc" id="L143">		DIRECT_IN_1D_PRE_HIT,</span>
+		/**
+		 * The direct in 1d discrete event.
+		 */
+<span class="nc" id="L147">		DIRECT_IN_1D_DISCRETE_EVENT,</span>
+		/**
+		 * The direct in 2d pre hit.
+		 */
+<span class="nc" id="L151">		DIRECT_IN_2D_PRE_HIT,</span>
+		/**
+		 * The direct in 2d discrete event.
+		 */
+<span class="nc" id="L155">		DIRECT_IN_2D_DISCRETE_EVENT</span>
+	}
+
+	/**
+	 * The grid tolerance.
+	 */
+	private static final double GRID_TOLERANCE = 1E-8;
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The lower barrier.
+	 */
+	private final double lowerBarrier;
+	/**
+	 * The upper barrier.
+	 */
+	private final double upperBarrier;
+	/**
+	 * The call or put sign.
+	 */
+	private final CallOrPut callOrPutSign;
+	/**
+	 * The double barrier type.
+	 */
+	private final DoubleBarrierType doubleBarrierType;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+	/**
+	 * The monitoring type.
+	 */
+	private final MonitoringType monitoringType;
+	/**
+	 * The monitoring times.
+	 */
+	private final double[] monitoringTimes;
+
+	/**
+	 * The activated vector event state stack.
+	 */
+	private transient ProductEventStateStack&lt;ActivatedVectorEventState&gt; activatedVectorEventStateStack;
+
+	/**
+	 * Creates a double-barrier option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise) {
+<span class="nc" id="L230">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				exercise,
+				MonitoringType.CONTINUOUS,
+				null
+				);
+<span class="nc" id="L242">	}</span>
+
+	/**
+	 * Creates a double-barrier option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise,
+			final MonitoringType monitoringType,
+<span class="nc" id="L268">			final double[] monitoringTimes) {</span>
+
+<span class="nc bnc" id="L270" title="All 2 branches missed.">		if (callOrPutSign == null) {</span>
+<span class="nc" id="L271">			throw new IllegalArgumentException(&quot;Option type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if (doubleBarrierType == null) {</span>
+<span class="nc" id="L274">			throw new IllegalArgumentException(&quot;Double barrier type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L276" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L277">			throw new IllegalArgumentException(&quot;Exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L279" title="All 2 branches missed.">		if (monitoringType == null) {</span>
+<span class="nc" id="L280">			throw new IllegalArgumentException(&quot;Monitoring type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L282" title="All 6 branches missed.">		if (!exercise.isEuropean() &amp;&amp; !exercise.isBermudan() &amp;&amp; !exercise.isAmerican()) {</span>
+<span class="nc" id="L283">			throw new IllegalArgumentException(</span>
+					&quot;DoubleBarrierOption currently supports only European, Bermudan, and American exercise.&quot;);
+		}
+<span class="nc bnc" id="L286" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L287">			throw new IllegalArgumentException(&quot;Maturity must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L289" title="All 2 branches missed.">		if (strike &lt;= 0.0) {</span>
+<span class="nc" id="L290">			throw new IllegalArgumentException(&quot;Strike must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L292" title="All 4 branches missed.">		if (lowerBarrier &lt;= 0.0 || upperBarrier &lt;= 0.0) {</span>
+<span class="nc" id="L293">			throw new IllegalArgumentException(&quot;Barriers must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L295" title="All 2 branches missed.">		if (lowerBarrier &gt;= upperBarrier) {</span>
+<span class="nc" id="L296">			throw new IllegalArgumentException(&quot;lowerBarrier must be &lt; upperBarrier.&quot;);</span>
+		}
+<span class="nc bnc" id="L298" title="All 4 branches missed.">		if (doubleBarrierType == DoubleBarrierType.KIKO || doubleBarrierType == DoubleBarrierType.KOKI) {</span>
+<span class="nc" id="L299">			throw new IllegalArgumentException(&quot;KIKO/KOKI are not supported for vanilla double-barrier options.&quot;);</span>
+		}
+
+<span class="nc" id="L302">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L303">		this.maturity = maturity;</span>
+<span class="nc" id="L304">		this.strike = strike;</span>
+<span class="nc" id="L305">		this.lowerBarrier = lowerBarrier;</span>
+<span class="nc" id="L306">		this.upperBarrier = upperBarrier;</span>
+<span class="nc" id="L307">		this.callOrPutSign = callOrPutSign;</span>
+<span class="nc" id="L308">		this.doubleBarrierType = doubleBarrierType;</span>
+<span class="nc" id="L309">		this.exercise = exercise;</span>
+<span class="nc" id="L310">		this.monitoringType = monitoringType;</span>
+<span class="nc bnc" id="L311" title="All 2 branches missed.">		this.monitoringTimes = monitoringTimes == null ? null : monitoringTimes.clone();</span>
+
+<span class="nc" id="L313">		validateMonitoringSpecification();</span>
+<span class="nc" id="L314">	}</span>
+
+	/**
+	 * Creates a European double-barrier option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType) {
+<span class="nc" id="L335">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L345">	}</span>
+
+	/**
+	 * Creates a European double-barrier option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L370">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				new EuropeanExercise(maturity),
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L382">	}</span>
+
+	/**
+	 * Creates a European double-barrier option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType) {
+<span class="nc" id="L401">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L411">	}</span>
+
+	/**
+	 * Creates a European double-barrier option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L434">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				new EuropeanExercise(maturity),
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L446">	}</span>
+
+	/**
+	 * Creates a European double-barrier option using a numeric call/put sign.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Numeric sign, {@code 1.0} for call and {@code -1.0}
+	 *     for put.
+	 * @param doubleBarrierType Double-barrier type.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final double callOrPutSign,
+			final DoubleBarrierType doubleBarrierType) {
+<span class="nc" id="L466">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+<span class="nc" id="L472">				mapCallOrPut(callOrPutSign),</span>
+				doubleBarrierType,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L476">	}</span>
+
+	/**
+	 * Creates a European double-barrier option using a numeric call/put sign.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Numeric sign, {@code 1.0} for call and {@code -1.0}
+	 *     for put.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final double callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L500">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+<span class="nc" id="L506">				mapCallOrPut(callOrPutSign),</span>
+				doubleBarrierType,
+				new EuropeanExercise(maturity),
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L512">	}</span>
+
+	/**
+	 * Creates a double-barrier option using a numeric call/put sign.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Numeric sign, {@code 1.0} for call and {@code -1.0}
+	 *     for put.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final double callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise) {
+<span class="nc" id="L536">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+<span class="nc" id="L542">				mapCallOrPut(callOrPutSign),</span>
+				doubleBarrierType,
+				exercise
+				);
+<span class="nc" id="L546">	}</span>
+
+	/**
+	 * Creates a double-barrier option using a numeric call/put sign.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Numeric sign, {@code 1.0} for call and {@code -1.0}
+	 *     for put.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final double callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L574">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+<span class="nc" id="L580">				mapCallOrPut(callOrPutSign),</span>
+				doubleBarrierType,
+				exercise,
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L586">	}</span>
+
+	/**
+	 * Creates a double-barrier option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise) {
+<span class="nc" id="L607">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				exercise
+				);
+<span class="nc" id="L617">	}</span>
+
+	/**
+	 * Creates a double-barrier option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param callOrPutSign Call/put sign.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierOption(
+			final double maturity,
+			final double strike,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final CallOrPut callOrPutSign,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L642">		this(</span>
+				null,
+				maturity,
+				strike,
+				lowerBarrier,
+				upperBarrier,
+				callOrPutSign,
+				doubleBarrierType,
+				exercise,
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L654">	}</span>
+
+	private ProductEventStateStack&lt;ActivatedVectorEventState&gt; getActivatedVectorEventStateStack() {
+<span class="nc bnc" id="L657" title="All 2 branches missed.">		if (activatedVectorEventStateStack == null) {</span>
+<span class="nc" id="L658">			activatedVectorEventStateStack = new ProductEventStateStack&lt;&gt;();</span>
+		}
+
+<span class="nc" id="L661">		return activatedVectorEventStateStack;</span>
+	}
+
+	private ActivatedVectorEventState createActivatedVectorEventState(
+			final FiniteDifferenceEquityModel effectiveModel,
+			final FiniteDifferenceEquityProduct activatedProduct) {
+
+<span class="nc" id="L668">		return new ActivatedVectorEventState(</span>
+<span class="nc" id="L669">				buildActivatedVectorsAtEventTimes(effectiveModel, activatedProduct),</span>
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+	}
+
+	private ActivatedVectorEventState getCurrentActivatedVectorEventState() {
+<span class="nc" id="L675">		final ActivatedVectorEventState state =</span>
+<span class="nc" id="L676">				getActivatedVectorEventStateStack().currentOrNull();</span>
+
+<span class="nc bnc" id="L678" title="All 2 branches missed.">		if (state == null) {</span>
+<span class="nc" id="L679">			throw new IllegalStateException(</span>
+					&quot;Discrete knock-in event condition requires cached activated continuation data.&quot;
+					);
+		}
+
+<span class="nc" id="L684">		return state;</span>
+	}
+
+	/**
+	 * Returns the values at the specified evaluation time on the model space
+	 * grid.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param model The finite-difference model.
+	 * @return The value vector at the requested evaluation time.
+	 */
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L697">		final double[][] values = getValues(model);</span>
+
+<span class="nc" id="L699">		final SpaceTimeDiscretization valuationDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L700">		final double tau = maturity - evaluationTime;</span>
+<span class="nc" id="L701">		final int timeIndex = valuationDiscretization.getTimeDiscretization()</span>
+<span class="nc" id="L702">				.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc" id="L704">		final double[] column = new double[values.length];</span>
+<span class="nc bnc" id="L705" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L706">			column[i] = values[i][timeIndex];</span>
+		}
+
+<span class="nc bnc" id="L709" title="All 4 branches missed.">		if (usesDiscreteMonitoring() &amp;&amp; isMonitoringTime(evaluationTime)) {</span>
+<span class="nc" id="L710">			return applyEvaluationTimeDiscreteCondition(evaluationTime, column, model);</span>
+		}
+
+<span class="nc" id="L713">		return column;</span>
+	}
+
+	/**
+	 * Returns the full value surface.
+	 *
+	 * @param model The finite-difference model.
+	 * @return The value surface indexed by space point and time index.
+	 */
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L724">		validateProductConfiguration(model);</span>
+
+<span class="nc bnc" id="L726" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">			if (isDegenerateZeroCase()) {</span>
+<span class="nc" id="L728">				return buildZeroValueSurface(model);</span>
+			}
+
+<span class="nc bnc" id="L731" title="All 2 branches missed.">			if (isDegenerateVanillaCase()) {</span>
+<span class="nc" id="L732">				return createVanillaOption().getValues(getEffectiveModelForValuation(model));</span>
+			}
+		}
+
+<span class="nc bnc" id="L736" title="All 6 branches missed.">		switch (getPricingMode(model)) {</span>
+		case DIRECT_OUT:
+<span class="nc" id="L738">			return priceOutOptionDirectly(model);</span>
+
+		case DIRECT_IN_1D_PRE_HIT:
+<span class="nc" id="L741">			return priceInOptionDirectly1D(model);</span>
+
+		case DIRECT_IN_1D_DISCRETE_EVENT:
+<span class="nc" id="L744">			return priceInOptionDiscrete1D(model);</span>
+
+		case DIRECT_IN_2D_PRE_HIT:
+<span class="nc" id="L747">			return priceInOptionDirectly2D(model);</span>
+
+		case DIRECT_IN_2D_DISCRETE_EVENT:
+<span class="nc" id="L750">			return priceInOptionDiscrete2D(model);</span>
+
+		default:
+<span class="nc" id="L753">			throw new IllegalStateException(&quot;Unsupported pricing mode.&quot;);</span>
+		}
+	}
+
+	private PricingMode getPricingMode(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L758" title="All 2 branches missed.">		if (isOutOption()) {</span>
+<span class="nc" id="L759">			return PricingMode.DIRECT_OUT;</span>
+		}
+
+<span class="nc" id="L762">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L764" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc bnc" id="L765" title="All 2 branches missed.">			if (dims == 1) {</span>
+<span class="nc" id="L766">				return PricingMode.DIRECT_IN_1D_DISCRETE_EVENT;</span>
+			}
+
+<span class="nc bnc" id="L769" title="All 4 branches missed.">			if (dims == 2 &amp;&amp; supportsDirect2D(model)) {</span>
+<span class="nc" id="L770">				return PricingMode.DIRECT_IN_2D_DISCRETE_EVENT;</span>
+			}
+
+<span class="nc" id="L773">			throw new IllegalArgumentException(</span>
+					&quot;Discrete double-barrier knock-in currently supports only 1D models and 2D Heston/SABR models.&quot;);
+		}
+
+<span class="nc bnc" id="L777" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L778">			return PricingMode.DIRECT_IN_1D_PRE_HIT;</span>
+		}
+
+<span class="nc bnc" id="L781" title="All 4 branches missed.">		if (dims == 2 &amp;&amp; supportsDirect2D(model)) {</span>
+<span class="nc" id="L782">			return PricingMode.DIRECT_IN_2D_PRE_HIT;</span>
+		}
+
+<span class="nc" id="L785">		throw new IllegalArgumentException(</span>
+				&quot;Direct double-barrier knock-in currently supports only 1D models and 2D Heston/SABR models.&quot;);
+	}
+
+	private boolean supportsDirect2D(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L790" title="All 4 branches missed.">		return model instanceof FDMHestonModel || model instanceof FDMSabrModel;</span>
+	}
+
+	private void validateProductConfiguration(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L794" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L795">			throw new IllegalArgumentException(&quot;Model must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L798">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+<span class="nc bnc" id="L799" title="All 4 branches missed.">		if (dims != 1 &amp;&amp; dims != 2) {</span>
+<span class="nc" id="L800">			throw new IllegalArgumentException(&quot;DoubleBarrierOption currently supports only 1D and 2D models.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L803" title="All 4 branches missed.">		if (dims == 2 &amp;&amp; !supportsDirect2D(model)) {</span>
+<span class="nc" id="L804">			throw new IllegalArgumentException(</span>
+					&quot;Two-dimensional DoubleBarrierOption currently supports only Heston and SABR models.&quot;);
+		}
+
+<span class="nc" id="L808">		validateBarriersInsideGrid(model);</span>
+
+<span class="nc bnc" id="L810" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L811">			validateDiscreteMonitoringScope(model);</span>
+		}
+<span class="nc" id="L813">	}</span>
+
+	private void validateDiscreteMonitoringScope(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L816">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L818" title="All 6 branches missed.">		if ((dims == 1) || (dims == 2 &amp;&amp; supportsDirect2D(model))) {</span>
+<span class="nc" id="L819">			return;</span>
+		}
+
+<span class="nc" id="L822">		throw new IllegalArgumentException(</span>
+				&quot;Discrete monitoring for DoubleBarrierOption currently supports only 1D models and 2D Heston/SABR models.&quot;);
+	}
+
+	private double[][] buildZeroValueSurface(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L827">		final SpaceTimeDiscretization valuationDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L828">		final int numberOfSpacePoints = getTotalNumberOfSpacePoints(valuationDiscretization);</span>
+<span class="nc" id="L829">		final int numberOfTimePoints = valuationDiscretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+
+<span class="nc" id="L831">		final double[][] zeroValues = new double[numberOfSpacePoints][numberOfTimePoints];</span>
+<span class="nc bnc" id="L832" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpacePoints; i++) {</span>
+<span class="nc bnc" id="L833" title="All 2 branches missed.">			for (int j = 0; j &lt; numberOfTimePoints; j++) {</span>
+<span class="nc" id="L834">				zeroValues[i][j] = 0.0;</span>
+			}
+		}
+<span class="nc" id="L837">		return zeroValues;</span>
+	}
+
+	/*
+	 * ============================================
+	 * DIRECT KNOCK-OUT
+	 * ============================================
+	 */
+
+	private double[][] priceOutOptionDirectly(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L847">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+<span class="nc" id="L848">		final SpaceTimeDiscretization valuationDiscretization = effectiveModel.getSpaceTimeDiscretization();</span>
+
+<span class="nc" id="L850">		final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+				effectiveModel,
+				this,
+				valuationDiscretization,
+				exercise
+				);
+
+<span class="nc bnc" id="L857" title="All 2 branches missed.">		final boolean isOneDimensional = valuationDiscretization.getNumberOfSpaceGrids() == 1;</span>
+
+<span class="nc bnc" id="L859" title="All 2 branches missed.">		if (isOneDimensional) {</span>
+<span class="nc" id="L860">			final double[] terminalValues = buildCellAveragedTerminalValues(valuationDiscretization);</span>
+
+<span class="nc bnc" id="L862" title="All 2 branches missed.">			if (exercise.isEuropean()) {</span>
+<span class="nc" id="L863">				return solver.getValues(maturity, terminalValues);</span>
+			}
+
+<span class="nc" id="L866">			return solver.getValues(</span>
+					maturity,
+					terminalValues,
+					this::pointwisePayoffForDirectOutPricing
+					);
+		}
+
+<span class="nc" id="L873">		return solver.getValues(maturity, this::pointwisePayoffForDirectOutPricing);</span>
+	}
+
+	/*
+	 * ============================================
+	 * DIRECT KNOCK-IN 1D
+	 * ============================================
+	 */
+
+	private double[][] priceInOptionDirectly1D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L883">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+
+		/*
+		 * Step 1: activated vanilla branch on a widened vanilla grid.
+		 */
+<span class="nc" id="L888">		final FiniteDifferenceEquityModel activatedModel = createAuxiliaryActivatedModel(effectiveModel);</span>
+<span class="nc" id="L889">		final FiniteDifferenceEquityProduct activatedProduct = createActivatedVanillaProduct();</span>
+
+<span class="nc" id="L891">		final double[][] activatedValues = activatedProduct.getValues(activatedModel);</span>
+
+		/*
+		 * Step 2: build lower / upper barrier traces from activated vanilla.
+		 */
+<span class="nc" id="L896">		final DoubleBarrierTrace1D lowerTrace = extractActivatedBoundaryTrace1D(</span>
+				activatedModel,
+				activatedValues,
+				lowerBarrier
+				);
+<span class="nc" id="L901">		final DoubleBarrierTrace1D upperTrace = extractActivatedBoundaryTrace1D(</span>
+				activatedModel,
+				activatedValues,
+				upperBarrier
+				);
+
+		/*
+		 * Step 3: solve pre-hit PDE on the alive band only.
+		 */
+<span class="nc" id="L910">		final FiniteDifferenceEquityModel preHitModel = createAuxiliaryPreHitModel1D(</span>
+				effectiveModel,
+				lowerTrace,
+				upperTrace
+				);
+
+<span class="nc" id="L916">		final FDMSolver preHitSolver = new FDMThetaMethod1D(</span>
+				preHitModel,
+				this,
+<span class="nc" id="L919">				preHitModel.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(maturity)
+				);
+
+<span class="nc" id="L923">		final double[] zeroTerminal = buildZeroTerminalValues(preHitModel.getSpaceTimeDiscretization());</span>
+<span class="nc" id="L924">		final double[][] preHitValues = preHitSolver.getValues(maturity, zeroTerminal);</span>
+
+		/*
+		 * Step 4: interpolate both branches back to the original grid and
+		 * stitch.
+		 */
+<span class="nc" id="L930">		return assembleDirectKnockInSurface1D(</span>
+				model,
+				activatedModel,
+				activatedValues,
+				preHitModel,
+				preHitValues
+				);
+	}
+
+	private double[][] priceInOptionDiscrete1D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L940">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+<span class="nc" id="L941">		final FiniteDifferenceEquityProduct activatedProduct = createActivatedVanillaProduct();</span>
+
+<span class="nc" id="L943">		try(ProductEventStateStack.Scope ignored =</span>
+<span class="nc" id="L944">				getActivatedVectorEventStateStack().push(</span>
+<span class="nc" id="L945">						createActivatedVectorEventState(effectiveModel, activatedProduct)</span>
+						)) {
+
+<span class="nc" id="L948">			final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+					effectiveModel,
+					this,
+<span class="nc" id="L951">					effectiveModel.getSpaceTimeDiscretization(),</span>
+					new EuropeanExercise(maturity)
+					);
+
+<span class="nc" id="L955">			final double[] zeroTerminal = buildZeroTerminalValues(effectiveModel.getSpaceTimeDiscretization());</span>
+<span class="nc" id="L956">			return solver.getValues(maturity, zeroTerminal);</span>
+		}
+	}
+
+	/*
+	 * ============================================
+	 * DIRECT KNOCK-IN 2D HESTON / SABR
+	 * ============================================
+	 */
+
+	private double[][] priceInOptionDirectly2D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L967">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+
+		/*
+		 * Step 1: activated vanilla branch on a widened vanilla grid.
+		 */
+<span class="nc" id="L972">		final FiniteDifferenceEquityModel activatedModel = createAuxiliaryActivatedModel(effectiveModel);</span>
+<span class="nc" id="L973">		final FiniteDifferenceEquityProduct activatedProduct = createActivatedVanillaProduct();</span>
+
+<span class="nc" id="L975">		final double[][] activatedValues = activatedProduct.getValues(activatedModel);</span>
+
+		/*
+		 * Step 2: lower / upper barrier traces depending on second state
+		 * variable.
+		 */
+<span class="nc" id="L981">		final DoubleBarrierTrace2D lowerTrace = extractActivatedBoundaryTrace2D(</span>
+				activatedModel,
+				activatedValues,
+				lowerBarrier
+				);
+<span class="nc" id="L986">		final DoubleBarrierTrace2D upperTrace = extractActivatedBoundaryTrace2D(</span>
+				activatedModel,
+				activatedValues,
+				upperBarrier
+				);
+
+		/*
+		 * Step 3: solve pre-hit PDE on the alive band using ordinary 2D ADI,
+		 *         but with time-dependent Dirichlet spot boundaries.
+		 */
+<span class="nc" id="L996">		final FiniteDifferenceEquityModel preHitModel = createAuxiliaryPreHitModel2D(</span>
+				effectiveModel,
+				lowerTrace,
+				upperTrace
+				);
+
+<span class="nc" id="L1002">		final FDMSolver preHitSolver = FDMSolverFactory.createSolver(</span>
+				preHitModel,
+				this,
+<span class="nc" id="L1005">				preHitModel.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(maturity)
+				);
+
+<span class="nc" id="L1009">		final double[][] preHitValues = preHitSolver.getValues(maturity, assetValue -&gt; 0.0);</span>
+
+		/*
+		 * Step 4: interpolate both branches back to the original grid and
+		 * stitch.
+		 */
+<span class="nc" id="L1015">		return assembleDirectKnockInSurface2D(</span>
+				model,
+				activatedModel,
+				activatedValues,
+				preHitModel,
+				preHitValues
+				);
+	}
+
+	private double[][] priceInOptionDiscrete2D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1025">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+<span class="nc" id="L1026">		final FiniteDifferenceEquityProduct activatedProduct = createActivatedVanillaProduct();</span>
+
+<span class="nc" id="L1028">		try(ProductEventStateStack.Scope ignored =</span>
+<span class="nc" id="L1029">				getActivatedVectorEventStateStack().push(</span>
+<span class="nc" id="L1030">						createActivatedVectorEventState(effectiveModel, activatedProduct)</span>
+						)) {
+
+<span class="nc" id="L1033">			final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+					effectiveModel,
+					this,
+<span class="nc" id="L1036">					effectiveModel.getSpaceTimeDiscretization(),</span>
+					new EuropeanExercise(maturity)
+					);
+
+<span class="nc" id="L1040">			return solver.getValues(maturity, assetValue -&gt; 0.0);</span>
+		}
+	}
+
+	private Map&lt;Double, double[]&gt; buildActivatedVectorsAtEventTimes(
+			final FiniteDifferenceEquityModel effectiveModel,
+			final FiniteDifferenceEquityProduct activatedProduct) {
+
+<span class="nc" id="L1048">		final Map&lt;Double, double[]&gt; activatedVectorsAtEventTimes = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L1050" title="All 2 branches missed.">		if (monitoringTimes == null) {</span>
+<span class="nc" id="L1051">			return activatedVectorsAtEventTimes;</span>
+		}
+
+<span class="nc bnc" id="L1054" title="All 2 branches missed.">		for (final double eventTime : monitoringTimes) {</span>
+<span class="nc" id="L1055">			activatedVectorsAtEventTimes.put(</span>
+<span class="nc" id="L1056">					eventTime,</span>
+<span class="nc" id="L1057">					activatedProduct.getValue(eventTime, effectiveModel).clone()</span>
+					);
+		}
+
+<span class="nc" id="L1061">		return activatedVectorsAtEventTimes;</span>
+	}
+
+	/*
+	 * ============================================
+	 * ACTIVATED VANILLA BRANCH
+	 * ============================================
+	 */
+
+	private FiniteDifferenceEquityProduct createActivatedVanillaProduct() {
+<span class="nc bnc" id="L1071" title="All 2 branches missed.">		if (exercise.isEuropean()) {</span>
+<span class="nc" id="L1072">			return new EuropeanOption(underlyingName, maturity, strike, callOrPutSign);</span>
+		}
+<span class="nc bnc" id="L1074" title="All 2 branches missed.">		if (exercise.isBermudan()) {</span>
+<span class="nc" id="L1075">			return new BermudanOption(underlyingName, exercise.getExerciseTimes(), strike, callOrPutSign);</span>
+		}
+<span class="nc bnc" id="L1077" title="All 2 branches missed.">		if (exercise.isAmerican()) {</span>
+<span class="nc" id="L1078">			return new AmericanOption(underlyingName, maturity, strike, callOrPutSign);</span>
+		}
+<span class="nc" id="L1080">		throw new IllegalArgumentException(&quot;Unsupported exercise specification.&quot;);</span>
+	}
+
+	private EuropeanOption createVanillaOption() {
+<span class="nc" id="L1084">		return new EuropeanOption(underlyingName, maturity, strike, callOrPutSign);</span>
+	}
+
+	private FiniteDifferenceEquityModel createAuxiliaryActivatedModel(final FiniteDifferenceEquityModel baseModel) {
+<span class="nc" id="L1088">		final SpaceTimeDiscretization base = baseModel.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L1089">		final TimeDiscretization timeDiscretization = base.getTimeDiscretization();</span>
+<span class="nc" id="L1090">		final double thetaValue = base.getTheta();</span>
+
+<span class="nc" id="L1092">		final double[] baseSpotGrid = base.getSpaceGrid(0).getGrid();</span>
+<span class="nc bnc" id="L1093" title="All 2 branches missed.">		if (baseSpotGrid.length &lt; 2) {</span>
+<span class="nc" id="L1094">			throw new IllegalArgumentException(&quot;Spot grid must contain at least two points.&quot;);</span>
+		}
+
+<span class="nc" id="L1097">		final double deltaS = baseSpotGrid[1] - baseSpotGrid[0];</span>
+<span class="nc" id="L1098">		final double initialSpot = baseModel.getInitialValue()[0];</span>
+
+<span class="nc" id="L1100">		final double currentMin = baseSpotGrid[0];</span>
+<span class="nc" id="L1101">		final double currentMax = baseSpotGrid[baseSpotGrid.length - 1];</span>
+<span class="nc" id="L1102">		final double currentHalfWidth = Math.max(initialSpot - currentMin, currentMax - initialSpot);</span>
+
+<span class="nc" id="L1104">		final double targetMin = Math.max(1E-8, initialSpot - 2.0 * currentHalfWidth);</span>
+<span class="nc" id="L1105">		final double targetMax = initialSpot + 2.0 * currentHalfWidth;</span>
+
+<span class="nc" id="L1107">		final double sMin = Math.floor(targetMin / deltaS) * deltaS;</span>
+<span class="nc" id="L1108">		final double sMax = Math.ceil(targetMax / deltaS) * deltaS;</span>
+<span class="nc" id="L1109">		final int numberOfSteps = Math.max(2, (int)Math.round((sMax - sMin) / deltaS));</span>
+
+<span class="nc" id="L1111">		final Grid activatedSpotGrid = new UniformGrid(numberOfSteps, sMin, sMax);</span>
+
+<span class="nc bnc" id="L1113" title="All 2 branches missed.">		if (base.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L1114">			final SpaceTimeDiscretization activatedDiscretization = new SpaceTimeDiscretization(</span>
+					activatedSpotGrid,
+					timeDiscretization,
+					thetaValue,
+					new double[] {initialSpot }
+					);
+<span class="nc" id="L1120">			return baseModel.getCloneWithModifiedSpaceTimeDiscretization(activatedDiscretization);</span>
+<span class="nc bnc" id="L1121" title="All 2 branches missed.">		} else if (base.getNumberOfSpaceGrids() == 2) {</span>
+<span class="nc" id="L1122">			final double[] secondGrid = base.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc" id="L1124">			final Grid preservedSecondGrid = new UniformGrid(</span>
+					secondGrid.length - 1,
+					secondGrid[0],
+					secondGrid[secondGrid.length - 1]
+					);
+
+<span class="nc" id="L1130">			final SpaceTimeDiscretization activatedDiscretization = new SpaceTimeDiscretization(</span>
+					new Grid[] {activatedSpotGrid, preservedSecondGrid },
+					timeDiscretization,
+					thetaValue,
+<span class="nc" id="L1134">					baseModel.getInitialValue()</span>
+					);
+<span class="nc" id="L1136">			return baseModel.getCloneWithModifiedSpaceTimeDiscretization(activatedDiscretization);</span>
+		} else {
+<span class="nc" id="L1138">			throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+		}
+	}
+
+	/*
+	 * ============================================
+	 * PRE-HIT BAND MODELS
+	 * ============================================
+	 */
+
+	private FiniteDifferenceEquityModel createAuxiliaryPreHitModel1D(
+			final FiniteDifferenceEquityModel baseModel,
+			final DoubleBarrierTrace1D lowerTrace,
+			final DoubleBarrierTrace1D upperTrace) {
+
+<span class="nc" id="L1153">		final SpaceTimeDiscretization base = baseModel.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L1154">		final double[] originalSpotGrid = base.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1155">		final double deltaS = originalSpotGrid[1] - originalSpotGrid[0];</span>
+
+<span class="nc" id="L1157">		final int numberOfSteps = Math.max(2, (int)Math.ceil((upperBarrier - lowerBarrier) / deltaS));</span>
+<span class="nc" id="L1158">		final Grid preHitSpotGrid = new UniformGrid(numberOfSteps, lowerBarrier, upperBarrier);</span>
+
+<span class="nc" id="L1160">		final SpaceTimeDiscretization preHitDiscretization = new SpaceTimeDiscretization(</span>
+				preHitSpotGrid,
+<span class="nc" id="L1162">				base.getTimeDiscretization(),</span>
+<span class="nc" id="L1163">				base.getTheta(),</span>
+<span class="nc" id="L1164">				new double[] {baseModel.getInitialValue()[0] }</span>
+				);
+
+<span class="nc" id="L1167">		final FiniteDifferenceEquityModel wrappedBase =</span>
+<span class="nc" id="L1168">				baseModel.getCloneWithModifiedSpaceTimeDiscretization(preHitDiscretization);</span>
+
+<span class="nc" id="L1170">		return new DoubleBarrierPreHitModel1D(</span>
+				wrappedBase,
+				preHitDiscretization,
+				lowerTrace,
+				upperTrace
+				);
+	}
+
+	private FiniteDifferenceEquityModel createAuxiliaryPreHitModel2D(
+			final FiniteDifferenceEquityModel baseModel,
+			final DoubleBarrierTrace2D lowerTrace,
+			final DoubleBarrierTrace2D upperTrace) {
+
+<span class="nc" id="L1183">		final SpaceTimeDiscretization base = baseModel.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L1184">		final double[] originalSpotGrid = base.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1185">		final double deltaS = originalSpotGrid[1] - originalSpotGrid[0];</span>
+
+<span class="nc" id="L1187">		final int numberOfSpotSteps = Math.max(2, (int)Math.ceil((upperBarrier - lowerBarrier) / deltaS));</span>
+<span class="nc" id="L1188">		final Grid preHitSpotGrid = new UniformGrid(numberOfSpotSteps, lowerBarrier, upperBarrier);</span>
+
+<span class="nc" id="L1190">		final double[] secondGrid = base.getSpaceGrid(1).getGrid();</span>
+<span class="nc" id="L1191">		final Grid preservedSecondGrid = new UniformGrid(</span>
+				secondGrid.length - 1,
+				secondGrid[0],
+				secondGrid[secondGrid.length - 1]
+				);
+
+<span class="nc" id="L1197">		final SpaceTimeDiscretization preHitDiscretization = new SpaceTimeDiscretization(</span>
+				new Grid[] {preHitSpotGrid, preservedSecondGrid },
+<span class="nc" id="L1199">				base.getTimeDiscretization(),</span>
+<span class="nc" id="L1200">				base.getTheta(),</span>
+<span class="nc" id="L1201">				baseModel.getInitialValue()</span>
+				);
+
+<span class="nc bnc" id="L1204" title="All 2 branches missed.">		if (baseModel instanceof FDMHestonModel) {</span>
+<span class="nc" id="L1205">			final FDMHestonModel hestonBase = (FDMHestonModel)baseModel;</span>
+<span class="nc" id="L1206">			return new DoubleBarrierPreHitHestonModel(</span>
+					hestonBase,
+					preHitDiscretization,
+					lowerTrace,
+					upperTrace
+					);
+<span class="nc bnc" id="L1212" title="All 2 branches missed.">		} else if (baseModel instanceof FDMSabrModel) {</span>
+<span class="nc" id="L1213">			final FDMSabrModel sabrBase = (FDMSabrModel)baseModel;</span>
+<span class="nc" id="L1214">			return new DoubleBarrierPreHitSabrModel(</span>
+					sabrBase,
+					preHitDiscretization,
+					lowerTrace,
+					upperTrace
+					);
+		} else {
+<span class="nc" id="L1221">			throw new IllegalArgumentException(</span>
+					&quot;Two-dimensional pre-hit double-barrier model currently supports only Heston and SABR.&quot;);
+		}
+	}
+
+	/*
+	 * ============================================
+	 * TRACE EXTRACTION
+	 * ============================================
+	 */
+
+	private DoubleBarrierTrace1D extractActivatedBoundaryTrace1D(
+			final FiniteDifferenceEquityModel activatedModel,
+			final double[][] activatedValues,
+			final double barrier) {
+
+<span class="nc" id="L1237">		final SpaceTimeDiscretization disc = activatedModel.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L1238">		final double[] spotGrid = disc.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1239">		final int numberOfColumns = activatedValues[0].length;</span>
+
+<span class="nc" id="L1241">		final double[] traceValues = new double[numberOfColumns];</span>
+
+<span class="nc bnc" id="L1243" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc" id="L1244">			final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+					spotGrid,
+<span class="nc" id="L1246">					getColumn(activatedValues, timeIndex),</span>
+					InterpolationMethod.LINEAR,
+					ExtrapolationMethod.CONSTANT
+					);
+<span class="nc" id="L1250">			traceValues[timeIndex] = interpolator.getValue(barrier);</span>
+		}
+
+<span class="nc" id="L1253">		return new DoubleBarrierTrace1D(</span>
+				maturity,
+<span class="nc" id="L1255">				disc.getTimeDiscretization(),</span>
+				traceValues
+				);
+	}
+
+	private DoubleBarrierTrace2D extractActivatedBoundaryTrace2D(
+			final FiniteDifferenceEquityModel activatedModel,
+			final double[][] activatedValues,
+			final double barrier) {
+
+<span class="nc" id="L1265">		final SpaceTimeDiscretization disc = activatedModel.getSpaceTimeDiscretization();</span>
+
+<span class="nc" id="L1267">		final double[] spotGrid = disc.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1268">		final double[] secondGrid = disc.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc" id="L1270">		final int n0 = spotGrid.length;</span>
+<span class="nc" id="L1271">		final int n1 = secondGrid.length;</span>
+<span class="nc" id="L1272">		final int numberOfColumns = activatedValues[0].length;</span>
+
+<span class="nc" id="L1274">		final double[][] traceValues = new double[n1][numberOfColumns];</span>
+
+<span class="nc bnc" id="L1276" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc bnc" id="L1277" title="All 2 branches missed.">			for (int j = 0; j &lt; n1; j++) {</span>
+<span class="nc" id="L1278">				final double[] slice = new double[n0];</span>
+<span class="nc bnc" id="L1279" title="All 2 branches missed.">				for (int i = 0; i &lt; n0; i++) {</span>
+<span class="nc" id="L1280">					slice[i] = activatedValues[flatten(i, j, n0)][timeIndex];</span>
+				}
+
+<span class="nc" id="L1283">				final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+						spotGrid,
+						slice,
+						InterpolationMethod.LINEAR,
+						ExtrapolationMethod.CONSTANT
+						);
+
+<span class="nc" id="L1290">				traceValues[j][timeIndex] = interpolator.getValue(barrier);</span>
+			}
+		}
+
+<span class="nc" id="L1294">		return new DoubleBarrierTrace2D(</span>
+				maturity,
+				secondGrid,
+<span class="nc" id="L1297">				disc.getTimeDiscretization(),</span>
+				traceValues
+				);
+	}
+
+	/*
+	 * ============================================
+	 * STITCHING
+	 * ============================================
+	 */
+
+	private double[][] assembleDirectKnockInSurface1D(
+			final FiniteDifferenceEquityModel originalModel,
+			final FiniteDifferenceEquityModel activatedModel,
+			final double[][] activatedValues,
+			final FiniteDifferenceEquityModel preHitModel,
+			final double[][] preHitValues) {
+
+<span class="nc" id="L1315">		final double[] originalGrid = getValuationSpaceTimeDiscretization(originalModel).getSpaceGrid(0).getGrid();</span>
+
+<span class="nc" id="L1317">		final double[][] activatedOnOriginalGrid = interpolateSurfaceToOriginalGrid1D(</span>
+				activatedValues,
+<span class="nc" id="L1319">				activatedModel.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+				originalGrid
+				);
+
+<span class="nc" id="L1323">		final double[][] preHitOnOriginalGrid = interpolateSurfaceToOriginalGrid1D(</span>
+				preHitValues,
+<span class="nc" id="L1325">				preHitModel.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+				originalGrid
+				);
+
+<span class="nc" id="L1329">		final int numberOfColumns = activatedOnOriginalGrid[0].length;</span>
+<span class="nc" id="L1330">		final double[][] result = new double[originalGrid.length][numberOfColumns];</span>
+
+<span class="nc bnc" id="L1332" title="All 2 branches missed.">		for (int i = 0; i &lt; originalGrid.length; i++) {</span>
+<span class="nc" id="L1333">			final boolean alreadyActivated = isKnockedIn(originalGrid[i]);</span>
+<span class="nc bnc" id="L1334" title="All 2 branches missed.">			final double[][] source = alreadyActivated ? activatedOnOriginalGrid : preHitOnOriginalGrid;</span>
+
+<span class="nc bnc" id="L1336" title="All 2 branches missed.">			for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc" id="L1337">				result[i][timeIndex] = source[i][timeIndex];</span>
+			}
+		}
+
+<span class="nc" id="L1341">		return result;</span>
+	}
+
+	private double[][] assembleDirectKnockInSurface2D(
+			final FiniteDifferenceEquityModel originalModel,
+			final FiniteDifferenceEquityModel activatedModel,
+			final double[][] activatedValues,
+			final FiniteDifferenceEquityModel preHitModel,
+			final double[][] preHitValues) {
+
+<span class="nc" id="L1351">		final SpaceTimeDiscretization originalDiscretization = getValuationSpaceTimeDiscretization(originalModel);</span>
+
+<span class="nc" id="L1353">		final double[][] activatedOnOriginalGrid = interpolateSurfaceToOriginalGrid2DAlongFirstState(</span>
+				activatedValues,
+<span class="nc" id="L1355">				activatedModel.getSpaceTimeDiscretization(),</span>
+				originalDiscretization
+				);
+
+<span class="nc" id="L1359">		final double[][] preHitOnOriginalGrid = interpolateSurfaceToOriginalGrid2DAlongFirstState(</span>
+				preHitValues,
+<span class="nc" id="L1361">				preHitModel.getSpaceTimeDiscretization(),</span>
+				originalDiscretization
+				);
+
+<span class="nc" id="L1365">		final double[] x0 = originalDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1366">		final double[] x1 = originalDiscretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc" id="L1368">		final int numberOfColumns = activatedOnOriginalGrid[0].length;</span>
+<span class="nc" id="L1369">		final double[][] result = new double[x0.length * x1.length][numberOfColumns];</span>
+
+<span class="nc bnc" id="L1371" title="All 2 branches missed.">		for (int j = 0; j &lt; x1.length; j++) {</span>
+<span class="nc bnc" id="L1372" title="All 2 branches missed.">			for (int i = 0; i &lt; x0.length; i++) {</span>
+<span class="nc" id="L1373">				final boolean alreadyActivated = isKnockedIn(x0[i]);</span>
+<span class="nc bnc" id="L1374" title="All 2 branches missed.">				final double[][] source = alreadyActivated ? activatedOnOriginalGrid : preHitOnOriginalGrid;</span>
+<span class="nc" id="L1375">				final int k = flatten(i, j, x0.length);</span>
+
+<span class="nc bnc" id="L1377" title="All 2 branches missed.">				for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc" id="L1378">					result[k][timeIndex] = source[k][timeIndex];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L1383">		return result;</span>
+	}
+
+	/*
+	 * ============================================
+	 * INTERPOLATION
+	 * ============================================
+	 */
+
+	private double[][] interpolateSurfaceToOriginalGrid1D(
+			final double[][] valuesOnAuxiliaryGrid,
+			final double[] auxiliaryGrid,
+			final double[] originalGrid) {
+
+<span class="nc" id="L1397">		final int numberOfColumns = valuesOnAuxiliaryGrid[0].length;</span>
+<span class="nc" id="L1398">		final double[][] interpolatedValues = new double[originalGrid.length][numberOfColumns];</span>
+
+<span class="nc bnc" id="L1400" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc" id="L1401">			final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+					auxiliaryGrid,
+<span class="nc" id="L1403">					getColumn(valuesOnAuxiliaryGrid, timeIndex),</span>
+					InterpolationMethod.LINEAR,
+					ExtrapolationMethod.CONSTANT
+					);
+
+<span class="nc bnc" id="L1408" title="All 2 branches missed.">			for (int i = 0; i &lt; originalGrid.length; i++) {</span>
+<span class="nc" id="L1409">				interpolatedValues[i][timeIndex] = interpolator.getValue(originalGrid[i]);</span>
+			}
+		}
+
+<span class="nc" id="L1413">		return interpolatedValues;</span>
+	}
+
+	private double[][] interpolateSurfaceToOriginalGrid2DAlongFirstState(
+			final double[][] valuesOnAuxiliaryGrid,
+			final SpaceTimeDiscretization auxiliaryDiscretization,
+			final SpaceTimeDiscretization originalDiscretization) {
+
+<span class="nc" id="L1421">		final double[] auxiliaryX0 = auxiliaryDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1422">		final double[] auxiliaryX1 = auxiliaryDiscretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc" id="L1424">		final double[] originalX0 = originalDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1425">		final double[] originalX1 = originalDiscretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L1427" title="All 2 branches missed.">		if (auxiliaryX1.length != originalX1.length) {</span>
+<span class="nc" id="L1428">			throw new IllegalArgumentException(</span>
+					&quot;2D interpolation currently requires the second state-variable grid to remain unchanged.&quot;);
+		}
+
+<span class="nc bnc" id="L1432" title="All 2 branches missed.">		for (int j = 0; j &lt; originalX1.length; j++) {</span>
+<span class="nc bnc" id="L1433" title="All 2 branches missed.">			if (Math.abs(auxiliaryX1[j] - originalX1[j]) &gt; 1E-12) {</span>
+<span class="nc" id="L1434">				throw new IllegalArgumentException(</span>
+						&quot;2D interpolation currently requires the second state-variable grid to remain unchanged.&quot;);
+			}
+		}
+
+<span class="nc" id="L1439">		final int auxiliaryN0 = auxiliaryX0.length;</span>
+<span class="nc" id="L1440">		final int originalN0 = originalX0.length;</span>
+<span class="nc" id="L1441">		final int originalN1 = originalX1.length;</span>
+
+<span class="nc" id="L1443">		final int numberOfColumns = valuesOnAuxiliaryGrid[0].length;</span>
+<span class="nc" id="L1444">		final double[][] interpolatedValues = new double[originalN0 * originalN1][numberOfColumns];</span>
+
+<span class="nc bnc" id="L1446" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfColumns; timeIndex++) {</span>
+<span class="nc bnc" id="L1447" title="All 2 branches missed.">			for (int j = 0; j &lt; originalN1; j++) {</span>
+<span class="nc" id="L1448">				final double[] auxiliarySlice = new double[auxiliaryN0];</span>
+<span class="nc bnc" id="L1449" title="All 2 branches missed.">				for (int i = 0; i &lt; auxiliaryN0; i++) {</span>
+<span class="nc" id="L1450">					auxiliarySlice[i] = valuesOnAuxiliaryGrid[flatten(i, j, auxiliaryN0)][timeIndex];</span>
+				}
+
+<span class="nc" id="L1453">				final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+						auxiliaryX0,
+						auxiliarySlice,
+						InterpolationMethod.LINEAR,
+						ExtrapolationMethod.CONSTANT
+						);
+
+<span class="nc bnc" id="L1460" title="All 2 branches missed.">				for (int i = 0; i &lt; originalN0; i++) {</span>
+<span class="nc" id="L1461">					interpolatedValues[flatten(i, j, originalN0)][timeIndex] =</span>
+<span class="nc" id="L1462">							interpolator.getValue(originalX0[i]);</span>
+				}
+			}
+		}
+
+<span class="nc" id="L1467">		return interpolatedValues;</span>
+	}
+
+	/*
+	 * ============================================
+	 * PAYOFFS / TERMINALS / STATE LOGIC
+	 * ============================================
+	 */
+
+	private double[] buildZeroTerminalValues(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L1477">		final double[] spotGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1478">		final double[] zero = new double[spotGrid.length];</span>
+<span class="nc bnc" id="L1479" title="All 2 branches missed.">		for (int i = 0; i &lt; zero.length; i++) {</span>
+<span class="nc" id="L1480">			zero[i] = 0.0;</span>
+		}
+<span class="nc" id="L1482">		return zero;</span>
+	}
+
+	private double[] buildCellAveragedTerminalValues(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L1486">		final double[] sGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1487">		final double[] terminalValues = new double[sGrid.length];</span>
+
+<span class="nc bnc" id="L1489" title="All 2 branches missed.">		for (int i = 0; i &lt; sGrid.length; i++) {</span>
+<span class="nc" id="L1490">			final double leftEdge = getLeftDualCellEdge(sGrid, i);</span>
+<span class="nc" id="L1491">			final double rightEdge = getRightDualCellEdge(sGrid, i);</span>
+<span class="nc" id="L1492">			terminalValues[i] = cellAveragedPayoffForDirectOutPricing(leftEdge, rightEdge);</span>
+		}
+
+<span class="nc" id="L1495">		return terminalValues;</span>
+	}
+
+	private double cellAveragedPayoffForDirectOutPricing(final double leftEdge, final double rightEdge) {
+<span class="nc bnc" id="L1499" title="All 2 branches missed.">		if (!(leftEdge &lt; rightEdge)) {</span>
+<span class="nc" id="L1500">			throw new IllegalArgumentException(&quot;Require leftEdge &lt; rightEdge.&quot;);</span>
+		}
+
+<span class="nc" id="L1503">		final double aliveLeft = Math.max(leftEdge, lowerBarrier);</span>
+<span class="nc" id="L1504">		final double aliveRight = Math.min(rightEdge, upperBarrier);</span>
+
+<span class="nc bnc" id="L1506" title="All 2 branches missed.">		if (aliveRight &lt;= aliveLeft) {</span>
+<span class="nc" id="L1507">			return 0.0;</span>
+		}
+
+<span class="nc" id="L1510">		final double aliveWeight = (aliveRight - aliveLeft) / (rightEdge - leftEdge);</span>
+<span class="nc" id="L1511">		return aliveWeight * cellAveragedVanillaPayoff(aliveLeft, aliveRight);</span>
+	}
+
+	private double cellAveragedVanillaPayoff(final double leftEdge, final double rightEdge) {
+<span class="nc" id="L1515">		final double cellLength = rightEdge - leftEdge;</span>
+
+<span class="nc bnc" id="L1517" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc bnc" id="L1518" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L1519">				return 0.0;</span>
+			}
+<span class="nc bnc" id="L1521" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L1522">				return 0.5 * (leftEdge + rightEdge) - strike;</span>
+			}
+<span class="nc" id="L1524">			return 0.5 * Math.pow(rightEdge - strike, 2.0) / cellLength;</span>
+		} else {
+<span class="nc bnc" id="L1526" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L1527">				return 0.0;</span>
+			}
+<span class="nc bnc" id="L1529" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L1530">				return strike - 0.5 * (leftEdge + rightEdge);</span>
+			}
+<span class="nc" id="L1532">			return 0.5 * Math.pow(strike - leftEdge, 2.0) / cellLength;</span>
+		}
+	}
+
+	private double pointwisePayoffForDirectOutPricing(final double assetValue) {
+<span class="nc bnc" id="L1537" title="All 2 branches missed.">		if (!isAliveInsideBand(assetValue)) {</span>
+<span class="nc" id="L1538">			return 0.0;</span>
+		}
+<span class="nc" id="L1540">		return pointwiseVanillaPayoff(assetValue);</span>
+	}
+
+	private double pointwiseVanillaPayoff(final double assetValue) {
+<span class="nc bnc" id="L1544" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L1545">			return Math.max(assetValue - strike, 0.0);</span>
+		}
+<span class="nc" id="L1547">		return Math.max(strike - assetValue, 0.0);</span>
+	}
+
+	private boolean isOutOption() {
+<span class="nc bnc" id="L1551" title="All 2 branches missed.">		return doubleBarrierType == DoubleBarrierType.KNOCK_OUT;</span>
+	}
+
+	private boolean isAliveInsideBand(final double assetValue) {
+<span class="nc bnc" id="L1555" title="All 4 branches missed.">		return assetValue &gt; lowerBarrier &amp;&amp; assetValue &lt; upperBarrier;</span>
+	}
+
+	private boolean isKnockedIn(final double assetValue) {
+<span class="nc bnc" id="L1559" title="All 4 branches missed.">		return assetValue &lt;= lowerBarrier || assetValue &gt;= upperBarrier;</span>
+	}
+
+	private boolean isDegenerateZeroCase() {
+<span class="nc bnc" id="L1563" title="All 24 branches missed.">		return (doubleBarrierType == DoubleBarrierType.KNOCK_OUT &amp;&amp; callOrPutSign == CallOrPut.CALL &amp;&amp; upperBarrier &lt;= strike)</span>
+				|| (doubleBarrierType == DoubleBarrierType.KNOCK_OUT &amp;&amp; callOrPutSign == CallOrPut.PUT &amp;&amp; lowerBarrier &gt;= strike)
+				|| (doubleBarrierType == DoubleBarrierType.KNOCK_IN &amp;&amp; callOrPutSign == CallOrPut.CALL &amp;&amp; lowerBarrier &gt;= strike)
+				|| (doubleBarrierType == DoubleBarrierType.KNOCK_IN &amp;&amp; callOrPutSign == CallOrPut.PUT &amp;&amp; upperBarrier &lt;= strike);
+	}
+
+	private boolean isDegenerateVanillaCase() {
+<span class="nc bnc" id="L1570" title="All 12 branches missed.">		return (doubleBarrierType == DoubleBarrierType.KNOCK_IN &amp;&amp; callOrPutSign == CallOrPut.CALL &amp;&amp; upperBarrier &lt;= strike)</span>
+				|| (doubleBarrierType == DoubleBarrierType.KNOCK_IN &amp;&amp; callOrPutSign == CallOrPut.PUT &amp;&amp; lowerBarrier &gt;= strike);
+	}
+
+	private double getLeftDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L1575" title="All 2 branches missed.">		if (i == 0) {</span>
+<span class="nc" id="L1576">			return grid[0];</span>
+		}
+<span class="nc" id="L1578">		return 0.5 * (grid[i - 1] + grid[i]);</span>
+	}
+
+	private double getRightDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L1582" title="All 2 branches missed.">		if (i == grid.length - 1) {</span>
+<span class="nc" id="L1583">			return grid[grid.length - 1];</span>
+		}
+<span class="nc" id="L1585">		return 0.5 * (grid[i] + grid[i + 1]);</span>
+	}
+
+	/*
+	 * ============================================
+	 * DISCRETE MONITORING HOOKS
+	 * ============================================
+	 */
+
+	@Override
+	public double[] getEventTimes() {
+<span class="nc bnc" id="L1596" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1597">			return new double[0];</span>
+		}
+<span class="nc bnc" id="L1599" title="All 2 branches missed.">		return monitoringTimes == null ? new double[0] : monitoringTimes.clone();</span>
+	}
+
+	@Override
+	public double[] applyEventCondition(
+			final double time,
+			final double[] valuesAfterEvent,
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc bnc" id="L1608" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1609">			return valuesAfterEvent;</span>
+		}
+
+<span class="nc" id="L1612">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L1614" title="All 2 branches missed.">		if (isOutOption()) {</span>
+<span class="nc bnc" id="L1615" title="All 2 branches missed.">			if (dims == 1) {</span>
+<span class="nc" id="L1616">				return applyDiscreteOutEvent1D(valuesAfterEvent, model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid());</span>
+<span class="nc bnc" id="L1617" title="All 2 branches missed.">			} else if (dims == 2) {</span>
+<span class="nc" id="L1618">				return applyDiscreteOutEvent2D(</span>
+						valuesAfterEvent,
+<span class="nc" id="L1620">						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+<span class="nc" id="L1621">						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid()</span>
+						);
+			}
+		} else {
+<span class="nc" id="L1625">			final ActivatedVectorEventState eventState = getCurrentActivatedVectorEventState();</span>
+
+<span class="nc bnc" id="L1627" title="All 2 branches missed.">			if (dims == 1) {</span>
+<span class="nc" id="L1628">				return applyDiscreteInEvent1D(</span>
+						time,
+						valuesAfterEvent,
+<span class="nc" id="L1631">						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+						eventState
+						);
+<span class="nc bnc" id="L1634" title="All 2 branches missed.">			} else if (dims == 2) {</span>
+<span class="nc" id="L1635">				return applyDiscreteInEvent2D(</span>
+						time,
+						valuesAfterEvent,
+<span class="nc" id="L1638">						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+<span class="nc" id="L1639">						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid(),</span>
+						eventState
+						);
+			}
+		}
+
+<span class="nc" id="L1645">		throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+	}
+
+	private double[] applyEvaluationTimeDiscreteCondition(
+			final double evaluationTime,
+			final double[] valuesAtEvaluationTime,
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc bnc" id="L1653" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1654">			return valuesAtEvaluationTime;</span>
+		}
+
+<span class="nc" id="L1657">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L1659" title="All 2 branches missed.">		if (isOutOption()) {</span>
+<span class="nc bnc" id="L1660" title="All 2 branches missed.">			if (dims == 1) {</span>
+<span class="nc" id="L1661">				return applyDiscreteOutEvent1D(valuesAtEvaluationTime, model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid());</span>
+<span class="nc bnc" id="L1662" title="All 2 branches missed.">			} else if (dims == 2) {</span>
+<span class="nc" id="L1663">				return applyDiscreteOutEvent2D(</span>
+						valuesAtEvaluationTime,
+<span class="nc" id="L1665">						model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+<span class="nc" id="L1666">						model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid()</span>
+						);
+			}
+<span class="nc" id="L1669">			return valuesAtEvaluationTime;</span>
+		}
+
+<span class="nc" id="L1672">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+<span class="nc" id="L1673">		final FiniteDifferenceEquityProduct activatedProduct = createActivatedVanillaProduct();</span>
+
+<span class="nc" id="L1675">		final Map&lt;Double, double[]&gt; activatedVectorsAtEventTimes = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L1676">		activatedVectorsAtEventTimes.put(</span>
+<span class="nc" id="L1677">				evaluationTime,</span>
+<span class="nc" id="L1678">				activatedProduct.getValue(evaluationTime, effectiveModel).clone()</span>
+				);
+
+<span class="nc" id="L1681">		final ActivatedVectorEventState eventState = new ActivatedVectorEventState(</span>
+				activatedVectorsAtEventTimes,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+
+<span class="nc bnc" id="L1686" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L1687">			return applyDiscreteInEvent1D(</span>
+					evaluationTime,
+					valuesAtEvaluationTime,
+<span class="nc" id="L1690">					model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+					eventState
+					);
+<span class="nc bnc" id="L1693" title="All 2 branches missed.">		} else if (dims == 2) {</span>
+<span class="nc" id="L1694">			return applyDiscreteInEvent2D(</span>
+					evaluationTime,
+					valuesAtEvaluationTime,
+<span class="nc" id="L1697">					model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid(),</span>
+<span class="nc" id="L1698">					model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid(),</span>
+					eventState
+					);
+		}
+
+<span class="nc" id="L1703">		return valuesAtEvaluationTime;</span>
+	}
+
+	private double[] applyDiscreteOutEvent1D(
+			final double[] valuesAfterEvent,
+			final double[] spotGrid) {
+
+<span class="nc" id="L1710">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+
+<span class="nc bnc" id="L1712" title="All 2 branches missed.">		for (int i = 0; i &lt; spotGrid.length; i++) {</span>
+<span class="nc bnc" id="L1713" title="All 2 branches missed.">			if (!isAliveInsideBand(spotGrid[i])) {</span>
+<span class="nc" id="L1714">				valuesBeforeEvent[i] = 0.0;</span>
+			}
+		}
+
+<span class="nc" id="L1718">		return valuesBeforeEvent;</span>
+	}
+
+	private double[] applyDiscreteOutEvent2D(
+			final double[] valuesAfterEvent,
+			final double[] x0,
+			final double[] x1) {
+
+<span class="nc" id="L1726">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+
+<span class="nc bnc" id="L1728" title="All 2 branches missed.">		for (int j = 0; j &lt; x1.length; j++) {</span>
+<span class="nc bnc" id="L1729" title="All 2 branches missed.">			for (int i = 0; i &lt; x0.length; i++) {</span>
+<span class="nc bnc" id="L1730" title="All 2 branches missed.">				if (!isAliveInsideBand(x0[i])) {</span>
+<span class="nc" id="L1731">					valuesBeforeEvent[flatten(i, j, x0.length)] = 0.0;</span>
+				}
+			}
+		}
+
+<span class="nc" id="L1736">		return valuesBeforeEvent;</span>
+	}
+
+	private double[] applyDiscreteInEvent1D(
+			final double time,
+			final double[] valuesAfterEvent,
+			final double[] spotGrid,
+			final ActivatedVectorEventState eventState) {
+
+<span class="nc" id="L1745">		final double[] activatedVector = eventState.getActivatedVector(time);</span>
+<span class="nc" id="L1746">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+
+<span class="nc bnc" id="L1748" title="All 2 branches missed.">		for (int i = 0; i &lt; spotGrid.length; i++) {</span>
+<span class="nc bnc" id="L1749" title="All 2 branches missed.">			if (isKnockedIn(spotGrid[i])) {</span>
+<span class="nc" id="L1750">				valuesBeforeEvent[i] = activatedVector[i];</span>
+			}
+		}
+
+<span class="nc" id="L1754">		return valuesBeforeEvent;</span>
+	}
+
+	private double[] applyDiscreteInEvent2D(
+			final double time,
+			final double[] valuesAfterEvent,
+			final double[] x0,
+			final double[] x1,
+			final ActivatedVectorEventState eventState) {
+
+<span class="nc" id="L1764">		final double[] activatedVector = eventState.getActivatedVector(time);</span>
+<span class="nc" id="L1765">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+
+<span class="nc bnc" id="L1767" title="All 2 branches missed.">		for (int j = 0; j &lt; x1.length; j++) {</span>
+<span class="nc bnc" id="L1768" title="All 2 branches missed.">			for (int i = 0; i &lt; x0.length; i++) {</span>
+<span class="nc bnc" id="L1769" title="All 2 branches missed.">				if (isKnockedIn(x0[i])) {</span>
+<span class="nc" id="L1770">					valuesBeforeEvent[flatten(i, j, x0.length)] =</span>
+<span class="nc" id="L1771">							activatedVector[flatten(i, j, x0.length)];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L1776">		return valuesBeforeEvent;</span>
+	}
+
+	private boolean usesDiscreteMonitoring() {
+<span class="nc" id="L1780">		return DiscreteMonitoringSupport.usesDiscreteMonitoring(monitoringType);</span>
+	}
+
+	private void validateMonitoringSpecification() {
+<span class="nc" id="L1784">		DiscreteMonitoringSupport.validateMonitoringSpecification(</span>
+				monitoringType,
+				monitoringTimes,
+				maturity,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+<span class="nc" id="L1790">	}</span>
+
+	private boolean isMonitoringTime(final double time) {
+<span class="nc" id="L1793">		return DiscreteMonitoringSupport.isMonitoringTime(</span>
+				time,
+				monitoringTimes,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+	}
+
+	/*
+	 * ============================================
+	 * INTERNAL CONSTRAINTS
+	 * ============================================
+	 */
+
+	/**
+	 * Returns whether the internal knock-out constraint is active.
+	 *
+	 * @param time Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return {@code true} if the state is outside the alive band.
+	 */
+	@Override
+	public boolean isConstraintActive(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1815" title="All 4 branches missed.">		if (!isOutOption() || usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1816">			return false;</span>
+		}
+
+<span class="nc" id="L1819">		final double underlyingLevel = stateVariables[0];</span>
+<span class="nc bnc" id="L1820" title="All 4 branches missed.">		return underlyingLevel &lt;= lowerBarrier || underlyingLevel &gt;= upperBarrier;</span>
+	}
+
+	/**
+	 * Returns the constrained value in the knocked-out region.
+	 *
+	 * @param time Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return The constrained value.
+	 */
+	@Override
+	public double getConstrainedValue(final double time, final double... stateVariables) {
+<span class="nc bnc" id="L1832" title="All 2 branches missed.">		if (!isOutOption()) {</span>
+<span class="nc" id="L1833">			throw new IllegalStateException(&quot;Internal constrained value requested for a non knock-out product.&quot;);</span>
+		}
+<span class="nc" id="L1835">		return 0.0;</span>
+	}
+
+	/*
+	 * ============================================
+	 * MODEL / GRID HELPERS
+	 * ============================================
+	 */
+
+	private void validateBarriersInsideGrid(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1845">		final double[] spotGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L1846">		final double gridMin = spotGrid[0];</span>
+<span class="nc" id="L1847">		final double gridMax = spotGrid[spotGrid.length - 1];</span>
+
+<span class="nc bnc" id="L1849" title="All 4 branches missed.">		if (lowerBarrier &lt; gridMin || upperBarrier &gt; gridMax) {</span>
+<span class="nc" id="L1850">			throw new IllegalArgumentException(</span>
+					&quot;Both double barriers must lie inside the first state-variable grid domain of the supplied model.&quot;);
+		}
+<span class="nc" id="L1853">	}</span>
+
+	private SpaceTimeDiscretization getValuationSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1856">		final SpaceTimeDiscretization base = model.getSpaceTimeDiscretization();</span>
+
+<span class="nc bnc" id="L1858" title="All 4 branches missed.">		if (!exercise.isBermudan() &amp;&amp; !usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1859">			return base;</span>
+		}
+
+<span class="nc" id="L1862">		TimeDiscretization refinedTimeDiscretization = base.getTimeDiscretization();</span>
+
+<span class="nc bnc" id="L1864" title="All 2 branches missed.">		if (exercise.isBermudan()) {</span>
+<span class="nc" id="L1865">			refinedTimeDiscretization =</span>
+<span class="nc" id="L1866">					FiniteDifferenceExerciseUtil.refineTimeDiscretization(</span>
+							refinedTimeDiscretization,
+							exercise
+							);
+		}
+
+<span class="nc bnc" id="L1872" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1873">			refinedTimeDiscretization =</span>
+<span class="nc" id="L1874">					DiscreteMonitoringSupport.refineTimeDiscretizationWithMonitoring(</span>
+							refinedTimeDiscretization,
+							maturity,
+							monitoringTimes
+							);
+		}
+
+<span class="nc bnc" id="L1881" title="All 2 branches missed.">		if (base.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L1882">			return new SpaceTimeDiscretization(</span>
+<span class="nc" id="L1883">					base.getSpaceGrid(0),</span>
+					refinedTimeDiscretization,
+<span class="nc" id="L1885">					base.getTheta(),</span>
+<span class="nc" id="L1886">					new double[] {base.getCenter(0) }</span>
+					);
+		}
+
+<span class="nc" id="L1890">		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L1891">		final Grid[] spaceGrids = new Grid[numberOfSpaceGrids];</span>
+<span class="nc" id="L1892">		final double[] center = new double[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L1894" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L1895">			spaceGrids[i] = base.getSpaceGrid(i);</span>
+<span class="nc" id="L1896">			center[i] = base.getCenter(i);</span>
+		}
+
+<span class="nc" id="L1899">		return new SpaceTimeDiscretization(</span>
+				spaceGrids,
+				refinedTimeDiscretization,
+<span class="nc" id="L1902">				base.getTheta(),</span>
+				center
+				);
+	}
+
+	private FiniteDifferenceEquityModel getEffectiveModelForValuation(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1908">		final SpaceTimeDiscretization effectiveDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+
+<span class="nc bnc" id="L1910" title="All 2 branches missed.">		if (effectiveDiscretization == model.getSpaceTimeDiscretization()) {</span>
+<span class="nc" id="L1911">			return model;</span>
+		}
+
+<span class="nc" id="L1914">		return model.getCloneWithModifiedSpaceTimeDiscretization(effectiveDiscretization);</span>
+	}
+
+	private int getTotalNumberOfSpacePoints(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L1918">		final int dims = discretization.getNumberOfSpaceGrids();</span>
+<span class="nc bnc" id="L1919" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L1920">			return discretization.getSpaceGrid(0).getGrid().length;</span>
+<span class="nc bnc" id="L1921" title="All 2 branches missed.">		} else if (dims == 2) {</span>
+<span class="nc" id="L1922">			return discretization.getSpaceGrid(0).getGrid().length</span>
+<span class="nc" id="L1923">					* discretization.getSpaceGrid(1).getGrid().length;</span>
+		} else {
+<span class="nc" id="L1925">			throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+		}
+	}
+
+	private static double[] getColumn(final double[][] matrix, final int columnIndex) {
+<span class="nc" id="L1930">		final double[] column = new double[matrix.length];</span>
+<span class="nc bnc" id="L1931" title="All 2 branches missed.">		for (int i = 0; i &lt; matrix.length; i++) {</span>
+<span class="nc" id="L1932">			column[i] = matrix[i][columnIndex];</span>
+		}
+<span class="nc" id="L1934">		return column;</span>
+	}
+
+	private static int flatten(final int i0, final int i1, final int n0) {
+<span class="nc" id="L1938">		return i0 + i1 * n0;</span>
+	}
+
+	private static CallOrPut mapCallOrPut(final double sign) {
+<span class="nc bnc" id="L1942" title="All 2 branches missed.">		if (sign == 1.0) {</span>
+<span class="nc" id="L1943">			return CallOrPut.CALL;</span>
+		}
+<span class="nc bnc" id="L1945" title="All 2 branches missed.">		if (sign == -1.0) {</span>
+<span class="nc" id="L1946">			return CallOrPut.PUT;</span>
+		}
+<span class="nc" id="L1948">		throw new IllegalArgumentException(&quot;Unknown option type.&quot;);</span>
+	}
+
+	/*
+	 * ============================================
+	 * GETTERS
+	 * ============================================
+	 */
+
+	/**
+	 * Returns the underlying name.
+	 *
+	 * @return The underlying name, possibly {@code null}.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L1963">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L1972">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L1981">		return strike;</span>
+	}
+
+	/**
+	 * Returns the lower barrier.
+	 *
+	 * @return The lower barrier.
+	 */
+	public double getLowerBarrier() {
+<span class="nc" id="L1990">		return lowerBarrier;</span>
+	}
+
+	/**
+	 * Returns the upper barrier.
+	 *
+	 * @return The upper barrier.
+	 */
+	public double getUpperBarrier() {
+<span class="nc" id="L1999">		return upperBarrier;</span>
+	}
+
+	/**
+	 * Returns the call/put sign.
+	 *
+	 * @return The call/put sign.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L2008">		return callOrPutSign;</span>
+	}
+
+	/**
+	 * Returns the double-barrier type.
+	 *
+	 * @return The double-barrier type.
+	 */
+	public DoubleBarrierType getDoubleBarrierType() {
+<span class="nc" id="L2017">		return doubleBarrierType;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L2026">		return exercise;</span>
+	}
+
+	/**
+	 * Returns the monitoring type.
+	 *
+	 * @return The monitoring type.
+	 */
+	public MonitoringType getMonitoringType() {
+<span class="nc" id="L2035">		return monitoringType;</span>
+	}
+
+	/**
+	 * Returns the monitoring times.
+	 *
+	 * @return The monitoring times, or {@code null} for continuous monitoring.
+	 */
+	public double[] getMonitoringTimes() {
+<span class="nc bnc" id="L2044" title="All 2 branches missed.">		return monitoringTimes == null ? null : monitoringTimes.clone();</span>
+	}
+
+	/*
+	 * ============================================
+	 * TRACE HOLDERS
+	 * ============================================
+	 */
+
+	private static final class DoubleBarrierTrace1D {
+
+		/**
+		 * The maturity.
+		 */
+		private final double maturity;
+		/**
+		 * The time discretization.
+		 */
+		private final TimeDiscretization timeDiscretization;
+		/**
+		 * The values.
+		 */
+		private final double[] values;
+
+		private DoubleBarrierTrace1D(
+				final double maturity,
+				final TimeDiscretization timeDiscretization,
+<span class="nc" id="L2071">				final double[] values) {</span>
+<span class="nc" id="L2072">			this.maturity = maturity;</span>
+<span class="nc" id="L2073">			this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L2074">			this.values = values;</span>
+<span class="nc" id="L2075">		}</span>
+
+		private double getBoundaryValue(final double runningTime) {
+<span class="nc" id="L2078">			final double tau = Math.max(0.0, maturity - runningTime);</span>
+<span class="nc" id="L2079">			int timeIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc bnc" id="L2081" title="All 2 branches missed.">			if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L2082">				timeIndex = 0;</span>
+			}
+<span class="nc bnc" id="L2084" title="All 2 branches missed.">			if (timeIndex &gt;= values.length) {</span>
+<span class="nc" id="L2085">				timeIndex = values.length - 1;</span>
+			}
+
+<span class="nc" id="L2088">			return values[timeIndex];</span>
+		}
+	}
+
+	private static final class DoubleBarrierTrace2D {
+
+		/**
+		 * The maturity.
+		 */
+		private final double maturity;
+		/**
+		 * The second grid.
+		 */
+		private final double[] secondGrid;
+		/**
+		 * The time discretization.
+		 */
+		private final TimeDiscretization timeDiscretization;
+		/**
+		 * The values.
+		 */
+		private final double[][] values; // [secondIndex][timeIndex]
+
+		private DoubleBarrierTrace2D(
+				final double maturity,
+				final double[] secondGrid,
+				final TimeDiscretization timeDiscretization,
+<span class="nc" id="L2115">				final double[][] values) {</span>
+<span class="nc" id="L2116">			this.maturity = maturity;</span>
+<span class="nc" id="L2117">			this.secondGrid = secondGrid;</span>
+<span class="nc" id="L2118">			this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L2119">			this.values = values;</span>
+<span class="nc" id="L2120">		}</span>
+
+		private double getBoundaryValue(final double runningTime, final double secondState) {
+<span class="nc" id="L2123">			final double tau = Math.max(0.0, maturity - runningTime);</span>
+<span class="nc" id="L2124">			int timeIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc bnc" id="L2126" title="All 2 branches missed.">			if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L2127">				timeIndex = 0;</span>
+			}
+<span class="nc bnc" id="L2129" title="All 2 branches missed.">			if (timeIndex &gt;= values[0].length) {</span>
+<span class="nc" id="L2130">				timeIndex = values[0].length - 1;</span>
+			}
+
+<span class="nc bnc" id="L2133" title="All 2 branches missed.">			if (secondGrid.length == 1) {</span>
+<span class="nc" id="L2134">				return values[0][timeIndex];</span>
+			}
+
+<span class="nc" id="L2137">			final int exactIndex = findExactGridIndex(secondGrid, secondState);</span>
+<span class="nc bnc" id="L2138" title="All 2 branches missed.">			if (exactIndex &gt;= 0) {</span>
+<span class="nc" id="L2139">				return values[exactIndex][timeIndex];</span>
+			}
+
+<span class="nc bnc" id="L2142" title="All 2 branches missed.">			if (secondState &lt;= secondGrid[0]) {</span>
+<span class="nc" id="L2143">				return values[0][timeIndex];</span>
+			}
+<span class="nc bnc" id="L2145" title="All 2 branches missed.">			if (secondState &gt;= secondGrid[secondGrid.length - 1]) {</span>
+<span class="nc" id="L2146">				return values[secondGrid.length - 1][timeIndex];</span>
+			}
+
+<span class="nc" id="L2149">			int upper = 1;</span>
+<span class="nc bnc" id="L2150" title="All 4 branches missed.">			while (upper &lt; secondGrid.length &amp;&amp; secondGrid[upper] &lt; secondState) {</span>
+<span class="nc" id="L2151">				upper++;</span>
+			}
+<span class="nc" id="L2153">			final int lower = upper - 1;</span>
+
+<span class="nc" id="L2155">			final double xL = secondGrid[lower];</span>
+<span class="nc" id="L2156">			final double xU = secondGrid[upper];</span>
+
+<span class="nc" id="L2158">			final double vL = values[lower][timeIndex];</span>
+<span class="nc" id="L2159">			final double vU = values[upper][timeIndex];</span>
+
+<span class="nc" id="L2161">			final double weight = (secondState - xL) / (xU - xL);</span>
+<span class="nc" id="L2162">			return (1.0 - weight) * vL + weight * vU;</span>
+		}
+
+		private int findExactGridIndex(final double[] grid, final double x) {
+<span class="nc bnc" id="L2166" title="All 2 branches missed.">			for (int i = 0; i &lt; grid.length; i++) {</span>
+<span class="nc bnc" id="L2167" title="All 2 branches missed.">				if (Math.abs(grid[i] - x) &lt;= GRID_TOLERANCE) {</span>
+<span class="nc" id="L2168">					return i;</span>
+				}
+			}
+<span class="nc" id="L2171">			return -1;</span>
+		}
+	}
+
+	/*
+	 * ============================================
+	 * 1D PRE-HIT MODEL WRAPPER
+	 * ============================================
+	 */
+
+	private static final class DoubleBarrierPreHitModel1D
+	implements FiniteDifferenceEquityModel, FiniteDifferenceBoundary {
+
+		/**
+		 * The delegate.
+		 */
+		private final FiniteDifferenceEquityModel delegate;
+		/**
+		 * The discretization.
+		 */
+		private final SpaceTimeDiscretization discretization;
+		/**
+		 * The lower trace.
+		 */
+		private final DoubleBarrierTrace1D lowerTrace;
+		/**
+		 * The upper trace.
+		 */
+		private final DoubleBarrierTrace1D upperTrace;
+
+		private DoubleBarrierPreHitModel1D(
+				final FiniteDifferenceEquityModel delegate,
+				final SpaceTimeDiscretization discretization,
+				final DoubleBarrierTrace1D lowerTrace,
+<span class="nc" id="L2205">				final DoubleBarrierTrace1D upperTrace) {</span>
+<span class="nc" id="L2206">			this.delegate = delegate;</span>
+<span class="nc" id="L2207">			this.discretization = discretization;</span>
+<span class="nc" id="L2208">			this.lowerTrace = lowerTrace;</span>
+<span class="nc" id="L2209">			this.upperTrace = upperTrace;</span>
+<span class="nc" id="L2210">		}</span>
+
+		@Override
+		public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L2214">			return delegate.getRiskFreeCurve();</span>
+		}
+
+		@Override
+		public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L2219">			return delegate.getDividendYieldCurve();</span>
+		}
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L2224">			return discretization;</span>
+		}
+
+		@Override
+		public double[] getDrift(final double time, final double... stateVariables) {
+<span class="nc" id="L2229">			return delegate.getDrift(time, stateVariables);</span>
+		}
+
+		@Override
+		public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="nc" id="L2234">			return delegate.getFactorLoading(time, stateVariables);</span>
+		}
+
+		@Override
+		public double[] getInitialValue() {
+<span class="nc" id="L2239">			return delegate.getInitialValue();</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2248">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2249">					delegate.getBoundaryConditionsAtLowerBoundary(product, time, stateVariables);</span>
+
+			final BoundaryCondition[] result =
+<span class="nc bnc" id="L2252" title="All 2 branches missed.">					base != null ? base.clone() : new BoundaryCondition[] {StandardBoundaryCondition.none() };</span>
+
+<span class="nc" id="L2254">			result[0] = StandardBoundaryCondition.dirichlet(lowerTrace.getBoundaryValue(time));</span>
+<span class="nc" id="L2255">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2264">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2265">					delegate.getBoundaryConditionsAtUpperBoundary(product, time, stateVariables);</span>
+
+			final BoundaryCondition[] result =
+<span class="nc bnc" id="L2268" title="All 2 branches missed.">					base != null ? base.clone() : new BoundaryCondition[] {StandardBoundaryCondition.none() };</span>
+
+<span class="nc" id="L2270">			result[0] = StandardBoundaryCondition.dirichlet(upperTrace.getBoundaryValue(time));</span>
+<span class="nc" id="L2271">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L2278">			final FiniteDifferenceEquityModel clonedDelegate =</span>
+<span class="nc" id="L2279">					delegate.getCloneWithModifiedSpaceTimeDiscretization(newSpaceTimeDiscretization);</span>
+
+<span class="nc" id="L2281">			return new DoubleBarrierPreHitModel1D(</span>
+					clonedDelegate,
+					newSpaceTimeDiscretization,
+					lowerTrace,
+					upperTrace
+					);
+		}
+	}
+
+	/*
+	 * ============================================
+	 * 2D PRE-HIT MODEL WRAPPER
+	 * ============================================
+	 */
+
+	private static final class DoubleBarrierPreHitHestonModel
+	extends FDMHestonModel
+	implements FiniteDifferenceBoundary {
+
+		/**
+		 * The base model.
+		 */
+		private final FDMHestonModel baseModel;
+		/**
+		 * The discretization.
+		 */
+		private final SpaceTimeDiscretization discretization;
+		/**
+		 * The lower trace.
+		 */
+		private final DoubleBarrierTrace2D lowerTrace;
+		/**
+		 * The upper trace.
+		 */
+		private final DoubleBarrierTrace2D upperTrace;
+
+		private DoubleBarrierPreHitHestonModel(
+				final FDMHestonModel baseModel,
+				final SpaceTimeDiscretization discretization,
+				final DoubleBarrierTrace2D lowerTrace,
+				final DoubleBarrierTrace2D upperTrace) {
+
+<span class="nc" id="L2323">			super(</span>
+<span class="nc" id="L2324">					baseModel.getInitialValue()[0],</span>
+<span class="nc" id="L2325">					baseModel.getInitialValue()[1],</span>
+<span class="nc" id="L2326">					baseModel.getRiskFreeCurve(),</span>
+<span class="nc" id="L2327">					baseModel.getDividendYieldCurve(),</span>
+<span class="nc" id="L2328">					baseModel.getKappa(),</span>
+<span class="nc" id="L2329">					baseModel.getThetaV(),</span>
+<span class="nc" id="L2330">					baseModel.getSigma(),</span>
+<span class="nc" id="L2331">					baseModel.getRho(),</span>
+					discretization
+					);
+
+<span class="nc" id="L2335">			this.baseModel = baseModel;</span>
+<span class="nc" id="L2336">			this.discretization = discretization;</span>
+<span class="nc" id="L2337">			this.lowerTrace = lowerTrace;</span>
+<span class="nc" id="L2338">			this.upperTrace = upperTrace;</span>
+<span class="nc" id="L2339">		}</span>
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L2343">			return discretization;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2352">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2353">					baseModel.getBoundaryConditionsAtLowerBoundary(product, time, stateVariables);</span>
+
+<span class="nc" id="L2355">			final BoundaryCondition[] result = base.clone();</span>
+
+<span class="nc bnc" id="L2357" title="All 2 branches missed.">			final double secondState = stateVariables.length &gt; 1 ? stateVariables[1] : getInitialValue()[1];</span>
+
+			/*
+			 * First state variable = spot boundary at lower barrier.
+			 * Second state variable boundary stays whatever the original Heston
+			 * model/product boundary provides.
+			 */
+<span class="nc" id="L2364">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L2365">					lowerTrace.getBoundaryValue(time, secondState)</span>
+					);
+
+<span class="nc" id="L2368">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2377">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2378">					baseModel.getBoundaryConditionsAtUpperBoundary(product, time, stateVariables);</span>
+
+<span class="nc" id="L2380">			final BoundaryCondition[] result = base.clone();</span>
+
+<span class="nc bnc" id="L2382" title="All 2 branches missed.">			final double secondState = stateVariables.length &gt; 1 ? stateVariables[1] : getInitialValue()[1];</span>
+
+			/*
+			 * First state variable = spot boundary at upper barrier.
+			 * Second state variable boundary stays whatever the original Heston
+			 * model/product boundary provides.
+			 */
+<span class="nc" id="L2389">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L2390">					upperTrace.getBoundaryValue(time, secondState)</span>
+					);
+
+<span class="nc" id="L2393">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L2400">			final FDMHestonModel clonedBaseModel = new FDMHestonModel(</span>
+<span class="nc" id="L2401">					baseModel.getInitialValue()[0],</span>
+<span class="nc" id="L2402">					baseModel.getInitialValue()[1],</span>
+<span class="nc" id="L2403">					baseModel.getRiskFreeCurve(),</span>
+<span class="nc" id="L2404">					baseModel.getDividendYieldCurve(),</span>
+<span class="nc" id="L2405">					baseModel.getKappa(),</span>
+<span class="nc" id="L2406">					baseModel.getThetaV(),</span>
+<span class="nc" id="L2407">					baseModel.getSigma(),</span>
+<span class="nc" id="L2408">					baseModel.getRho(),</span>
+					newSpaceTimeDiscretization
+					);
+
+<span class="nc" id="L2412">			return new DoubleBarrierPreHitHestonModel(</span>
+					clonedBaseModel,
+					newSpaceTimeDiscretization,
+					lowerTrace,
+					upperTrace
+					);
+		}
+	}
+
+	private static final class DoubleBarrierPreHitSabrModel
+	extends FDMSabrModel
+	implements FiniteDifferenceBoundary {
+
+		/**
+		 * The base model.
+		 */
+		private final FDMSabrModel baseModel;
+		/**
+		 * The discretization.
+		 */
+		private final SpaceTimeDiscretization discretization;
+		/**
+		 * The lower trace.
+		 */
+		private final DoubleBarrierTrace2D lowerTrace;
+		/**
+		 * The upper trace.
+		 */
+		private final DoubleBarrierTrace2D upperTrace;
+
+		private DoubleBarrierPreHitSabrModel(
+				final FDMSabrModel baseModel,
+				final SpaceTimeDiscretization discretization,
+				final DoubleBarrierTrace2D lowerTrace,
+				final DoubleBarrierTrace2D upperTrace) {
+
+<span class="nc" id="L2448">			super(</span>
+<span class="nc" id="L2449">					baseModel.getInitialSpot(),</span>
+<span class="nc" id="L2450">					baseModel.getInitialAlpha(),</span>
+<span class="nc" id="L2451">					baseModel.getRiskFreeCurve(),</span>
+<span class="nc" id="L2452">					baseModel.getDividendYieldCurve(),</span>
+<span class="nc" id="L2453">					baseModel.getBeta(),</span>
+<span class="nc" id="L2454">					baseModel.getNu(),</span>
+<span class="nc" id="L2455">					baseModel.getRho(),</span>
+					discretization
+					);
+
+<span class="nc" id="L2459">			this.baseModel = baseModel;</span>
+<span class="nc" id="L2460">			this.discretization = discretization;</span>
+<span class="nc" id="L2461">			this.lowerTrace = lowerTrace;</span>
+<span class="nc" id="L2462">			this.upperTrace = upperTrace;</span>
+<span class="nc" id="L2463">		}</span>
+
+		@Override
+		public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L2467">			return discretization;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2476">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2477">					baseModel.getBoundaryConditionsAtLowerBoundary(product, time, stateVariables);</span>
+
+<span class="nc" id="L2479">			final BoundaryCondition[] result = base.clone();</span>
+
+<span class="nc bnc" id="L2481" title="All 2 branches missed.">			final double secondState = stateVariables.length &gt; 1 ? stateVariables[1] : getInitialValue()[1];</span>
+
+			/*
+			 * First state variable = spot boundary at lower barrier.
+			 * Second state variable boundary stays whatever the original SABR
+			 * model/product boundary provides.
+			 */
+<span class="nc" id="L2488">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L2489">					lowerTrace.getBoundaryValue(time, secondState)</span>
+					);
+
+<span class="nc" id="L2492">			return result;</span>
+		}
+
+		@Override
+		public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+				final FiniteDifferenceEquityProduct product,
+				final double time,
+				final double... stateVariables) {
+
+<span class="nc" id="L2501">			final BoundaryCondition[] base =</span>
+<span class="nc" id="L2502">					baseModel.getBoundaryConditionsAtUpperBoundary(product, time, stateVariables);</span>
+
+<span class="nc" id="L2504">			final BoundaryCondition[] result = base.clone();</span>
+
+<span class="nc bnc" id="L2506" title="All 2 branches missed.">			final double secondState = stateVariables.length &gt; 1 ? stateVariables[1] : getInitialValue()[1];</span>
+
+			/*
+			 * First state variable = spot boundary at upper barrier.
+			 * Second state variable boundary stays whatever the original SABR
+			 * model/product boundary provides.
+			 */
+<span class="nc" id="L2513">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L2514">					upperTrace.getBoundaryValue(time, secondState)</span>
+					);
+
+<span class="nc" id="L2517">			return result;</span>
+		}
+
+		@Override
+		public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+				final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L2524">			final FDMSabrModel clonedBaseModel = new FDMSabrModel(</span>
+<span class="nc" id="L2525">					baseModel.getInitialSpot(),</span>
+<span class="nc" id="L2526">					baseModel.getInitialAlpha(),</span>
+<span class="nc" id="L2527">					baseModel.getRiskFreeCurve(),</span>
+<span class="nc" id="L2528">					baseModel.getDividendYieldCurve(),</span>
+<span class="nc" id="L2529">					baseModel.getBeta(),</span>
+<span class="nc" id="L2530">					baseModel.getNu(),</span>
+<span class="nc" id="L2531">					baseModel.getRho(),</span>
+					newSpaceTimeDiscretization
+					);
+
+<span class="nc" id="L2535">			return new DoubleBarrierPreHitSabrModel(</span>
+					clonedBaseModel,
+					newSpaceTimeDiscretization,
+					lowerTrace,
+					upperTrace
+					);
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

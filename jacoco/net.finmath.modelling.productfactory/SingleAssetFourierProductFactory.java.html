@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SingleAssetFourierProductFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.productfactory</a> &gt; <span class="el_source">SingleAssetFourierProductFactory.java</span></div><h1>SingleAssetFourierProductFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2018
+ */
+
+package net.finmath.modelling.productfactory;
+
+import java.time.LocalDate;
+
+import net.finmath.fouriermethod.products.DigitalOption;
+import net.finmath.fouriermethod.products.EuropeanOption;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
+import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.SingleAssetDigitalOptionProductDescriptor;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * Product factory of single asset derivatives for use with a Fourier method based model.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ * @version 1.0
+ */
+public class SingleAssetFourierProductFactory implements ProductFactory&lt;SingleAssetProductDescriptor&gt; {
+
+	private final LocalDate referenceDate;
+
+	/**
+	 * Create the product factory.
+	 *
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
+	 */
+<span class="fc" id="L37">	public SingleAssetFourierProductFactory(final LocalDate referenceDate) {</span>
+<span class="fc" id="L38">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+	public DescribedProduct&lt;? extends SingleAssetProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor descriptor) {
+
+<span class="fc bfc" id="L44" title="All 2 branches covered.">		if(descriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {</span>
+<span class="fc" id="L45">			final DescribedProduct&lt;SingleAssetEuropeanOptionProductDescriptor&gt; product = new EuropeanOptionFourierMethod((SingleAssetEuropeanOptionProductDescriptor) descriptor, referenceDate);</span>
+<span class="fc" id="L46">			return product;</span>
+		}
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">		else if(descriptor instanceof SingleAssetDigitalOptionProductDescriptor) {</span>
+<span class="fc" id="L49">			final DescribedProduct&lt;SingleAssetDigitalOptionProductDescriptor&gt; product = new DigitalOptionFourierMethod((SingleAssetDigitalOptionProductDescriptor) descriptor, referenceDate);</span>
+<span class="fc" id="L50">			return product;</span>
+		}
+		else {
+<span class="nc" id="L53">			final String name = descriptor.name();</span>
+<span class="nc" id="L54">			throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+		}
+
+	}
+
+
+	/**
+	 * Fourier method based implementation of a European option from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public static class EuropeanOptionFourierMethod extends EuropeanOption  implements DescribedProduct&lt;SingleAssetEuropeanOptionProductDescriptor&gt; {
+
+		private final SingleAssetEuropeanOptionProductDescriptor descriptor;
+
+		/**
+		 * Create the product from a descriptor.
+		 *
+		 * @param descriptor A descriptor of the product.
+		 * @param referenceDate the reference date to be used when converting dates to doubles.
+		 */
+		public EuropeanOptionFourierMethod(final SingleAssetEuropeanOptionProductDescriptor descriptor, final LocalDate referenceDate) {
+<span class="fc" id="L77">			super(descriptor.getUnderlyingName(), FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());</span>
+<span class="fc" id="L78">			this.descriptor = descriptor;</span>
+<span class="fc" id="L79">		}</span>
+
+		@Override
+		public SingleAssetEuropeanOptionProductDescriptor getDescriptor() {
+<span class="nc" id="L83">			return descriptor;</span>
+		}
+
+	}
+
+	/**
+	 * Fourier method based implementation of a digital option from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public static class DigitalOptionFourierMethod extends DigitalOption  implements DescribedProduct&lt;SingleAssetDigitalOptionProductDescriptor&gt;{
+
+		private final SingleAssetDigitalOptionProductDescriptor descriptor;
+
+		/**
+		 * Create product from descriptor.
+		 *
+		 * @param descriptor The descriptor of the product.
+		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+		 */
+		public DigitalOptionFourierMethod(final SingleAssetDigitalOptionProductDescriptor descriptor, final LocalDate referenceDate) {
+<span class="fc" id="L105">			super(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getMaturity()), descriptor.getStrike());</span>
+<span class="fc" id="L106">			this.descriptor = descriptor;</span>
+<span class="fc" id="L107">		}</span>
+
+		@Override
+		public SingleAssetDigitalOptionProductDescriptor getDescriptor() {
+<span class="nc" id="L111">			return descriptor;</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

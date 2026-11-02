@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticModelDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">AnalyticModelDescriptor.java</span></div><h1>AnalyticModelDescriptor.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor;
+
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
+
+/**
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class AnalyticModelDescriptor implements InterestRateModelDescriptor {
+
+	private final LocalDate referenceDate;
+	private final Map&lt;String, Curve&gt;				curvesMap;
+	private final Map&lt;String, VolatilitySurface&gt;	volatilitySurfaceMap;
+
+	/**
+	 * Construct an AnalyticModelDescriptor mapping the collections of curves and volatility surfaces provided.
+	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
+	 * @param curves The collection of curves.
+	 * @param surfaces The collection of volatility surfaces.
+	 */
+	public AnalyticModelDescriptor(final LocalDate referenceDate, final Collection&lt;Curve&gt; curves, final Collection&lt;VolatilitySurface&gt; surfaces) {
+<span class="fc" id="L31">		super();</span>
+<span class="fc" id="L32">		this.referenceDate = referenceDate;</span>
+
+<span class="fc" id="L34">		curvesMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L35">		volatilitySurfaceMap = new HashMap&lt;&gt;();</span>
+
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		if(curves != null) {</span>
+<span class="fc bfc" id="L38" title="All 2 branches covered.">			for(final Curve curve : curves) {</span>
+<span class="fc" id="L39">				curvesMap.put(curve.getName(), curve);</span>
+<span class="fc" id="L40">			}</span>
+		}
+<span class="pc bpc" id="L42" title="1 of 2 branches missed.">		if (surfaces != null) {</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">			for (final VolatilitySurface surface : surfaces) {</span>
+<span class="nc" id="L44">				volatilitySurfaceMap.put(surface.getName(), surface);</span>
+<span class="nc" id="L45">			}</span>
+		}
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * Construct an AnalyticModelDescriptor holding copies of the maps provided.
+	 *
+	 * @param referenceDate The date corresponding to time \( t = 0 \).
+	 * @param curvesMap The map of curves.
+	 * @param volatilitySurfaceMap The map of volatility surfaces.
+	 */
+	public AnalyticModelDescriptor(final LocalDate referenceDate, final Map&lt;String, Curve&gt; curvesMap, final Map&lt;String, VolatilitySurface&gt; volatilitySurfaceMap) {
+<span class="nc" id="L57">		super();</span>
+<span class="nc" id="L58">		this.referenceDate = referenceDate;</span>
+
+<span class="nc" id="L60">		this.curvesMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L61">		this.volatilitySurfaceMap = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L63">		this.curvesMap.putAll(curvesMap);</span>
+<span class="nc" id="L64">		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);</span>
+<span class="nc" id="L65">	}</span>
+
+	@Override
+	public Integer version() {
+<span class="nc" id="L69">		return 1;</span>
+	}
+
+	@Override
+	public String name() {
+<span class="nc" id="L74">		return &quot;Analytic model&quot;;</span>
+	}
+
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L78">		return referenceDate;</span>
+	}
+
+	public Map&lt;String, Curve&gt; getCurvesMap() {
+<span class="fc" id="L82">		return Collections.unmodifiableMap(curvesMap);</span>
+	}
+
+	public Map&lt;String, VolatilitySurface&gt; getVolatilitySurfaceMap() {
+<span class="fc" id="L86">		return Collections.unmodifiableMap(volatilitySurfaceMap);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

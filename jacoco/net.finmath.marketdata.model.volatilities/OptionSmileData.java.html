@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionSmileData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">OptionSmileData.java</span></div><h1>OptionSmileData.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashMap;
+
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+
+/**
+ * A collection of option prices or implied volatilities for a given maturity.
+ *
+ * This object is natural in conjunction with FFT methods that run over a whole smile for a fixed maturity.
+ *
+ * @author Alessandro Gnoatto
+ *
+ */
+public class OptionSmileData{
+	private final String underlying;
+	private final LocalDate referenceDate;
+	private final double[] strikes;
+	private final double maturity;
+	private final HashMap&lt;Double,OptionData&gt; smile;
+
+<span class="fc" id="L24">	public OptionSmileData(final String underlying, final LocalDate referenceDate, final double[] strikes, final double maturity, final double[] values, final QuotingConvention convention){</span>
+<span class="pc bpc" id="L25" title="1 of 2 branches missed.">		if(strikes.length != values.length) {</span>
+<span class="nc" id="L26">			throw new IllegalArgumentException(&quot;Number of strikes and market quotes does not coincide&quot;);</span>
+		}else {
+<span class="fc" id="L28">			final int numberOfQuotes = strikes.length;</span>
+<span class="fc" id="L29">			smile = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L30" title="All 2 branches covered.">			for(int i = 0; i&lt; numberOfQuotes; i++) {</span>
+<span class="fc" id="L31">				smile.put(strikes[i],new OptionData(underlying, referenceDate, strikes[i],maturity,values[i], convention)) ;</span>
+			}
+<span class="fc" id="L33">			this.underlying = underlying;</span>
+<span class="fc" id="L34">			this.referenceDate = referenceDate;</span>
+<span class="fc" id="L35">			this.strikes = strikes;</span>
+<span class="fc" id="L36">			this.maturity = maturity;</span>
+		}
+<span class="fc" id="L38">	}</span>
+
+	public String getUnderlying() {
+<span class="fc" id="L41">		return underlying;</span>
+	}
+
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L45">		return referenceDate;</span>
+	}
+
+	public double[] getStrikes() {
+<span class="fc" id="L49">		return strikes;</span>
+	}
+
+	public double getMaturity() {
+<span class="fc" id="L53">		return maturity;</span>
+	}
+
+	public HashMap&lt;Double, OptionData&gt; getSmile() {
+<span class="fc" id="L57">		return smile;</span>
+	}
+
+	public OptionData getOption(final double strike) {
+<span class="fc" id="L61">		return smile.get(strike);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L66">		return &quot;EquityOptionSmile [underlying=&quot; + underlying + &quot;, strikes=&quot; + Arrays.toString(strikes)</span>
+		+ &quot;, maturity=&quot; + maturity + &quot;, smile=&quot; + smile + &quot;]&quot;;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

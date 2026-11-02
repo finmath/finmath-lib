@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Portfolio.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">Portfolio.java</span></div><h1>Portfolio.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.02.2004
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements the pricing of a portfolio of AbstractLIBORMonteCarloProduct products
+ * under a AbstractLIBORMarketModel. The products can be scaled by weights.
+ *
+ * The value of the portfolio is that of
+ * \( \sum_{i=0}^{n} weights\[i\] \cdot products\[i\] \text{.} \)
+ *
+ * Note: Currently the products have to be of the same currency.
+ *
+ * @author Christian Fries
+ * @date 08.09.2006
+ * @version 1.2
+ */
+public class Portfolio extends AbstractProductComponent {
+
+	private static final long serialVersionUID = -1360506093081238482L;
+
+	private final AbstractTermStructureMonteCarloProduct[]	products;
+	private final double[]							weights;
+
+	/**
+	 * Creates a portfolio consisting of a single product and a weight.
+	 *
+	 * The currency of this portfolio is the currency of the product.
+	 *
+	 * @param product A product.
+	 * @param weight A weight.
+	 */
+	public Portfolio(final AbstractTermStructureMonteCarloProduct product, final double weight) {
+<span class="nc" id="L45">		super(product.getCurrency());</span>
+<span class="nc" id="L46">		products = new AbstractTermStructureMonteCarloProduct[] { product };</span>
+<span class="nc" id="L47">		weights = new double[] { weight };</span>
+<span class="nc" id="L48">	}</span>
+
+	/**
+	 * Creates a portfolio consisting of a set of products and a weights.
+	 *
+	 * Note: Currently the products have to be of the same currency.
+	 *
+	 * @param products An array of products.
+	 * @param weights An array of weights (having the same lengths as the array of products).
+	 */
+	public Portfolio(final AbstractTermStructureMonteCarloProduct[] products, final double[] weights) {
+<span class="nc" id="L59">		super();</span>
+<span class="nc" id="L60">		final String currency = products[0].getCurrency();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		for(final AbstractTermStructureMonteCarloProduct product : products) {</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">			if(currency != null &amp;&amp; !currency.equals(product.getCurrency())) {</span>
+<span class="nc" id="L63">				throw new IllegalArgumentException(&quot;Product currencies do not match. Please use a constructor providing the currency of the result.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L67">		this.products = products;</span>
+<span class="nc" id="L68">		this.weights = weights;</span>
+<span class="nc" id="L69">	}</span>
+
+	/**
+	 * Creates a portfolio consisting of a set of products and a weights.
+	 *
+	 * Note: Currently the products have to be of the same currency, namely the one provided.
+	 *
+	 * @param currency The currency of the value of this portfolio when calling &lt;code&gt;getValue&lt;/code&gt;.
+	 * @param products An array of products.
+	 * @param weights An array of weights (having the same lengths as the array of products).
+	 */
+	public Portfolio(final String currency, final AbstractTermStructureMonteCarloProduct[] products, final double[] weights) {
+<span class="nc" id="L81">		super(currency);</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		for(final AbstractTermStructureMonteCarloProduct product : products) {</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">			if(!currency.equals(product.getCurrency())) {</span>
+<span class="nc" id="L85">				throw new IllegalArgumentException(&quot;Product currencies do not match. Currency conversion (via model FX) is not supported yet.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L89">		this.products = products;</span>
+<span class="nc" id="L90">		this.weights = weights;</span>
+<span class="nc" id="L91">	}</span>
+
+	@Override
+	public String getCurrency() {
+		// @TODO We report only the currency of the first item, because mixed currency portfolios are currently not allowed.
+<span class="nc bnc" id="L96" title="All 4 branches missed.">		return (products != null &amp;&amp; products.length &gt; 0) ? products[0].getCurrency() : null;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L101">		Set&lt;String&gt; underlyingNames = null;</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		for(final TermStructureMonteCarloProduct product : products) {</span>
+			Set&lt;String&gt; productUnderlyingNames;
+<span class="nc bnc" id="L104" title="All 2 branches missed.">			if(product instanceof AbstractProductComponent) {</span>
+<span class="nc" id="L105">				productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();</span>
+			} else {
+<span class="nc" id="L107">				throw new IllegalArgumentException(&quot;Underlying cannot be queried for underlyings.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			if(productUnderlyingNames != null) {</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">				if(underlyingNames == null) {</span>
+<span class="nc" id="L112">					underlyingNames = productUnderlyingNames;</span>
+				} else {
+<span class="nc" id="L114">					underlyingNames.addAll(productUnderlyingNames);</span>
+				}
+			}
+		}
+<span class="nc" id="L118">		return underlyingNames;</span>
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @TODO The conversion between different currencies is currently not performed.
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L134">		RandomVariable values = new RandomVariableFromDoubleArray(0.0);</span>
+
+<span class="nc bnc" id="L136" title="All 2 branches missed.">		for(int productIndex = 0; productIndex &lt; products.length; productIndex++) {</span>
+<span class="nc" id="L137">			final RandomVariable    valueOfProduct = products[productIndex].getValue(evaluationTime, model);</span>
+<span class="nc" id="L138">			final double   				   weightOfProduct = weights[productIndex];</span>
+
+<span class="nc" id="L140">			values = values.addProduct(valueOfProduct, weightOfProduct);</span>
+		}
+<span class="nc" id="L142">		return values;</span>
+	}
+
+	/**
+	 * @return the products
+	 */
+	public TermStructureMonteCarloProduct[] getProducts() {
+<span class="nc" id="L149">		return products.clone();</span>
+	}
+
+	/**
+	 * @return the weights
+	 */
+	public double[] getWeights() {
+<span class="nc" id="L156">		return weights.clone();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

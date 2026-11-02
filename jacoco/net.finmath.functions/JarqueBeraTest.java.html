@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JarqueBeraTest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">JarqueBeraTest.java</span></div><h1>JarqueBeraTest.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 14.02.2015
+ */
+
+package net.finmath.functions;
+
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Class providing the test statistic of the Jarque-Bera test.
+ *
+ * The test statistic is given by
+ * \[
+ * 	\frac{n}{6} \left( S^{2} + \frac{1}{4} \left( K - 3 \right)^{2} \right)
+ * \]
+ * where \( S \) is the skewness and \( K \) is the kurtosis of the given random variable.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class JarqueBeraTest {
+
+	/**
+	 * Create an instance of the Jarque-Bera test.
+	 */
+<span class="fc" id="L28">	public JarqueBeraTest() {</span>
+<span class="fc" id="L29">	}</span>
+
+	/**
+	 * Return the test statistic of the Jarque-Bera test for a given
+	 * random variable.
+	 *
+	 * @param randomVariable An object implementing {@link RandomVariable}
+	 * @return The test statistic of the Jarque-Bera test the given random variable.
+	 */
+	public double test(final RandomVariable randomVariable) {
+<span class="fc" id="L39">		final double mean		= randomVariable.getAverage();</span>
+<span class="fc" id="L40">		final double stdev	= randomVariable.getStandardDeviation();</span>
+
+<span class="fc" id="L42">		final double skewness = randomVariable.sub(mean).pow(3).getAverage() / Math.pow(stdev, 3);</span>
+<span class="fc" id="L43">		final double kurtosis = randomVariable.sub(mean).pow(4).getAverage() / Math.pow(stdev, 4);</span>
+
+<span class="fc" id="L45">		final double test = randomVariable.size() / 6.0 * ( skewness * skewness + 0.25 * (kurtosis-3.0)*(kurtosis-3.0));</span>
+
+<span class="fc" id="L47">		return test;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

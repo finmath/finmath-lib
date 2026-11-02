@@ -1,0 +1,394 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionOnBondHullWhiteModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.boundaries</a> &gt; <span class="el_source">OptionOnBondHullWhiteModelBoundary.java</span></div><h1>OptionOnBondHullWhiteModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.boundaries;
+
+import org.apache.commons.math3.distribution.NormalDistribution;
+
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.interestrate.models.FDMHullWhiteModel;
+import net.finmath.finitedifference.interestrate.products.Bond;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+import net.finmath.finitedifference.interestrate.products.OptionOnBond;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Exact boundary conditions for {@link OptionOnBond} under {@link
+ * FDMHullWhiteModel}.
+ *
+ * &lt;p&gt;
+ * For a one-factor Hull-White model, a European option on a deterministic-
+ * cashflow
+ * bond admits an exact valuation by Jamshidian decomposition. Let {@code T} be
+ * the
+ * exercise date and let the remaining cashflows of the underlying bond at and
+ * after
+ * {@code T} be
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \sum_{i} C_i P(T,T_i;x).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Since the bond value is strictly decreasing in the one-factor state variable
+ * {@code x}, there exists a unique state {@code x*} solving
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \sum_i C_i P(T,T_i;x^*) = K,
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code K} is the strike of the bond option.
+ * The bond option value is then given by the sum of zero-coupon bond options
+ * with strikes
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * K_i = P(T,T_i;x^*).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Hence both lower and upper finite-difference boundaries can be imposed by
+ * exact
+ * Dirichlet conditions.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class OptionOnBondHullWhiteModelBoundary implements FiniteDifferenceInterestRateBoundary {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+	/**
+	 * The root tolerance.
+	 */
+	private static final double ROOT_TOLERANCE = 1E-12;
+	/**
+	 * The max bracketing steps.
+	 */
+	private static final int MAX_BRACKETING_STEPS = 100;
+	/**
+	 * The max bisection steps.
+	 */
+	private static final int MAX_BISECTION_STEPS = 200;
+
+	/**
+	 * The normal distribution.
+	 */
+<span class="nc" id="L86">	private static final NormalDistribution NORMAL_DISTRIBUTION = new NormalDistribution();</span>
+
+	/**
+	 * The model.
+	 */
+	private final FDMHullWhiteModel model;
+
+	/**
+	 * Creates the exact Hull-White boundary for {@link OptionOnBond}.
+	 *
+	 * @param model The Hull-White model.
+	 */
+<span class="nc" id="L98">	public OptionOnBondHullWhiteModelBoundary(final FDMHullWhiteModel model) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L100">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L102" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 1) {</span>
+<span class="nc" id="L103">			throw new IllegalArgumentException(</span>
+					&quot;OptionOnBondHullWhiteModelBoundary requires a one-dimensional Hull-White model.&quot;);
+		}
+
+<span class="nc" id="L107">		this.model = model;</span>
+<span class="nc" id="L108">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L116">		final OptionOnBond optionOnBond = validateAndCastProduct(product);</span>
+<span class="nc" id="L117">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L119">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L120">				StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L121">						getExactOptionValue(optionOnBond, time, stateVariables[0])</span>
+						)
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L132">		final OptionOnBond optionOnBond = validateAndCastProduct(product);</span>
+<span class="nc" id="L133">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L135">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L136">				StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L137">						getExactOptionValue(optionOnBond, time, stateVariables[0])</span>
+						)
+		};
+	}
+
+	private OptionOnBond validateAndCastProduct(final FiniteDifferenceInterestRateProduct product) {
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		if (!(product instanceof OptionOnBond)) {</span>
+<span class="nc" id="L144">			throw new IllegalArgumentException(</span>
+					&quot;OptionOnBondHullWhiteModelBoundary requires an OptionOnBond product.&quot;);
+		}
+
+<span class="nc" id="L148">		return (OptionOnBond) product;</span>
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L152" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 1) {</span>
+<span class="nc" id="L153">			throw new IllegalArgumentException(&quot;Exactly one state variable is required.&quot;);</span>
+		}
+<span class="nc" id="L155">	}</span>
+
+	private double getExactOptionValue(
+			final OptionOnBond optionOnBond,
+			final double time,
+			final double currentStateVariable) {
+
+<span class="nc" id="L162">		final Bond underlyingBond = optionOnBond.getUnderlyingBond();</span>
+<span class="nc" id="L163">		final double exerciseDate = optionOnBond.getExerciseDate();</span>
+<span class="nc" id="L164">		final double strike = optionOnBond.getStrike();</span>
+<span class="nc" id="L165">		final CallOrPut callOrPut = optionOnBond.getCallOrPut();</span>
+<span class="nc" id="L166">		final int sign = callOrPut.toInteger();</span>
+
+		/*
+		 * At or after exercise the value is the immediate payoff.
+		 */
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		if (time &gt;= exerciseDate - TIME_TOLERANCE) {</span>
+<span class="nc" id="L172">			final double bondValue = getUnderlyingBondValueAtTime(</span>
+					underlyingBond,
+					exerciseDate,
+					currentStateVariable
+					);
+<span class="nc" id="L177">			return Math.max(sign * (bondValue - strike), 0.0);</span>
+		}
+
+		/*
+		 * Strike zero is a special case: the call equals the underlying bond,
+		 * the put is worthless.
+		 */
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		if (Math.abs(strike) &lt;= TIME_TOLERANCE) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">			if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L186">				return getUnderlyingBondOptionlessValue(</span>
+						underlyingBond,
+						time,
+						currentStateVariable
+						);
+			}
+<span class="nc" id="L192">			return 0.0;</span>
+		}
+
+<span class="nc" id="L195">		final double exerciseBoundaryState = findExerciseBoundaryState(underlyingBond, exerciseDate, strike);</span>
+
+<span class="nc" id="L197">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L199" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; underlyingBond.getSchedule().getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L200">			final double paymentTime = underlyingBond.getSchedule().getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L202" title="All 2 branches missed.">			if (paymentTime &lt; exerciseDate - TIME_TOLERANCE) {</span>
+<span class="nc" id="L203">				continue;</span>
+			}
+
+<span class="nc" id="L206">			final double cashflow = underlyingBond.getCashflow(periodIndex);</span>
+<span class="nc" id="L207">			final double zeroCouponStrike = model.getDiscountBond(</span>
+					exerciseDate,
+					paymentTime,
+					exerciseBoundaryState
+					);
+
+<span class="nc" id="L213">			value += cashflow * getZeroCouponBondOptionValue(</span>
+					time,
+					currentStateVariable,
+					exerciseDate,
+					paymentTime,
+					zeroCouponStrike,
+					callOrPut
+					);
+		}
+
+<span class="nc" id="L223">		return value;</span>
+	}
+
+	private double getUnderlyingBondOptionlessValue(
+			final Bond bond,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc" id="L231">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; bond.getSchedule().getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L234">			final double paymentTime = bond.getSchedule().getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L236" title="All 2 branches missed.">			if (paymentTime &lt; time - TIME_TOLERANCE) {</span>
+<span class="nc" id="L237">				continue;</span>
+			}
+
+<span class="nc" id="L240">			value += bond.getCashflow(periodIndex) * model.getDiscountBond(</span>
+					time,
+					paymentTime,
+					stateVariable
+					);
+		}
+
+<span class="nc" id="L247">		return value;</span>
+	}
+
+	private double getUnderlyingBondValueAtTime(
+			final Bond bond,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc" id="L255">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L257" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; bond.getSchedule().getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L258">			final double paymentTime = bond.getSchedule().getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L260" title="All 2 branches missed.">			if (paymentTime &lt; time - TIME_TOLERANCE) {</span>
+<span class="nc" id="L261">				continue;</span>
+			}
+
+<span class="nc" id="L264">			value += bond.getCashflow(periodIndex) * model.getDiscountBond(</span>
+					time,
+					paymentTime,
+					stateVariable
+					);
+		}
+
+<span class="nc" id="L271">		return value;</span>
+	}
+
+	private double findExerciseBoundaryState(
+			final Bond bond,
+			final double exerciseDate,
+			final double strike) {
+
+<span class="nc" id="L279">		double lower = -1.0;</span>
+<span class="nc" id="L280">		double upper = 1.0;</span>
+
+<span class="nc" id="L282">		double functionValueAtLower = getBondValueMinusStrikeAtExercise(bond, exerciseDate, lower, strike);</span>
+<span class="nc" id="L283">		double functionValueAtUpper = getBondValueMinusStrikeAtExercise(bond, exerciseDate, upper, strike);</span>
+
+<span class="nc" id="L285">		int bracketingStep = 0;</span>
+<span class="nc bnc" id="L286" title="All 4 branches missed.">		while (functionValueAtLower &lt; 0.0 &amp;&amp; bracketingStep &lt; MAX_BRACKETING_STEPS) {</span>
+<span class="nc" id="L287">			lower *= 2.0;</span>
+<span class="nc" id="L288">			functionValueAtLower = getBondValueMinusStrikeAtExercise(bond, exerciseDate, lower, strike);</span>
+<span class="nc" id="L289">			bracketingStep++;</span>
+		}
+
+<span class="nc" id="L292">		bracketingStep = 0;</span>
+<span class="nc bnc" id="L293" title="All 4 branches missed.">		while (functionValueAtUpper &gt; 0.0 &amp;&amp; bracketingStep &lt; MAX_BRACKETING_STEPS) {</span>
+<span class="nc" id="L294">			upper *= 2.0;</span>
+<span class="nc" id="L295">			functionValueAtUpper = getBondValueMinusStrikeAtExercise(bond, exerciseDate, upper, strike);</span>
+<span class="nc" id="L296">			bracketingStep++;</span>
+		}
+
+<span class="nc bnc" id="L299" title="All 4 branches missed.">		if (functionValueAtLower &lt; 0.0 || functionValueAtUpper &gt; 0.0) {</span>
+<span class="nc" id="L300">			throw new IllegalArgumentException(</span>
+					&quot;Could not bracket the Jamshidian root for the bond option.&quot;);
+		}
+
+<span class="nc" id="L304">		double left = lower;</span>
+<span class="nc" id="L305">		double right = upper;</span>
+
+<span class="nc bnc" id="L307" title="All 2 branches missed.">		for (int iteration = 0; iteration &lt; MAX_BISECTION_STEPS; iteration++) {</span>
+<span class="nc" id="L308">			final double midpoint = 0.5 * (left + right);</span>
+<span class="nc" id="L309">			final double functionValueAtMidpoint =</span>
+<span class="nc" id="L310">					getBondValueMinusStrikeAtExercise(bond, exerciseDate, midpoint, strike);</span>
+
+<span class="nc bnc" id="L312" title="All 2 branches missed.">			if (Math.abs(functionValueAtMidpoint) &lt; ROOT_TOLERANCE</span>
+<span class="nc bnc" id="L313" title="All 2 branches missed.">					|| Math.abs(right - left) &lt; ROOT_TOLERANCE) {</span>
+<span class="nc" id="L314">				return midpoint;</span>
+			}
+
+<span class="nc bnc" id="L317" title="All 2 branches missed.">			if (functionValueAtMidpoint &gt; 0.0) {</span>
+<span class="nc" id="L318">				left = midpoint;</span>
+			} else {
+<span class="nc" id="L320">				right = midpoint;</span>
+			}
+		}
+
+<span class="nc" id="L324">		return 0.5 * (left + right);</span>
+	}
+
+	private double getBondValueMinusStrikeAtExercise(
+			final Bond bond,
+			final double exerciseDate,
+			final double stateVariable,
+			final double strike) {
+<span class="nc" id="L332">		return getUnderlyingBondValueAtTime(bond, exerciseDate, stateVariable) - strike;</span>
+	}
+
+	private double getZeroCouponBondOptionValue(
+			final double currentTime,
+			final double currentStateVariable,
+			final double exerciseDate,
+			final double bondMaturity,
+			final double strike,
+			final CallOrPut callOrPut) {
+
+<span class="nc" id="L343">		final int sign = callOrPut.toInteger();</span>
+
+<span class="nc" id="L345">		final double discountBondToExercise = model.getDiscountBond(</span>
+				currentTime,
+				exerciseDate,
+				currentStateVariable
+				);
+
+		/*
+		 * If bond maturity equals exercise, the underlying zero-coupon bond
+		 * pays 1
+		 * at exercise and the payoff is deterministic.
+		 */
+<span class="nc bnc" id="L356" title="All 2 branches missed.">		if (Math.abs(bondMaturity - exerciseDate) &lt;= TIME_TOLERANCE) {</span>
+<span class="nc" id="L357">			return discountBondToExercise * Math.max(sign * (1.0 - strike), 0.0);</span>
+		}
+
+<span class="nc" id="L360">		final double discountBondToMaturity = model.getDiscountBond(</span>
+				currentTime,
+				bondMaturity,
+				currentStateVariable
+				);
+
+<span class="nc" id="L366">		final double bondVolatilitySquared =</span>
+<span class="nc" id="L367">				model.getShortRateConditionalVariance(currentTime, exerciseDate)</span>
+<span class="nc" id="L368">				* model.getB(exerciseDate, bondMaturity)</span>
+<span class="nc" id="L369">				* model.getB(exerciseDate, bondMaturity);</span>
+
+<span class="nc bnc" id="L371" title="All 2 branches missed.">		if (bondVolatilitySquared &lt;= TIME_TOLERANCE) {</span>
+<span class="nc" id="L372">			final double forwardBondPrice = discountBondToMaturity / discountBondToExercise;</span>
+<span class="nc" id="L373">			return discountBondToExercise * Math.max(sign * (forwardBondPrice - strike), 0.0);</span>
+		}
+
+<span class="nc" id="L376">		final double bondVolatility = Math.sqrt(bondVolatilitySquared);</span>
+
+<span class="nc" id="L378">		final double dPlus =</span>
+<span class="nc" id="L379">				(Math.log(discountBondToMaturity / (strike * discountBondToExercise))</span>
+						+ 0.5 * bondVolatilitySquared)
+				/ bondVolatility;
+
+<span class="nc" id="L383">		final double dMinus = dPlus - bondVolatility;</span>
+
+<span class="nc bnc" id="L385" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L386">			return discountBondToMaturity * NORMAL_DISTRIBUTION.cumulativeProbability(dPlus)</span>
+<span class="nc" id="L387">					- strike * discountBondToExercise * NORMAL_DISTRIBUTION.cumulativeProbability(dMinus);</span>
+		} else {
+<span class="nc" id="L389">			return strike * discountBondToExercise * NORMAL_DISTRIBUTION.cumulativeProbability(-dMinus)</span>
+<span class="nc" id="L390">					- discountBondToMaturity * NORMAL_DISTRIBUTION.cumulativeProbability(-dPlus);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,880 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaptionDataLattice.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">SwaptionDataLattice.java</span></div><h1>SwaptionDataLattice.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+
+import org.apache.commons.math3.util.Pair;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Saves market data of swaption on a lattice of option maturity x swap tenor x option moneyness.
+ * Moneyness in terms of basispoints relative to par swap rate.
+ * Access to the tenor grid is given via a variety of options:
+ * &lt;ul&gt;
+ * &lt;li&gt;double, as year fraction, rounded to a monthly precision.&lt;/li&gt;
+ * &lt;li&gt;int, as an offset in months.&lt;/li&gt;
+ * &lt;li&gt;String, as code for the offset in the format '6M10Y'.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * Moreover, the stored values can be requested in different quoting conventions.
+ * For the conversion to work, ScheduleMetaData and curves need to be supplied.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SwaptionDataLattice implements Serializable {
+
+	private static final long serialVersionUID = 5041960065072626043L;
+
+	/**
+	 * Quoting convention for swaption data in a lattice.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+<span class="fc" id="L54">	public enum QuotingConvention {</span>
+<span class="fc" id="L55">		PAYERVOLATILITYLOGNORMAL,</span>
+<span class="fc" id="L56">		PAYERVOLATILITYNORMAL,</span>
+<span class="fc" id="L57">		PAYERPRICE,</span>
+<span class="fc" id="L58">		RECEIVERPRICE</span>
+	}
+
+	private final LocalDate							referenceDate;
+	private final QuotingConvention					quotingConvention;
+	private final double							displacement;
+
+	private final String							forwardCurveName;
+	private final String							discountCurveName;
+
+	private final SchedulePrototype					floatMetaSchedule;
+	private final SchedulePrototype 					fixMetaSchedule;
+
+<span class="fc" id="L71">	private final		Map&lt;DataKey, Double&gt;		entryMap = new HashMap&lt;&gt;();</span>
+	private transient	Map&lt;Integer, int[][]&gt;		keyMap;
+	private transient	Map&lt;Pair&lt;Integer, Integer&gt;, int[]&gt;		reverseKeyMap;
+
+	/**
+	 * Create the lattice.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param maturities The maturities of the options as year fraction from the reference date.
+	 * @param tenors The tenors of the swaps as year fraction from the reference date.
+	 * @param moneynesss The moneyness' as actual difference of strike to par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention,
+			final String forwardCurveName, final String discountCurveName, final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule,
+			final double[] maturities, final double[] tenors, final double[] moneynesss, final double[] values) {
+<span class="nc" id="L92">		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		for(int i = 0; i &lt; maturities.length; i++) {</span>
+<span class="nc" id="L95">			entryMap.put(new DataKey(maturities[i], tenors[i], moneynesss[i]), values[i]);</span>
+		}
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Create the lattice.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param maturitiesInMonths The maturities of the options as offset in months from the reference date.
+	 * @param tenorsInMonths The tenors of the swaps as offset in months from the option maturity.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention,
+			final String forwardCurveName, final String discountCurveName, final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule,
+			final int[] maturitiesInMonths, final int[] tenorsInMonths, final int[] moneynessBP, final double[] values) {
+<span class="fc" id="L116">		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		for(int i = 0; i &lt; maturitiesInMonths.length; i++) {</span>
+<span class="fc" id="L119">			entryMap.put(new DataKey(maturitiesInMonths[i], tenorsInMonths[i], moneynessBP[i]), values[i]);</span>
+		}
+<span class="fc" id="L121">	}</span>
+
+	/**
+	 * Create the lattice.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param tenorCodes The schedules of the swaptions encoded in the format '6M10Y'
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention,
+			final String forwardCurveName, final String discountCurveName, final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule,
+			final String[] tenorCodes, final int[] moneynessBP, final double[] values) {
+<span class="nc" id="L139">		this(referenceDate, quotingConvention, 0, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		for(int i = 0; i &lt; tenorCodes.length; i++) {</span>
+<span class="nc" id="L142">			entryMap.put(new DataKey(tenorCodes[i], moneynessBP[i]), values[i]);</span>
+		}
+<span class="nc" id="L144">	}</span>
+
+	/**
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param displacement The displacement used the implied lognormal volatilities.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param maturitiesInMonths The maturities of the options as offset in months from the reference date.
+	 * @param tenorsInMonths The tenors of the swaps as offset in months from the option maturity.
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention, final double displacement, final String forwardCurveName, final String discountCurveName,
+			final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule, final int[] maturitiesInMonths, final int[] tenorsInMonths, final int[] moneynessBP, final double[] values) {
+<span class="fc" id="L163">		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		for(int i = 0; i &lt; maturitiesInMonths.length; i++) {</span>
+<span class="fc" id="L166">			entryMap.put(new DataKey(maturitiesInMonths[i], tenorsInMonths[i], moneynessBP[i]), values[i]);</span>
+		}
+<span class="fc" id="L168">	}</span>
+
+	/**
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param displacement The displacement used the implied lognormal volatilities.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param maturities The maturities of the options as year fraction from the reference date.
+	 * @param tenors The tenors of the swaps as year fraction from the reference date.
+	 * @param moneynesss The moneyness' as actual difference of strike to par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention, final double displacement, final String forwardCurveName, final String discountCurveName,
+			final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule, final double[] maturities, final double[] tenors, final double[] moneynesss, final double[] values) {
+<span class="nc" id="L187">		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		for(int i = 0; i &lt; maturities.length; i++) {</span>
+<span class="nc" id="L190">			entryMap.put(new DataKey(maturities[i], tenors[i], moneynesss[i]), values[i]);</span>
+		}
+<span class="nc" id="L192">	}</span>
+
+	/**
+	 * Create the lattice with {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param displacement The displacement used the implied lognormal volatilities.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 * @param tenorCodes The schedules of the swaptions encoded in the format '6M10Y'
+	 * @param moneynessBP The moneyness' in basis points on the par swap rate.
+	 * @param values The values to be stored.
+	 */
+	public SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention, final double displacement, final String forwardCurveName, final String discountCurveName,
+			final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule, final String[] tenorCodes, final int[] moneynessBP, final double[] values) {
+<span class="fc" id="L210">		this(referenceDate, quotingConvention, displacement, forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);</span>
+
+<span class="fc bfc" id="L212" title="All 2 branches covered.">		for(int i = 0; i &lt; tenorCodes.length; i++) {</span>
+<span class="fc" id="L213">			entryMap.put(new DataKey(tenorCodes[i], moneynessBP[i]), values[i]);</span>
+		}
+<span class="fc" id="L215">	}</span>
+
+	/**
+	 * Private constructor to initialize all field without actually filling the map.
+	 *
+	 * @param referenceDate The reference date of the swaptions.
+	 * @param quotingConvention The quoting convention of the data.
+	 * @param displacement The displacement, used in case of lognormal volatility.
+	 * @param forwardCurveName The name of the forward curve associated with these swaptions.
+	 * @param discountCurveName The name of the discount curve associated with these swaptions.
+	 * @param floatMetaSchedule The conventions used for the float leg of the swaptions.
+	 * @param fixMetaSchedule The conventions used for the fixed leg of the swaptions.
+	 */
+	private SwaptionDataLattice(final LocalDate referenceDate, final QuotingConvention quotingConvention, final double displacement,
+			final String forwardCurveName, final String discountCurveName, final SchedulePrototype floatMetaSchedule, final SchedulePrototype fixMetaSchedule) {
+<span class="fc" id="L230">		super();</span>
+<span class="fc" id="L231">		this.referenceDate		= referenceDate;</span>
+<span class="fc" id="L232">		this.quotingConvention	= quotingConvention;</span>
+<span class="fc" id="L233">		this.displacement		= displacement;</span>
+<span class="fc" id="L234">		this.forwardCurveName	= forwardCurveName;</span>
+<span class="fc" id="L235">		this.discountCurveName	= discountCurveName;</span>
+<span class="fc" id="L236">		this.floatMetaSchedule	= floatMetaSchedule;</span>
+<span class="fc" id="L237">		this.fixMetaSchedule	= fixMetaSchedule;</span>
+<span class="fc" id="L238">	}</span>
+
+	/**
+	 * Convert this lattice to store data in the given convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param targetConvention The convention to store the data in.
+	 * @param model The model for context.
+	 *
+	 * @return The converted lattice.
+	 */
+	public SwaptionDataLattice convertLattice(final QuotingConvention targetConvention, final AnalyticModel model) {
+<span class="fc" id="L250">		return convertLattice(targetConvention, 0, model);</span>
+	}
+
+	/**
+	 * Convert this lattice to store data in the given convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param targetConvention The convention to store the data in.
+	 * @param displacement The displacement to use, if applicable.
+	 * @param model The model for context.
+	 *
+	 * @return The converted lattice.
+	 */
+	public SwaptionDataLattice convertLattice(final QuotingConvention targetConvention, final double displacement, final AnalyticModel model) {
+
+<span class="pc bpc" id="L265" title="3 of 4 branches missed.">		if(displacement != 0 &amp;&amp; targetConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {</span>
+<span class="nc" id="L266">			throw new IllegalArgumentException(&quot;SwaptionDataLattice only supports displacement, when using QuotingCOnvention.PAYERVOLATILITYLOGNORMAL.&quot;);</span>
+		}
+
+		//Reverse sign of moneyness, if switching between payer and receiver convention.
+<span class="pc bpc" id="L270" title="3 of 6 branches missed.">		final int reverse = ((targetConvention == QuotingConvention.RECEIVERPRICE) ^ (quotingConvention == QuotingConvention.RECEIVERPRICE)) ? -1 : 1;</span>
+
+<span class="fc" id="L272">		final List&lt;Integer&gt; maturities	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L273">		final List&lt;Integer&gt; tenors		= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L274">		final List&lt;Integer&gt; moneynesss	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L275">		final List&lt;Double&gt; values		= new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L277" title="All 2 branches covered.">		for(final DataKey key : entryMap.keySet()) {</span>
+<span class="fc" id="L278">			maturities.add(key.maturity);</span>
+<span class="fc" id="L279">			tenors.add(key.tenor);</span>
+<span class="fc" id="L280">			moneynesss.add(key.moneyness * reverse);</span>
+<span class="fc" id="L281">			values.add(getValue(key.maturity, key.tenor, key.moneyness, targetConvention, displacement, model));</span>
+<span class="fc" id="L282">		}</span>
+
+<span class="fc" id="L284">		return new SwaptionDataLattice(referenceDate, targetConvention, displacement,</span>
+				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule,
+<span class="fc" id="L286">				maturities.stream().mapToInt(Integer::intValue).toArray(),</span>
+<span class="fc" id="L287">				tenors.stream().mapToInt(Integer::intValue).toArray(),</span>
+<span class="fc" id="L288">				moneynesss.stream().mapToInt(Integer::intValue).toArray(),</span>
+<span class="fc" id="L289">				values.stream().mapToDouble(Double::doubleValue).toArray());</span>
+	}
+
+	/**
+	 * Append the data of another lattice to this lattice. If the other lattice follows a different quoting convention, it is automatically converted.
+	 * However, this method does not check, whether the two lattices are aligned in terms of reference date, curve names and meta schedules.
+	 * If the two lattices have shared data points, the data from this lattice will be overwritten.
+	 *
+	 * @param other The lattice containing the data to be appended.
+	 * @param model The model to use for context, in case the other lattice follows a different convention.
+	 *
+	 * @return The lattice with the combined swaption entries.
+	 */
+	public SwaptionDataLattice append(final SwaptionDataLattice other, final AnalyticModel model) {
+
+<span class="fc" id="L304">		final SwaptionDataLattice combined = new SwaptionDataLattice(referenceDate, quotingConvention, displacement,</span>
+				forwardCurveName, discountCurveName, floatMetaSchedule, fixMetaSchedule);
+<span class="fc" id="L306">		combined.entryMap.putAll(entryMap);</span>
+
+<span class="pc bpc" id="L308" title="2 of 4 branches missed.">		if(quotingConvention == other.quotingConvention &amp;&amp; displacement == other.displacement) {</span>
+<span class="fc" id="L309">			combined.entryMap.putAll(other.entryMap);</span>
+		} else {
+<span class="nc" id="L311">			final SwaptionDataLattice converted = other.convertLattice(quotingConvention, displacement, model);</span>
+<span class="nc" id="L312">			combined.entryMap.putAll(converted.entryMap);</span>
+		}
+
+<span class="fc" id="L315">		return combined;</span>
+	}
+
+	/**
+	 * Get a view of the locations of swaptions in this lattice.
+	 * The keys of the map are the levels of moneyness for which there are swaptions, sorted in ascending order.
+	 * The entries for each moneyness consist of an array of arrays { maturities, tenors }, each sorted in ascending order.
+	 * Note, there is no guarantee for the grid per moneyness to be regular.
+	 * Hence, getValue may still throw a NullPointerException, even when using entries from this view.
+	 *
+	 * @return The view of recorded swaptions.
+	 */
+	public Map&lt;Integer, int[][]&gt; getGridNodesPerMoneyness() {
+
+		//See if the map has already been instantiated.
+<span class="fc bfc" id="L330" title="All 2 branches covered.">		if(keyMap != null) {</span>
+<span class="fc" id="L331">			return Collections.unmodifiableMap(keyMap);</span>
+		}
+
+		//Otherwise create the map and return it.
+<span class="fc" id="L335">		final Map&lt;Integer, List&lt;Set&lt;Integer&gt;&gt;&gt; newMap = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L337" title="All 2 branches covered.">		for(final DataKey key : entryMap.keySet()) {</span>
+<span class="fc bfc" id="L338" title="All 2 branches covered.">			if(! newMap.containsKey(key.moneyness)) {</span>
+<span class="fc" id="L339">				newMap.put(key.moneyness, new ArrayList&lt;Set&lt;Integer&gt;&gt;());</span>
+<span class="fc" id="L340">				newMap.get(key.moneyness).add(new HashSet&lt;Integer&gt;());</span>
+<span class="fc" id="L341">				newMap.get(key.moneyness).add(new HashSet&lt;Integer&gt;());</span>
+			}
+<span class="fc" id="L343">			newMap.get(key.moneyness).get(0).add(key.maturity);</span>
+<span class="fc" id="L344">			newMap.get(key.moneyness).get(1).add(key.tenor);</span>
+<span class="fc" id="L345">		}</span>
+
+<span class="fc" id="L347">		final Map&lt;Integer, int[][]&gt; keyMap = new TreeMap&lt;&gt;();</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">		for(final int moneyness : newMap.keySet()) {</span>
+<span class="fc" id="L349">			final int[][] values = new int[2][];</span>
+
+<span class="fc" id="L351">			values[0] = newMap.get(moneyness).get(0).stream().sorted().mapToInt(Integer::intValue).toArray();</span>
+<span class="fc" id="L352">			values[1] = newMap.get(moneyness).get(1).stream().sorted().mapToInt(Integer::intValue).toArray();</span>
+
+<span class="fc" id="L354">			keyMap.put(moneyness, values);</span>
+<span class="fc" id="L355">		}</span>
+<span class="fc" id="L356">		this.keyMap = keyMap;</span>
+<span class="fc" id="L357">		return Collections.unmodifiableMap(keyMap);</span>
+	}
+
+	/**
+	 * Get a view of the locations of swaptions in this lattice.
+	 * The keys of the map are pairs of maturities and tenors for which there are swaptions.
+	 * The entries for each pair consist of an array of possible moneyness values, sorted in ascending order.
+	 *
+	 * @return The view of recorded swaptions.
+	 */
+	public Map&lt;Pair&lt;Integer, Integer&gt;, int[]&gt; getMoneynessPerGridNode() {
+
+		//See if the map has already been instantiated.
+<span class="nc bnc" id="L370" title="All 2 branches missed.">		if(reverseKeyMap != null) {</span>
+<span class="nc" id="L371">			return Collections.unmodifiableMap(reverseKeyMap);</span>
+		}
+
+		//Otherwise create the map and return it.
+<span class="nc" id="L375">		final Map&lt;Pair&lt;Integer, Integer&gt;, Set&lt;Integer&gt;&gt; newMap = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L377" title="All 2 branches missed.">		for(final DataKey key : entryMap.keySet()) {</span>
+<span class="nc" id="L378">			final Pair&lt;Integer, Integer&gt; maturityTenorPair = new Pair&lt;&gt;(key.maturity, key.tenor);</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">			if(! newMap.containsKey(maturityTenorPair)) {</span>
+<span class="nc" id="L380">				newMap.put(maturityTenorPair, new HashSet&lt;Integer&gt;());</span>
+			}
+<span class="nc" id="L382">			newMap.get(maturityTenorPair).add(key.moneyness);</span>
+<span class="nc" id="L383">		}</span>
+
+<span class="nc" id="L385">		final Map&lt;Pair&lt;Integer, Integer&gt;, int[]&gt; reverseKeyMap = new TreeMap&lt;&gt;();</span>
+<span class="nc bnc" id="L386" title="All 2 branches missed.">		for(final Pair&lt;Integer, Integer&gt; maturityTenorPair : newMap.keySet()) {</span>
+<span class="nc" id="L387">			final int[] values = newMap.get(maturityTenorPair).stream().sorted().mapToInt(Integer::intValue).toArray();</span>
+
+<span class="nc" id="L389">			reverseKeyMap.put(maturityTenorPair, values);</span>
+<span class="nc" id="L390">		}</span>
+<span class="nc" id="L391">		this.reverseKeyMap = reverseKeyMap;</span>
+<span class="nc" id="L392">		return Collections.unmodifiableMap(reverseKeyMap);</span>
+	}
+
+	/**
+	 * Return all levels of moneyness for which data exists.
+	 *
+	 * @return The levels of moneyness in bp.
+	 */
+	public int[] getMoneyness() {
+<span class="fc" id="L401">		return getGridNodesPerMoneyness().keySet().stream().mapToInt(Integer::intValue).toArray();</span>
+	}
+
+	/**
+	 * Return all levels of moneyness for which data exists.
+	 * Moneyness is returned as actual difference strike - par swap rate.
+	 *
+	 * @return The levels of moneyness as difference of strike to par swap rate.
+	 */
+	public double[] getMoneynessAsOffsets() {
+<span class="nc" id="L411">		DoubleStream moneyness = getGridNodesPerMoneyness().keySet().stream().mapToDouble(Integer::doubleValue);</span>
+<span class="nc bnc" id="L412" title="All 2 branches missed.">		if(quotingConvention == QuotingConvention.PAYERVOLATILITYLOGNORMAL) {</span>
+<span class="nc" id="L413">			moneyness = moneyness.map(new DoubleUnaryOperator() {</span>
+				@Override
+				public double applyAsDouble(final double x) {
+<span class="nc" id="L416">					return x * 0.01;</span>
+				}
+			});
+<span class="nc bnc" id="L419" title="All 2 branches missed.">		} else if(quotingConvention == QuotingConvention.RECEIVERPRICE) {</span>
+<span class="nc" id="L420">			moneyness = moneyness.map(new DoubleUnaryOperator() {</span>
+				@Override
+				public double applyAsDouble(final double x) {
+<span class="nc" id="L423">					return - x * 0.0001;</span>
+				}
+			});
+		} else {
+<span class="nc" id="L427">			moneyness = moneyness.map(new DoubleUnaryOperator() {</span>
+				@Override
+				public double applyAsDouble(final double x) {
+<span class="nc" id="L430">					return x * 0.0001;</span>
+				}
+			});
+		}
+<span class="nc" id="L434">		return moneyness.toArray();</span>
+	}
+
+	/**
+	 * Return all maturities for which data exists.
+	 *
+	 * @return The maturities in months.
+	 */
+	public int[] getMaturities() {
+<span class="fc" id="L443">		final Set&lt;Integer&gt; setMaturities	= new HashSet&lt;&gt;();</span>
+
+<span class="fc bfc" id="L445" title="All 2 branches covered.">		for(final int moneyness : getGridNodesPerMoneyness().keySet()) {</span>
+<span class="fc" id="L446">			setMaturities.addAll(Arrays.asList((IntStream.of(keyMap.get(moneyness)[0]).boxed().toArray(Integer[]::new))));</span>
+<span class="fc" id="L447">		}</span>
+<span class="fc" id="L448">		return setMaturities.stream().sorted().mapToInt(Integer::intValue).toArray();</span>
+	}
+
+	/**
+	 * Return all valid maturities for a given moneyness.
+	 *
+	 * @param moneynessBP The moneyness in bp for which to get the maturities.
+	 * @return The maturities in months.
+	 */
+	public int[] getMaturities(final int moneynessBP) {
+		try {
+<span class="fc" id="L459">			return getGridNodesPerMoneyness().get(moneynessBP)[0];</span>
+<span class="nc" id="L460">		} catch (final NullPointerException e) {</span>
+<span class="nc" id="L461">			return new int[0];</span>
+		}
+	}
+
+	/**
+	 * Return all valid maturities for a given moneyness.
+	 * Uses the fixing times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness The moneyness as actual offset from par swap rate for which to get the maturities.
+	 * @return The maturities as year fraction from reference date.
+	 */
+	public double[] getMaturities(final double moneyness) {
+<span class="nc" id="L473">		final int[] maturitiesInMonths	= getMaturities(convertMoneyness(moneyness));</span>
+<span class="nc" id="L474">		final double[] maturities			= new double[maturitiesInMonths.length];</span>
+
+<span class="nc bnc" id="L476" title="All 2 branches missed.">		for(int index = 0; index &lt; maturities.length; index++) {</span>
+<span class="nc" id="L477">			maturities[index] = convertMaturity(maturitiesInMonths[index]);</span>
+		}
+<span class="nc" id="L479">		return maturities;</span>
+	}
+
+	/**
+	 * Return all tenors for which data exists.
+	 *
+	 * @return The tenors in months.
+	 */
+	public int[] getTenors() {
+<span class="fc" id="L488">		final Set&lt;Integer&gt; setTenors	= new HashSet&lt;&gt;();</span>
+
+<span class="fc bfc" id="L490" title="All 2 branches covered.">		for(final int moneyness : getGridNodesPerMoneyness().keySet()) {</span>
+<span class="fc" id="L491">			setTenors.addAll(Arrays.asList((IntStream.of(keyMap.get(moneyness)[1]).boxed().toArray(Integer[]::new))));</span>
+<span class="fc" id="L492">		}</span>
+<span class="fc" id="L493">		return setTenors.stream().sorted().mapToInt(Integer::intValue).toArray();</span>
+	}
+
+	/**
+	 * Return all valid tenors for a given moneyness and maturity.
+	 *
+	 * @param moneynessBP The moneyness in bp for which to get the tenors.
+	 * @param maturityInMonths The maturities in months for which to get the tenors.
+	 * @return The tenors in months.
+	 */
+	public int[] getTenors(final int moneynessBP, final int maturityInMonths) {
+
+		try {
+<span class="fc" id="L506">			final List&lt;Integer&gt; ret = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L507" title="All 2 branches covered.">			for(final int tenor : getGridNodesPerMoneyness().get(moneynessBP)[1]) {</span>
+<span class="fc bfc" id="L508" title="All 2 branches covered.">				if(containsEntryFor(maturityInMonths, tenor, moneynessBP)) {</span>
+<span class="fc" id="L509">					ret.add(tenor);</span>
+				}
+			}
+<span class="fc" id="L512">			return ret.stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="nc" id="L513">		} catch (final NullPointerException e) {</span>
+<span class="nc" id="L514">			return new int[0];</span>
+		}
+	}
+
+	/**
+	 * Return all valid tenors for a given moneyness and maturity.
+	 * Uses the payment times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness The moneyness as actual offset from par swap rate for which to get the maturities.
+	 * @param maturity The maturities as year fraction from the reference date.
+	 * @return The tenors as year fraction from reference date.
+	 */
+	public double[] getTenors(final double moneyness, final double maturity) {
+<span class="nc" id="L527">		final int maturityInMonths	= (int) Math.round(maturity * 12);</span>
+<span class="nc" id="L528">		final int[] tenorsInMonths	= getTenors(convertMoneyness(moneyness), maturityInMonths);</span>
+<span class="nc" id="L529">		final double[] tenors			= new double[tenorsInMonths.length];</span>
+
+<span class="nc bnc" id="L531" title="All 2 branches missed.">		for(int index = 0; index &lt; tenors.length; index++) {</span>
+<span class="nc" id="L532">			tenors[index] = convertTenor(maturityInMonths, tenorsInMonths[index]);</span>
+		}
+<span class="nc" id="L534">		return tenors;</span>
+	}
+
+	/**
+	 * Convert moneyness given as difference to par swap rate to moneyness in bp.
+	 * Uses the fixing times of the fix schedule to determine fractions.
+	 *
+	 * @param moneyness as offset.
+	 * @return Moneyness in bp.
+	 */
+	private int convertMoneyness(final double moneyness) {
+<span class="nc bnc" id="L545" title="All 2 branches missed.">		if(quotingConvention == QuotingConvention.PAYERVOLATILITYLOGNORMAL) {</span>
+<span class="nc" id="L546">			return (int) Math.round(moneyness * 100);</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">		} else if(quotingConvention == QuotingConvention.RECEIVERPRICE) {</span>
+<span class="nc" id="L548">			return - (int) Math.round(moneyness * 10000);</span>
+		} else {
+<span class="nc" id="L550">			return (int) Math.round(moneyness * 10000);</span>
+		}
+	}
+
+	/**
+	 * Convert maturity given as offset in months to year fraction.
+	 *
+	 * @param maturityInMonths The maturity as offset in months.
+	 * @return The maturity as year fraction.
+	 */
+	private double convertMaturity(final int maturityInMonths) {
+<span class="nc" id="L561">		final Schedule schedule = fixMetaSchedule.generateSchedule(referenceDate, maturityInMonths, 12);</span>
+<span class="nc" id="L562">		return schedule.getFixing(0);</span>
+	}
+
+	/**
+	 * Convert tenor given as offset in months to year fraction.
+	 *
+	 * @param maturityInMonths The maturity as offset in months.
+	 * @param tenorInMonths The tenor as offset in months.
+	 * @return THe tenor as year fraction.
+	 */
+	private double convertTenor(final int maturityInMonths, final int tenorInMonths) {
+<span class="nc" id="L573">		final Schedule schedule = fixMetaSchedule.generateSchedule(referenceDate, maturityInMonths, tenorInMonths);</span>
+<span class="nc" id="L574">		return schedule.getPayment(schedule.getNumberOfPeriods()-1);</span>
+	}
+
+	/**
+	 * Returns true if the lattice contains an entry at the specified location.
+	 *
+	 * @param maturityInMonths The maturity in months to check.
+	 * @param tenorInMonths The tenor in months to check.
+	 * @param moneynessBP The moneyness in bp to check.
+	 * @return True iff there is an entry at the specified location.
+	 */
+	public boolean containsEntryFor(final int maturityInMonths, final int tenorInMonths, final int moneynessBP) {
+<span class="fc" id="L586">		return entryMap.containsKey(new DataKey(maturityInMonths, tenorInMonths, moneynessBP));</span>
+	}
+
+	/**
+	 * Return the value in the quoting convention of this lattice.
+	 *
+	 * @param maturity The maturity of the option as year fraction from the reference date.
+	 * @param tenor The tenor of the swap as year fraction from the reference date.
+	 * @param moneyness The moneyness as actual difference of strike to par swap rate.
+	 *
+	 * @return The value as stored in the lattice.
+	 */
+	public double getValue(final double maturity, final double tenor, final double moneyness) {
+<span class="nc" id="L599">		return getValue(new DataKey(maturity, tenor, moneyness));</span>
+	}
+
+	/**
+	 * Return the value in the quoting convention of this lattice.
+	 *
+	 * @param maturityInMonths The maturity of the option as offset in months from the reference date.
+	 * @param tenorInMonths The tenor of the swap as offset in months from the option maturity.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate.
+	 *
+	 * @return The value as stored in the lattice.
+	 */
+	public double getValue(final int maturityInMonths, final int tenorInMonths, final int moneynessBP) {
+<span class="fc" id="L612">		return getValue(new DataKey(maturityInMonths, tenorInMonths, moneynessBP));</span>
+	}
+
+	/**
+	 * Return the value in the quoting convention of this lattice.
+	 *
+	 * @param tenorCode The schedule of the swaption encoded in the format '6M10Y'
+	 * @param moneynessBP The moneyness in basis points on the par swap rate.
+	 *
+	 * @return The value as stored in the lattice.
+	 */
+	public double getValue(final String tenorCode, final int moneynessBP) {
+<span class="fc" id="L624">		return getValue(new DataKey(tenorCode, moneynessBP));</span>
+	}
+
+	/**
+	 * Internal getValue method for other methods to call.
+	 *
+	 * @param key
+	 * @return The value as stored in the lattice.
+	 */
+	private double getValue(final DataKey key) {
+<span class="fc" id="L634">		return entryMap.get(key);</span>
+	}
+
+	/**
+	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param maturity The maturity of the option as year fraction from the reference date.
+	 * @param tenor The tenor of the swap as year fraction from the reference date.
+	 * @param moneyness The moneyness as actual difference of strike to par swap rate.
+	 * @param convention The desired quoting convention.
+	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param model The model for context.
+	 *
+	 * @return The value converted to the convention.
+	 */
+	public double getValue(final double maturity, final double tenor, final double moneyness, final QuotingConvention convention, final double displacement, final AnalyticModel model) {
+<span class="nc" id="L651">		final DataKey key = new DataKey(maturity, tenor, moneyness);</span>
+<span class="nc" id="L652">		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);</span>
+	}
+
+	/**
+	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param maturityInMonths The maturity of the option as offset in months from the reference date.
+	 * @param tenorInMonths The tenor of the swap as offset in months from the option maturity.
+	 * @param moneynessBP The moneyness in basis points on the par swap rate, as understood in the original convention.
+	 * @param convention The desired quoting convention.
+	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param model The model for context.
+	 *
+	 * @return The value converted to the convention.
+	 */
+	public double getValue(final int maturityInMonths, final int tenorInMonths, final int moneynessBP, final QuotingConvention convention, final double displacement, final AnalyticModel model) {
+<span class="fc" id="L669">		final DataKey key = new DataKey(maturityInMonths, tenorInMonths, moneynessBP);</span>
+<span class="fc" id="L670">		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);</span>
+	}
+
+	/**
+	 * Return the value in the given quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param tenorCode The schedule of the swaption encoded in the format '6M10Y'
+	 * @param moneynessBP The moneyness in basis points on the par swap rate, as understood in the original convention.
+	 * @param convention The desired quoting convention.
+	 * @param displacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param model The model for context.
+	 *
+	 * @return The value converted to the convention.
+	 */
+	public double getValue(final String tenorCode, final int moneynessBP, final QuotingConvention convention, final double displacement, final AnalyticModel model) {
+<span class="nc" id="L686">		final DataKey key = new DataKey(tenorCode, moneynessBP);</span>
+<span class="nc" id="L687">		return convertToConvention(getValue(key), key, convention, displacement, quotingConvention, this.displacement, model);</span>
+	}
+
+	/**
+	 * Convert the value to requested quoting convention.
+	 * Conversion involving receiver premium assumes zero wide collar.
+	 *
+	 * @param value The value to convert.
+	 * @param key The key of the value.
+	 * @param toConvention The convention to convert to.
+	 * @param toDisplacement The displacement to be used, if converting to log normal implied volatility.
+	 * @param fromConvention The current convention of the value.
+	 * @param fromDisplacement The current displacement.
+	 * @param model The model for context.
+	 *
+	 * @return The converted value.
+	 */
+	private double convertToConvention(final double value, final DataKey key, final QuotingConvention toConvention, final double toDisplacement,
+			final QuotingConvention fromConvention, final double fromDisplacement, final AnalyticModel model) {
+
+<span class="pc bpc" id="L707" title="1 of 2 branches missed.">		if(toConvention == fromConvention) {</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">			if(toConvention != QuotingConvention.PAYERVOLATILITYLOGNORMAL) {</span>
+<span class="nc" id="L709">				return value;</span>
+			} else {
+<span class="nc bnc" id="L711" title="All 2 branches missed.">				if(toDisplacement == fromDisplacement) {</span>
+<span class="nc" id="L712">					return value;</span>
+				} else {
+<span class="nc" id="L714">					return convertToConvention(convertToConvention(value, key, QuotingConvention.PAYERPRICE, 0, fromConvention, fromDisplacement, model),</span>
+							key, toConvention, toDisplacement, QuotingConvention.PAYERPRICE, 0, model);
+				}
+			}
+		}
+
+<span class="fc" id="L720">		final Schedule floatSchedule	= floatMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);</span>
+<span class="fc" id="L721">		final Schedule fixSchedule	= fixMetaSchedule.generateSchedule(getReferenceDate(), key.maturity, key.tenor);</span>
+
+<span class="fc" id="L723">		final double forward = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+<span class="fc" id="L724">		final double optionMaturity = floatSchedule.getFixing(0);</span>
+<span class="fc" id="L725">		final double offset = key.moneyness /10000.0;</span>
+<span class="pc bpc" id="L726" title="1 of 2 branches missed.">		final double optionStrike = forward + (quotingConvention == QuotingConvention.RECEIVERPRICE ? -offset : offset);</span>
+<span class="fc" id="L727">		final double payoffUnit = SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);</span>
+
+<span class="pc bpc" id="L729" title="3 of 4 branches missed.">		if(toConvention.equals(QuotingConvention.PAYERPRICE) &amp;&amp; fromConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL)) {</span>
+<span class="nc" id="L730">			return AnalyticFormulas.blackScholesGeneralizedOptionValue(forward + fromDisplacement, value, optionMaturity, optionStrike + fromDisplacement, payoffUnit);</span>
+		}
+<span class="pc bpc" id="L732" title="3 of 4 branches missed.">		else if(toConvention.equals(QuotingConvention.PAYERPRICE) &amp;&amp; fromConvention.equals(QuotingConvention.PAYERVOLATILITYNORMAL)) {</span>
+<span class="nc" id="L733">			return AnalyticFormulas.bachelierOptionValue(forward, value, optionMaturity, optionStrike, payoffUnit);</span>
+		}
+<span class="pc bpc" id="L735" title="3 of 4 branches missed.">		else if(toConvention.equals(QuotingConvention.PAYERPRICE) &amp;&amp; fromConvention.equals(QuotingConvention.RECEIVERPRICE)) {</span>
+<span class="nc" id="L736">			return value + (forward - optionStrike) * payoffUnit;</span>
+		}
+<span class="pc bpc" id="L738" title="3 of 4 branches missed.">		else if(toConvention.equals(QuotingConvention.PAYERVOLATILITYLOGNORMAL) &amp;&amp; fromConvention.equals(QuotingConvention.PAYERPRICE)) {</span>
+<span class="nc" id="L739">			return AnalyticFormulas.blackScholesOptionImpliedVolatility(forward + toDisplacement, optionMaturity, optionStrike + toDisplacement, payoffUnit, value);</span>
+		}
+<span class="pc bpc" id="L741" title="2 of 4 branches missed.">		else if(toConvention.equals(QuotingConvention.PAYERVOLATILITYNORMAL) &amp;&amp; fromConvention.equals(QuotingConvention.PAYERPRICE)) {</span>
+<span class="fc" id="L742">			return AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, value);</span>
+		}
+<span class="nc bnc" id="L744" title="All 4 branches missed.">		else if(toConvention.equals(QuotingConvention.RECEIVERPRICE) &amp;&amp; fromConvention.equals(QuotingConvention.PAYERPRICE)) {</span>
+<span class="nc" id="L745">			return value - (forward - optionStrike) * payoffUnit;</span>
+		}
+		else {
+<span class="nc" id="L748">			return convertToConvention(convertToConvention(value, key, QuotingConvention.PAYERPRICE, 0, fromConvention, fromDisplacement, model),</span>
+					key, toConvention, toDisplacement, QuotingConvention.PAYERPRICE, 0, model);
+		}
+	}
+
+	/**
+	 * @return The number of entries in the lattice.
+	 */
+	public int size() {
+<span class="fc" id="L757">		return entryMap.size();</span>
+	}
+
+	/**
+	 * @return The reference date of the swaptions.
+	 */
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L764">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return The quoting convention used to store data.
+	 */
+	public QuotingConvention getQuotingConvention() {
+<span class="fc" id="L771">		return quotingConvention;</span>
+	}
+
+	/**
+	 * @return The displacement, used in case of {@link QuotingConvention}{@code .PAYERVOLATILITYLOGNORMAL}.
+	 */
+	public double getDisplacement() {
+<span class="fc" id="L778">		return displacement;</span>
+	}
+
+	/**
+	 * @return The name of the forward curve for these swaptions.
+	 */
+	public String getForwardCurveName() {
+<span class="fc" id="L785">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * @return The name of the discount curve for these swaptions.
+	 */
+	public String getDiscountCurveName() {
+<span class="fc" id="L792">		return discountCurveName;</span>
+	}
+
+	/**
+	 * @return The schedule meta data for the float leg of the swaptions.
+	 */
+	public SchedulePrototype getFloatMetaSchedule() {
+<span class="fc" id="L799">		return floatMetaSchedule;</span>
+	}
+
+	/**
+	 * @return The schedule meta data for the fix leg of the swaptions.
+	 */
+	public SchedulePrototype getFixMetaSchedule() {
+<span class="fc" id="L806">		return fixMetaSchedule;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L811">		final StringBuilder builder = new StringBuilder(super.toString());</span>
+<span class="nc" id="L812">		builder.append(&quot;[referenceDate= &quot; + getReferenceDate() + &quot;, quotingConvention= &quot; + getQuotingConvention() + &quot;, displacement= &quot; + getDisplacement() +</span>
+<span class="nc" id="L813">				&quot;, forwardCurveName= &quot; + getForwardCurveName() + &quot;, discountCurveName= &quot; + getDiscountCurveName() + &quot;, floatMetaSchedule= &quot; + getFloatMetaSchedule() +</span>
+<span class="nc" id="L814">				&quot;, fixMetaSchedule= &quot; + getFixMetaSchedule() +&quot;, Entries:\n&quot;);</span>
+<span class="nc" id="L815">		builder.append(&quot;Maturity\tTenor\tMoneyness\tValue\n&quot;);</span>
+<span class="nc bnc" id="L816" title="All 2 branches missed.">		for(final DataKey key : entryMap.keySet()) {</span>
+<span class="nc" id="L817">			builder.append(key.maturity + &quot;\t&quot; + key.tenor + &quot;\t&quot; + key.moneyness + &quot;\t&quot; + getValue(key) + &quot;\n&quot;);</span>
+<span class="nc" id="L818">		}</span>
+<span class="nc" id="L819">		builder.append(&quot;]&quot;);</span>
+
+<span class="nc" id="L821">		return builder.toString();</span>
+	}
+
+	/**
+	 * A key used to reference swaption data in an map.
+	 * Key overrides {@code equals} and {@code hashCode} for quick data recovery.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private class DataKey implements Serializable {
+
+		private static final long serialVersionUID = -8284316295640713492L;
+
+		private final int maturity;
+		private final int tenor;
+		private final int moneyness;
+
+<span class="fc" id="L840">		DataKey(final int maturity, final int tenor, final int moneyness) {</span>
+<span class="fc" id="L841">			super();</span>
+<span class="fc" id="L842">			this.maturity	= maturity;</span>
+<span class="fc" id="L843">			this.tenor		= tenor;</span>
+<span class="fc" id="L844">			this.moneyness	= moneyness;</span>
+<span class="fc" id="L845">		}</span>
+
+<span class="nc" id="L847">		DataKey(final double maturity, final double tenor, final double moneyness) {</span>
+<span class="nc" id="L848">			super();</span>
+<span class="nc" id="L849">			this.maturity	= (int) Math.round(maturity * 12);</span>
+<span class="nc" id="L850">			this.tenor		= (int) Math.round((tenor-maturity) * 12);</span>
+<span class="nc" id="L851">			this.moneyness	= convertMoneyness(moneyness);</span>
+<span class="nc" id="L852">		}</span>
+
+<span class="fc" id="L854">		DataKey(final String tenorCode, final int moneyness) {</span>
+<span class="fc" id="L855">			super();</span>
+<span class="fc" id="L856">			final String[] inputs = tenorCode.split(&quot;(?&lt;=\\D)(?=\\d)|(?&lt;=\\d)(?=\\D)&quot;, 4);</span>
+<span class="pc bpc" id="L857" title="3 of 4 branches missed.">			maturity	= Integer.parseInt(inputs[0]) * (inputs[1].equalsIgnoreCase(&quot;Y&quot;)? 12 : inputs[1].equalsIgnoreCase(&quot;M&quot;)? 1 : 0 );</span>
+<span class="pc bpc" id="L858" title="3 of 4 branches missed.">			tenor		= Integer.parseInt(inputs[2]) * (inputs[3].equalsIgnoreCase(&quot;Y&quot;)? 12 : inputs[3].equalsIgnoreCase(&quot;M&quot;)? 1 : 0 );</span>
+<span class="fc" id="L859">			this.moneyness	= moneyness;</span>
+<span class="fc" id="L860">		}</span>
+
+		@Override
+		public boolean equals(final Object other) {
+<span class="pc bpc" id="L864" title="1 of 2 branches missed.">			if(this == other) {</span>
+<span class="nc" id="L865">				return true;</span>
+			}
+
+<span class="pc bpc" id="L868" title="4 of 8 branches missed.">			if(other == null || other.getClass() != getClass() || maturity 	!= ((DataKey) other).maturity || tenor != ((DataKey) other).tenor) {</span>
+<span class="nc" id="L869">				return false;</span>
+			}
+<span class="pc bpc" id="L871" title="1 of 2 branches missed.">			return moneyness == ((DataKey) other).moneyness;</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L876">			return maturity + 100* tenor + 10000* moneyness;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

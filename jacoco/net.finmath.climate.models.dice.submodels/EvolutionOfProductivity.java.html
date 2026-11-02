@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvolutionOfProductivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">EvolutionOfProductivity.java</span></div><h1>EvolutionOfProductivity.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.Function;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * The evolution of the productivity (economy)
+ * \(
+ * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))
+ * \)
+ *
+ * @author Christian Fries
+ */
+public class EvolutionOfProductivity implements Function&lt;Integer, Function&lt;Double, Double&gt;&gt; {
+
+	private final TimeDiscretization timeDiscretization;
+	private final double productivityGrowthRateInitial;        	// ga: Initial TFP rate
+	private final double productivityGrowthRateDecayRate;	// deltaA: TFP increase rate
+
+	/**
+	 * The evolution of the productivity (economy)
+	 * \(
+	 * 	A(t_{i+1}) = A(t_{i}) / (1 - ga * \exp(- deltaA * t))^{\frac{\delta t}{5}}
+	 * \)
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param productivityGrowthRateInitial The initial productivity growth rate ga per 1Y.
+	 * @param productivityGrowthRateDecayRate The productivity growth decay rate per 1Y.
+	 */
+	public EvolutionOfProductivity(TimeDiscretization timeDiscretization, double productivityGrowthRateInitial, double productivityGrowthRateDecayRate) {
+<span class="fc" id="L32">		super();</span>
+<span class="fc" id="L33">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L34">		this.productivityGrowthRateInitial = productivityGrowthRateInitial;</span>
+<span class="fc" id="L35">		this.productivityGrowthRateDecayRate = productivityGrowthRateDecayRate;</span>
+<span class="fc" id="L36">	}</span>
+
+	public EvolutionOfProductivity(TimeDiscretization timeDiscretization) {
+		// Parameters from original model: initial productivity growth 0.076 per 1 year, decaying with 0.005 per 1 year.
+<span class="fc" id="L40">		this(timeDiscretization, 0.076, 0.005);</span>
+<span class="fc" id="L41">	}</span>
+
+	@Override
+	public Function&lt;Double, Double&gt; apply(Integer timeIndex) {
+<span class="fc" id="L45">		final double time = timeDiscretization.getTime(timeIndex);</span>
+<span class="fc" id="L46">		final double timeStep = timeDiscretization.getTimeStep(timeIndex);</span>
+<span class="fc" id="L47">		return (Double productivity) -&gt; {</span>
+<span class="fc" id="L48">			final double productivityGrowthRate = productivityGrowthRateInitial * Math.exp(-productivityGrowthRateDecayRate * time);</span>
+<span class="fc" id="L49">			return productivity / (Math.exp(Math.log(1 - (productivityGrowthRate))*timeStep/5.0));</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

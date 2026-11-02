@@ -1,0 +1,550 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BermudanSwaptionFromSwapSchedules.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">BermudanSwaptionFromSwapSchedules.java</span></div><h1>BermudanSwaptionFromSwapSchedules.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.interestrate.products;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
+import java.util.function.ToDoubleFunction;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.modelling.products.Swaption;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationLinearRegressionFactory;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegressionFactory;
+import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.process.ProcessTimeDiscretizationProvider;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Implements the valuation of a Bermudan swaption under a &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt;
+ *
+ * @author Christian Fries
+ * @version 1.4
+ * @date 06.12.2009
+ * @date 07.04.2019
+ */
+public class BermudanSwaptionFromSwapSchedules extends AbstractTermStructureMonteCarloProduct implements RegressionBasisFunctionsProvider, ProcessTimeDiscretizationProvider, Swaption {
+
+<span class="nc" id="L49">	private static Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+<span class="nc" id="L51">	public enum SwaptionType{</span>
+<span class="nc" id="L52">		PAYER,</span>
+<span class="nc" id="L53">		RECEIVER</span>
+	}
+
+	private final LocalDateTime		referenceDate;
+	private final SwaptionType 		swaptionType;
+	private final LocalDate[] 		exerciseDates;
+	private final LocalDate 		swapEndDate;
+	private final double[]			swaprates;
+	private final double[] 			notionals;
+	private final Schedule[]  		fixSchedules;
+	private final Schedule[]  		floatSchedules;
+	private final RegressionBasisFunctionsProvider regressionBasisFunctionProvider;
+	private final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory;
+<span class="nc" id="L66">	private final boolean			isUseAnalyticSwapValuationAtExercise = true;</span>
+
+	/**
+	 * Create a Bermudan swaption from an array of underlying swap schedules (fix leg and float leg), swap rates and notionals.
+	 *
+	 * This class implements the class backward algorithm using a provided factory for the
+	 * determination of the conditional expectation.
+	 *
+	 * For &lt;code&gt;conditionalExpectationRegressionFactory&lt;/code&gt; you may pass
+	 * &lt;code&gt;new MonteCarloConditionalExpectationLinearRegressionFactory()&lt;/code&gt; (default) or, e.g., &lt;code&gt;new MonteCarloConditionalExpectationLocalizedOnDependentRegressionFactory(2.0)&lt;/code&gt;.
+	 *
+	 * @param referenceDate The date associated with the inception (t=0) of this product. (Not used).
+	 * @param swaptionType The type of the underlying swap (PAYER, RECEIVER).
+	 * @param exerciseDates A vector of exercise dates.
+	 * @param swapEndDate The final maturity of the underlying swap.
+	 * @param swaprates A vector of swap rates for the underlying swaps.
+	 * @param notionals A vector of notionals for the underlying swaps.
+	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
+	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
+	 * @param conditionalExpectationRegressionFactory A object implementing a factory creating a conditional expectation estimator from given regression basis functions
+	 * @param regressionBasisFunctionProvider An object implementing RegressionBasisFunctionsProvider to provide the basis functions for the estimation of conditional expectations.
+	 */
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+<span class="nc" id="L90">			final Schedule[]  floatSchedules, final MonteCarloConditionalExpectationRegressionFactory conditionalExpectationRegressionFactory, final RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {</span>
+<span class="nc" id="L91">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L92">		this.swaptionType = swaptionType;</span>
+<span class="nc" id="L93">		this.swapEndDate = swapEndDate;</span>
+<span class="nc" id="L94">		this.swaprates = swaprates;</span>
+<span class="nc" id="L95">		this.notionals = notionals;</span>
+<span class="nc" id="L96">		this.exerciseDates = exerciseDates;</span>
+<span class="nc" id="L97">		this.fixSchedules = fixSchedules;</span>
+<span class="nc" id="L98">		this.floatSchedules = floatSchedules;</span>
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		this.regressionBasisFunctionProvider = regressionBasisFunctionProvider != null ? regressionBasisFunctionProvider : this;</span>
+<span class="nc" id="L101">		this.conditionalExpectationRegressionFactory = conditionalExpectationRegressionFactory;</span>
+<span class="nc" id="L102">	}</span>
+
+	/**
+	 * Create a Bermudan swaption.
+	 *
+	 * @param referenceDate The date associated with the inception (t=0) of this product. (Not used).
+	 * @param swaptionType The type of the underlying swap (PAYER, RECEIVER).
+	 * @param exerciseDates A vector of exercise dates.
+	 * @param swapEndDate The final maturity of the underlying swap.
+	 * @param swaprates A vector of swap rates for the underlying swaps.
+	 * @param notionals A vector of notionals for the underlying swaps.
+	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
+	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
+	 * @param regressionBasisFunctionProvider An object implementing RegressionBasisFunctionsProvider to provide the basis functions for the estimation of conditional expectations.
+	 */
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+			final Schedule[]  floatSchedules, final RegressionBasisFunctionsProvider regressionBasisFunctionProvider) {
+<span class="nc" id="L120">		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, new MonteCarloConditionalExpectationLinearRegressionFactory(), regressionBasisFunctionProvider);</span>
+<span class="nc" id="L121">	}</span>
+
+	/**
+	 * Create a Bermudan swaption.
+	 *
+	 * @param referenceDate The date associated with the inception (t=0) of this product. (Not used).
+	 * @param swaptionType The type of the underlying swap (PAYER, RECEIVER).
+	 * @param exerciseDates A vector of exercise dates.
+	 * @param swapEndDate The final maturity of the underlying swap.
+	 * @param swaprates A vector of swap rates for the underlying swaps.
+	 * @param notionals A vector of notionals for the underlying swaps.
+	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
+	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
+	 */
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double[] swaprates, final double[] notionals, final Schedule[]  fixSchedules,
+			final Schedule[]  floatSchedules) {
+<span class="nc" id="L138">		this(referenceDate, swaptionType, exerciseDates, swapEndDate, swaprates,notionals, fixSchedules, floatSchedules, null);</span>
+<span class="nc" id="L139">	}</span>
+
+	/**
+	 * Create a Bermudan swaption.
+	 *
+	 * @param referenceDate The date associated with the inception (t=0) of this product.
+	 * @param swaptionType The type of the underlying swap (PAYER, RECEIVER).
+	 * @param exerciseDates A vector of exercise dates.
+	 * @param swapEndDate The final maturity of the underlying swap.
+	 * @param swaprate A constant swaprate applying to all underlying swaps.
+	 * @param notional A constant notional applying to all underlying swaps.
+	 * @param fixSchedules A vector of fix leg schedules for the underlying swaps.
+	 * @param floatSchedules A vector of float leg schedules for the underlying swaps.
+	 */
+	public BermudanSwaptionFromSwapSchedules(final LocalDateTime referenceDate, final SwaptionType swaptionType, final LocalDate[] exerciseDates,
+			final LocalDate swapEndDate, final double swaprate, final double notional, final Schedule[] fixSchedules, final Schedule[]  floatSchedules) {
+<span class="nc" id="L155">		this(referenceDate, swaptionType, exerciseDates, swapEndDate, IntStream.range(0, exerciseDates.length).mapToDouble(new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L158">				return swaprate;</span>
+			}
+<span class="nc" id="L160">		}).toArray(), IntStream.range(0, exerciseDates.length).mapToDouble(new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L163">				return notional;</span>
+			}
+<span class="nc" id="L165">		}).toArray(), fixSchedules, floatSchedules);</span>
+<span class="nc" id="L166">	}</span>
+
+	/**
+	 * Returns the exercise dates.
+	 *
+	 * @return the exercise dates
+	 */
+	public LocalDate[] getExerciseDates() {
+<span class="nc" id="L174">		return exerciseDates;</span>
+	}
+
+	/**
+	 * @return the swaptionType
+	 */
+	public SwaptionType getSwaptionType() {
+<span class="nc" id="L181">		return swaptionType;</span>
+	}
+
+	/**
+	 * @return the swapEndDate
+	 */
+	public LocalDate getSwapEndDate() {
+<span class="nc" id="L188">		return swapEndDate;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getValues(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="nc" id="L194">		final LocalDate modelReferenceDate = model.getReferenceDate().toLocalDate();</span>
+
+<span class="nc" id="L196">		RandomVariable values			= model.getRandomVariableForConstant(0.0);</span>
+<span class="nc" id="L197">		RandomVariable exerciseTimes	= new Scalar(Double.POSITIVE_INFINITY);</span>
+
+<span class="nc" id="L199">		RandomVariable valuesUnderlying	= model.getRandomVariableForConstant(0.0);</span>
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		for(int exerciseIndex = exerciseDates.length - 1; exerciseIndex &gt;=0; exerciseIndex--) {</span>
+<span class="nc" id="L201">			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);</span>
+
+<span class="nc" id="L203">			final RandomVariable discountedCashflowFixLeg		= getValueUnderlyingNumeraireRelative(model, fixSchedules[exerciseIndex], false, swaprates[exerciseIndex], notionals[exerciseIndex]);</span>
+<span class="nc" id="L204">			final RandomVariable discountedCashflowFloatingLeg	= getValueUnderlyingNumeraireRelative(model, floatSchedules[exerciseIndex], true, 0.0, notionals[exerciseIndex]);</span>
+
+			// Distinguish whether the swaption is of type &quot;Payer&quot; or &quot;Receiver&quot;:
+<span class="nc bnc" id="L207" title="All 2 branches missed.">			if(swaptionType.equals(SwaptionType.PAYER)) {</span>
+<span class="nc" id="L208">				final RandomVariable discountedPayoff = discountedCashflowFloatingLeg.sub(discountedCashflowFixLeg);</span>
+<span class="nc" id="L209">				valuesUnderlying = discountedPayoff;//valuesUnderlying.add(discountedPayoff);</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">			} else if(swaptionType.equals(SwaptionType.RECEIVER)){</span>
+<span class="nc" id="L211">				final RandomVariable discountedPayoff = discountedCashflowFixLeg.sub(discountedCashflowFloatingLeg);</span>
+<span class="nc" id="L212">				valuesUnderlying = discountedPayoff;//valuesUnderlying.add(discountedPayoff);</span>
+			}
+
+<span class="nc" id="L215">			final RandomVariable discountedTriggerValues = values.sub(valuesUnderlying);</span>
+
+			// Remove foresight through condition expectation
+<span class="nc" id="L218">			final ConditionalExpectationEstimator conditionalExpectationOperator = getConditionalExpectationEstimator(exerciseTime, model);</span>
+
+			// Calculate conditional expectation. Note that no discounting (numeraire division) is required!
+<span class="nc" id="L221">			final RandomVariable triggerValues = discountedTriggerValues.getConditionalExpectation(conditionalExpectationOperator);</span>
+
+			// Apply the exercise criteria
+			// if triggerValues(omega) &lt;=0 choose valuesUnderlying else values
+<span class="nc" id="L225">			values = triggerValues.choose(values, valuesUnderlying);</span>
+<span class="nc" id="L226">			exerciseTimes = triggerValues.choose(exerciseTimes, new Scalar(exerciseTime));</span>
+		}
+
+
+		// Logging the exercise probabilities for every exercise time.
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		if(logger.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L232">			logger.fine(&quot;Exercise probabilitie &quot; + getExerciseProbabilitiesFromTimes(model.getReferenceDate(), exerciseTimes));</span>
+<span class="nc" id="L233">			double probabilityToExercise = 1.0;</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			for(int exerciseIndex = 0; exerciseIndex &lt; exerciseDates.length; exerciseIndex++) {</span>
+<span class="nc" id="L235">				final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, exerciseDates[exerciseIndex]);</span>
+<span class="nc" id="L236">				final double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();</span>
+<span class="nc" id="L237">				final double probability = probabilityToExercise - probabilityToExerciseAfter;</span>
+<span class="nc" id="L238">				probabilityToExercise = probabilityToExerciseAfter;</span>
+
+<span class="nc" id="L240">				logger.finer(&quot;Exercise &quot; + (exerciseIndex+1) + &quot; on &quot; + exerciseDates[exerciseIndex] + &quot; with probability &quot; + probability);</span>
+			}
+<span class="nc" id="L242">			logger.finer(&quot;No exercise with probability &quot; + probabilityToExercise);</span>
+		}
+
+		// Note that values is a relative price - no numeraire division is required
+<span class="nc" id="L246">		final RandomVariable	numeraireAtZero	= model.getNumeraire(evaluationTime);</span>
+<span class="nc" id="L247">		final RandomVariable	monteCarloProbabilitiesAtZero = model.getMonteCarloWeights(evaluationTime);</span>
+<span class="nc" id="L248">		values = values.mult(numeraireAtZero).div(monteCarloProbabilitiesAtZero);</span>
+
+<span class="nc" id="L250">		final Map&lt;String, Object&gt; results = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L251">		results.put(&quot;values&quot;, values);</span>
+<span class="nc" id="L252">		results.put(&quot;exerciseTimes&quot;, exerciseTimes);</span>
+<span class="nc" id="L253">		return results;</span>
+	}
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L258">		return (RandomVariable) getValues(evaluationTime, model).get(&quot;values&quot;);</span>
+	}
+
+	/**
+	 * Determines the vector of exercise probabilities for a given {@link RandomVariable} of exerciseTimes.
+	 * The exerciseTimes is a random variable of {@link FloatingpointDate} offsets from a given referenceDate.
+	 *
+	 * @param localDateTime A given reference date.
+	 * @param exerciseTimes A {@link RandomVariable} of exercise times given as {@link FloatingpointDate} offsets from the given referenceDate.
+	 * @return A vector of exercise probabilities. The length of the vector is &lt;code&gt;exerciseDates.length+1&lt;/code&gt;. The last entry is the probability that no exercise occurs.
+	 */
+	public double[] getExerciseProbabilitiesFromTimes(final LocalDateTime localDateTime, final RandomVariable exerciseTimes) {
+<span class="nc" id="L270">		final double[] exerciseProbabilities = new double[exerciseDates.length+1];</span>
+
+<span class="nc" id="L272">		double probabilityToExercise = 1.0;</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		for(int exerciseIndex = 0; exerciseIndex &lt; exerciseDates.length; exerciseIndex++) {</span>
+<span class="nc" id="L274">			final double exerciseTime = FloatingpointDate.getFloatingPointDateFromDate(localDateTime, exerciseDates[exerciseIndex].atStartOfDay());</span>
+<span class="nc" id="L275">			final double probabilityToExerciseAfter = exerciseTimes.sub(exerciseTime+1.0/365.0).choose(new Scalar(1.0), new Scalar(0.0)).getAverage();</span>
+
+<span class="nc" id="L277">			exerciseProbabilities[exerciseIndex] = probabilityToExercise - probabilityToExerciseAfter;</span>
+<span class="nc" id="L278">			probabilityToExercise = probabilityToExerciseAfter;</span>
+		}
+<span class="nc" id="L280">		exerciseProbabilities[exerciseDates.length] = probabilityToExercise;</span>
+
+<span class="nc" id="L282">		return exerciseProbabilities;</span>
+	}
+
+	@Override
+	public TimeDiscretization getProcessTimeDiscretization(final LocalDateTime referenceDate) {
+<span class="nc" id="L287">		final Set&lt;Double&gt; times = new HashSet&lt;&gt;();</span>
+
+<span class="nc bnc" id="L289" title="All 2 branches missed.">		for(int exerciseDateIndex = 0; exerciseDateIndex &lt; exerciseDates.length; exerciseDateIndex++) {</span>
+<span class="nc" id="L290">			times.add(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDates[exerciseDateIndex].atStartOfDay()));</span>
+
+<span class="nc" id="L292">			final Schedule scheduleFixedLeg = fixSchedules[exerciseDateIndex];</span>
+<span class="nc" id="L293">			final Schedule scheduleFloatLeg = floatSchedules[exerciseDateIndex];</span>
+
+<span class="nc" id="L295">			final Function&lt;Period, Double&gt; periodToTime = new Function&lt;Period, Double&gt;() {</span>
+				@Override
+<span class="nc" id="L297">				public Double apply(final Period period) { return FloatingpointDate.getFloatingPointDateFromDate(referenceDate, period.getPayment().atStartOfDay()); }</span>
+			};
+<span class="nc" id="L299">			times.addAll(scheduleFixedLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));</span>
+<span class="nc" id="L300">			times.addAll(scheduleFloatLeg.getPeriods().stream().map(periodToTime).collect(Collectors.toList()));</span>
+		}
+
+<span class="nc" id="L303">		return new TimeDiscretizationFromArray(times);</span>
+	}
+
+	/**
+	 * Calculated the numeraire relative value of an underlying swap leg.
+	 *
+	 * @param model The Monte Carlo model.
+	 * @param legSchedule The schedule of the leg.
+	 * @param paysFloat If true a floating rate is payed.
+	 * @param swaprate The swaprate. May be 0.0 for pure floating leg.
+	 * @param notional The notional.
+	 * @return The sum of the numeraire relative cash flows.
+	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
+	 */
+	private RandomVariable getValueUnderlyingNumeraireRelative(final TermStructureMonteCarloSimulationModel model, final Schedule legSchedule, final boolean paysFloat, final double swaprate, final double notional) throws CalculationException {
+
+		if(isUseAnalyticSwapValuationAtExercise) {
+<span class="nc" id="L320">			final double valuationTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(0).getFixing());</span>
+<span class="nc" id="L321">			final RandomVariable numeraireAtValuationTime  = model.getNumeraire(valuationTime);</span>
+<span class="nc" id="L322">			final RandomVariable monteCarloProbabilitiesAtValuationTime = model.getMonteCarloWeights(valuationTime);</span>
+<span class="nc" id="L323">			RandomVariable value = SwaptionFromSwapSchedules.getValueOfLegAnalytic(valuationTime, model, legSchedule, paysFloat, swaprate, notional);</span>
+<span class="nc" id="L324">			value = value.div(model.getNumeraire(valuationTime)).mult(monteCarloProbabilitiesAtValuationTime);</span>
+<span class="nc" id="L325">			return value;</span>
+		}
+		else {
+
+			RandomVariable value	= model.getRandomVariableForConstant(0.0);
+
+			for(int periodIndex = legSchedule.getNumberOfPeriods() - 1; periodIndex &gt;= 0; periodIndex--) {
+
+				final double fixingTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getFixing());
+				final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), legSchedule.getPeriod(periodIndex).getPayment());
+				final double periodLength	= legSchedule.getPeriodLength(periodIndex);
+
+				final RandomVariable	numeraireAtPayment  = model.getNumeraire(paymentTime);
+				final RandomVariable	monteCarloProbabilitiesAtPayment = model.getMonteCarloWeights(paymentTime);
+				if(swaprate != 0.0) {
+					final RandomVariable periodCashFlowFix = model.getRandomVariableForConstant(swaprate * periodLength * notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					value = value.add(periodCashFlowFix);
+				}
+				if(paysFloat) {
+					final RandomVariable libor = model.getForwardRate(fixingTime, fixingTime, paymentTime);
+					final RandomVariable periodCashFlowFloat = libor.mult(periodLength).mult(notional).div(numeraireAtPayment).mult(monteCarloProbabilitiesAtPayment);
+					value = value.add(periodCashFlowFloat);
+				}
+			}
+			return value;
+		}
+	}
+
+	/**
+	 * The conditional expectation is calculated using a Monte-Carlo regression technique.
+	 *
+	 * @param exerciseTime The exercise time
+	 * @param model The valuation model
+	 * @return The condition expectation estimator
+	 * @throws CalculationException Thrown if underlying model failed to calculate stochastic process.
+	 */
+	public ConditionalExpectationEstimator getConditionalExpectationEstimator(final double exerciseTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L362">		final RandomVariable[] regressionBasisFunctions = regressionBasisFunctionProvider.getBasisFunctions(exerciseTime, model);</span>
+<span class="nc" id="L363">		return conditionalExpectationRegressionFactory.getConditionalExpectationEstimator(regressionBasisFunctions, regressionBasisFunctions);</span>
+	}
+
+
+	@Override
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L369">		final LIBORModelMonteCarloSimulationModel liborModel = (LIBORModelMonteCarloSimulationModel)model;</span>
+<span class="nc" id="L370">		return getBasisFunctions(evaluationTime, liborModel);</span>
+	}
+
+	/**
+	 * Provides a set of \( \mathcal{F}_{t} \)-measurable random variables which can serve as regression basis functions.
+	 *
+	 * @param evaluationTime The evaluation time \( t \) at which the basis function should be observed.
+	 * @param model The Monte-Carlo model used to derive the basis function.
+	 * @return An \( \mathcal{F}_{t} \)-measurable random variable.
+	 * @throws CalculationException Thrown if derivation of the basis function fails.
+	 */
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="nc" id="L383">		final LocalDateTime modelReferenceDate = model.getReferenceDate();</span>
+
+<span class="nc" id="L385">		final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction&lt;LocalDate&gt;() {</span>
+			@Override
+<span class="nc" id="L387">			public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }</span>
+<span class="nc" id="L388">		}).sorted().toArray();</span>
+
+<span class="nc" id="L390">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L392">		final double exerciseTime = evaluationTime;</span>
+
+<span class="nc" id="L394">		int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);</span>
+<span class="nc bnc" id="L395" title="All 2 branches missed.">		if(exerciseIndex &lt; 0) {</span>
+<span class="nc" id="L396">			exerciseIndex = -exerciseIndex;</span>
+		}
+<span class="nc bnc" id="L398" title="All 2 branches missed.">		if(exerciseIndex &gt;= exerciseDates.length) {</span>
+<span class="nc" id="L399">			exerciseIndex = exerciseDates.length-1;</span>
+		}
+
+		// Constant
+<span class="nc" id="L403">		final RandomVariable one = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc" id="L404">		basisFunctions.add(one);</span>
+
+		// Numeraire (adapted to multicurve framework)
+<span class="nc" id="L407">		final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();</span>
+<span class="nc" id="L408">		basisFunctions.add(discountFactor);</span>
+
+		/*
+		 * Add swap rates of underlyings.
+		 */
+<span class="nc bnc" id="L413" title="All 2 branches missed.">		for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying&lt;exerciseDates.length; exerciseIndexUnderlying++) {</span>
+<span class="nc" id="L414">			final RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);</span>
+<span class="nc" id="L415">			final RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);</span>
+<span class="nc" id="L416">			final RandomVariable swapRate = floatLeg.div(annuity);</span>
+<span class="nc" id="L417">			final RandomVariable basisFunction = swapRate.mult(discountFactor);</span>
+<span class="nc" id="L418">			basisFunctions.add(basisFunction);</span>
+<span class="nc" id="L419">			basisFunctions.add(basisFunction.squared());</span>
+		}
+
+		// forward rate to the next period
+<span class="nc" id="L423">		final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);</span>
+<span class="nc" id="L424">		basisFunctions.add(rateShort.mult(discountFactor));</span>
+<span class="nc" id="L425">		basisFunctions.add(rateShort.mult(discountFactor).pow(2.0));</span>
+
+<span class="nc" id="L427">		return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);</span>
+	}
+
+	/*
+	 * Some popular variants to create regression basis functions
+	 */
+
+	public RegressionBasisFunctionsProvider getBasisFunctionsProviderWithSwapRates() {
+<span class="nc" id="L435">		return new RegressionBasisFunctionsProvider() {</span>
+			@Override
+			public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel monteCarloModel) throws CalculationException {
+<span class="nc" id="L438">				final LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;</span>
+
+<span class="nc" id="L440">				final LocalDateTime modelReferenceDate = model.getReferenceDate();</span>
+
+<span class="nc" id="L442">				final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction&lt;LocalDate&gt;() {</span>
+					@Override
+<span class="nc" id="L444">					public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }</span>
+<span class="nc" id="L445">				}).sorted().toArray();</span>
+
+<span class="nc" id="L447">				final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L449">				final double exerciseTime = evaluationTime;</span>
+
+<span class="nc" id="L451">				int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);</span>
+<span class="nc bnc" id="L452" title="All 2 branches missed.">				if(exerciseIndex &lt; 0) {</span>
+<span class="nc" id="L453">					exerciseIndex = -exerciseIndex;</span>
+				}
+<span class="nc bnc" id="L455" title="All 2 branches missed.">				if(exerciseIndex &gt;= exerciseDates.length) {</span>
+<span class="nc" id="L456">					exerciseIndex = exerciseDates.length-1;</span>
+				}
+
+				// Constant
+<span class="nc" id="L460">				final RandomVariable one = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc" id="L461">				final RandomVariable basisFunction = one;</span>
+<span class="nc" id="L462">				basisFunctions.add(basisFunction);</span>
+
+				/*
+				 * Add swap rates of underlyings.
+				 */
+<span class="nc bnc" id="L467" title="All 2 branches missed.">				for(int exerciseIndexUnderlying = exerciseIndex; exerciseIndexUnderlying&lt;exerciseDates.length; exerciseIndexUnderlying++) {</span>
+<span class="nc" id="L468">					final RandomVariable floatLeg = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, floatSchedules[exerciseIndexUnderlying], true, 0.0, 1.0);</span>
+<span class="nc" id="L469">					final RandomVariable annuity = SwaptionFromSwapSchedules.getValueOfLegAnalytic(exerciseTime, model, fixSchedules[exerciseIndexUnderlying], false, 1.0, 1.0);</span>
+<span class="nc" id="L470">					final RandomVariable swapRate = floatLeg.div(annuity);</span>
+<span class="nc" id="L471">					basisFunctions.add(swapRate);</span>
+				}
+
+				// forward rate to the next period
+<span class="nc" id="L475">				final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);</span>
+<span class="nc" id="L476">				basisFunctions.add(rateShort);</span>
+<span class="nc" id="L477">				basisFunctions.add(rateShort.pow(2.0));</span>
+
+				// Numeraire (adapted to multicurve framework)
+<span class="nc" id="L480">				final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();</span>
+<span class="nc" id="L481">				basisFunctions.add(discountFactor);</span>
+
+<span class="nc" id="L483">				return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);</span>
+			}
+		};
+	}
+
+	public RegressionBasisFunctionsProvider getBasisFunctionsProviderWithForwardRates() {
+<span class="nc" id="L489">		return new RegressionBasisFunctionsProvider() {</span>
+			@Override
+			public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel monteCarloModel) throws CalculationException {
+<span class="nc" id="L492">				final LIBORModelMonteCarloSimulationModel model = (LIBORModelMonteCarloSimulationModel)monteCarloModel;</span>
+
+<span class="nc" id="L494">				final LocalDateTime modelReferenceDate = model.getReferenceDate();</span>
+
+<span class="nc" id="L496">				final double[] regressionBasisfunctionTimes = Stream.concat(Arrays.stream(exerciseDates),Stream.of(swapEndDate)).mapToDouble(new ToDoubleFunction&lt;LocalDate&gt;() {</span>
+					@Override
+<span class="nc" id="L498">					public double applyAsDouble(final LocalDate date) { return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, date.atStartOfDay()); }</span>
+<span class="nc" id="L499">				}).sorted().toArray();</span>
+
+<span class="nc" id="L501">				final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L503">				final double swapMaturity = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, swapEndDate.atStartOfDay());</span>
+
+<span class="nc" id="L505">				final double exerciseTime = evaluationTime;</span>
+
+<span class="nc" id="L507">				int exerciseIndex = Arrays.binarySearch(regressionBasisfunctionTimes, exerciseTime);</span>
+<span class="nc bnc" id="L508" title="All 2 branches missed.">				if(exerciseIndex &lt; 0) {</span>
+<span class="nc" id="L509">					exerciseIndex = -exerciseIndex;</span>
+				}
+<span class="nc bnc" id="L511" title="All 2 branches missed.">				if(exerciseIndex &gt;= exerciseDates.length) {</span>
+<span class="nc" id="L512">					exerciseIndex = exerciseDates.length-1;</span>
+				}
+
+				// Constant
+<span class="nc" id="L516">				final RandomVariable one = new RandomVariableFromDoubleArray(1.0);</span>
+
+<span class="nc" id="L518">				final RandomVariable basisFunction = one;</span>
+<span class="nc" id="L519">				basisFunctions.add(basisFunction);</span>
+
+				// forward rate to the next period
+<span class="nc" id="L522">				final RandomVariable rateShort = model.getForwardRate(exerciseTime, exerciseTime, regressionBasisfunctionTimes[exerciseIndex + 1]);</span>
+<span class="nc" id="L523">				basisFunctions.add(rateShort);</span>
+<span class="nc" id="L524">				basisFunctions.add(rateShort.pow(2.0));</span>
+
+				// forward rate to the end of the product
+<span class="nc" id="L527">				final RandomVariable rateLong = model.getForwardRate(exerciseTime, regressionBasisfunctionTimes[exerciseIndex], swapMaturity);</span>
+<span class="nc" id="L528">				basisFunctions.add(rateLong);</span>
+<span class="nc" id="L529">				basisFunctions.add(rateLong.pow(2.0));</span>
+
+				// Numeraire (adapted to multicurve framework)
+<span class="nc" id="L532">				final RandomVariable discountFactor = model.getNumeraire(exerciseTime).invert();</span>
+<span class="nc" id="L533">				basisFunctions.add(discountFactor);</span>
+
+				// Cross
+<span class="nc" id="L536">				basisFunctions.add(rateLong.mult(discountFactor));</span>
+
+<span class="nc" id="L538">				return basisFunctions.toArray(new RandomVariable[basisFunctions.size()]);</span>
+			}
+		};
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L545">		return &quot;BermudanSwaptionFromSwapSchedules[type: &quot;  + swaptionType.toString() + &quot;, &quot; +&quot;exerciseDate: &quot;  + Arrays.toString(exerciseDates)  +&quot;, &quot; + &quot;swapEndDate: &quot; + swapEndDate + &quot;, &quot; + &quot;strike: &quot; + Arrays.toString(swaprates) + &quot;, &quot; + &quot;floatingTenor: &quot; + Arrays.toString(floatSchedules) + &quot;, &quot; + &quot;fixTenor: &quot; + Arrays.toString(fixSchedules) + &quot;]&quot;;</span>
+	}
+}
+
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

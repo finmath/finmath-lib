@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimplifiedLinearAnnuityMapping.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.annuitymapping</a> &gt; <span class="el_source">SimplifiedLinearAnnuityMapping.java</span></div><h1>SimplifiedLinearAnnuityMapping.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.annuitymapping;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.time.Schedule;
+
+/**
+ * Provides a light-weight linear annuity mapping.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SimplifiedLinearAnnuityMapping implements AnnuityMapping {
+
+	private final double slope;
+	private final double intercept;
+	private final double initialAnnuity;
+
+	public SimplifiedLinearAnnuityMapping(final Schedule schedule, final double initialAnnuity,
+			final double initialSwapRate, final double discountFactor) {
+<span class="nc" id="L25">		super();</span>
+
+<span class="nc" id="L27">		double intercept = 0.0;</span>
+<span class="nc bnc" id="L28" title="All 2 branches missed.">		for(int index = 0; index &lt; schedule.getNumberOfPeriods(); index++) {</span>
+<span class="nc" id="L29">			intercept += schedule.getPeriodLength(index);</span>
+		}
+<span class="nc" id="L31">		intercept = 1.0/intercept;</span>
+<span class="nc" id="L32">		double slope = discountFactor /initialAnnuity -intercept;</span>
+<span class="nc" id="L33">		slope /=initialSwapRate;</span>
+
+<span class="nc" id="L35">		this.intercept  =intercept;</span>
+<span class="nc" id="L36">		this.slope		=slope;</span>
+<span class="nc" id="L37">		this.initialAnnuity = initialAnnuity;</span>
+<span class="nc" id="L38">	}</span>
+
+	/**
+	 * Construct the annuity mapping.
+	 *
+	 * @param fixSchedule The schedule of the fix leg of the swap.
+	 * @param floatSchedule The schedule of the float leg of the swap.
+	 * @param model The model containing the curves.
+	 * @param discountCurveName The discount curve.
+	 */
+	public SimplifiedLinearAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final AnalyticModel model, final String discountCurveName) {
+<span class="fc" id="L49">		super();</span>
+
+<span class="fc" id="L51">		double intercept = 0.0;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		for(int index = 0; index &lt; fixSchedule.getNumberOfPeriods(); index++) {</span>
+<span class="fc" id="L53">			intercept += fixSchedule.getPeriodLength(index);</span>
+		}
+<span class="fc" id="L55">		intercept = 1.0/intercept;</span>
+
+<span class="fc" id="L57">		final ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(discountCurveName,</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">				model.getDiscountCurve(discountCurveName).getReferenceDate() == null ?  fixSchedule.getReferenceDate() :</span>
+<span class="fc" id="L59">					model.getDiscountCurve(discountCurveName).getReferenceDate(), &quot;6M&quot;);</span>
+
+<span class="fc" id="L61">		final double initialAnnuity		= SwapAnnuity.getSwapAnnuity(fixSchedule.getFixing(0), fixSchedule, model.getDiscountCurve(discountCurveName), model);</span>
+		//		double initialSwapRate		= Swap.getForwardSwapRate(schedule, schedule, model.getForwardCurve(forwardCurveName), model);
+<span class="fc" id="L63">		final double initialSwapRate		= Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);</span>
+
+<span class="fc" id="L65">		double slope = 1 /initialAnnuity -intercept; //model.getDiscountCurve(discountCurveName).getValue(schedule.getPeriodStart(0)) /model.getDiscountCurve(discountCurveName).getValue(schedule.getFixing(0))</span>
+<span class="fc" id="L66">		slope /=initialSwapRate;</span>
+
+<span class="fc" id="L68">		this.intercept  =intercept;</span>
+<span class="fc" id="L69">		this.slope		=slope;</span>
+<span class="fc" id="L70">		this.initialAnnuity = initialAnnuity;</span>
+<span class="fc" id="L71">	}</span>
+
+	@Override
+	public double getValue(final double swapRate) {
+<span class="fc" id="L75">		return (swapRate *slope +intercept) *initialAnnuity;</span>
+	}
+
+	@Override
+	public double getFirstDerivative(final double swapRate) {
+<span class="fc" id="L80">		return slope *initialAnnuity;</span>
+	}
+
+	@Override
+	public double getSecondDerivative(final double swapRate) {
+<span class="fc" id="L85">		return 0;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

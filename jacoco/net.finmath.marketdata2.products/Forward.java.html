@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Forward.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.products</a> &gt; <span class="el_source">Forward.java</span></div><h1>Forward.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.12.2012
+ */
+package net.finmath.marketdata2.products;
+
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.marketdata2.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata2.model.curves.ForwardCurveInterface;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements the valuation of a forward using curves (discount curve, forward curve).
+ * The forward value is simply the product of a discount factor and a forward.
+ * This is similar to a FRA (a forward rate), except that there is no scaling with a period length.
+ *
+ * The class can be used to define equity forwards. Here the discount curve can be interpreted
+ * as a repo curve.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Forward extends AbstractAnalyticProduct implements AnalyticProduct {
+
+	private final double						maturity;
+	private final double						paymentOffset;
+	private final String						forwardCurveName;
+	private final double						spread;
+	private final String						discountCurveName;
+
+	/**
+	 * Creates a forward. The forward has a unit notional of 1.
+	 *
+	 * @param maturity Maturity, i.e., fixing on the forward curve.
+	 * @param paymentOffset Payment offset, i.e. payment is maturity + paymentOffset.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fix payment.
+	 * @param spread Additional fixed payment (if any).
+	 * @param discountCurveName Name of the discount curve for the forward.
+	 */
+	public Forward(final double maturity, final double paymentOffset, final String forwardCurveName, final double spread, final String discountCurveName) {
+<span class="nc" id="L42">		super();</span>
+<span class="nc" id="L43">		this.maturity = maturity;</span>
+<span class="nc" id="L44">		this.paymentOffset = paymentOffset;</span>
+<span class="nc" id="L45">		this.forwardCurveName = forwardCurveName;</span>
+<span class="nc" id="L46">		this.spread = spread;</span>
+<span class="nc" id="L47">		this.discountCurveName = discountCurveName;</span>
+<span class="nc" id="L48">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.products.AnalyticProductInterface#getValue(double, net.finmath.marketdata.model.AnalyticModelInterface)
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="nc" id="L55">		final ForwardCurveInterface	forwardCurve	= model.getForwardCurve(forwardCurveName);</span>
+<span class="nc" id="L56">		final DiscountCurveInterface	discountCurve	= model.getDiscountCurve(discountCurveName);</span>
+
+<span class="nc" id="L58">		DiscountCurveInterface	discountCurveForForward = null;</span>
+<span class="nc bnc" id="L59" title="All 6 branches missed.">		if(forwardCurve == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+			// User might like to get forward from discount curve.
+<span class="nc" id="L61">			discountCurveForForward	= model.getDiscountCurve(forwardCurveName);</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">			if(discountCurveForForward == null) {</span>
+				// User specified a name for the forward curve, but no curve was found.
+<span class="nc" id="L65">				throw new IllegalArgumentException(&quot;No curve of the name &quot; + forwardCurveName + &quot; was found in the model.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L69">		RandomVariable forward = model.getRandomVariableForConstant(spread);</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">		if(forwardCurve != null) {</span>
+<span class="nc" id="L71">			forward = forward.add(forwardCurve.getForward(model, maturity));</span>
+		}
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		else if(discountCurveForForward != null) {</span>
+<span class="nc" id="L74">			forward = forward.add(discountCurveForForward.getDiscountFactor(maturity).div(discountCurveForForward.getDiscountFactor(maturity+paymentOffset)).sub(1.0).div(paymentOffset));</span>
+		}
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		final RandomVariable discountFactor	= maturity+paymentOffset &gt; evaluationTime ? discountCurve.getDiscountFactor(model, maturity+paymentOffset) : model.getRandomVariableForConstant(0.0);</span>
+
+<span class="nc" id="L79">		return forward.mult(discountFactor).div(discountCurve.getDiscountFactor(model, evaluationTime));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

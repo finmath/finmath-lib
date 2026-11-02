@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionSurfaceData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">OptionSurfaceData.java</span></div><h1>OptionSurfaceData.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+
+/**
+ * An option quote surface with the ability to query option quotes for different strikes and maturities.
+ *
+ * The surface is constructed as a collection of smiles. The choice of this dimension is convenient in view of calibration via FFT methods.
+ *
+ * This class does not perform any interpolation of market quotes. It merely represents a container of information.
+ *
+ * The class provides also the ability to perform the conversion among different quoting conventions and hence can be used both for a calibration on prices or implied volatilities.
+ *
+ * The class currently does not cover normal volatilities. Lognormal volatilities are more common in the equity space. The extension is not problematic.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class OptionSurfaceData {
+
+	private final String underlying;
+	private final LocalDate referenceDate;
+	private final DiscountCurve discountCurve; //\exp(-r*T) needed e.g. for application of the B&amp;S formula
+	private final DiscountCurve equityForwardCurve; //S0*\exp((r-d)*T)
+	private final QuotingConvention convention; //either price or volatility (lognormal/normal)
+	private final HashMap&lt;Double, OptionSmileData&gt; surface;
+	private final double[] maturities;
+
+	/**
+	 * This is a very restrictive constructor that assumes that for each maturity we have the same number of option quotes.
+	 *
+	 * @param underlying The name of the underlying of this surface.
+	 * @param referenceDate The reference date for this market data (t=0).
+	 * @param strikes The vector of strikes.
+	 * @param maturities The vector of maturities.
+	 * @param values The matrix of values per (strike, maturity)
+	 * @param convention The quoting convention (@see net.finmath.marketdata.model.volatilities.VolatilitySurfaceInterface.QuotingConvention).
+	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
+	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
+	 */
+	public OptionSurfaceData(final String underlying, final LocalDate referenceDate, final double[] strikes,
+			final double[] maturities, final double[][] values, final QuotingConvention convention, final DiscountCurve discountCurve,
+<span class="nc" id="L47">			final DiscountCurve equityForwardCurve) {</span>
+<span class="nc bnc" id="L48" title="All 4 branches missed.">		if(strikes.length != values.length || maturities.length != values[0].length ) {</span>
+<span class="nc" id="L49">			throw new IllegalArgumentException(&quot;Inconsistent number of strikes, maturities or values&quot;);</span>
+		}else {
+<span class="nc" id="L51">			surface = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L53" title="All 2 branches missed.">			for(int j = 0; j&lt; maturities.length; j++) {</span>
+
+<span class="nc" id="L55">				final double[] valuesOfInterest = new double[strikes.length];</span>
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">				for(int i= 0; i&lt; strikes.length; i++) {</span>
+<span class="nc" id="L58">					valuesOfInterest[i] = values[i][j];</span>
+				}
+
+<span class="nc" id="L61">				final OptionSmileData jthSmile = new OptionSmileData(underlying, referenceDate, strikes, maturities[j], valuesOfInterest, convention);</span>
+<span class="nc" id="L62">				surface.put(maturities[j],jthSmile);</span>
+			}
+
+<span class="nc" id="L65">			this.underlying = underlying;</span>
+<span class="nc" id="L66">			this.referenceDate = referenceDate;</span>
+<span class="nc" id="L67">			this.discountCurve = discountCurve;</span>
+<span class="nc" id="L68">			this.equityForwardCurve = equityForwardCurve;</span>
+<span class="nc" id="L69">			this.convention = convention;</span>
+<span class="nc" id="L70">			this.maturities = maturities;</span>
+
+		}
+<span class="nc" id="L73">	}</span>
+
+
+	/**
+	 * Creates an equity option surface from an array of smiles.
+	 *
+	 * @param smiles The option smile data.
+	 * @param discountCurve A discount curve for discounting (funding/collateral rate).
+	 * @param equityForwardCurve A the discount curve for forwarding (repo rate (e.g. funding minus dividents).
+	 */
+	public OptionSurfaceData(final OptionSmileData[] smiles, final DiscountCurve discountCurve,
+<span class="fc" id="L84">			final DiscountCurve equityForwardCurve) {</span>
+
+<span class="fc" id="L86">		final OptionSmileData firstSmile = smiles[0];</span>
+<span class="fc" id="L87">		final String myUnderlying = firstSmile.getUnderlying();</span>
+<span class="fc" id="L88">		final LocalDate myReferenceDate = firstSmile.getReferenceDate();</span>
+<span class="fc" id="L89">		final QuotingConvention myConvention = firstSmile.getSmile().get(firstSmile.getStrikes()[0]).getConvention();</span>
+
+<span class="fc" id="L91">		final HashMap&lt;Double, OptionSmileData&gt; mySurface = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L92">		final double[] mats = new double[smiles.length];</span>
+
+<span class="fc bfc" id="L94" title="All 2 branches covered.">		for(int t = 0; t&lt;smiles.length;t++) {</span>
+<span class="fc" id="L95">			final double maturity = smiles[t].getMaturity();</span>
+<span class="fc" id="L96">			mats[t] = maturity;</span>
+
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">			if(!(smiles[t].getReferenceDate().equals(myReferenceDate))) {</span>
+<span class="nc" id="L99">				throw new IllegalArgumentException(&quot;All reference dates must be equal&quot;);</span>
+			}
+
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">			if(!(smiles[t].getUnderlying().equals(myUnderlying))) {</span>
+<span class="nc" id="L103">				throw new IllegalArgumentException(&quot;Option must be written on the same underlying&quot;);</span>
+			}
+
+<span class="fc" id="L106">			final QuotingConvention testConvention = smiles[t].getSmile().get(smiles[t].getStrikes()[0]).getConvention();</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">			if(!(testConvention.equals(myConvention))) {</span>
+<span class="nc" id="L108">				throw new IllegalArgumentException(&quot;Convention must be the same for all points in the surface&quot;);</span>
+			}
+
+<span class="fc" id="L111">			mySurface.put(maturity, smiles[t]);</span>
+		}
+<span class="fc" id="L113">		underlying = myUnderlying;</span>
+<span class="fc" id="L114">		referenceDate = myReferenceDate;</span>
+<span class="fc" id="L115">		this.discountCurve = discountCurve;</span>
+<span class="fc" id="L116">		this.equityForwardCurve = equityForwardCurve;</span>
+<span class="fc" id="L117">		surface = mySurface;</span>
+<span class="fc" id="L118">		convention = myConvention;</span>
+<span class="fc" id="L119">		maturities = mats;</span>
+
+<span class="fc" id="L121">	}</span>
+
+	public DiscountCurve getDiscountCurve() {
+<span class="fc" id="L124">		return discountCurve;</span>
+	}
+
+	public DiscountCurve getEquityForwardCurve() {
+<span class="fc" id="L128">		return equityForwardCurve;</span>
+	}
+
+
+	public String getName() {
+<span class="nc" id="L133">		return underlying;</span>
+	}
+
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L137">		return referenceDate;</span>
+	}
+
+	public QuotingConvention getQuotingConvention() {
+<span class="fc" id="L141">		return convention;</span>
+	}
+
+	public HashMap&lt;Double, OptionSmileData&gt; getSurface(){
+<span class="fc" id="L145">		return surface;</span>
+	}
+
+	public double[] getMaturities() {
+<span class="fc" id="L149">		return maturities;</span>
+	}
+
+	public double getValue(final double maturity, final double strike){
+<span class="nc" id="L153">		return getValue(maturity, strike, convention);</span>
+	}
+
+
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention)  {
+
+<span class="nc" id="L159">		return getValue(null,maturity,strike,quotingConvention);</span>
+	}
+
+
+	public double getValue(final AnalyticModel model, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
+<span class="nc bnc" id="L165" title="All 2 branches missed.">		if(quotingConvention.equals(convention)) {</span>
+<span class="nc" id="L166">			final OptionSmileData relevantSmile = surface.get(maturity);</span>
+
+<span class="nc" id="L168">			return relevantSmile.getSmile().get(strike).getValue();</span>
+		} else {
+<span class="nc bnc" id="L170" title="All 4 branches missed.">			if(quotingConvention == QuotingConvention.PRICE &amp;&amp; convention == QuotingConvention.VOLATILITYLOGNORMAL) {</span>
+
+<span class="nc" id="L172">				final double forwardPrice = equityForwardCurve.getValue(maturity);</span>
+<span class="nc" id="L173">				final double discountBond = discountCurve.getValue(maturity);</span>
+<span class="nc" id="L174">				final OptionSmileData relevantSmile = surface.get(maturity);</span>
+<span class="nc" id="L175">				final double volatility = relevantSmile.getSmile().get(strike).getValue();</span>
+<span class="nc" id="L176">				return net.finmath.functions.AnalyticFormulas.blackScholesGeneralizedOptionValue(forwardPrice, volatility, maturity, strike, discountBond);</span>
+
+<span class="nc bnc" id="L178" title="All 4 branches missed.">			} else if(quotingConvention == QuotingConvention.VOLATILITYLOGNORMAL &amp;&amp; convention == QuotingConvention.PRICE) {</span>
+<span class="nc" id="L179">				final double forwardPrice = equityForwardCurve.getValue(maturity);</span>
+<span class="nc" id="L180">				final double discountBond = discountCurve.getValue(maturity);</span>
+<span class="nc" id="L181">				final OptionSmileData relevantSmile = surface.get(maturity);</span>
+<span class="nc" id="L182">				final double price = relevantSmile.getSmile().get(strike).getValue();</span>
+<span class="nc" id="L183">				return net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forwardPrice,maturity,strike,discountBond,price);</span>
+
+			}
+<span class="nc" id="L186">			return 0.0;</span>
+		}
+	}
+
+	public OptionSmileData getSmile(final double maturity) {
+<span class="fc" id="L191">		return surface.get(maturity);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

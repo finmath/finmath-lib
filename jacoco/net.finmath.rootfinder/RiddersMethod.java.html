@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RiddersMethod.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.rootfinder</a> &gt; <span class="el_source">RiddersMethod.java</span></div><h1>RiddersMethod.java</h1><pre class="source lang-java linenums">/*
+ * Created on 17.02.2004
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.rootfinder;
+
+/**
+ * This class implements Ridders root finder as a question-and-answer algorithm.
+ * The method is documented in Numerical Receipts in C.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ * @date 2008-04-06
+ */
+public class RiddersMethod implements RootFinder {
+
+	// We store the left and right end point of the interval
+<span class="fc" id="L19">	private final double[] points = new double[3]; // left, middle, right</span>
+<span class="fc" id="L20">	private final double[] values = new double[3]; // left, middle, right</span>
+
+	/*
+	 * State of solver
+	 */
+	private double	nextPoint;						// Stores the next point to return by getPoint()
+<span class="fc" id="L26">	private int		solverState			= 0;		// Internal state of the solver - see &lt;code&gt;setValue()&lt;/code&gt;</span>
+
+<span class="fc" id="L28">	private int		numberOfIterations	= 0; 		// Number of numberOfIterations</span>
+	private double	bestPoint;
+<span class="fc" id="L30">	private double  accuracy            = Double.MAX_VALUE;     // Current accuracy of solution</span>
+<span class="fc" id="L31">	private boolean	isDone				= false;	// Will be true if machine accuracy has been reached</span>
+
+	public static void main(final String[] args) {
+		// Test
+<span class="nc" id="L35">		final RiddersMethod search = new RiddersMethod(-1.0, 5.0);</span>
+
+<span class="nc bnc" id="L37" title="All 4 branches missed.">		while(search.getAccuracy() &gt; 1E-13 &amp;&amp; !search.isDone()) {</span>
+<span class="nc" id="L38">			final double x = search.getNextPoint();</span>
+
+<span class="nc" id="L40">			final double y = x - 0.656;</span>
+
+<span class="nc" id="L42">			search.setValue(y);</span>
+<span class="nc" id="L43">			System.out.println(search.getAccuracy());</span>
+<span class="nc" id="L44">		}</span>
+
+<span class="nc" id="L46">		System.out.println(search.getNumberOfIterations() + &quot; &quot; + search.getBestPoint());</span>
+<span class="nc" id="L47">	}</span>
+
+	/**
+	 * @param leftPoint left point of search interval
+	 * @param rightPoint right point of search interval
+	 */
+	public RiddersMethod(final double leftPoint, final double rightPoint) {
+<span class="fc" id="L54">		super();</span>
+<span class="fc" id="L55">		points[0]	= leftPoint;</span>
+<span class="fc" id="L56">		points[2]	= rightPoint;</span>
+<span class="fc" id="L57">		points[1]	= (points[0] + points[2]) / 2.0;</span>
+
+<span class="fc" id="L59">		nextPoint	= points[0];</span>
+<span class="fc" id="L60">		bestPoint	= points[1];</span>
+<span class="fc" id="L61">		accuracy	= points[2]-points[0];</span>
+<span class="fc" id="L62">	}</span>
+
+	/**
+	 * @return Best point optained so far
+	 */
+	@Override
+	public double getBestPoint() {
+<span class="fc" id="L69">		return bestPoint;</span>
+	}
+
+	/**
+	 * @return Next point for which a value should be set using &lt;code&gt;setValue&lt;/code&gt;.
+	 */
+	@Override
+	public double getNextPoint() {
+<span class="fc" id="L77">		return nextPoint;</span>
+	}
+
+	/**
+	 * @param value Value corresponding to point returned by previous &lt;code&gt;getNextPoint&lt;/code&gt; call.
+	 */
+	@Override
+	public void setValue(final double value) {
+<span class="fc bfc" id="L85" title="All 4 branches covered.">		switch(solverState)</span>
+		{
+		case 0:
+		default:
+			// State 0: We have asked for left point
+<span class="fc" id="L90">			values[0] = value;</span>
+
+			// In next state ask for right point
+<span class="fc" id="L93">			nextPoint = points[2];</span>
+<span class="fc" id="L94">			solverState++;</span>
+<span class="fc" id="L95">			break;</span>
+		case 1:
+			// State 1: We have asked for right point
+<span class="fc" id="L98">			values[2] = value;</span>
+
+			// Calculate next point to propose
+<span class="fc" id="L101">			points[1] = 0.5*(points[0]+points[2]);		// Middle point</span>
+
+			// In next state ask for middle point
+<span class="fc" id="L104">			nextPoint = points[1];</span>
+<span class="fc" id="L105">			solverState++;</span>
+<span class="fc" id="L106">			break;</span>
+		case 2:
+			// State 2: We have asked for middle point
+<span class="fc" id="L109">			values[1] = value;</span>
+
+<span class="fc" id="L111">			final double s = Math.sqrt(values[1]*values[1]-values[0]*values[2]);</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">			if (s == 0.0) {</span>
+<span class="nc" id="L113">				accuracy = 0.0;</span>
+<span class="nc" id="L114">				bestPoint = nextPoint;</span>
+<span class="nc" id="L115">				isDone = true;</span>
+			}
+
+			// Calculate next point to propose
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">			nextPoint = points[1]+(points[1]-points[0])* (values[0] &gt;= values[2] ? 1.0 : -1.0) *values[1]/s; // Updating formula.</span>
+<span class="fc" id="L120">			solverState++;</span>
+<span class="fc" id="L121">			break;</span>
+		case 3:
+			// State 3: We have asked for an additional point (stored in next point)
+<span class="fc bfc" id="L124" title="All 2 branches covered.">			if(value == 0.0)</span>
+			{
+<span class="fc" id="L126">				accuracy = 0.0;</span>
+<span class="fc" id="L127">				bestPoint = nextPoint;</span>
+<span class="fc" id="L128">				isDone = true;</span>
+			}
+
+<span class="fc bfc" id="L131" title="All 2 branches covered.">			if(sign(values[1],value) != values[1])	// Bookkeeping to keep the root bracketed on next iteration. xl=xm;</span>
+			{
+<span class="fc" id="L133">				points[0] = points[1];</span>
+<span class="fc" id="L134">				values[0] = values[1];</span>
+
+<span class="fc" id="L136">				points[2] = nextPoint;</span>
+<span class="fc" id="L137">				values[2] = value;</span>
+			}
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">			else if(sign(values[0],value) != values[0])</span>
+			{
+<span class="fc" id="L141">				points[2] = nextPoint;</span>
+<span class="fc" id="L142">				values[2] = value;</span>
+
+			}
+<span class="nc bnc" id="L145" title="All 2 branches missed.">			else if (sign(values[2],value) != values[2])</span>
+			{
+<span class="nc" id="L147">				points[0] = nextPoint;</span>
+<span class="nc" id="L148">				values[0] = value;</span>
+			}
+			else
+			{
+<span class="nc" id="L152">				System.err.println(this.getClass().getName() + &quot;: Error: Never get here.&quot;);</span>
+<span class="nc" id="L153">				isDone = true;</span>
+<span class="nc" id="L154">				return;</span>
+			}
+
+<span class="fc" id="L157">			points[1] = 0.5*(points[0]+points[2]);		// Middle point</span>
+
+			// In next state ask for middle point
+<span class="fc" id="L160">			nextPoint = points[1];</span>
+<span class="fc" id="L161">			solverState = 2;				// Next state is 2</span>
+
+			// Savety belt: check if still improve or if we have reached machine accuracy
+			//			if(Math.abs(points[2]-points[0]) &gt;= accuracy) isDone = true;
+
+			break;
+		}
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">		if(!isDone) {</span>
+			// Update accuracy
+<span class="fc" id="L171">			accuracy = Math.abs(points[2]-points[0]);</span>
+
+			// Update best point
+<span class="fc" id="L174">			bestPoint = points[1];</span>
+		}
+
+<span class="fc" id="L177">		numberOfIterations++;</span>
+<span class="fc" id="L178">	}</span>
+
+	/**
+	 * @return Returns the numberOfIterations.
+	 */
+	@Override
+	public int getNumberOfIterations() {
+<span class="fc" id="L185">		return numberOfIterations;</span>
+	}
+
+	/**
+	 * @return Returns the accuracy.
+	 */
+	@Override
+	public double getAccuracy() {
+<span class="fc" id="L193">		return accuracy;</span>
+	}
+
+	/**
+	 * @return Returns the isDone.
+	 */
+	@Override
+	public boolean isDone() {
+<span class="fc" id="L201">		return isDone;</span>
+	}
+
+	private static double sign(final double a, final double b)
+	{
+<span class="pc bpc" id="L206" title="3 of 6 branches missed.">		return b&gt;= 0.0 ? (a&gt;=0 ? a : -a) : (a&gt;0 ? -a : a);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

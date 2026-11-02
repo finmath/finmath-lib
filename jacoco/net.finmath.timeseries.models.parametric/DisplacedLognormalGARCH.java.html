@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DisplacedLognormalGARCH.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.timeseries.models.parametric</a> &gt; <span class="el_source">DisplacedLognormalGARCH.java</span></div><h1>DisplacedLognormalGARCH.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.07.2012
+ */
+
+
+package net.finmath.timeseries.models.parametric;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.math3.analysis.MultivariateFunction;
+import org.apache.commons.math3.optimization.GoalType;
+import org.apache.commons.math3.optimization.PointValuePair;
+
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.SolverException;
+import net.finmath.timeseries.HistoricalSimulationModel;
+
+/**
+ * Displaced log-normal process with GARCH(1,1) volatility.
+ *
+ * This class estimate the process
+ * \[
+ *   \mathrm{d} \log(X + a) = \frac{\sigma}{b + a} \mathrm{d}W(t)
+ * \]
+ * where \( a &amp;gt; -min(X(t_{i}) \) and thus \( X+a &amp;gt; 0 \) and \( b = 1 - -min(X(t_{i}) \) \) and
+ * \( \sigma \) is given by a GARCH(1,1) process.
+ *
+ * The choice of b ensures that b+a &amp;ge; 1.
+ * For a=0 we have a log-normal process with volatility &amp;sigma;/(b + a).
+ * For a=infinity we have a normal process with volatility &amp;sigma;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DisplacedLognormalGARCH implements HistoricalSimulationModel {
+
+	private final double[] values;
+	private final double lowerBoundDisplacement;
+<span class="nc" id="L44">	private final double upperBoundDisplacement = 10000000;</span>
+	private final int windowIndexStart;
+	private final int windowIndexEnd;
+<span class="nc" id="L47">	private final int maxIterations = 1000000;</span>
+
+<span class="nc" id="L49">	public DisplacedLognormalGARCH(final double[] values) {</span>
+<span class="nc" id="L50">		this.values = values;</span>
+<span class="nc" id="L51">		windowIndexStart	= 0;</span>
+<span class="nc" id="L52">		windowIndexEnd		= values.length-1;</span>
+
+<span class="nc" id="L54">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		for (int i = windowIndexStart; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L56">			valuesMin = Math.min(values[i], valuesMin);</span>
+		}
+<span class="nc" id="L58">		lowerBoundDisplacement = -valuesMin+1;</span>
+
+<span class="nc" id="L60">	}</span>
+
+<span class="nc" id="L62">	public DisplacedLognormalGARCH(final double[] values, final double lowerBoundDisplacement) {</span>
+<span class="nc" id="L63">		this.values = values;</span>
+<span class="nc" id="L64">		windowIndexStart	= 0;</span>
+<span class="nc" id="L65">		windowIndexEnd		= values.length-1;</span>
+
+<span class="nc" id="L67">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		for (int i = windowIndexStart; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L69">			valuesMin = Math.min(values[i], valuesMin);</span>
+		}
+<span class="nc" id="L71">		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);</span>
+
+<span class="nc" id="L73">	}</span>
+
+<span class="nc" id="L75">	public DisplacedLognormalGARCH(final double[] values, final int windowIndexStart, final int windowIndexEnd) {</span>
+<span class="nc" id="L76">		this.values = values;</span>
+<span class="nc" id="L77">		this.windowIndexStart	= windowIndexStart;</span>
+<span class="nc" id="L78">		this.windowIndexEnd		= windowIndexEnd;</span>
+
+<span class="nc" id="L80">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		for (int i = windowIndexStart; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L82">			valuesMin = Math.min(values[i], valuesMin);</span>
+		}
+<span class="nc" id="L84">		lowerBoundDisplacement = -valuesMin+1;</span>
+<span class="nc" id="L85">	}</span>
+
+<span class="nc" id="L87">	public DisplacedLognormalGARCH(final double[] values, final double lowerBoundDisplacement, final int windowIndexStart, final int windowIndexEnd) {</span>
+<span class="nc" id="L88">		this.values = values;</span>
+<span class="nc" id="L89">		this.windowIndexStart	= windowIndexStart;</span>
+<span class="nc" id="L90">		this.windowIndexEnd		= windowIndexEnd;</span>
+
+<span class="nc" id="L92">		double valuesMin = Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		for (int i = windowIndexStart; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L94">			valuesMin = Math.min(values[i], valuesMin);</span>
+		}
+<span class="nc" id="L96">		this.lowerBoundDisplacement = Math.max(-valuesMin+1,lowerBoundDisplacement);</span>
+<span class="nc" id="L97">	}</span>
+
+	@Override
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
+<span class="nc" id="L101">		return new DisplacedLognormalGARCH(values, windowIndexStart, windowIndexEnd);</span>
+	}
+
+	public HistoricalSimulationModel getCloneWithWindow(final double lowerBoundDisplacement, final int windowIndexStart, final int windowIndexEnd) {
+<span class="nc" id="L105">		return new DisplacedLognormalGARCH(values, lowerBoundDisplacement, windowIndexStart, windowIndexEnd);</span>
+	}
+
+	public double getLogLikelihoodForParameters(final double omega, final double alpha, final double beta, final double displacement)
+	{
+<span class="nc" id="L110">		double logLikelihood = 0.0;</span>
+
+<span class="nc" id="L112">		final double volScaling	= (1+Math.abs(displacement));</span>
+<span class="nc" id="L113">		double h			= omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L114">		double eval			= volScaling * (Math.log((values[windowIndexStart+1]+displacement)/(values[windowIndexStart+1-1]+displacement)));</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		for (int i = windowIndexStart+1; i &lt;= windowIndexEnd-1; i++) {</span>
+<span class="nc" id="L116">			h = (omega + alpha * eval * eval) + beta * h;</span>
+
+<span class="nc" id="L118">			final double evalNext	= volScaling * (Math.log((values[i+1]+displacement)/(values[i]+displacement)));</span>
+
+<span class="nc" id="L120">			logLikelihood += - Math.log(h) - 2 * Math.log((values[i+1]+displacement)/volScaling) - evalNext*evalNext / h;</span>
+
+<span class="nc" id="L122">			eval = evalNext;</span>
+		}
+<span class="nc" id="L124">		logLikelihood += - Math.log(2 * Math.PI) * (windowIndexEnd-windowIndexStart);</span>
+<span class="nc" id="L125">		logLikelihood *= 0.5;</span>
+
+<span class="nc" id="L127">		return logLikelihood;</span>
+	}
+
+	public double getLastResidualForParameters(final double omega, final double alpha, final double beta, final double displacement) {
+<span class="nc" id="L131">		final double volScaling = (1+Math.abs(displacement));</span>
+<span class="nc" id="L132">		double h = omega / (1.0 - alpha - beta);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">		for (int i = windowIndexStart+1; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L134">			final double eval	= volScaling * (Math.log((values[i]+displacement)/(values[i-1]+displacement)));</span>
+			//			double eval	= volScaling * (values[i]-values[i-1])/(values[i-1]+displacement);
+<span class="nc" id="L136">			h = omega + alpha * eval * eval + beta * h;</span>
+		}
+
+<span class="nc" id="L139">		return h;</span>
+	}
+
+	public double[] getSzenarios(final double omega, final double alpha, final double beta, final double displacement) {
+<span class="nc" id="L143">		final double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];</span>
+
+<span class="nc" id="L145">		final double volScaling = (1+Math.abs(displacement));</span>
+<span class="nc" id="L146">		double h = omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L147">		double vol = Math.sqrt(h) / volScaling;</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">		for (int i = windowIndexStart+1; i &lt;= windowIndexEnd; i++) {</span>
+<span class="nc" id="L149">			final double y = Math.log((values[i]+displacement)/(values[i-1]+displacement));</span>
+			//			double y = (values[i]-values[i-1])/(values[i-1]+displacement);
+<span class="nc" id="L151">			szenarios[i-windowIndexStart-1]	= y / vol;</span>
+
+<span class="nc" id="L153">			final double eval		= volScaling * y;</span>
+<span class="nc" id="L154">			h = omega + alpha * eval * eval + beta * h;</span>
+<span class="nc" id="L155">			vol = Math.sqrt(h) / volScaling;</span>
+		}
+<span class="nc" id="L157">		java.util.Arrays.sort(szenarios);</span>
+
+<span class="nc" id="L159">		return szenarios;</span>
+	}
+
+	public double[] getQuantilPredictionsForParameters(final double omega, final double alpha, final double beta, final double displacement, final double[] quantiles) {
+<span class="nc" id="L163">		final double[] szenarios = getSzenarios(omega, alpha, beta, displacement);</span>
+
+<span class="nc" id="L165">		final double volScaling = (1+Math.abs(displacement));</span>
+<span class="nc" id="L166">		final double h = omega / (1.0 - alpha - beta);</span>
+<span class="nc" id="L167">		final double vol = Math.sqrt(h) / volScaling;</span>
+
+<span class="nc" id="L169">		final double[] quantileValues = new double[quantiles.length];</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">		for(int i=0; i&lt;quantiles.length; i++) {</span>
+<span class="nc" id="L171">			final double quantile = quantiles[i];</span>
+<span class="nc" id="L172">			final double quantileIndex = szenarios.length * quantile  - 1;</span>
+<span class="nc" id="L173">			final int quantileIndexLo = (int)quantileIndex;</span>
+<span class="nc" id="L174">			final int quantileIndexHi = quantileIndexLo+1;</span>
+
+<span class="nc" id="L176">			final double szenarioRelativeChange =</span>
+<span class="nc" id="L177">					(quantileIndexHi-quantileIndex) * Math.exp(szenarios[Math.max(quantileIndexLo,0               )] * vol)</span>
+<span class="nc" id="L178">					+ (quantileIndex-quantileIndexLo) * Math.exp(szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);</span>
+			/*
+			double szenarioRelativeChange =
+					(quantileIndexHi-quantileIndex) * (1 + szenarios[Math.max(quantileIndexLo,0               )] * vol)
+					+ (quantileIndex-quantileIndexLo) * (1 + szenarios[Math.min(quantileIndexHi,szenarios.length)] * vol);
+			 */
+
+<span class="nc" id="L185">			final double quantileValue = (values[windowIndexEnd]+displacement) * szenarioRelativeChange - displacement;</span>
+<span class="nc" id="L186">			quantileValues[i] = quantileValue;</span>
+		}
+
+<span class="nc" id="L189">		return quantileValues;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
+	 */
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters() {
+<span class="nc" id="L197">		return getBestParameters(null);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters(java.util.Map)
+	 */
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters(final Map&lt;String, Object&gt; guess) {
+
+		// Create the objective function for the solver
+<span class="nc" id="L207">		class GARCHMaxLikelihoodFunction implements MultivariateFunction, Serializable {</span>
+
+			private static final long serialVersionUID = 7072187082052755854L;
+
+			@Override
+			public double value(final double[] variables) {
+				/*
+				 * Transform variables: The solver variables are in (-\infty, \infty).
+				 * We transform the variable to the admissible domain for GARCH, that is
+				 * omega &gt; 0, 0 &lt; alpha &lt; 1, 0 &lt; beta &lt; (1-alpha), displacement &gt; lowerBoundDisplacement  ??????
+				 * ???? usually for GARCH the restrictions are written like omega &gt; 0, alpha &gt; 0, beta &gt; 0, and alpha + beta &lt; 1
+				 */
+<span class="nc" id="L219">				final double omega	= Math.exp(variables[0]);</span>
+<span class="nc" id="L220">				final double mucorr	= Math.exp(-Math.exp(-variables[1]));</span>
+<span class="nc" id="L221">				final double muema	= Math.exp(-Math.exp(-variables[2]));</span>
+<span class="nc" id="L222">				final double beta		= mucorr * muema;</span>
+<span class="nc" id="L223">				final double alpha	= mucorr - beta;</span>
+				//				double alpha = 1.0/(1.0+Math.exp(-variables[1]));
+				//				double beta = (1.0-alpha)*1.0/(1.0+Math.exp(-variables[2]));
+<span class="nc" id="L226">				final double displacementNormed = 1.0/(1.0+Math.exp(-variables[3]));</span>
+<span class="nc" id="L227">				final double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;</span>
+
+<span class="nc" id="L229">				double logLikelihood = getLogLikelihoodForParameters(omega,alpha,beta,displacement);</span>
+
+				// Penalty to prevent solver from hitting the bounds
+<span class="nc" id="L232">				logLikelihood -= Math.max(1E-30-omega,0)/1E-30;</span>
+<span class="nc" id="L233">				logLikelihood -= Math.max(1E-30-alpha,0)/1E-30;</span>
+<span class="nc" id="L234">				logLikelihood -= Math.max((alpha-1)+1E-30,0)/1E-30;</span>
+<span class="nc" id="L235">				logLikelihood -= Math.max(1E-30-beta,0)/1E-30;</span>
+<span class="nc" id="L236">				logLikelihood -= Math.max((beta-1)+1E-30,0)/1E-30;</span>
+<span class="nc" id="L237">				logLikelihood -= Math.max(1E-30-displacementNormed,0)/1E-30;</span>
+<span class="nc" id="L238">				logLikelihood -= Math.max((displacementNormed-1)+1E-30,0)/1E-30;</span>
+
+<span class="nc" id="L240">				return logLikelihood;</span>
+			}
+
+		}
+<span class="nc" id="L244">		final GARCHMaxLikelihoodFunction objectiveFunction = new GARCHMaxLikelihoodFunction();</span>
+
+		// Create a guess for the solver
+<span class="nc" id="L247">		double guessOmega = 1.0;</span>
+<span class="nc" id="L248">		double guessAlpha = 0.2;</span>
+<span class="nc" id="L249">		double guessBeta = 0.2;</span>
+<span class="nc" id="L250">		double guessDisplacement = (lowerBoundDisplacement + upperBoundDisplacement) / 2.0;</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">		if(guess != null) {</span>
+			// A guess was provided, use that one
+<span class="nc" id="L253">			guessOmega			= (Double)guess.get(&quot;Omega&quot;);</span>
+<span class="nc" id="L254">			guessAlpha			= (Double)guess.get(&quot;Alpha&quot;);</span>
+<span class="nc" id="L255">			guessBeta			= (Double)guess.get(&quot;Beta&quot;);</span>
+<span class="nc" id="L256">			guessDisplacement	= (Double)guess.get(&quot;Displacement&quot;);</span>
+		}
+
+		// Constrain guess to admissible range
+<span class="nc" id="L260">		guessOmega			= restrictToOpenSet(guessOmega, 0.0, Double.MAX_VALUE);</span>
+<span class="nc" id="L261">		guessAlpha			= restrictToOpenSet(guessAlpha, 0.0, 1.0);</span>
+<span class="nc" id="L262">		guessBeta			= restrictToOpenSet(guessBeta, 0.0, 1.0-guessAlpha);</span>
+<span class="nc" id="L263">		guessDisplacement	= restrictToOpenSet(guessDisplacement, lowerBoundDisplacement, upperBoundDisplacement);</span>
+
+<span class="nc" id="L265">		final double guessMucorr	= guessAlpha + guessBeta;</span>
+<span class="nc" id="L266">		final double guessMuema	= guessBeta / (guessAlpha+guessBeta);</span>
+
+		// Transform guess to solver coordinates
+<span class="nc" id="L269">		final double[] guessParameters = new double[4];</span>
+<span class="nc" id="L270">		guessParameters[0] = Math.log(guessOmega);</span>
+<span class="nc" id="L271">		guessParameters[1] = -Math.log(-Math.log(guessMucorr));</span>
+<span class="nc" id="L272">		guessParameters[2] = -Math.log(-Math.log(guessMuema));</span>
+<span class="nc" id="L273">		guessParameters[3] = -Math.log(1.0/((guessDisplacement-lowerBoundDisplacement)/(upperBoundDisplacement-lowerBoundDisplacement))-1.0);</span>
+
+		// Seek optimal parameter configuration
+<span class="nc" id="L276">		final Optimizer lm = new LevenbergMarquardt(guessParameters, new double[] { 1000 }, 10*maxIterations, 2) {</span>
+			private static final long serialVersionUID = 8030873619034187741L;
+
+			@Override
+			public void setValues(final double[] arg0, final double[] arg1) {
+<span class="nc" id="L281">				arg1[0] = objectiveFunction.value(arg0);</span>
+<span class="nc" id="L282">			}</span>
+		};
+
+<span class="nc" id="L285">		double[] bestParameters = null;</span>
+
+<span class="nc" id="L287">		final boolean isUseLM = false;</span>
+
+		if(isUseLM) {
+			try {
+				lm.run();
+			} catch (final SolverException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+			bestParameters = lm.getBestFitParameters();
+		}
+		else {
+<span class="nc" id="L299">			final org.apache.commons.math3.optimization.direct.CMAESOptimizer optimizer2 = new org.apache.commons.math3.optimization.direct.CMAESOptimizer();</span>
+
+			try {
+<span class="nc" id="L302">				final PointValuePair result = optimizer2.optimize(</span>
+						maxIterations,
+						objectiveFunction,
+						GoalType.MAXIMIZE,
+						guessParameters
+						);
+<span class="nc" id="L308">				bestParameters = result.getPoint();</span>
+<span class="nc" id="L309">			} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {</span>
+<span class="nc" id="L310">				System.out.println(&quot;Solver failed&quot;);</span>
+<span class="nc" id="L311">				bestParameters = guessParameters;</span>
+<span class="nc" id="L312">			}</span>
+		}
+
+		// Transform parameters to GARCH parameters
+<span class="nc" id="L316">		final double omega	= Math.exp(bestParameters[0]);</span>
+<span class="nc" id="L317">		final double mucorr	= Math.exp(-Math.exp(-bestParameters[1]));</span>
+<span class="nc" id="L318">		final double muema	= Math.exp(-Math.exp(-bestParameters[2]));</span>
+<span class="nc" id="L319">		final double beta		= mucorr * muema;</span>
+<span class="nc" id="L320">		final double alpha	= mucorr - beta;</span>
+<span class="nc" id="L321">		final double displacementNormed = 1.0/(1.0+Math.exp(-bestParameters[3]));</span>
+<span class="nc" id="L322">		final double displacement = (upperBoundDisplacement-lowerBoundDisplacement)*displacementNormed+lowerBoundDisplacement;</span>
+
+<span class="nc" id="L324">		final double[] quantiles		= {0.01, 0.05, 0.5};</span>
+<span class="nc" id="L325">		final double[] quantileValues	= getQuantilPredictionsForParameters(omega, alpha, beta, displacement, quantiles);</span>
+
+<span class="nc" id="L327">		final Map&lt;String, Object&gt; results = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L328">		results.put(&quot;Omega&quot;, omega);</span>
+<span class="nc" id="L329">		results.put(&quot;Alpha&quot;, alpha);</span>
+<span class="nc" id="L330">		results.put(&quot;Beta&quot;, beta);</span>
+<span class="nc" id="L331">		results.put(&quot;Displacement&quot;, displacement);</span>
+<span class="nc" id="L332">		results.put(&quot;Szenarios&quot;, this.getSzenarios(omega, alpha, beta, displacement));</span>
+<span class="nc" id="L333">		results.put(&quot;Likelihood&quot;, this.getLogLikelihoodForParameters(omega, alpha, beta, displacement));</span>
+<span class="nc" id="L334">		results.put(&quot;Vol&quot;, Math.sqrt(this.getLastResidualForParameters(omega, alpha, beta, displacement)));</span>
+<span class="nc" id="L335">		results.put(&quot;Quantile=1%&quot;, quantileValues[0]);</span>
+<span class="nc" id="L336">		results.put(&quot;Quantile=5%&quot;, quantileValues[1]);</span>
+<span class="nc" id="L337">		results.put(&quot;Quantile=50%&quot;, quantileValues[2]);</span>
+		//		System.out.println(results.get(&quot;Likelihood&quot;) + &quot;\t&quot; + Arrays.toString(bestParameters));
+<span class="nc" id="L339">		return results;</span>
+	}
+
+	private static double restrictToOpenSet(double value, final double lowerBond, final double upperBound) {
+<span class="nc" id="L343">		value = Math.max(value, lowerBond  * (1.0+Math.signum(lowerBond)*1E-15) + 1E-15);</span>
+<span class="nc" id="L344">		value = Math.min(value, upperBound * (1.0-Math.signum(upperBound)*1E-15) - 1E-15);</span>
+<span class="nc" id="L345">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

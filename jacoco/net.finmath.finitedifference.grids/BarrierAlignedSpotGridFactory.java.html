@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarrierAlignedSpotGridFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.grids</a> &gt; <span class="el_source">BarrierAlignedSpotGridFactory.java</span></div><h1>BarrierAlignedSpotGridFactory.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.grids;
+
+import java.util.Arrays;
+
+/**
+ * Utility factory for spot grids used in barrier option PDE problems.
+ *
+ * &lt;p&gt;
+ * Main features:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;forces the barrier to be an exact grid node,&lt;/li&gt;
+ *   &lt;li&gt;can build either a uniform or a clustered grid,&lt;/li&gt;
+ *   &lt;li&gt;clustered grid puts more points near the barrier.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The clustered grid is piecewise-defined:
+ * on each side of the barrier, nodes are generated with a power transform.
+ * For clusteringExponent {@code &gt; 1.0}, points concentrate near the barrier.
+ * For clusteringExponent {@code = 1.0}, the grid is piecewise uniform.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This class is intended especially for direct barrier pricing under
+ * Heston/SABR,
+ * where barrier alignment can materially improve knock-in accuracy.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class BarrierAlignedSpotGridFactory {
+
+	private BarrierAlignedSpotGridFactory() {
+	}
+
+	/**
+	 * Creates a uniform grid with the barrier exactly on a node.
+	 *
+	 * &lt;p&gt;
+	 * The spacing is chosen so that:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;the barrier lies exactly on a node,&lt;/li&gt;
+	 *   &lt;li&gt;the lower/upper bounds are preserved,&lt;/li&gt;
+	 *   &lt;li&gt;the number of intervals is exactly {@code numberOfSteps}.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * &lt;p&gt;
+	 * This method requires the barrier to lie strictly inside the interval.
+	 * &lt;/p&gt;
+	 *
+	 * @param numberOfSteps Number of grid intervals.
+	 * @param sMin Lower grid boundary.
+	 * @param sMax Upper grid boundary.
+	 * @param barrier Barrier level.
+	 * @return A grid with the barrier exactly on a node.
+	 */
+	public static Grid createBarrierAlignedUniformGrid(
+			final int numberOfSteps,
+			final double sMin,
+			final double sMax,
+			final double barrier) {
+
+<span class="nc" id="L65">		validateInputs(numberOfSteps, sMin, sMax, barrier);</span>
+
+<span class="nc" id="L67">		final int barrierIndex = chooseBarrierIndex(numberOfSteps, sMin, sMax, barrier);</span>
+
+<span class="nc" id="L69">		final double[] grid = new double[numberOfSteps + 1];</span>
+<span class="nc" id="L70">		final double dxLeft = (barrier - sMin) / barrierIndex;</span>
+<span class="nc" id="L71">		final double dxRight = (sMax - barrier) / (numberOfSteps - barrierIndex);</span>
+
+		/*
+		 * If dxLeft and dxRight differ, one cannot have a globally uniform grid
+		 * with barrier fixed as an exact node and both endpoints preserved.
+		 *
+		 * So this &quot;uniform&quot; builder is best understood as:
+		 * - uniform on the left of the barrier
+		 * - uniform on the right of the barrier
+		 * - exact barrier alignment
+		 *
+		 * This is often already sufficient and far better than missing the
+		 * barrier.
+		 */
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		for (int i = 0; i &lt;= barrierIndex; i++) {</span>
+<span class="nc" id="L86">			grid[i] = sMin + i * dxLeft;</span>
+		}
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		for (int i = barrierIndex + 1; i &lt;= numberOfSteps; i++) {</span>
+<span class="nc" id="L89">			grid[i] = barrier + (i - barrierIndex) * dxRight;</span>
+		}
+
+<span class="nc" id="L92">		grid[0] = sMin;</span>
+<span class="nc" id="L93">		grid[barrierIndex] = barrier;</span>
+<span class="nc" id="L94">		grid[numberOfSteps] = sMax;</span>
+
+<span class="nc" id="L96">		return new ArrayGrid(grid);</span>
+	}
+
+	/**
+	 * Creates a barrier-aligned clustered grid.
+	 *
+	 * &lt;p&gt;
+	 * The barrier is exactly on a node. Points are concentrated near the
+	 * barrier
+	 * using a power transform on each side:
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * x = barrier - (barrier - sMin) * (1 - u)^p    on the left side
+	 * x = barrier + (sMax - barrier) * u^p          on the right side
+	 * &lt;/pre&gt;
+	 *
+	 * &lt;p&gt;
+	 * where {@code p = clusteringExponent}.
+	 * &lt;/p&gt;
+	 *
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;{@code clusteringExponent = 1.0}: piecewise uniform&lt;/li&gt;
+	 * &lt;li&gt;{@code clusteringExponent &gt; 1.0}: points cluster near the
+	 * barrier&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param numberOfSteps Number of grid intervals.
+	 * @param sMin Lower grid boundary.
+	 * @param sMax Upper grid boundary.
+	 * @param barrier Barrier level.
+	 * @param clusteringExponent Clustering strength, must be &gt;= 1.0.
+	 * @return A clustered grid with the barrier exactly on a node.
+	 */
+	public static Grid createBarrierAlignedClusteredGrid(
+			final int numberOfSteps,
+			final double sMin,
+			final double sMax,
+			final double barrier,
+			final double clusteringExponent) {
+
+<span class="nc" id="L137">		validateInputs(numberOfSteps, sMin, sMax, barrier);</span>
+
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		if (clusteringExponent &lt; 1.0) {</span>
+<span class="nc" id="L140">			throw new IllegalArgumentException(&quot;clusteringExponent must be &gt;= 1.0&quot;);</span>
+		}
+
+<span class="nc" id="L143">		final int barrierIndex = chooseBarrierIndex(numberOfSteps, sMin, sMax, barrier);</span>
+
+<span class="nc" id="L145">		final double[] grid = new double[numberOfSteps + 1];</span>
+
+		/*
+		 * Left side: i = 0,...,barrierIndex
+		 * u runs from 0 to 1, with x(barrierIndex) = barrier.
+		 */
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		for (int i = 0; i &lt;= barrierIndex; i++) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			final double u = barrierIndex == 0 ? 0.0 : ((double)i) / barrierIndex;</span>
+<span class="nc" id="L153">			grid[i] = barrier - (barrier - sMin) * Math.pow(1.0 - u, clusteringExponent);</span>
+		}
+
+		/*
+		 * Right side: i = barrierIndex,...,numberOfSteps
+		 * u runs from 0 to 1, with x(barrierIndex) = barrier.
+		 */
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		for (int i = barrierIndex; i &lt;= numberOfSteps; i++) {</span>
+<span class="nc bnc" id="L161" title="All 2 branches missed.">			final double u = numberOfSteps == barrierIndex ? 0.0</span>
+<span class="nc" id="L162">					: ((double)(i - barrierIndex)) / (numberOfSteps - barrierIndex);</span>
+<span class="nc" id="L163">			grid[i] = barrier + (sMax - barrier) * Math.pow(u, clusteringExponent);</span>
+		}
+
+<span class="nc" id="L166">		grid[0] = sMin;</span>
+<span class="nc" id="L167">		grid[barrierIndex] = barrier;</span>
+<span class="nc" id="L168">		grid[numberOfSteps] = sMax;</span>
+
+<span class="nc" id="L170">		enforceStrictMonotonicity(grid);</span>
+
+<span class="nc" id="L172">		return new ArrayGrid(grid);</span>
+	}
+
+	/**
+	 * Returns the index of the barrier node in a grid previously built by this
+	 * factory.
+	 *
+	 * @param grid The grid array.
+	 * @param barrier The barrier level.
+	 * @return The barrier node index.
+	 */
+	public static int findBarrierIndex(final double[] grid, final double barrier) {
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		for (int i = 0; i &lt; grid.length; i++) {</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">			if (Math.abs(grid[i] - barrier) &lt; 1E-12) {</span>
+<span class="nc" id="L186">				return i;</span>
+			}
+		}
+<span class="nc" id="L189">		throw new IllegalArgumentException(&quot;Barrier is not a grid node.&quot;);</span>
+	}
+
+	/**
+	 * Convenience overload.
+	 *
+	 * @param grid The grid.
+	 * @param barrier The barrier level.
+	 * @return The barrier node index.
+	 */
+	public static int findBarrierIndex(final Grid grid, final double barrier) {
+<span class="nc" id="L200">		return findBarrierIndex(grid.getGrid(), barrier);</span>
+	}
+
+	/**
+	 * Chooses the barrier node index so that the node count allocation roughly
+	 * matches the geometric position of the barrier inside the interval.
+	 * @param numberOfSteps The value.
+	 * @param sMin The value.
+	 * @param sMax The value.
+	 * @param barrier The value.
+	 * @return The value.
+	 */
+	private static int chooseBarrierIndex(
+			final int numberOfSteps,
+			final double sMin,
+			final double sMax,
+			final double barrier) {
+
+<span class="nc" id="L218">		final double relativePosition = (barrier - sMin) / (sMax - sMin);</span>
+<span class="nc" id="L219">		int barrierIndex = (int)Math.round(relativePosition * numberOfSteps);</span>
+
+		/*
+		 * Force strict interior placement.
+		 */
+<span class="nc" id="L224">		barrierIndex = Math.max(1, barrierIndex);</span>
+<span class="nc" id="L225">		barrierIndex = Math.min(numberOfSteps - 1, barrierIndex);</span>
+
+<span class="nc" id="L227">		return barrierIndex;</span>
+	}
+
+	private static void validateInputs(
+			final int numberOfSteps,
+			final double sMin,
+			final double sMax,
+			final double barrier) {
+
+<span class="nc bnc" id="L236" title="All 2 branches missed.">		if (numberOfSteps &lt; 2) {</span>
+<span class="nc" id="L237">			throw new IllegalArgumentException(&quot;numberOfSteps must be at least 2.&quot;);</span>
+		}
+<span class="nc bnc" id="L239" title="All 2 branches missed.">		if (!(sMin &lt; sMax)) {</span>
+<span class="nc" id="L240">			throw new IllegalArgumentException(&quot;Require sMin &lt; sMax.&quot;);</span>
+		}
+<span class="nc bnc" id="L242" title="All 4 branches missed.">		if (!(barrier &gt; sMin &amp;&amp; barrier &lt; sMax)) {</span>
+<span class="nc" id="L243">			throw new IllegalArgumentException(&quot;Barrier must lie strictly inside (sMin, sMax).&quot;);</span>
+		}
+<span class="nc" id="L245">	}</span>
+
+	/**
+	 * Guards against duplicate nodes caused by extreme clustering and floating-
+	 * point rounding.
+	 * @param grid The value.
+	 */
+	private static void enforceStrictMonotonicity(final double[] grid) {
+<span class="nc" id="L253">		final double epsilon = 1E-12;</span>
+
+<span class="nc bnc" id="L255" title="All 2 branches missed.">		for (int i = 1; i &lt; grid.length; i++) {</span>
+<span class="nc bnc" id="L256" title="All 2 branches missed.">			if (grid[i] &lt;= grid[i - 1]) {</span>
+<span class="nc" id="L257">				grid[i] = grid[i - 1] + epsilon;</span>
+			}
+		}
+<span class="nc" id="L260">	}</span>
+
+	/**
+	 * Simple immutable array-backed grid.
+	 */
+	private static final class ArrayGrid extends AbstractGrid {
+
+		/**
+		 * The grid.
+		 */
+		private final double[] grid;
+		/**
+		 * The delta.
+		 */
+		private double[] delta;
+
+<span class="nc" id="L276">		private ArrayGrid(final double[] grid) {</span>
+<span class="nc" id="L277">			this.grid = Arrays.copyOf(grid, grid.length);</span>
+<span class="nc" id="L278">		}</span>
+
+		@Override
+		public double[] getGrid() {
+<span class="nc" id="L282">			return Arrays.copyOf(grid, grid.length);</span>
+		}
+
+		@Override
+		public double[] getDelta(final double[] valuesOnGrid) {
+
+<span class="nc bnc" id="L288" title="All 2 branches missed.">			if (delta == null) {</span>
+<span class="nc bnc" id="L289" title="All 2 branches missed.">				if (valuesOnGrid == null) {</span>
+<span class="nc" id="L290">					throw new IllegalArgumentException(&quot;valuesOnGrid must not be null.&quot;);</span>
+				}
+<span class="nc bnc" id="L292" title="All 2 branches missed.">				if (valuesOnGrid.length != grid.length) {</span>
+<span class="nc" id="L293">					throw new IllegalArgumentException(</span>
+							&quot;valuesOnGrid length must match grid length.&quot;
+							);
+				}
+
+<span class="nc" id="L298">				delta = new double[valuesOnGrid.length - 1];</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">				for (int i = 0; i &lt; valuesOnGrid.length - 1; i++) {</span>
+<span class="nc" id="L300">					delta[i] = valuesOnGrid[i + 1] - valuesOnGrid[i];</span>
+				}
+			}
+
+<span class="nc" id="L304">			return Arrays.copyOf(delta, delta.length);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

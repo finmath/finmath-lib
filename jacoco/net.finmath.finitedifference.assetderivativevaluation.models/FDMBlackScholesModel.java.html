@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMBlackScholesModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMBlackScholesModel.java</span></div><h1>FDMBlackScholesModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import java.time.LocalDate;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.marketdata.model.volatilities.ConstantLocalVolatility;
+import net.finmath.marketdata.model.volatilities.LocalVolatility;
+
+/**
+ * Finite difference model for option pricing under the Black-Scholes framework
+ * for European and American options.
+ *
+ * &lt;p&gt;
+ * The model supports both the classical constant-volatility Black-Scholes case
+ * and the local-volatility case. Constant volatility is represented internally
+ * as a {@link ConstantLocalVolatility}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto (this version)
+ * @author Christian Fries, Ralph Rudd, Jorg Kienitz (original version)
+ */
+public class FDMBlackScholesModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial value.
+	 */
+	private final double initialValue;
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The volatility.
+	 */
+	private final LocalVolatility volatility;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Minimum time used to avoid division by zero.
+	 */
+	private static final double MINIMUM_TIME = 1.0E-6;
+
+	/**
+	 * Constructs a Black-Scholes finite difference model for option pricing.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param volatility Constant volatility of the underlying asset.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="nc" id="L76">		this(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				new ConstantLocalVolatility(volatility),
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L83">	}</span>
+
+	/**
+	 * Constructs a local-volatility finite difference model for option pricing.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param volatility Local volatility function.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final LocalVolatility volatility,
+<span class="nc" id="L100">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L102">		this.initialValue = initialValue;</span>
+<span class="nc" id="L103">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L104">		this.dividendYieldCurve = dividendYieldCurve;</span>
+<span class="nc" id="L105">		this.volatility = volatility;</span>
+<span class="nc" id="L106">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L107">	}</span>
+
+	/**
+	 * Constructs a Black-Scholes finite difference model for option pricing
+	 * without
+	 * dividend yield.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param volatility Constant volatility of the underlying asset.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="nc" id="L126">		this(</span>
+				initialValue,
+				riskFreeCurve,
+				new ConstantLocalVolatility(volatility),
+				spaceTimeDiscretization
+				);
+<span class="nc" id="L132">	}</span>
+
+	/**
+	 * Constructs a local-volatility finite difference model for option pricing
+	 * without dividend yield.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param volatility Local volatility function.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final DiscountCurve riskFreeCurve,
+			final LocalVolatility volatility,
+<span class="nc" id="L148">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L150">		this.initialValue = initialValue;</span>
+<span class="nc" id="L151">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="nc" id="L153">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L154">		final double[] givenAnnualizedZeroRates = new double[] {0.0, 0.0};</span>
+<span class="nc" id="L155">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L156">		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;</span>
+<span class="nc" id="L157">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L159">		final DiscountCurve dividendYieldCurve =</span>
+<span class="nc" id="L160">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+<span class="nc" id="L162">						LocalDate.of(2010, 8, 1),</span>
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L169">		this.dividendYieldCurve = dividendYieldCurve;</span>
+
+<span class="nc" id="L171">		this.volatility = volatility;</span>
+<span class="nc" id="L172">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L173">	}</span>
+
+	/**
+	 * Constructs a Black-Scholes finite difference model for option pricing.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield rate.
+	 * @param volatility Constant volatility of the underlying asset.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="fc" id="L192">		this(</span>
+				initialValue,
+				riskFreeRate,
+				dividendYieldRate,
+				new ConstantLocalVolatility(volatility),
+				spaceTimeDiscretization
+				);
+<span class="fc" id="L199">	}</span>
+
+	/**
+	 * Constructs a local-volatility finite difference model for option pricing.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield rate.
+	 * @param volatility Local volatility function.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final LocalVolatility volatility,
+<span class="fc" id="L216">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="fc" id="L218">		this.initialValue = initialValue;</span>
+
+<span class="fc" id="L220">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="fc" id="L221">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="fc" id="L222">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L223">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="fc" id="L224">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="fc" id="L226">		final DiscountCurve riskFreeCurve =</span>
+<span class="fc" id="L227">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="fc" id="L236">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="fc" id="L238">		final double[] times1 = new double[] {0.0, 1.0};</span>
+<span class="fc" id="L239">		final double[] givenAnnualizedZeroRates1 = new double[] {dividendYieldRate, dividendYieldRate};</span>
+<span class="fc" id="L240">		final InterpolationMethod interpolationMethod1 = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L241">		final InterpolationEntity interpolationEntity1 = InterpolationEntity.VALUE;</span>
+<span class="fc" id="L242">		final ExtrapolationMethod extrapolationMethod1 = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="fc" id="L244">		final DiscountCurve dividendYieldCurve =</span>
+<span class="fc" id="L245">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times1,
+						givenAnnualizedZeroRates1,
+						interpolationMethod1,
+						extrapolationMethod1,
+						interpolationEntity1);
+
+<span class="fc" id="L254">		this.dividendYieldCurve = dividendYieldCurve;</span>
+
+<span class="fc" id="L256">		this.volatility = volatility;</span>
+<span class="fc" id="L257">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L258">	}</span>
+
+	/**
+	 * Constructs a Black-Scholes finite difference model for option pricing
+	 * without
+	 * dividend yield.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param volatility Constant volatility of the underlying asset.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final SpaceTimeDiscretization spaceTimeDiscretization) {
+
+<span class="fc" id="L277">		this(</span>
+				initialValue,
+				riskFreeRate,
+				new ConstantLocalVolatility(volatility),
+				spaceTimeDiscretization
+				);
+<span class="fc" id="L283">	}</span>
+
+	/**
+	 * Constructs a local-volatility finite difference model for option pricing
+	 * without dividend yield.
+	 *
+	 * @param initialValue Initial spot price.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param volatility Local volatility function.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMBlackScholesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final LocalVolatility volatility,
+<span class="fc" id="L299">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="fc" id="L301">		this.initialValue = initialValue;</span>
+
+<span class="fc" id="L303">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="fc" id="L304">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="fc" id="L305">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L306">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="fc" id="L307">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="fc" id="L309">		final DiscountCurve riskFreeCurve =</span>
+<span class="fc" id="L310">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+<span class="fc" id="L312">						LocalDate.of(2010, 8, 1),</span>
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="fc" id="L319">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="fc" id="L321">		final double[] times1 = new double[] {0.0, 1.0};</span>
+<span class="fc" id="L322">		final double[] givenAnnualizedZeroRates1 = new double[] {0.0, 0.0};</span>
+<span class="fc" id="L323">		final InterpolationMethod interpolationMethod1 = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L324">		final InterpolationEntity interpolationEntity1 = InterpolationEntity.VALUE;</span>
+<span class="fc" id="L325">		final ExtrapolationMethod extrapolationMethod1 = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="fc" id="L327">		final DiscountCurve dividendYieldCurve =</span>
+<span class="fc" id="L328">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+<span class="fc" id="L330">						LocalDate.of(2010, 8, 1),</span>
+						times1,
+						givenAnnualizedZeroRates1,
+						interpolationMethod1,
+						extrapolationMethod1,
+						interpolationEntity1);
+
+<span class="fc" id="L337">		this.dividendYieldCurve = dividendYieldCurve;</span>
+
+<span class="fc" id="L339">		this.volatility = volatility;</span>
+<span class="fc" id="L340">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L341">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="fc" id="L345">		return riskFreeCurve;</span>
+	}
+
+	/**
+	 * Returns the initial value, i.e. the spot value, of the underlying.
+	 *
+	 * @return The initial value.
+	 */
+	@Override
+	public double[] getInitialValue() {
+<span class="fc" id="L355">		return new double[] {initialValue};</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+<span class="fc bfc" id="L360" title="All 2 branches covered.">		final double effectiveTime = time == 0.0 ? MINIMUM_TIME : time;</span>
+
+<span class="fc" id="L362">		final double[] result = new double[1];</span>
+
+<span class="fc" id="L364">		final double rF = getRiskFreeCurve().getDiscountFactor(effectiveTime);</span>
+<span class="fc" id="L365">		final double riskFreeRate = -Math.log(rF) / effectiveTime;</span>
+
+<span class="fc" id="L367">		final double dY = getDividendYieldCurve().getDiscountFactor(effectiveTime);</span>
+<span class="fc" id="L368">		final double dividendYieldRate = -Math.log(dY) / effectiveTime;</span>
+
+<span class="fc" id="L370">		result[0] = (riskFreeRate - dividendYieldRate) * stateVariables[0];</span>
+<span class="fc" id="L371">		return result;</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+<span class="fc" id="L376">		final double[][] result = new double[1][1];</span>
+
+<span class="fc" id="L378">		final double assetValue = stateVariables[0];</span>
+<span class="fc" id="L379">		result[0][0] = volatility.getValue(time, assetValue) * assetValue;</span>
+
+<span class="fc" id="L381">		return result;</span>
+	}
+
+	/**
+	 * Returns the volatility function.
+	 *
+	 * @return The local volatility function.
+	 */
+	public LocalVolatility getVolatility() {
+<span class="nc" id="L390">		return volatility;</span>
+	}
+
+	/**
+	 * Returns the constant volatility if the model has been constructed with a
+	 * constant volatility.
+	 *
+	 * @return The constant volatility.
+	 */
+	public double getConstantVolatility() {
+<span class="nc bnc" id="L400" title="All 2 branches missed.">		if (volatility instanceof ConstantLocalVolatility) {</span>
+<span class="nc" id="L401">			return ((ConstantLocalVolatility) volatility).getVolatility();</span>
+		}
+
+<span class="nc" id="L404">		throw new IllegalStateException(&quot;The model is not using a constant volatility.&quot;);</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="fc" id="L409">		return dividendYieldCurve;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="fc" id="L414">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L423">		final FiniteDifferenceBoundary boundary =</span>
+<span class="fc" id="L424">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="fc" id="L426">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L435">		final FiniteDifferenceBoundary boundary =</span>
+<span class="fc" id="L436">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="fc" id="L438">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+
+<span class="nc" id="L445">		return new FDMBlackScholesModel(</span>
+				initialValue,
+				riskFreeCurve,
+				dividendYieldCurve,
+				volatility,
+				newSpaceTimeDiscretization
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

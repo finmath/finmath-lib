@@ -1,0 +1,662 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HestonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">HestonModel.java</span></div><h1>HestonModel.java</h1><pre class="source lang-java linenums">package net.finmath.functions;
+
+import java.util.function.Function;
+
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.transform.DftNormalization;
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.TransformType;
+
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+
+/**
+ * This class implements some functions as static class methods related to the Heston model.
+ * The calculation is performed by means of the FFT algorithm of Carr Madan applied to the gradient of the characteristic funtion.
+ *
+ * The model is
+ * \[
+ * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * \]
+ * \[
+ * 	dW_{1} dW_{2} = \rho dt
+ * \]
+ * \[
+ * 	dN(t) = r^{\text{d}}(t) N(t) dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is a Brownian motion.
+ *
+ * The free parameters of this model are:
+ * &lt;dl&gt;
+ * 	&lt;dt&gt;\( S_{0} \)&lt;/dt&gt; &lt;dd&gt;spot - initial value of S&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{c}} \)&lt;/dt&gt; &lt;dd&gt;the drift of the stock, equals difference of repo rate and divident yield&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \sigma \)&lt;/dt&gt; &lt;dd&gt;the initial volatility level (initial variance \( V_{0} = \sigma^{2} \))&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{d}} \)&lt;/dt&gt; &lt;dd&gt;the discount rate&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \xi \)&lt;/dt&gt; &lt;dd&gt;the volatility of volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \theta \)&lt;/dt&gt; &lt;dd&gt;the mean reversion level of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \kappa \)&lt;/dt&gt; &lt;dd&gt;the mean reversion speed of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \rho \)&lt;/dt&gt; &lt;dd&gt;the correlation of the Brownian drivers&lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+<span class="nc" id="L47">public class HestonModel {</span>
+
+	/*
+	 * Parameters for the FFT calculator
+	 */
+<span class="fc" id="L52">	static final InterpolationMethod intMethod =InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L53">	static final ExtrapolationMethod extMethod = ExtrapolationMethod.CONSTANT;</span>
+	static final int numberOfPoints = 4096*2;
+	static final double gridSpacing = 0.4;
+
+<span class="fc" id="L57">	private enum HestonGreek {DELTA, GAMMA, THETA, RHO, VEGA1, VANNA, VOLGA}</span>
+
+	/**
+	 * Calculates the delta of a call option under a Heston model.
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The delta of the option.
+	 */
+	public static double hestonOptionDelta(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+
+<span class="fc" id="L87">		final HestonGreek whatToCompute = HestonGreek.DELTA;</span>
+
+<span class="fc" id="L89">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the gamma of a call option under a Heston model
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The gamma of the option
+	 */
+	public static double hestonOptionGamma(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L131">		final HestonGreek whatToCompute = HestonGreek.GAMMA;</span>
+
+<span class="nc" id="L133">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the theta of a call option under a Heston model
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The theta of the option
+	 */
+	public static double hestonOptionTheta(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L175">		final HestonGreek whatToCompute = HestonGreek.THETA;</span>
+
+<span class="nc" id="L177">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the rho of a call option under a Heston model
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The rho of the option
+	 */
+	public static double hestonOptionRho(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L219">		final HestonGreek whatToCompute = HestonGreek.RHO;</span>
+
+<span class="nc" id="L221">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the vega of a call option under a Heston model, that is
+	 * \( d/d \sigma \), where \( \sigma = \sqrt{v_0} \) is the square root of the initial variance of the model,
+	 * i.e., the initial volatility.
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The vega of the option
+	 */
+	public static double hestonOptionVega(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L265">		return hestonOptionVega1(initialStockValue, riskFreeRate, discountRate, sigma, theta, kappa, xi, rho, optionMaturity, optionStrike) * 2 * sigma;</span>
+	}
+
+	/**
+	 * Calculates the vega1 of a call option under a Heston model, that is
+	 * \( d/d v_0 \), where \( v_0 \) is the initial variance of the model.
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The vega1 of the option
+	 */
+	public static double hestonOptionVega1(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L296">		final HestonGreek whatToCompute = HestonGreek.VEGA1;</span>
+
+<span class="nc" id="L298">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the vanna of a call option under a Heston model
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The vanna of the option
+	 */
+	public static double hestonOptionVanna(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L340">		final HestonGreek whatToCompute = HestonGreek.VANNA;</span>
+
+<span class="nc" id="L342">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+	/**
+	 * Calculates the volga of a call option under a Heston model
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @return The volga of the option
+	 */
+	public static double hestonOptionVolga(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike)
+	{
+<span class="nc" id="L384">		final HestonGreek whatToCompute = HestonGreek.VOLGA;</span>
+
+<span class="nc" id="L386">		return hestonGreekCalculator(initialStockValue,</span>
+				riskFreeRate,
+				discountRate,
+				sigma,
+				theta,
+				kappa,
+				xi,
+				rho,
+				optionMaturity,
+				optionStrike,
+				whatToCompute,
+				numberOfPoints,
+				gridSpacing);
+	}
+
+
+	/**
+	 * Computes the gradient of the (discounted) characteristic function of the Heston model.
+	 * More sensitivies can be added by introducing more cases in the switch statement.
+	 *
+	 * @param zeta The argument of the characteristic function gradient
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @param whichGreek
+	 * @param numberOfPoints
+	 * @param gridSpacing
+	 * @return
+	 */
+	private static Complex hestonCharacteristicFunctionGradient(
+			final Complex zeta,
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike,
+			final HestonGreek whichGreek,
+			final int numberOfPoints,
+			final double gridSpacing) {
+
+<span class="fc" id="L438">		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing);</span>
+<span class="fc" id="L439">		final double v0 = sigma*sigma;</span>
+
+<span class="fc" id="L441">		final double x = Math.log(initialStockValue);</span>
+<span class="fc" id="L442">		final double a = kappa * theta;</span>
+
+		Complex b, u, d, g, c, D, G, C;
+
+		// Initialize
+<span class="fc" id="L447">		u = new Complex(-0.5, 0.0);</span>
+<span class="fc" id="L448">		b = new Complex(kappa + lambda, 0.0);</span>
+
+		// Compute d
+<span class="fc" id="L451">		final Complex term1 = (Complex.I.multiply(rho * xi).multiply(zeta)).subtract(b); // (ρσiφ - b)</span>
+<span class="fc" id="L452">		final Complex powPart = term1.pow(2.0); // (...)</span>
+<span class="fc" id="L453">		final Complex term2 = new Complex(xi * xi, 0.0)</span>
+<span class="fc" id="L454">				.multiply((u.multiply(2.0).multiply(Complex.I).multiply(zeta))</span>
+<span class="fc" id="L455">						.subtract(zeta.multiply(zeta))); // σ²(2u i φ - φ²)</span>
+<span class="fc" id="L456">		d = powPart.subtract(term2).sqrt();</span>
+
+		// Compute g
+<span class="fc" id="L459">		final Complex numerator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).add(d);</span>
+<span class="fc" id="L460">		final Complex denominator = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta))).subtract(d);</span>
+<span class="fc" id="L461">		g = numerator.divide(denominator);</span>
+
+		// Initialize remaining
+<span class="fc" id="L464">		c = Complex.ZERO;</span>
+<span class="fc" id="L465">		D = Complex.ZERO;</span>
+<span class="fc" id="L466">		G = Complex.ZERO;</span>
+<span class="fc" id="L467">		C = Complex.ZERO;</span>
+
+		// &quot;Little Heston Trap&quot; formulation
+		// c = 1.0 / g
+<span class="fc" id="L471">		c = Complex.ONE.divide(g);</span>
+
+		// Precompute some recurring parts
+<span class="fc" id="L474">		final Complex exp_dT = d.multiply(-optionMaturity).exp(); // exp(-d*T)</span>
+<span class="fc" id="L475">		final Complex bMinusRhoSigmaIphiMinusD = b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).subtract(d);</span>
+
+		// D = (b - rho*sigma*i*phi - d) / (sigma^2) * ((1 - exp(-d*T)) / (1 - c * exp(-d*T)))
+<span class="fc" id="L478">		D = bMinusRhoSigmaIphiMinusD</span>
+<span class="fc" id="L479">				.divide(xi * xi)</span>
+<span class="fc" id="L480">				.multiply(</span>
+<span class="fc" id="L481">						(Complex.ONE.subtract(exp_dT))</span>
+<span class="fc" id="L482">						.divide(Complex.ONE.subtract(c.multiply(exp_dT)))</span>
+						);
+
+		// G = (1 - c * exp(-d*T)) / (1 - c)
+<span class="fc" id="L486">		G = (Complex.ONE.subtract(c.multiply(exp_dT)))</span>
+<span class="fc" id="L487">				.divide(Complex.ONE.subtract(c));</span>
+
+		// C = (r - q) * i * phi * T + a / sigma^2 * ((b - rho*sigma*i*phi - d) * T - 2.0 * Complex.Log(G))
+<span class="fc" id="L490">		final Complex firstTerm = Complex.I.multiply(zeta).multiply(riskFreeRate * optionMaturity);</span>
+<span class="fc" id="L491">		final Complex secondTerm = new Complex(a / (xi * xi), 0.0)</span>
+<span class="fc" id="L492">				.multiply(</span>
+<span class="fc" id="L493">						(bMinusRhoSigmaIphiMinusD.multiply(optionMaturity))</span>
+<span class="fc" id="L494">						.subtract(Complex.valueOf(2.0).multiply(G.log()))</span>
+						);
+
+<span class="fc" id="L497">		C = firstTerm.add(secondTerm);</span>
+
+		// The characteristic function (discounted)
+<span class="fc" id="L500">		final Complex f = (C.add(D.multiply(v0)).add(Complex.I.multiply(zeta).multiply(x))).add(-discountRate * optionMaturity).exp();</span>
+
+		// Return depending on the requested Greek
+<span class="pc bpc" id="L503" title="7 of 8 branches missed.">		switch (whichGreek) {</span>
+		case DELTA:
+<span class="fc" id="L505">			return  f.multiply(Complex.I).multiply(zeta).divide(initialStockValue);</span>
+		case GAMMA:
+<span class="nc" id="L507">			return Complex.I.multiply(zeta)</span>
+<span class="nc" id="L508">					.multiply(f)</span>
+<span class="nc" id="L509">					.multiply(Complex.I.multiply(zeta).subtract(Complex.ONE))</span>
+<span class="nc" id="L510">					.divide(initialStockValue * initialStockValue);</span>
+		case THETA:
+<span class="nc" id="L512">			final Complex numerator_dDdT = d.multiply(exp_dT)</span>
+<span class="nc" id="L513">			.multiply(b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))</span>
+<span class="nc" id="L514">			.multiply(g.subtract(Complex.ONE));</span>
+<span class="nc" id="L515">			final Complex denominator_dDdT = Complex.valueOf(xi * xi)</span>
+<span class="nc" id="L516">					.multiply(Complex.ONE.subtract(g.multiply(exp_dT)).pow(2.0));</span>
+<span class="nc" id="L517">			final Complex dDdT = numerator_dDdT.divide(denominator_dDdT);</span>
+
+<span class="nc" id="L519">			final Complex innerTerm = (b.subtract(Complex.I.multiply(rho * xi).multiply(zeta)).add(d))</span>
+<span class="nc" id="L520">					.add(</span>
+<span class="nc" id="L521">							Complex.valueOf(2.0)</span>
+<span class="nc" id="L522">							.multiply(g)</span>
+<span class="nc" id="L523">							.multiply(d)</span>
+<span class="nc" id="L524">							.multiply(exp_dT)</span>
+<span class="nc" id="L525">							.divide(Complex.ONE.subtract(g.multiply(exp_dT)))</span>
+							);
+
+<span class="nc" id="L528">			final Complex dCdT = Complex.I.multiply(zeta).multiply(riskFreeRate)</span>
+<span class="nc" id="L529">					.add(</span>
+<span class="nc" id="L530">							Complex.valueOf(kappa * theta / (xi * xi))</span>
+<span class="nc" id="L531">							.multiply(innerTerm)</span>
+							);
+
+<span class="nc" id="L534">			return Complex.valueOf(riskFreeRate)</span>
+<span class="nc" id="L535">					.multiply(f)</span>
+<span class="nc" id="L536">					.subtract(</span>
+<span class="nc" id="L537">							f.multiply(dCdT.add(dDdT.multiply(v0)))</span>
+							);
+		case RHO:
+<span class="nc" id="L540">			final Complex dCdr = Complex.I.multiply(zeta).multiply(optionMaturity);</span>
+<span class="nc" id="L541">			return f.multiply(dCdr).subtract(f.multiply(optionMaturity));</span>
+		case VEGA1:
+<span class="nc" id="L543">			return f.multiply(D);</span>
+		case VANNA:
+<span class="nc" id="L545">			return f.multiply(Complex.I).multiply(zeta).multiply(D).divide(initialStockValue);</span>
+		case VOLGA:
+<span class="nc" id="L547">			return Complex.valueOf(2.0)</span>
+<span class="nc" id="L548">					.multiply(D)</span>
+<span class="nc" id="L549">					.multiply(f)</span>
+<span class="nc" id="L550">					.multiply(</span>
+<span class="nc" id="L551">							D.multiply(2.0 * v0).add(Complex.ONE)</span>
+							);
+		default:
+<span class="nc" id="L554">			throw new IllegalArgumentException(&quot;Unknown Greek: &quot; + whichGreek);</span>
+		}
+	}
+
+	/**
+	 * Service method that performs the Fourier inversion according to the FFT algorithm of Carr and Madan
+	 *
+	 * @param initialStockValue Initital value of the stock.
+	 * @param riskFreeRate The risk free rate (the drift of the forward, repoRate - dividendYield = r-q).
+	 * @param discountRate The discount rate.
+	 * @param sigma the square root of the initial instantaneous variance (\( V_0 = sigma^2 \))
+	 * @param theta the long run mean of the volatility.
+	 * @param kappa the speed of mean reversion.
+	 * @param xi the volatility of variance.
+	 * @param rho correlation between the two Brownian motions
+	 * @param optionMaturity the maturity of the option
+	 * @param optionStrike the strike of the option.
+	 * @param whichGreek
+	 * @param numberOfPoints
+	 * @param gridSpacing
+	 * @return the requested calculation
+	 */
+	private static double hestonGreekCalculator(final double initialStockValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double sigma,
+			final double theta,
+			final double kappa,
+			final double xi,
+			final double rho,
+			final double optionMaturity,
+			final double optionStrike,
+			final HestonGreek whichGreek,
+			final int numberOfPoints,
+			final double gridSpacing) {
+
+<span class="fc" id="L590">		final double lineOfIntegration = 1.2;</span>
+
+<span class="fc" id="L592">		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing); //Equation 23 Carr and Madan</span>
+<span class="fc" id="L593">		final double upperBound = (numberOfPoints * lambda)/2.0; //Equation 20 Carr and Madan</span>
+
+<span class="fc" id="L595">		final double v0 = sigma*sigma;</span>
+
+<span class="fc" id="L597">		final Complex[] integrandEvaluations = new Complex[numberOfPoints];</span>
+
+<span class="fc bfc" id="L599" title="All 2 branches covered.">		for(int i = 0; i&lt;numberOfPoints; i++) {</span>
+
+<span class="fc" id="L601">			final double u = gridSpacing * i;</span>
+
+			//Integration over a line parallel to the real axis
+<span class="fc" id="L604">			final Complex z = new Complex(u,-lineOfIntegration);</span>
+
+			//The characteristic function is already discounted
+<span class="fc" id="L607">			final Complex numerator = hestonCharacteristicFunctionGradient(</span>
+<span class="fc" id="L608">					z.subtract(Complex.I), initialStockValue, riskFreeRate, discountRate, sigma,theta, kappa,xi,</span>
+					rho,
+					optionMaturity,
+					optionStrike,
+					whichGreek,
+					numberOfPoints,
+					gridSpacing);
+
+<span class="fc" id="L616">			final Complex denominator = ((z.subtract(Complex.I)).multiply(z)).negate();</span>
+<span class="fc" id="L617">			Complex ratio = numerator.divide(denominator);</span>
+<span class="fc" id="L618">			ratio = (ratio.multiply(((Complex.I).multiply(upperBound*u)).exp())).multiply(gridSpacing);</span>
+
+			double delta;
+<span class="fc bfc" id="L621" title="All 2 branches covered.">			if (i==0){</span>
+<span class="fc" id="L622">				delta=1.0;</span>
+			}else{
+<span class="fc" id="L624">				delta = 0.0;</span>
+			}
+<span class="fc" id="L626">			final double simpsonWeight = (3+Math.pow(-1,i+1)-delta)/3;</span>
+
+<span class="fc" id="L628">			integrandEvaluations[i] = ratio.multiply(simpsonWeight);</span>
+		}
+
+		//Compute the FFT
+<span class="fc" id="L632">		Complex[] transformedVector = new Complex[numberOfPoints];</span>
+<span class="fc" id="L633">		final FastFourierTransformer fft=new FastFourierTransformer(DftNormalization.STANDARD);</span>
+<span class="fc" id="L634">		transformedVector=	fft.transform(integrandEvaluations,TransformType.FORWARD);</span>
+
+		//Find relevant prices via interpolation
+<span class="fc" id="L637">		final double[] logStrikeVector = new double[numberOfPoints];</span>
+<span class="fc" id="L638">		final double[] strikeVector = new double[numberOfPoints];</span>
+<span class="fc" id="L639">		final double[] valuesVector = new double[numberOfPoints];</span>
+
+<span class="fc bfc" id="L641" title="All 2 branches covered.">		for(int j = 0; j&lt;numberOfPoints; j++) {</span>
+<span class="fc" id="L642">			logStrikeVector[j] = -upperBound+lambda*j;</span>
+<span class="fc" id="L643">			strikeVector[j] = Math.exp(logStrikeVector[j]);</span>
+<span class="fc" id="L644">			valuesVector[j] = (transformedVector[j].multiply(Math.exp(-lineOfIntegration * logStrikeVector[j]))).getReal()/Math.PI;</span>
+		}
+
+<span class="fc" id="L647">		final RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(strikeVector, valuesVector,intMethod, extMethod);</span>
+
+
+<span class="fc" id="L650">		final Function&lt;Double, Double&gt; strikeToValue = new Function&lt;Double, Double&gt;(){</span>
+
+			@Override
+			public Double apply(final Double t) {
+<span class="fc" id="L654">				return  interpolation.getValue(t);</span>
+			}
+
+		};
+
+<span class="fc" id="L659">		return strikeToValue.apply(optionStrike);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Cashflow.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">Cashflow.java</span></div><h1>Cashflow.java</h1><pre class="source lang-java linenums">/*
+ * Created on 22.11.2009
+ */
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A single deterministic cashflow at a fixed time
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class Cashflow extends AbstractProductComponent {
+
+	private static final long serialVersionUID = 2336470863786839896L;
+
+	private final double flowAmount;
+	private final double flowDate;
+	private final boolean isPayer;
+
+	/**
+	 * Create a single deterministic cashflow at a fixed time.
+	 *
+	 * @param currency The currency.
+	 * @param flowAmount The amount of the cash flow.
+	 * @param flowDate The flow date.
+	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
+	 */
+	public Cashflow(final String currency, final double flowAmount, final double flowDate, final boolean isPayer) {
+<span class="nc" id="L35">		super(currency);</span>
+<span class="nc" id="L36">		this.flowAmount = flowAmount;</span>
+<span class="nc" id="L37">		this.flowDate = flowDate;</span>
+<span class="nc" id="L38">		this.isPayer = isPayer;</span>
+<span class="nc" id="L39">	}</span>
+
+	/**
+	 * Create a single deterministic cashflow at a fixed time.
+	 *
+	 * @param flowAmount The amount of the cash flow.
+	 * @param flowDate The flow date.
+	 * @param isPayer If true, this cash flow will be multiplied by -1 prior valuation.
+	 */
+	public Cashflow(final double flowAmount, final double flowDate, final boolean isPayer) {
+<span class="nc" id="L49">		this(null, flowAmount, flowDate, isPayer);</span>
+<span class="nc" id="L50">	}</span>
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L54">		return null;</span>
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * cash-flows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// Note: We use &gt; here. To distinguish an end of day valuation use hour of day for cash flows and evaluation date.
+<span class="nc bnc" id="L71" title="All 2 branches missed.">		if(evaluationTime &gt; flowDate) {</span>
+<span class="nc" id="L72">			return model.getRandomVariableForConstant(0.0);</span>
+		}
+
+<span class="nc" id="L75">		RandomVariable values = model.getRandomVariableForConstant(flowAmount);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		if(isPayer) {</span>
+<span class="nc" id="L77">			values = values.mult(-1.0);</span>
+		}
+
+		// Rebase to evaluationTime
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if(flowDate != evaluationTime) {</span>
+			// Get random variables
+<span class="nc" id="L83">			final RandomVariable	numeraire				= model.getNumeraire(flowDate);</span>
+<span class="nc" id="L84">			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);</span>
+			//        RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(getPaymentDate());
+<span class="nc" id="L86">			values = values.div(numeraire).mult(numeraireAtEval);</span>
+		}
+
+		// Return values
+<span class="nc" id="L90">		return values;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L95">		return &quot;Cashflow [flowAmount=&quot; + flowAmount + &quot;, flowDate=&quot; + flowDate</span>
+<span class="nc" id="L96">				+ &quot;, isPayer=&quot; + isPayer + &quot;, toString()=&quot; + super.toString()</span>
+				+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,981 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HullWhiteModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models</a> &gt; <span class="el_source">HullWhiteModel.java</span></div><h1>HullWhiteModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate.models;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.logging.Logger;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
+import net.finmath.montecarlo.interestrate.LIBORModel;
+import net.finmath.montecarlo.interestrate.ShortRateModel;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelCalibrateable;
+import net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModelParametric;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements a Hull-White model with time dependent mean reversion speed and time dependent short rate volatility.
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Model Dynamics&lt;/b&gt;
+ * &lt;/p&gt;
+ *
+ * The Hull-While model assumes the following dynamic for the short rate:
+ * \[ d r(t) = ( \theta(t) - a(t) r(t) ) d t + \sigma(t) d W(t) \text{,} \quad r(t_{0}) = r_{0} \text{,} \]
+ * where the function \( \theta \) determines the calibration to the initial forward curve,
+ * \( a \) is the mean reversion and \( \sigma \) is the instantaneous volatility.
+ *
+ * The dynamic above is under the equivalent martingale measure corresponding to the numeraire
+ * \[ N(t) = \exp\left( \int_0^t r(\tau) \mathrm{d}\tau \right) \text{.} \]
+ *
+ * The main task of this class is to provide the risk-neutral drift and the volatility to the numerical scheme (given the volatility model), simulating
+ * \( r(t_{i}) \). The class then also provides and the corresponding numeraire and forward rates (LIBORs).
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Time Discrete Model&lt;/b&gt;
+ * &lt;/p&gt;
+ *
+ * Assuming piecewise constant coefficients (mean reversion speed \( a \) and short
+ * rate volatility \( \sigma \) the class specifies the drift and factor loadings as
+ * piecewise constant functions for an Euler-scheme.
+ * The class provides the exact Euler step for the joint distribution of
+ * \( (r,N) \), where \( r \) denotes the short rate and \( N \) denotes the
+ * numeraire, following the scheme in &lt;a href=&quot;http://ssrn.com/abstract=2737091&quot;&gt;ssrn.com/abstract=2737091&lt;/a&gt;.
+ *
+ * More specifically (assuming a constant mean reversion speed \( a \) for a moment), considering
+ * \[ \Delta \bar{r}(t_{i}) = \frac{1}{t_{i+1}-t_{i}} \int_{t_{i}}^{t_{i+1}} d r(t) \]
+ * we find from
+ * \[ \exp(-a t) \ \left( \mathrm{d} \left( \exp(a t) r(t) \right) \right) \ = \ a r(t) + \mathrm{d} r(t) \ = \ \theta(t) \mathrm{d}t + \sigma(t) \mathrm{d}W(t) \]
+ * that
+ * \[ \exp(a t_{i+1}) r(t_{i+1}) - \exp(a t_{i}) r(t_{i}) \ = \ \int_{t_{i}}^{t_{i+1}} \left[ \exp(a t) \theta(t) \mathrm{d}t + \exp(a t) \sigma(t) \mathrm{d}W(t) \right] \]
+ * that is
+ * \[ r(t_{i+1}) - r(t_{i}) \ = \ -(1-\exp(-a (t_{i+1}-t_{i})) r(t_{i}) + \int_{t_{i}}^{t_{i+1}} \left[ \exp(-a (t_{i+1}-t)) \theta(t) \mathrm{d}t + \exp(-a (t_{i+1}-t)) \sigma(t) \mathrm{d}W(t) \right] \]
+ *
+ * Assuming piecewise constant \( \sigma \) and \( \theta \), being constant over \( (t_{i},t_{i}+\Delta t_{i}) \), we thus find
+ * \[ r(t_{i+1}) - r(t_{i}) \ = \ \frac{1-\exp(-a \Delta t_{i})}{a \Delta t_{i}} \left( ( \theta(t_{i}) - a \bar{r}(t_{i})) \Delta t_{i} \right) + \sqrt{\frac{1-\exp(-2 a \Delta t_{i})}{2 a \Delta t_{i}}} \sigma(t_{i}) \Delta W(t_{i}) \] .
+ *
+ * In other words, the Euler scheme is exact if the mean reversion \( a \) is replaced by the effective mean reversion
+ * \( \frac{1-\exp(-a \Delta t_{i})}{a \Delta t_{i}} a \) and the volatility is replaced by the
+ * effective volatility \( \sqrt{\frac{1-\exp(-2 a \Delta t_{i})}{2 a \Delta t_{i}}} \sigma(t_{i}) \).
+ *
+ * In the calculations above the mean reversion speed is treated as a constants, but it is straight
+ * forward to see that the same holds for piecewise constant mean reversion speeds, replacing
+ * the expression \( a \ t \) by \( \int_{0}^t a(s) \mathrm{d}s \).
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Calibration&lt;/b&gt;
+ * &lt;/p&gt;
+ *
+ * The drift of the short rate is calibrated to the given forward curve using
+ * \[ \theta(t) = \frac{\partial}{\partial T} f(0,t) + a(t) f(0,t) + \phi(t) \text{,} \]
+ * where the function \( f \) denotes the instantanenous forward rate and
+ * \( \phi(t) = \frac{1}{2} a \sigma^{2}(t) B(t)^{2} + \sigma^{2}(t) B(t) \frac{\partial}{\partial t} B(t) \) with \( B(t) = \frac{1-\exp(-a t)}{a} \).
+ *
+ * &lt;p&gt;
+ * &lt;b&gt;Volatility Model&lt;/b&gt;
+ * &lt;/p&gt;
+ *
+ * The Hull-White model is essentially equivalent to LIBOR Market Model where the forward rate &lt;b&gt;normal&lt;/b&gt; volatility \( \sigma(t,T) \) is
+ * given by
+ * \[  \sigma(t,T_{i}) \ = \ (1 + L_{i}(t) (T_{i+1}-T_{i})) \sigma(t) \exp(-a (T_{i}-t)) \frac{1-\exp(-a (T_{i+1}-T_{i}))}{a (T_{i+1}-T_{i})} \]
+ * (where \( \{ T_{i} \} \) is the forward rates tenor time discretization (note that this is the &lt;b&gt;normal&lt;/b&gt; volatility, not the &lt;b&gt;log-normal&lt;/b&gt; volatility)
+ * (see &lt;a href=&quot;http://ssrn.com/abstract=2737091&quot;&gt;ssrn.com/abstract=2737091&lt;/a&gt; for details on the derivation).
+ * Hence, we interpret both, short rate mean reversion speed and short rate volatility as part of the &lt;i&gt;volatility model&lt;/i&gt;.
+ *
+ * The mean reversion speed and the short rate volatility have to be provided to this class via an object implementing
+ * {@link net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel}.
+ *
+ * This implementation supports different method for the interpolation of the curves.
+ * The property &lt;code&gt;&quot;isInterpolateDiscountFactorsOnLiborPeriodDiscretization&quot;&lt;/code&gt; is a boolean. If true, the
+ * given curves are used only at the discretization points given by &lt;code&gt;liborPeriodDiscretization&lt;/code&gt;.
+ * This implies that the model reports only a limited set of risk factors in the methods {@link HullWhiteModel#getModelParameters()}.
+ *
+ * @see net.finmath.montecarlo.interestrate.models.covariance.ShortRateVolatilityModel
+ * @see &lt;a href=&quot;http://ssrn.com/abstract=2737091&quot;&gt;ssrn.com/abstract=2737091&lt;/a&gt;
+ *
+ * @author Christian Fries
+ * @version 1.4
+ */
+public class HullWhiteModel extends AbstractProcessModel implements ShortRateModel, LIBORModel, Serializable {
+
+	private static final long serialVersionUID = 8677410149401310062L;
+
+<span class="fc" id="L126">	private static final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+	private final TimeDiscretization		liborPeriodDiscretization;
+
+	private String					forwardCurveName;
+	private final AnalyticModel			analyticModel;
+
+	private final ForwardCurve			forwardRateCurve;
+	private final DiscountCurve			discountCurve;
+	private final DiscountCurve			discountCurveFromForwardCurve;
+
+	private final RandomVariableFactory	randomVariableFactory;
+
+	private final ShortRateVolatilityModel volatilityModel;
+
+	private final Map&lt;String, Object&gt;	properties;
+
+	private final boolean isInterpolateDiscountFactorsOnLiborPeriodDiscretization;
+
+	/*
+	 * Cache
+	 */
+<span class="fc" id="L148">	private transient List&lt;RandomVariable&gt; numeraireDiscountFactors = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L149">	private transient List&lt;RandomVariable&gt; numeraireDiscountFactorForwardRates = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L150">	private transient List&lt;RandomVariable&gt; discountFactorFromForwardCurveCache = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L151">	private transient List&lt;RandomVariable&gt; forwardRateCache = new ArrayList&lt;&gt;();</span>
+
+	/**
+	 * Creates a Hull-White model which implements &lt;code&gt;LIBORMarketModel&lt;/code&gt;.
+	 *
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 * @param liborPeriodDiscretization The forward rate discretization to be used in the &lt;code&gt;getLIBOR&lt;/code&gt; method.
+	 * @param analyticModel The analytic model to be used (currently not used, may be null).
+	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
+	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
+	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
+	 * @param properties A map specifying model properties.
+	 */
+	public HullWhiteModel(
+			final RandomVariableFactory		randomVariableFactory,
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final Map&lt;String, Object&gt;			properties
+<span class="fc" id="L172">			) {</span>
+
+<span class="fc" id="L174">		this.randomVariableFactory		= randomVariableFactory;</span>
+<span class="fc" id="L175">		this.liborPeriodDiscretization	= liborPeriodDiscretization;</span>
+<span class="fc" id="L176">		this.analyticModel					= analyticModel;</span>
+<span class="fc" id="L177">		this.forwardRateCurve	= forwardRateCurve;</span>
+<span class="fc" id="L178">		this.discountCurve		= discountCurve;</span>
+<span class="fc" id="L179">		this.volatilityModel	= volatilityModel;</span>
+
+<span class="fc" id="L181">		this.properties = new HashMap&lt;&gt;();</span>
+<span class="pc bpc" id="L182" title="1 of 2 branches missed.">		if(properties != null) {</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">			for(final Map.Entry&lt;String,?&gt; property : properties.entrySet()) {</span>
+<span class="pc bpc" id="L184" title="1 of 2 branches missed.">				if(Serializable.class.isAssignableFrom(property.getValue().getClass())) {</span>
+<span class="fc" id="L185">					properties.put(property.getKey(), property.getValue());</span>
+				}
+				else {
+<span class="nc" id="L188">					logger.warning(&quot;Ignored non serializable property under the key &quot; + property.getKey() + &quot;:&quot; + property.getValue());</span>
+				}
+<span class="fc" id="L190">			}</span>
+		}
+
+<span class="fc" id="L193">		isInterpolateDiscountFactorsOnLiborPeriodDiscretization = (Boolean) this.properties.getOrDefault(&quot;isInterpolateDiscountFactorsOnLiborPeriodDiscretization&quot;, Boolean.valueOf(true));</span>
+<span class="fc" id="L194">		discountCurveFromForwardCurve = new DiscountCurveFromForwardCurve(forwardRateCurve);</span>
+<span class="fc" id="L195">	}</span>
+
+	/**
+	 * Creates a Hull-White model which implements &lt;code&gt;LIBORMarketModel&lt;/code&gt;.
+	 *
+	 * @param liborPeriodDiscretization The forward rate discretization to be used in the &lt;code&gt;getLIBOR&lt;/code&gt; method.
+	 * @param analyticModel The analytic model to be used (currently not used, may be null).
+	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
+	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
+	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
+	 * @param properties A map specifying model properties (currently not used, may be null).
+	 */
+	public HullWhiteModel(
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final Map&lt;String, Object&gt;			properties
+			) {
+<span class="fc" id="L215">		this(new RandomVariableFromArrayFactory(), liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);</span>
+<span class="fc" id="L216">	}</span>
+
+
+	/**
+	 * Creates a Hull-White model which implements &lt;code&gt;LIBORMarketModel&lt;/code&gt;.
+	 *
+	 * @param randomVariableFactory The randomVariableFactory
+	 * @param liborPeriodDiscretization The forward rate discretization to be used in the &lt;code&gt;getLIBOR&lt;/code&gt; method.
+	 * @param analyticModel The analytic model to be used (currently not used, may be null).
+	 * @param forwardRateCurve The forward curve to be used (currently not used, - the model uses disocuntCurve only.
+	 * @param discountCurve The disocuntCurve (currently also used to determine the forward curve).
+	 * @param volatilityModel The volatility model specifying mean reversion and instantaneous volatility of the short rate.
+	 * @param calibrationProducts The products to be used for calibration
+	 * @param properties The calibration properties
+	 * @return A (possibly calibrated) Hull White model.
+	 * @throws CalculationException Thrown if calibration fails.
+	 */
+	public static HullWhiteModel of(
+			final RandomVariableFactory		randomVariableFactory,
+			final TimeDiscretization			liborPeriodDiscretization,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final ShortRateVolatilityModel	volatilityModel,
+			final CalibrationProduct[]					calibrationProducts,
+			final Map&lt;String, Object&gt;					properties
+			) throws CalculationException {
+
+<span class="fc" id="L244">		final HullWhiteModel model = new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);</span>
+
+		// Perform calibration, if data is given
+<span class="pc bpc" id="L247" title="2 of 4 branches missed.">		if(calibrationProducts != null &amp;&amp; calibrationProducts.length &gt; 0) {</span>
+<span class="fc" id="L248">			ShortRateVolatilityModelCalibrateable volatilityModelParametric = null;</span>
+			try {
+<span class="fc" id="L250">				volatilityModelParametric = (ShortRateVolatilityModelCalibrateable)volatilityModel;</span>
+			}
+<span class="nc" id="L252">			catch(final Exception e) {</span>
+<span class="nc" id="L253">				throw new ClassCastException(&quot;Calibration restricted to covariance models implementing HullWhiteModelCalibrateable.&quot;);</span>
+<span class="fc" id="L254">			}</span>
+
+<span class="fc" id="L256">			Map&lt;String,Object&gt; calibrationParameters = null;</span>
+<span class="pc bpc" id="L257" title="2 of 4 branches missed.">			if(properties != null &amp;&amp; properties.containsKey(&quot;calibrationParameters&quot;)) {</span>
+<span class="fc" id="L258">				calibrationParameters	= (Map&lt;String,Object&gt;)properties.get(&quot;calibrationParameters&quot;);</span>
+			}
+
+<span class="fc" id="L261">			final ShortRateVolatilityModelCalibrateable volatilityModelCalibrated = volatilityModelParametric.getCloneCalibrated(model, calibrationProducts, calibrationParameters);</span>
+
+<span class="fc" id="L263">			final HullWhiteModel modelCalibrated = model.getCloneWithModifiedVolatilityModel(volatilityModelCalibrated);</span>
+
+<span class="fc" id="L265">			return modelCalibrated;</span>
+		}
+		else {
+<span class="nc" id="L268">			return model;</span>
+		}
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="fc" id="L274">		return LocalDateTime.of(discountCurve.getReferenceDate(), LocalTime.of(0, 0));</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L279">		return 2;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors()
+	{
+<span class="nc" id="L285">		return 1;</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L290">		return randomVariable;</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(MonteCarloProcess process, int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L295">		return randomVariable;</span>
+	}
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+		// Initial value is zero - BrownianMotion serves as a factory here.
+<span class="fc" id="L301">		final RandomVariable zero = getRandomVariableForConstant(0.0);</span>
+<span class="fc" id="L302">		return new RandomVariable[] { zero, zero };</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) throws CalculationException {
+<span class="pc bpc" id="L307" title="1 of 2 branches missed.">		if(time &lt; 0) {</span>
+<span class="nc" id="L308">			return randomVariableFactory.createRandomVariable(discountCurve.getDiscountFactor(analyticModel, time));</span>
+		}
+
+<span class="fc bfc" id="L311" title="All 2 branches covered.">		if(time == process.getTime(0)) {</span>
+			// Initial value of numeraire is one - BrownianMotion serves as a factory here.
+<span class="fc" id="L313">			final RandomVariable one = randomVariableFactory.createRandomVariable(1.0);</span>
+<span class="fc" id="L314">			return one;</span>
+		}
+
+<span class="fc" id="L317">		final int timeIndex = process.getTimeIndex(time);</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">		if(timeIndex &lt; 0) {</span>
+			/*
+			 * time is not part of the time discretization.
+			 */
+
+			// Find the time index prior to the current time (note: if time does not match a discretization point, we get a negative value, such that -index is next point).
+<span class="fc" id="L324">			int previousTimeIndex = process.getTimeIndex(time);</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">			if(previousTimeIndex &lt; 0) {</span>
+<span class="fc" id="L326">				previousTimeIndex = -previousTimeIndex-1;</span>
+			}
+<span class="fc" id="L328">			previousTimeIndex--;</span>
+<span class="fc" id="L329">			final double previousTime = process.getTime(previousTimeIndex);</span>
+<span class="fc" id="L330">			final double nextTime = process.getTime(previousTimeIndex+1);</span>
+
+			// Log-linear interpolation
+<span class="fc" id="L333">			return getNumeraire(process, previousTime).log().mult(nextTime-time)</span>
+<span class="fc" id="L334">					.add(getNumeraire(process, nextTime).log().mult(time-previousTime))</span>
+<span class="fc" id="L335">					.div(nextTime-previousTime).exp();</span>
+		}
+
+<span class="fc" id="L338">		final RandomVariable logNum = process.getProcessValue(timeIndex, 1).add(getV(0,time).mult(0.5));</span>
+
+<span class="fc" id="L340">		RandomVariable numeraireNormalized = logNum.exp();</span>
+
+		// Control variate on zero bond
+<span class="fc" id="L343">		numeraireNormalized = numeraireNormalized.mult(numeraireNormalized.invert().getAverage());</span>
+
+		// Apply discount factor scaling
+		RandomVariable discountFactor;
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">		if(discountCurve != null) {</span>
+<span class="fc" id="L348">			discountFactor =  getDiscountFactor(process, time).div(getDiscountFactorFromForwardCurve(process, time).getAverage()).mult(getDiscountFactorFromForwardCurve(process, time));</span>
+			//			discountFactor =  getDiscountFactor(time);
+		}
+		else {
+<span class="nc" id="L352">			discountFactor =  getDiscountFactorFromForwardCurve(process, time);</span>
+		}
+<span class="fc" id="L354">		final RandomVariable numeraire = numeraireNormalized.div(discountFactor);</span>
+
+<span class="fc" id="L356">		return numeraire;</span>
+	}
+
+	@Override
+	public RandomVariable getForwardDiscountBond(final MonteCarloProcess process, final double time, final double maturity) throws CalculationException {
+<span class="nc" id="L361">		final RandomVariable inverseForwardBondAsOfTime = getForwardRate(process, time, time, maturity).mult(maturity-time).add(1.0);</span>
+<span class="nc" id="L362">		final RandomVariable inverseForwardBondAsOfZero = getForwardRate(process, 0.0, time, maturity).mult(maturity-time).add(1.0);</span>
+<span class="nc" id="L363">		final RandomVariable forwardDiscountBondAsOfZero = getDiscountFactor(process, maturity).div(getDiscountFactor(process, time));</span>
+<span class="nc" id="L364">		return forwardDiscountBondAsOfZero.mult(inverseForwardBondAsOfZero).div(inverseForwardBondAsOfTime);</span>
+	}
+
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+
+<span class="fc" id="L370">		final double time = process.getTime(timeIndex);</span>
+<span class="fc" id="L371">		final double timeNext = process.getTime(timeIndex+1);</span>
+
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">		if(timeNext == time) {</span>
+<span class="nc" id="L374">			return new RandomVariable[] { null, null };</span>
+		}
+
+<span class="fc" id="L377">		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L378" title="All 2 branches covered.">		if(timeIndexVolatility &lt; 0) {</span>
+<span class="fc" id="L379">			timeIndexVolatility = -timeIndexVolatility-2;</span>
+		}
+<span class="fc" id="L381">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);</span>
+
+<span class="fc" id="L383">		final RandomVariable driftShortRate		= realizationAtTimeIndex[0].mult(meanReversion.mult(getB(time,timeNext).div(-1*(timeNext-time))));</span>
+<span class="fc" id="L384">		final RandomVariable driftLogNumeraire	= realizationAtTimeIndex[0].mult(getB(time,timeNext).div(timeNext-time));</span>
+
+<span class="fc" id="L386">		return new RandomVariable[] { driftShortRate, driftLogNumeraire };</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L391">		final double time = process.getTime(timeIndex);</span>
+<span class="fc" id="L392">		final double timeNext = process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L394">		int timeIndexVolatility = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L395" title="All 2 branches covered.">		if(timeIndexVolatility &lt; 0) {</span>
+<span class="fc" id="L396">			timeIndexVolatility = -timeIndexVolatility-2;</span>
+		}
+
+<span class="fc" id="L399">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatility);</span>
+<span class="fc" id="L400">		final RandomVariable meanReversionTimesTime = meanReversion.mult(-2.0 * (timeNext-time));</span>
+		// double scaling = Math.sqrt((1.0-Math.exp(-2.0 * meanReversion * (timeNext-time)))/(2.0 * meanReversion * (timeNext-time)));
+<span class="fc" id="L402">		final RandomVariable scaling = meanReversionTimesTime.exp().sub(1.0).div(meanReversionTimesTime).sqrt();</span>
+
+<span class="fc" id="L404">		final RandomVariable volatilityEffective = scaling.mult(volatilityModel.getVolatility(timeIndexVolatility));</span>
+
+		RandomVariable factorLoading1, factorLoading2;
+<span class="fc bfc" id="L407" title="All 2 branches covered.">		if(componentIndex == 0) {</span>
+			// Factor loadings for the short rate driver.
+<span class="fc" id="L409">			factorLoading1 = volatilityEffective;</span>
+<span class="fc" id="L410">			factorLoading2 = new Scalar(0.0);</span>
+		}
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">		else if(componentIndex == 1) {</span>
+			// Factor loadings for the numeraire driver.
+<span class="fc" id="L414">			final RandomVariable volatilityLogNumeraire = getV(time,timeNext).div(timeNext-time).sqrt();</span>
+<span class="fc" id="L415">			final RandomVariable rho = getDV(time,timeNext).div(timeNext-time).div(volatilityEffective.mult(volatilityLogNumeraire));</span>
+<span class="fc" id="L416">			factorLoading1 = volatilityLogNumeraire.mult(rho);</span>
+<span class="fc" id="L417">			factorLoading2 = volatilityLogNumeraire.mult(rho.squared().sub(1).mult(-1).sqrt());</span>
+<span class="fc" id="L418">		}</span>
+		else {
+<span class="nc" id="L420">			throw new IllegalArgumentException();</span>
+		}
+
+<span class="fc" id="L423">		return new RandomVariable[] { factorLoading1, factorLoading2 };</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L428">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) throws CalculationException
+	{
+<span class="fc" id="L434">		return getZeroCouponBond(process, time, periodStart).div(getZeroCouponBond(process, time, periodEnd)).sub(1.0).div(periodEnd-periodStart);</span>
+	}
+
+	@Override
+	public RandomVariable getLIBOR(final MonteCarloProcess process, final int timeIndex, final int liborIndex) throws CalculationException {
+<span class="nc" id="L439">		return getZeroCouponBond(process, process.getTime(timeIndex), getLiborPeriod(liborIndex)).div(getZeroCouponBond(process, process.getTime(timeIndex), getLiborPeriod(liborIndex+1))).sub(1.0).div(getLiborPeriodDiscretization().getTimeStep(liborIndex));</span>
+	}
+
+	@Override
+	public TimeDiscretization getLiborPeriodDiscretization() {
+<span class="fc" id="L444">		return liborPeriodDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfLibors() {
+<span class="fc" id="L449">		return liborPeriodDiscretization.getNumberOfTimeSteps();</span>
+	}
+
+	@Override
+	public double getLiborPeriod(final int timeIndex) {
+<span class="fc" id="L454">		return liborPeriodDiscretization.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getLiborPeriodIndex(final double time) {
+<span class="nc" id="L459">		return liborPeriodDiscretization.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public AnalyticModel getAnalyticModel() {
+<span class="fc" id="L464">		return analyticModel;</span>
+	}
+
+	@Override
+	public DiscountCurve getDiscountCurve() {
+<span class="fc" id="L469">		return discountCurve;</span>
+	}
+
+	@Override
+	public ForwardCurve getForwardRateCurve() {
+<span class="fc" id="L474">		return forwardRateCurve;</span>
+	}
+
+	@Override
+	public LIBORModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="nc bnc" id="L479" title="All 2 branches missed.">		if(dataModified == null) {</span>
+<span class="nc" id="L480">			return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);</span>
+		}
+
+<span class="nc" id="L483">		final RandomVariableFactory	newRandomVariableFactory	= (RandomVariableFactory) dataModified.getOrDefault(&quot;randomVariableFactory&quot;, randomVariableFactory);</span>
+<span class="nc" id="L484">		final ShortRateVolatilityModel		newVolatilityModel			= (ShortRateVolatilityModel) dataModified.getOrDefault(&quot;volatilityModel&quot;, volatilityModel);</span>
+
+<span class="nc" id="L486">		return new HullWhiteModel(newRandomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, newVolatilityModel, properties);</span>
+	}
+
+	/**
+	 * Returns the &quot;short rate&quot; from timeIndex to timeIndex+1.
+	 *
+	 * @param timeIndex The time index (corresponding to {@link MonteCarloProcess#getTime(int)}).
+	 * @return The &quot;short rate&quot; from timeIndex to timeIndex+1.
+	 * @throws CalculationException Thrown if simulation failed.
+	 */
+	private RandomVariable getShortRate(final MonteCarloProcess process, final int timeIndex) throws CalculationException {
+<span class="fc" id="L497">		final double time = process.getTime(timeIndex);</span>
+<span class="fc bfc" id="L498" title="All 2 branches covered.">		final double timePrev = timeIndex &gt; 0 ? process.getTime(timeIndex-1) : time;</span>
+<span class="fc" id="L499">		final double timeNext = process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L501">		final RandomVariable zeroRate = getZeroRateFromForwardCurve(process, time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);</span>
+
+<span class="fc" id="L503">		final RandomVariable alpha = getDV(0, time);</span>
+
+<span class="fc" id="L505">		RandomVariable value = process.getProcessValue(timeIndex, 0);</span>
+<span class="fc" id="L506">		value = value.add(alpha);</span>
+		//		value = value.sub(Math.log(value.exp().getAverage()));
+
+<span class="fc" id="L509">		value = value.add(zeroRate);</span>
+
+<span class="fc" id="L511">		return value;</span>
+	}
+
+	private RandomVariable getZeroCouponBond(final MonteCarloProcess process, final double time, final double maturity) throws CalculationException {
+<span class="fc" id="L515">		final int timeIndex = process.getTimeIndex(time);</span>
+<span class="fc bfc" id="L516" title="All 2 branches covered.">		if(timeIndex &lt; 0) {</span>
+<span class="fc" id="L517">			final int timeIndexLo = -timeIndex-1-1;</span>
+<span class="fc" id="L518">			final double timeLo = process.getTime(timeIndexLo);</span>
+<span class="fc" id="L519">			return getZeroCouponBond(process, timeLo, maturity).div(getZeroCouponBond(process, timeLo, time));</span>
+		}
+<span class="fc" id="L521">		final RandomVariable shortRate = getShortRate(process, timeIndex);</span>
+<span class="fc" id="L522">		final RandomVariable A = getA(process, time, maturity);</span>
+<span class="fc" id="L523">		final RandomVariable B = getB(time, maturity);</span>
+<span class="fc" id="L524">		return shortRate.mult(B.mult(-1)).exp().mult(A);</span>
+	}
+
+	/**
+	 * This is the shift alpha of the process, which essentially represents
+	 * the integrated drift of the short rate (without the interest rate curve related part).
+	 *
+	 * @param timeIndex Time index associated with the time discretization obtained from &lt;code&gt;getProcess&lt;/code&gt;
+	 * @return The integrated drift (integrating from 0 to getTime(timeIndex)).
+	 */
+	private RandomVariable getIntegratedDriftAdjustment(final MonteCarloProcess process, final int timeIndex) {
+<span class="nc" id="L535">		RandomVariable integratedDriftAdjustment = new Scalar(0.0);</span>
+<span class="nc bnc" id="L536" title="All 2 branches missed.">		for(int i=1; i&lt;=timeIndex; i++) {</span>
+<span class="nc" id="L537">			final double t = process.getTime(i-1);</span>
+<span class="nc" id="L538">			final double t2 = process.getTime(i);</span>
+
+<span class="nc" id="L540">			int timeIndexVolatilityModel = volatilityModel.getTimeDiscretization().getTimeIndex(t);</span>
+<span class="nc bnc" id="L541" title="All 2 branches missed.">			if(timeIndexVolatilityModel &lt; 0) {</span>
+<span class="nc" id="L542">				timeIndexVolatilityModel = -timeIndexVolatilityModel-2;	// Get timeIndex corresponding to previous point</span>
+			}
+<span class="nc" id="L544">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexVolatilityModel);</span>
+
+<span class="nc" id="L546">			integratedDriftAdjustment = integratedDriftAdjustment.add(getShortRateConditionalVariance(0, t).mult(getB(t,t2))).sub(integratedDriftAdjustment.mult(meanReversion.mult(getB(t,t2))));</span>
+		}
+<span class="nc" id="L548">		return integratedDriftAdjustment;</span>
+	}
+
+	/**
+	 * Returns A(t,T) where
+	 * \( A(t,T) = P(T)/P(t) \cdot exp(B(t,T) \cdot f(0,t) - \frac{1}{2} \phi(0,t) * B(t,T)^{2} ) \)
+	 * and
+	 * \( \phi(t,T) \) is the value calculated from integrating \( ( \sigma(s) exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau ) )^{2} \) with respect to s from t to T
+	 * in &lt;code&gt;getShortRateConditionalVariance&lt;/code&gt;.
+	 *
+	 * @param time The parameter t.
+	 * @param maturity The parameter T.
+	 * @return The value A(t,T).
+	 */
+	private RandomVariable getA(final MonteCarloProcess process, final double time, final double maturity) {
+<span class="fc" id="L563">		final int timeIndex = process.getTimeIndex(time);</span>
+<span class="fc" id="L564">		final double timeStep = process.getTimeDiscretization().getTimeStep(timeIndex);</span>
+
+<span class="fc" id="L566">		final RandomVariable zeroRate = getZeroRateFromForwardCurve(process, time); //getDiscountFactorFromForwardCurve(time).div(getDiscountFactorFromForwardCurve(timeNext)).log().div(timeNext-time);</span>
+
+<span class="fc" id="L568">		final RandomVariable forwardBond = getDiscountFactorFromForwardCurve(process, maturity).div(getDiscountFactorFromForwardCurve(process, time)).log();</span>
+
+<span class="fc" id="L570">		final RandomVariable B = getB(time,maturity);</span>
+
+<span class="fc" id="L572">		final RandomVariable lnA = B.mult(zeroRate).sub(B.squared().mult(getShortRateConditionalVariance(0,time).div(2))).add(forwardBond);</span>
+
+<span class="fc" id="L574">		return lnA.exp();</span>
+	}
+
+	/**
+	 * Calculates \( \int_{t}^{T} a(s) \mathrm{d}s \), where \( a \) is the mean reversion parameter.
+	 *
+	 * @param time The parameter t.
+	 * @param maturity The parameter T.
+	 * @return The value of \( \int_{t}^{T} a(s) \mathrm{d}s \).
+	 */
+	private RandomVariable getMRTime(final double time, final double maturity) {
+<span class="fc" id="L585">		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L586" title="All 2 branches covered.">		if(timeIndexStart &lt; 0) {</span>
+<span class="fc" id="L587">			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L590">		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);</span>
+<span class="fc bfc" id="L591" title="All 2 branches covered.">		if(timeIndexEnd &lt; 0) {</span>
+<span class="fc" id="L592">			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L595">		RandomVariable integral = new Scalar(0.0);</span>
+<span class="fc" id="L596">		double timePrev = time;</span>
+		double timeNext;
+<span class="fc bfc" id="L598" title="All 2 branches covered.">		for(int timeIndex=timeIndexStart+1; timeIndex&lt;=timeIndexEnd; timeIndex++) {</span>
+<span class="fc" id="L599">			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L600">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);</span>
+<span class="fc" id="L601">			integral = integral.add(meanReversion.mult(timeNext-timePrev));</span>
+<span class="fc" id="L602">			timePrev = timeNext;</span>
+		}
+<span class="fc" id="L604">		timeNext = maturity;</span>
+<span class="fc" id="L605">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);</span>
+<span class="fc" id="L606">		integral = integral.add(meanReversion.mult(timeNext-timePrev));</span>
+
+<span class="fc" id="L608">		return integral;</span>
+	}
+
+	/**
+	 * Calculates \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \), where a is the mean reversion parameter.
+	 * For a constant \( a \) this results in \( \frac{1-\exp(-a (T-t)}{a} \), but the method also supports piecewise constant \( a \)'s.
+	 *
+	 * @param time The parameter t.
+	 * @param maturity The parameter T.
+	 * @return The value of B(t,T).
+	 */
+	private RandomVariable getB(final double time, final double maturity) {
+<span class="fc" id="L620">		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L621" title="All 2 branches covered.">		if(timeIndexStart &lt; 0) {</span>
+<span class="fc" id="L622">			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L625">		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);</span>
+<span class="fc bfc" id="L626" title="All 2 branches covered.">		if(timeIndexEnd &lt; 0) {</span>
+<span class="fc" id="L627">			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L630">		RandomVariable integral = new Scalar(0.0);</span>
+<span class="fc" id="L631">		double timePrev = time;</span>
+		double timeNext;
+<span class="fc bfc" id="L633" title="All 2 branches covered.">		for(int timeIndex=timeIndexStart+1; timeIndex&lt;=timeIndexEnd; timeIndex++) {</span>
+<span class="fc" id="L634">			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L635">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);</span>
+<span class="fc" id="L636">			integral = integral.add(</span>
+<span class="fc" id="L637">					getMRTime(timeNext,maturity).mult(-1.0).exp().sub(</span>
+<span class="fc" id="L638">							getMRTime(timePrev,maturity).mult(-1.0).exp()).div(meanReversion));</span>
+<span class="fc" id="L639">			timePrev = timeNext;</span>
+		}
+<span class="fc" id="L641">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);</span>
+<span class="fc" id="L642">		timeNext = maturity;</span>
+<span class="fc" id="L643">		integral = integral.add(</span>
+<span class="fc" id="L644">				getMRTime(timeNext,maturity).mult(-1.0).exp().sub(</span>
+<span class="fc" id="L645">						getMRTime(timePrev,maturity).mult(-1.0).exp()).div(meanReversion));</span>
+
+<span class="fc" id="L647">		return integral;</span>
+	}
+
+	/**
+	 * Calculates the drift adjustment for the log numeraire, that is
+	 * \(
+	 * \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s
+	 * \) where \( B(t,T) = \int_{t}^{T} \exp(-\int_{s}^{T} a(\tau) \mathrm{d}\tau) \mathrm{d}s \).
+	 *
+	 * @param time The parameter t in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
+	 * @param maturity The parameter T in \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \)
+	 * @return The integral \( \int_{t}^{T} \sigma^{2}(s) B(s,T)^{2} \mathrm{d}s \).
+	 */
+	private RandomVariable getV(final double time, final double maturity) {
+<span class="pc bpc" id="L661" title="1 of 2 branches missed.">		if(time ==  maturity) {</span>
+<span class="nc" id="L662">			return new Scalar(0.0);</span>
+		}
+<span class="fc" id="L664">		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L665" title="All 2 branches covered.">		if(timeIndexStart &lt; 0) {</span>
+<span class="fc" id="L666">			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L669">		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);</span>
+<span class="fc bfc" id="L670" title="All 2 branches covered.">		if(timeIndexEnd &lt; 0) {</span>
+<span class="fc" id="L671">			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L674">		RandomVariable integral = new Scalar(0.0);</span>
+<span class="fc" id="L675">		double timePrev = time;</span>
+		double timeNext;
+<span class="fc" id="L677">		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-1).exp();</span>
+<span class="fc bfc" id="L678" title="All 2 branches covered.">		for(int timeIndex=timeIndexStart+1; timeIndex&lt;=timeIndexEnd; timeIndex++) {</span>
+<span class="fc" id="L679">			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L680">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);</span>
+<span class="fc" id="L681">			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);</span>
+<span class="fc" id="L682">			final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());</span>
+<span class="fc" id="L683">			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();</span>
+<span class="fc" id="L684">			integral = integral.add(volatilityPerMeanReversionSquared.mult(</span>
+<span class="fc" id="L685">					expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)</span>
+<span class="fc" id="L686">					.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))</span>
+<span class="fc" id="L687">					.add(timeNext-timePrev)</span>
+					));
+<span class="fc" id="L689">			timePrev = timeNext;</span>
+<span class="fc" id="L690">			expMRTimePrev = expMRTimeNext;</span>
+		}
+<span class="fc" id="L692">		timeNext = maturity;</span>
+<span class="fc" id="L693">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);</span>
+<span class="fc" id="L694">		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);</span>
+<span class="fc" id="L695">		final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());</span>
+<span class="fc" id="L696">		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();</span>
+<span class="fc" id="L697">		integral = integral.add(volatilityPerMeanReversionSquared.mult(</span>
+<span class="fc" id="L698">				expMRTimeNext.sub(expMRTimePrev).mult(-2).div(meanReversion)</span>
+<span class="fc" id="L699">				.add( expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(meanReversion).div(2.0))</span>
+<span class="fc" id="L700">				.add(timeNext-timePrev)</span>
+				));
+
+<span class="fc" id="L703">		return integral;</span>
+	}
+
+	private RandomVariable getDV(final double time, final double maturity) {
+<span class="fc bfc" id="L707" title="All 2 branches covered.">		if(time==maturity) {</span>
+<span class="fc" id="L708">			return new Scalar(0.0);</span>
+		}
+<span class="fc" id="L710">		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="fc bfc" id="L711" title="All 2 branches covered.">		if(timeIndexStart &lt; 0) {</span>
+<span class="fc" id="L712">			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to next point</span>
+		}
+
+<span class="fc" id="L715">		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);</span>
+<span class="fc bfc" id="L716" title="All 2 branches covered.">		if(timeIndexEnd &lt; 0) {</span>
+<span class="fc" id="L717">			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L720">		RandomVariable integral = new Scalar(0.0);</span>
+<span class="fc" id="L721">		double timePrev = time;</span>
+		double timeNext;
+<span class="fc" id="L723">		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-1).exp();</span>
+<span class="fc bfc" id="L724" title="All 2 branches covered.">		for(int timeIndex=timeIndexStart+1; timeIndex&lt;=timeIndexEnd; timeIndex++) {</span>
+<span class="fc" id="L725">			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L726">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);</span>
+<span class="fc" id="L727">			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);</span>
+<span class="fc" id="L728">			final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());</span>
+<span class="fc" id="L729">			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();</span>
+<span class="fc" id="L730">			integral = integral.add(volatilityPerMeanReversionSquared.mult(</span>
+<span class="fc" id="L731">					expMRTimeNext.sub(expMRTimePrev).add(</span>
+<span class="fc" id="L732">							expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(-2.0)</span>
+							) ));
+<span class="fc" id="L734">			timePrev = timeNext;</span>
+<span class="fc" id="L735">			expMRTimePrev = expMRTimeNext;</span>
+		}
+<span class="fc" id="L737">		timeNext = maturity;</span>
+<span class="fc" id="L738">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);</span>
+<span class="fc" id="L739">		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);</span>
+<span class="fc" id="L740">		final RandomVariable volatilityPerMeanReversionSquared = volatility.squared().div(meanReversion.squared());</span>
+<span class="fc" id="L741">		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-1).exp();</span>
+<span class="fc" id="L742">		integral = integral.add(volatilityPerMeanReversionSquared.mult(</span>
+<span class="fc" id="L743">				expMRTimeNext.sub(expMRTimePrev).add(</span>
+<span class="fc" id="L744">						expMRTimeNext.squared().sub(expMRTimePrev.squared()).div(-2.0)</span>
+						) ));
+
+<span class="fc" id="L747">		return integral;</span>
+	}
+
+	/**
+	 * Calculates the variance \( \mathop{Var}(r(t) \vert r(s) ) \), that is
+	 * \(
+	 * \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau
+	 * \) where \( a \) is the meanReversion and \( \sigma \) is the short rate instantaneous volatility.
+	 *
+	 * @param time The parameter s in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
+	 * @param maturity The parameter t in \( \int_{s}^{t} \sigma^{2}(\tau) \exp(-2 \cdot \int_{\tau}^{t} a(u) \mathrm{d}u ) \ \mathrm{d}\tau \)
+	 * @return The conditional variance of the short rate, \( \mathop{Var}(r(t) \vert r(s) ) \).
+	 */
+	public RandomVariable getShortRateConditionalVariance(final double time, final double maturity) {
+<span class="fc" id="L761">		int timeIndexStart = volatilityModel.getTimeDiscretization().getTimeIndex(time);</span>
+<span class="pc bpc" id="L762" title="1 of 2 branches missed.">		if(timeIndexStart &lt; 0) {</span>
+<span class="nc" id="L763">			timeIndexStart = -timeIndexStart-2;	// Get timeIndex corresponding to next point</span>
+		}
+
+<span class="fc" id="L766">		int timeIndexEnd =volatilityModel.getTimeDiscretization().getTimeIndex(maturity);</span>
+<span class="fc bfc" id="L767" title="All 2 branches covered.">		if(timeIndexEnd &lt; 0) {</span>
+<span class="fc" id="L768">			timeIndexEnd = -timeIndexEnd-2;	// Get timeIndex corresponding to previous point</span>
+		}
+
+<span class="fc" id="L771">		RandomVariable integral = new Scalar(0.0);</span>
+<span class="fc" id="L772">		double timePrev = time;</span>
+		double timeNext;
+<span class="fc" id="L774">		RandomVariable expMRTimePrev = getMRTime(timePrev,maturity).mult(-2).exp();</span>
+<span class="fc bfc" id="L775" title="All 2 branches covered.">		for(int timeIndex=timeIndexStart+1; timeIndex&lt;=timeIndexEnd; timeIndex++) {</span>
+<span class="fc" id="L776">			timeNext = volatilityModel.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L777">			final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndex-1);</span>
+<span class="fc" id="L778">			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex-1);</span>
+<span class="fc" id="L779">			final RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);</span>
+<span class="fc" id="L780">			final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();</span>
+<span class="fc" id="L781">			integral = integral.add(volatilitySquaredPerMeanReversion.mult(expMRTimeNext.sub(expMRTimePrev).div(2))</span>
+					);
+<span class="fc" id="L783">			timePrev = timeNext;</span>
+<span class="fc" id="L784">			expMRTimePrev = expMRTimeNext;</span>
+		}
+<span class="fc" id="L786">		timeNext = maturity;</span>
+<span class="fc" id="L787">		final RandomVariable meanReversion = volatilityModel.getMeanReversion(timeIndexEnd);</span>
+<span class="fc" id="L788">		final RandomVariable volatility = volatilityModel.getVolatility(timeIndexEnd);</span>
+<span class="fc" id="L789">		final RandomVariable volatilitySquaredPerMeanReversion = volatility.squared().div(meanReversion);</span>
+<span class="fc" id="L790">		final RandomVariable expMRTimeNext = getMRTime(timeNext,maturity).mult(-2).exp();</span>
+<span class="fc" id="L791">		integral = integral.add(volatilitySquaredPerMeanReversion.mult(expMRTimeNext.sub(expMRTimePrev).div(2))</span>
+				);
+
+<span class="fc" id="L794">		return integral;</span>
+	}
+
+	public RandomVariable getIntegratedBondSquaredVolatility(final double time, final double maturity) {
+<span class="fc" id="L798">		return getShortRateConditionalVariance(0, time).mult(getB(time,maturity).squared());</span>
+	}
+
+	@Override
+	public HullWhiteModel getCloneWithModifiedVolatilityModel(final ShortRateVolatilityModel volatilityModel) {
+<span class="fc" id="L803">		return new HullWhiteModel(randomVariableFactory, liborPeriodDiscretization, analyticModel, forwardRateCurve, discountCurve, volatilityModel, properties);</span>
+	}
+
+	@Override
+	public ShortRateVolatilityModel getVolatilityModel() {
+<span class="fc" id="L808">		return volatilityModel;</span>
+	}
+
+	@Override
+	public Map&lt;String, RandomVariable&gt; getModelParameters() {
+		// TODO Will remember last used process as a chache.
+<span class="nc" id="L814">		final MonteCarloProcess process = null;</span>
+
+<span class="nc" id="L816">		final Map&lt;String, RandomVariable&gt; modelParameters = new TreeMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L818" title="All 2 branches missed.">		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+
+		// Add initial values
+<span class="nc bnc" id="L821" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretizationForCurves.getNumberOfTimes()-1; timeIndex++) {</span>
+<span class="nc" id="L822">			modelParameters.put(&quot;FORWARDRATE(&quot;+ timeDiscretizationForCurves.getTime(timeIndex) + &quot;)&quot;, getForwardRateInitialValue(process, timeIndex));</span>
+		}
+
+		// Add volatilities
+<span class="nc bnc" id="L826" title="All 2 branches missed.">		if(volatilityModel instanceof ShortRateVolatilityModelParametric) {</span>
+<span class="nc" id="L827">			final RandomVariable[] parameters = ((ShortRateVolatilityModelParametric) volatilityModel).getParameter();</span>
+
+<span class="nc bnc" id="L829" title="All 2 branches missed.">			for(int volatilityModelParameterIndex=0; volatilityModelParameterIndex&lt;parameters.length; volatilityModelParameterIndex++) {</span>
+<span class="nc" id="L830">				modelParameters.put(&quot;VOLATILITYMODELPARAMETER(&quot;+ volatilityModelParameterIndex + &quot;)&quot;, parameters[volatilityModelParameterIndex]);</span>
+			}
+		}
+
+		// Add numeraire adjustments
+		// TODO Trigger lazy init
+		// Add initial values
+<span class="nc bnc" id="L837" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;timeDiscretizationForCurves.getNumberOfTimes()-1; timeIndex++) {</span>
+<span class="nc" id="L838">			modelParameters.put(&quot;NUMERAIREADJUSTMENTFORWARD(&quot;+ timeDiscretizationForCurves.getTime(timeIndex) + &quot;)&quot;, numeraireDiscountFactorForwardRates.get(timeIndex));</span>
+		}
+
+<span class="nc" id="L841">		return modelParameters;</span>
+	}
+
+	private RandomVariable getDiscountFactor(final MonteCarloProcess process, final double time) {
+<span class="pc bpc" id="L845" title="1 of 2 branches missed.">		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+<span class="fc" id="L846">		final int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);</span>
+<span class="pc bpc" id="L847" title="1 of 2 branches missed.">		if(timeIndex &gt;= 0) {</span>
+<span class="fc" id="L848">			return getDiscountFactor(process, timeIndex);</span>
+		}
+		else {
+			// Interpolation
+<span class="nc" id="L852">			final int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);</span>
+<span class="nc" id="L853">			final int timeIndexNext = timeIndexPrev+1;</span>
+<span class="nc" id="L854">			final double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);</span>
+<span class="nc" id="L855">			final double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);</span>
+<span class="nc" id="L856">			final RandomVariable discountFactorPrev = getDiscountFactor(process, timeIndexPrev);</span>
+<span class="nc" id="L857">			final RandomVariable discountFactorNext = getDiscountFactor(process, timeIndexNext);</span>
+<span class="nc" id="L858">			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));</span>
+		}
+	}
+
+	private RandomVariable getDiscountFactor(final MonteCarloProcess process, final int timeIndex) {
+<span class="pc bpc" id="L863" title="1 of 2 branches missed.">		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+<span class="fc" id="L864">		final double time = timeDiscretizationForCurves.getTime(timeIndex);</span>
+
+<span class="fc" id="L866">		synchronized(numeraireDiscountFactorForwardRates) {</span>
+<span class="fc bfc" id="L867" title="All 2 branches covered.">			if(numeraireDiscountFactors.size() == 0) {</span>
+<span class="fc" id="L868">				final double dfInitial = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(0));</span>
+<span class="fc" id="L869">				RandomVariable deterministicNumeraireAdjustment</span>
+<span class="fc" id="L870">				= randomVariableFactory.createRandomVariable(dfInitial);</span>
+<span class="fc" id="L871">				numeraireDiscountFactors.add(0, deterministicNumeraireAdjustment);</span>
+
+<span class="fc bfc" id="L873" title="All 2 branches covered.">				for(int i=0; i&lt;timeDiscretizationForCurves.getNumberOfTimeSteps(); i++) {</span>
+<span class="fc" id="L874">					final double dfPrev = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));</span>
+<span class="fc" id="L875">					final double dfNext = discountCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));</span>
+<span class="fc" id="L876">					final double timeStep = timeDiscretizationForCurves.getTimeStep(i);</span>
+<span class="fc" id="L877">					final double timeNext = timeDiscretizationForCurves.getTime(i+1);</span>
+<span class="fc" id="L878">					final RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeStep);</span>
+<span class="fc" id="L879">					numeraireDiscountFactorForwardRates.add(i, forwardRate);</span>
+<span class="fc" id="L880">					deterministicNumeraireAdjustment = deterministicNumeraireAdjustment.discount(forwardRate, timeStep);</span>
+<span class="fc" id="L881">					numeraireDiscountFactors.add(i+1, deterministicNumeraireAdjustment);</span>
+				}
+			}
+<span class="fc" id="L884">			final RandomVariable deterministicNumeraireAdjustment = numeraireDiscountFactors.get(timeIndex);</span>
+<span class="fc" id="L885">			return deterministicNumeraireAdjustment;</span>
+		}
+	}
+
+	private RandomVariable getZeroRateFromForwardCurve(final MonteCarloProcess process, final double time) {
+<span class="pc bpc" id="L890" title="1 of 2 branches missed.">		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+
+<span class="fc" id="L892">		int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);</span>
+<span class="pc bpc" id="L893" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L894">			timeIndex = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);</span>
+		}
+
+<span class="fc" id="L897">		final double timeStep = timeDiscretizationForCurves.getTimeStep(timeIndex);</span>
+<span class="fc" id="L898">		return getDiscountFactorFromForwardCurve(process, timeIndex).div(getDiscountFactorFromForwardCurve(process, timeIndex)).log().div(timeStep);</span>
+	}
+
+	private RandomVariable getDiscountFactorFromForwardCurve(final MonteCarloProcess process, final double time) {
+<span class="pc bpc" id="L902" title="1 of 2 branches missed.">		final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+<span class="fc" id="L903">		final int timeIndex = timeDiscretizationForCurves.getTimeIndex(time);</span>
+<span class="fc bfc" id="L904" title="All 2 branches covered.">		if(timeIndex &gt;= 0) {</span>
+<span class="fc" id="L905">			return getDiscountFactorFromForwardCurve(process, timeIndex);</span>
+		}
+		else {
+<span class="fc" id="L908">			final int timeIndexPrev = Math.min(-timeIndex-2, getLiborPeriodDiscretization().getNumberOfTimes()-2);</span>
+<span class="fc" id="L909">			final int timeIndexNext = timeIndexPrev+1;</span>
+<span class="fc" id="L910">			final double timePrev = timeDiscretizationForCurves.getTime(timeIndexPrev);</span>
+<span class="fc" id="L911">			final double timeNext = timeDiscretizationForCurves.getTime(timeIndexNext);</span>
+<span class="fc" id="L912">			final RandomVariable discountFactorPrev = getDiscountFactorFromForwardCurve(process, timeIndexPrev);</span>
+<span class="fc" id="L913">			final RandomVariable discountFactorNext = getDiscountFactorFromForwardCurve(process, timeIndexNext);</span>
+<span class="fc" id="L914">			return discountFactorPrev.mult(discountFactorNext.div(discountFactorPrev).pow((time-timePrev)/(timeNext-timePrev)));</span>
+		}
+	}
+
+	private RandomVariable getDiscountFactorFromForwardCurve(final MonteCarloProcess process, final int timeIndex) {
+<span class="fc" id="L919">		synchronized(discountFactorFromForwardCurveCache) {</span>
+<span class="fc bfc" id="L920" title="All 2 branches covered.">			if(discountFactorFromForwardCurveCache.size() &lt;= timeIndex) {</span>
+				// Initialize cache
+<span class="pc bpc" id="L922" title="1 of 2 branches missed.">				final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+<span class="fc bfc" id="L923" title="All 2 branches covered.">				for(int i=discountFactorFromForwardCurveCache.size(); i&lt;=timeIndex; i++) {</span>
+					RandomVariable dfAsRandomVariable;
+<span class="fc bfc" id="L925" title="All 2 branches covered.">					if(i == 0) {</span>
+<span class="fc" id="L926">						final double df = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));</span>
+<span class="fc" id="L927">						dfAsRandomVariable = randomVariableFactory.createRandomVariable(df);</span>
+<span class="fc" id="L928">					}</span>
+					else {
+<span class="fc" id="L930">						final RandomVariable dfPrevious = discountFactorFromForwardCurveCache.get(i-1);</span>
+<span class="fc" id="L931">						final RandomVariable forwardRate = getForwardRateInitialValue(process, i-1);</span>
+<span class="fc" id="L932">						dfAsRandomVariable = dfPrevious.div(forwardRate.mult(timeDiscretizationForCurves.getTimeStep(i-1)).add(1.0));</span>
+					}
+<span class="fc" id="L934">					discountFactorFromForwardCurveCache.add(dfAsRandomVariable);</span>
+				}
+			}
+<span class="fc" id="L937">		}</span>
+
+<span class="fc" id="L939">		return discountFactorFromForwardCurveCache.get(timeIndex);</span>
+	}
+
+	private RandomVariable getForwardRateInitialValue(final MonteCarloProcess process, final int timeIndex) {
+<span class="fc" id="L943">		synchronized(forwardRateCache) {</span>
+<span class="pc bpc" id="L944" title="1 of 2 branches missed.">			if(forwardRateCache.size() &lt;= timeIndex) {</span>
+				// Initialize cache
+<span class="pc bpc" id="L946" title="1 of 2 branches missed.">				final TimeDiscretization timeDiscretizationForCurves = isInterpolateDiscountFactorsOnLiborPeriodDiscretization ? liborPeriodDiscretization : process.getTimeDiscretization();</span>
+<span class="fc bfc" id="L947" title="All 2 branches covered.">				for(int i=forwardRateCache.size(); i&lt;=timeIndex; i++) {</span>
+<span class="fc" id="L948">					final double dfPrev = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i));</span>
+<span class="fc" id="L949">					final double dfNext = discountCurveFromForwardCurve.getDiscountFactor(analyticModel, timeDiscretizationForCurves.getTime(i+1));</span>
+<span class="fc" id="L950">					final RandomVariable forwardRate = randomVariableFactory.createRandomVariable((dfPrev / dfNext - 1.0) / timeDiscretizationForCurves.getTimeStep(i));</span>
+<span class="fc" id="L951">					forwardRateCache.add(forwardRate);</span>
+				}
+			}
+<span class="fc" id="L954">		}</span>
+<span class="fc" id="L955">		return forwardRateCache.get(timeIndex);</span>
+	}
+
+	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+<span class="nc" id="L959">		in.defaultReadObject();</span>
+
+		/*
+		 * Init transient fields
+		 */
+<span class="nc" id="L964">		numeraireDiscountFactors = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L965">		numeraireDiscountFactorForwardRates = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L966">		discountFactorFromForwardCurveCache = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L967">		forwardRateCache = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L968">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L972">		return &quot;HullWhiteModel [liborPeriodDiscretization=&quot; + liborPeriodDiscretization + &quot;, forwardCurveName=&quot;</span>
+				+ forwardCurveName + &quot;, analyticModel=&quot; + analyticModel + &quot;, forwardRateCurve=&quot; + forwardRateCurve
+				+ &quot;, discountCurve=&quot; + discountCurve + &quot;, discountCurveFromForwardCurve=&quot;
+				+ discountCurveFromForwardCurve + &quot;, randomVariableFactory=&quot; + randomVariableFactory
+				+ &quot;, volatilityModel=&quot; + volatilityModel + &quot;, properties=&quot; + properties
+				+ &quot;, isInterpolateDiscountFactorsOnLiborPeriodDiscretization=&quot;
+				+ isInterpolateDiscountFactorsOnLiborPeriodDiscretization + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

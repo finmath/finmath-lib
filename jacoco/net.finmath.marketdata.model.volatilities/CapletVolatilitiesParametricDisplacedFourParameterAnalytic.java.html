@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CapletVolatilitiesParametricDisplacedFourParameterAnalytic.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">CapletVolatilitiesParametricDisplacedFourParameterAnalytic.java</span></div><h1>CapletVolatilitiesParametricDisplacedFourParameterAnalytic.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 30.08.2014
+ */
+
+package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+
+/**
+ * A parametric caplet volatility surface created form the four parameter model
+ * for the instantaneous &lt;i&gt;displaced&lt;/i&gt; forward rate lognormal volatility given by
+ * \( \sigma(t) = (a + b t) \exp(- c t) + d \).
+ *
+ * In other words, the Black volatility of the &lt;i&gt;displaced&lt;/i&gt; rate for maturity T is given by
+ * \[ \sqrt{ \frac{1}{T} \int_0^T ((a + b t) \exp(- c t) + d)^2 dt } \].
+ *
+ * The displacement may be either set as a fixed parameter (isDisplacementCalibrateable = false) or
+ * as a free parameter (isDisplacementCalibrateable = true). This will alter the behavior of
+ * the getCloneForParameter method which either requires a double[4] or a double[5] argument.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CapletVolatilitiesParametricDisplacedFourParameterAnalytic extends AbstractVolatilitySurfaceParametric {
+
+	private final double timeScaling;
+	private final double a,b,c,d;
+	private final double displacement;
+	private final boolean isDisplacementCalibrateable;
+
+	/**
+	 * Create a model with parameters a,b,c,d defining a displaced lognormal volatility surface.
+	 *
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param discountCurve The associated discount curve.
+	 * @param displacement The displacement for the forward rate.
+	 * @param isDisplacementCalibrateable Boolean specifying if the displacement parameter is considered a free parameter of the model.
+	 * @param a The parameter a
+	 * @param b The parameter b
+	 * @param c The parameter c
+	 * @param d The parameter d
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 */
+	public CapletVolatilitiesParametricDisplacedFourParameterAnalytic(final String name, final LocalDate referenceDate,
+			final ForwardCurve forwardCurve,
+			final DiscountCurve discountCurve,
+			final double displacement, final boolean isDisplacementCalibrateable,
+			final double a, final double b, final double c, final double d, final double timeScaling) {
+<span class="nc" id="L58">		super(name, referenceDate, forwardCurve, discountCurve, QuotingConvention.VOLATILITYLOGNORMAL, null);</span>
+<span class="nc" id="L59">		this.timeScaling = timeScaling;</span>
+<span class="nc" id="L60">		this.displacement = displacement;</span>
+<span class="nc" id="L61">		this.isDisplacementCalibrateable = isDisplacementCalibrateable;</span>
+<span class="nc" id="L62">		this.a = a;</span>
+<span class="nc" id="L63">		this.b = b;</span>
+<span class="nc" id="L64">		this.c = c;</span>
+<span class="nc" id="L65">		this.d = d;</span>
+<span class="nc" id="L66">	}</span>
+
+	@Override
+	public double getValue(final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="nc" id="L70">		return getValue(null, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		if(maturity == 0) {</span>
+<span class="nc" id="L76">			return 0;</span>
+		}
+
+<span class="nc" id="L79">		final double T = maturity * timeScaling;</span>
+
+		/*
+		 * Integral of the square of the instantaneous volatility function
+		 * ((a + b * T) * Math.exp(- c * T) + d);
+		 */
+		double integratedVariance;
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if(c != 0) {</span>
+			/*
+			 * http://www.wolframalpha.com/input/?i=integrate+%28%28a+%2B+b+*+t%29+*+exp%28-+c+*+t%29+%2B+d%29%5E2+from+0+to+T
+			 * integral_0^T ((a+b t) exp(-(c t))+d)^2  dt = 1/4 ((e^(-2 c T) (-2 a^2 c^2-2 a b c (2 c T+1)+b^2 (-(2 c T (c T+1)+1))))/c^3+(2 a^2 c^2+2 a b c+b^2)/c^3-(8 d e^(-c T) (a c+b c T+b))/c^2+(8 d (a c+b))/c^2+4 d^2 T)
+			 */
+<span class="nc" id="L91">			integratedVariance = a*a*T*((1-Math.exp(-2*c*T))/(2*c*T))</span>
+<span class="nc" id="L92">					+ a*b*T*T*(((1 - Math.exp(-2*c*T))/(2*c*T) - Math.exp(-2*c*T))/(c*T))</span>
+<span class="nc" id="L93">					+ 2*a*d*T*((1-Math.exp(-c*T))/(c*T))</span>
+<span class="nc" id="L94">					+ b*b*T*T*T*(((((1-Math.exp(-2*c*T))/(2*c*T)-Math.exp(-2*c*T))/(T*c)-Math.exp(-2*c*T)))/(2*c*T))</span>
+<span class="nc" id="L95">					+ 2*b*d*T*T*(((1-Math.exp(-c*T))-T*c*Math.exp(-c*T))/(c*c*T*T))</span>
+					+ d*d*T;
+		}
+		else {
+			/*
+			 * http://www.wolframalpha.com/input/?i=expand+%28integrate+%28%28a+%2B+b+*+t%29+%2B+d%29%5E2+from+0+to+T%29
+			 */
+<span class="nc" id="L102">			integratedVariance = a*a*T + a*b*T*T + 2*a*d*T + (b*b*T*T*T)/3.0 + b*d*T*T + d*d*T;</span>
+		}
+
+<span class="nc" id="L105">		final double value = Math.sqrt(integratedVariance/maturity);</span>
+
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if(getDiscountCurve() == null) {</span>
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;Missing discount curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;);</span>
+		}
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if(getForwardCurve() == null) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;Missing forward curve. Conversion of QuotingConvention requires forward curve and discount curve to be set.&quot;);</span>
+		}
+
+<span class="nc" id="L114">		final double periodStart = maturity;</span>
+<span class="nc" id="L115">		final double periodEnd = periodStart + getForwardCurve().getPaymentOffset(periodStart);</span>
+
+<span class="nc" id="L117">		final double forward = getForwardCurve().getForward(model, periodStart);</span>
+
+		double daycountFraction;
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		if(getDaycountConvention() != null) {</span>
+<span class="nc" id="L121">			final LocalDate startDate = getReferenceDate().plusDays((int)Math.round(periodStart*365));</span>
+<span class="nc" id="L122">			final LocalDate endDate   = getReferenceDate().plusDays((int)Math.round(periodEnd*365));</span>
+<span class="nc" id="L123">			daycountFraction = getDaycountConvention().getDaycountFraction(startDate, endDate);</span>
+<span class="nc" id="L124">		}</span>
+		else {
+<span class="nc" id="L126">			daycountFraction = getForwardCurve().getPaymentOffset(periodStart);</span>
+		}
+
+<span class="nc" id="L129">		final double payoffUnit = getDiscountCurve().getDiscountFactor(maturity+getForwardCurve().getPaymentOffset(maturity)) * daycountFraction;</span>
+
+<span class="nc" id="L131">		final double valuePrice = AnalyticFormulas.blackScholesGeneralizedOptionValue(forward+displacement, value, maturity, strike+displacement, payoffUnit);</span>
+
+<span class="nc" id="L133">		return convertFromTo(model, maturity, strike, valuePrice, QuotingConvention.PRICE, quotingConvention);</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+		double[] parameter;
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		if(isDisplacementCalibrateable) {</span>
+<span class="nc" id="L140">			parameter = new double[5];</span>
+<span class="nc" id="L141">			parameter[0] = displacement;</span>
+<span class="nc" id="L142">			parameter[1] = a;</span>
+<span class="nc" id="L143">			parameter[2] = b;</span>
+<span class="nc" id="L144">			parameter[3] = c;</span>
+<span class="nc" id="L145">			parameter[4] = d;</span>
+
+<span class="nc" id="L147">			return parameter;</span>
+		}
+		else {
+<span class="nc" id="L150">			parameter = new double[4];</span>
+<span class="nc" id="L151">			parameter[0] = a;</span>
+<span class="nc" id="L152">			parameter[1] = b;</span>
+<span class="nc" id="L153">			parameter[2] = c;</span>
+<span class="nc" id="L154">			parameter[3] = d;</span>
+
+<span class="nc" id="L156">			return parameter;</span>
+		}
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L162">		throw new UnsupportedOperationException(&quot;This class is immutable.&quot;);</span>
+	}
+
+	@Override
+	public AbstractVolatilitySurfaceParametric getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if(isDisplacementCalibrateable) {</span>
+<span class="nc" id="L168">			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), value[0], isDisplacementCalibrateable, value[1], value[2], value[3], value[4], timeScaling);</span>
+		}
+		else {
+<span class="nc" id="L171">			return new CapletVolatilitiesParametricDisplacedFourParameterAnalytic(getName(), getReferenceDate(), getForwardCurve(), getDiscountCurve(), displacement, isDisplacementCalibrateable, value[0], value[1], value[2], value[3], timeScaling);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

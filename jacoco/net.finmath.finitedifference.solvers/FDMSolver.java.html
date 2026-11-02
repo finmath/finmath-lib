@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">FDMSolver.java</span></div><h1>FDMSolver.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+
+/**
+ * Interface for finite difference solvers.
+ *
+ * &lt;p&gt;
+ * Implementations provide methods to compute the solution of a PDE
+ * on a space-time grid, either at a specific evaluation time or
+ * over the full time history.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public interface FDMSolver {
+
+	/**
+	 * Returns the solution at a given evaluation time.
+	 *
+	 * &lt;p&gt;
+	 * This is a legacy return type. Typical shapes are:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;1D: {@code [nS]} representing values at the evaluation time.&lt;/li&gt;
+	 * &lt;li&gt;2D: {@code [nS * nV]} representing values at the evaluation
+	 * time.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param evaluationTime   The evaluation time.
+	 * @param time             The maturity (time to maturity).
+	 * @param valueAtMaturity  The payoff function applied at maturity.
+	 * @return The solution at the specified evaluation time.
+	 */
+	double[] getValue(
+			double evaluationTime,
+			double time,
+			DoubleUnaryOperator valueAtMaturity);
+
+	/**
+	 * Returns the full time history of the solution on the space-time grid.
+	 *
+	 * &lt;p&gt;
+	 * Typical shapes are:
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;1D: {@code [nT][nS]}&lt;/li&gt;
+	 *   &lt;li&gt;2D: {@code [nT][nS * nV]}&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param time            The maturity (time to maturity).
+	 * @param valueAtMaturity The payoff function applied at maturity.
+	 * @return The full time-space solution.
+	 */
+	double[][] getValues(
+			double time,
+			DoubleUnaryOperator valueAtMaturity);
+
+	/**
+	 * Returns the solution at a given evaluation time using a precomputed
+	 * terminal value vector on the spatial grid.
+	 *
+	 * &lt;p&gt;
+	 * This overload is useful for products that require a non-pointwise
+	 * terminal initialization, for example cell-averaged digitals.
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * The supplied array is interpreted as the maturity layer ordered
+	 * consistently with the solver's spatial grid.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param time The maturity time.
+	 * @param terminalValues The terminal values on the spatial grid.
+	 * @return The value vector at the requested evaluation time.
+	 */
+	default double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final double[] terminalValues) {
+<span class="nc" id="L83">		throw new UnsupportedOperationException(</span>
+<span class="nc" id="L84">				getClass().getSimpleName() + &quot; does not support direct terminal-vector initialization.&quot;);</span>
+	}
+
+	/**
+	 * Returns the full time history of the solution using a precomputed
+	 * terminal value vector on the spatial grid.
+	 *
+	 * &lt;p&gt;
+	 * This overload is useful for products that require a non-pointwise
+	 * terminal initialization, for example cell-averaged digitals.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The maturity time.
+	 * @param terminalValues The terminal values on the spatial grid.
+	 * @return The full time-space solution.
+	 */
+	default double[][] getValues(
+			final double time,
+			final double[] terminalValues) {
+<span class="nc" id="L103">		throw new UnsupportedOperationException(</span>
+<span class="nc" id="L104">				getClass().getSimpleName() + &quot; does not support direct terminal-vector initialization.&quot;);</span>
+	}
+
+	/**
+	 * Default binary-payoff version.
+	 * For solvers that are effectively 1D, the second state variable is
+	 * ignored.
+	 * @param evaluationTime The value.
+	 * @param time The value.
+	 * @param valueAtMaturity The value.
+	 * @return The value.
+	 */
+	default double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity) {
+<span class="nc" id="L120">		return getValue(evaluationTime, time, x -&gt; valueAtMaturity.applyAsDouble(x, 0.0));</span>
+	}
+
+	/**
+	 * Default binary-payoff version.
+	 * For solvers that are effectively 1D, the second state variable is
+	 * ignored.
+	 * @param time The value.
+	 * @param valueAtMaturity The value.
+	 * @return The value.
+	 */
+	default double[][] getValues(
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity) {
+<span class="nc" id="L134">		return getValues(time, x -&gt; valueAtMaturity.applyAsDouble(x, 0.0));</span>
+	}
+
+	/**
+	 * Default binary-payoff version with early exercise
+	 * For solvers that are effectively 1D, the second state variable is
+	 * ignored.
+	 * @param evaluationTime The value.
+	 * @param time The value.
+	 * @param terminalValues The value.
+	 * @param exerciseValue The value.
+	 * @return The value.
+	 */
+	default double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final double[] terminalValues,
+			final DoubleUnaryOperator exerciseValue) {
+<span class="nc" id="L152">		throw new UnsupportedOperationException(</span>
+<span class="nc" id="L153">				getClass().getSimpleName() + &quot; does not support terminal-vector initialization with pointwise exercise payoff.&quot;);</span>
+	}
+
+	/**
+	 * Default binary-payoff version with early exercise
+	 * For solvers that are effectively 1D, the second state variable is
+	 * ignored.
+	 * @param time The value.
+	 * @param terminalValues The value.
+	 * @param exerciseValue The value.
+	 * @return The value.
+	 */
+	default double[][] getValues(
+			final double time,
+			final double[] terminalValues,
+			final DoubleUnaryOperator exerciseValue) {
+<span class="nc" id="L169">		throw new UnsupportedOperationException(</span>
+<span class="nc" id="L170">				getClass().getSimpleName() + &quot; does not support terminal-vector initialization with pointwise exercise payoff.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

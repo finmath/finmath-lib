@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActiveBoundaryProviderFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">ActiveBoundaryProviderFactory.java</span></div><h1>ActiveBoundaryProviderFactory.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.TwoStateActiveBoundaryProvider;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Factory for active-state boundary providers used by the direct two-state
+ * knock-in solver.
+ *
+ * &lt;p&gt;
+ * The active state represents the post-activation value, i.e. the corresponding
+ * vanilla option after the barrier has been hit.
+ * &lt;/p&gt;
+ */
+public final class ActiveBoundaryProviderFactory {
+
+	private ActiveBoundaryProviderFactory() {
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param strike The value.
+	 * @param maturity The value.
+	 * @param callOrPut The value.
+	 * @return The value.
+	 */
+	public static TwoStateActiveBoundaryProvider createProvider(
+			final FiniteDifferenceEquityModel model,
+			final double strike,
+			final double maturity,
+			final CallOrPut callOrPut) {
+
+<span class="nc bnc" id="L39" title="All 2 branches missed.">		if (model instanceof FDMBlackScholesModel) {</span>
+<span class="nc" id="L40">			return new BlackScholesActiveBoundaryProvider(</span>
+					model,
+					strike,
+					maturity,
+					callOrPut
+					);
+		}
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (model instanceof FDMBachelierModel) {</span>
+<span class="nc" id="L49">			return new BachelierActiveBoundaryProvider(</span>
+					model,
+					strike,
+					maturity,
+					callOrPut
+					);
+		}
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (model instanceof FDMCevModel) {</span>
+<span class="nc" id="L58">			return new CevActiveBoundaryProvider(</span>
+					model,
+					strike,
+					maturity,
+					callOrPut
+					);
+		}
+
+<span class="nc" id="L66">		throw new IllegalArgumentException(</span>
+<span class="nc" id="L67">				&quot;No active boundary provider available for model type: &quot; + model.getClass().getName());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

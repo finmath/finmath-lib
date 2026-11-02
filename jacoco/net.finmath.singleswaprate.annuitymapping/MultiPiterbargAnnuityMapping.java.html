@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MultiPiterbargAnnuityMapping.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.annuitymapping</a> &gt; <span class="el_source">MultiPiterbargAnnuityMapping.java</span></div><h1>MultiPiterbargAnnuityMapping.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.annuitymapping;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.singleswaprate.model.volatilities.ScaledVolatilityCube;
+import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.time.Schedule;
+
+/**
+ * Implements an annuity mapping following Vladimir Piterbarg's approach.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class MultiPiterbargAnnuityMapping implements AnnuityMapping {
+
+	private final BasicPiterbargAnnuityMapping basicMapping;
+
+	private final double iborOisDecorrelation;
+	private final double oisSwapRate;
+	private final double iborSwapRate;
+
+	/**
+	 * Create the annuity mapping. When used without strike the volatilities are taken out of the cube at par swap rate.
+	 *
+	 * @param fixSchedule Fix leg schedule of the swap.
+	 * @param floatSchedule Float leg schedule of the swap.
+	 * @param model The model containing curve and cube.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 */
+	public MultiPiterbargAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final VolatilityCubeModel model,
+			final String discountCurveName, final String forwardCurveName, final String volatilityCubeName) {
+<span class="fc" id="L40">		this(</span>
+				fixSchedule,
+				floatSchedule,
+<span class="fc" id="L43">				Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model),</span>
+				model,
+				discountCurveName,
+				forwardCurveName,
+				volatilityCubeName,
+				0,0,-1);
+<span class="fc" id="L49">	}</span>
+
+
+	/**
+	 * Create the annuity mapping.
+	 *
+	 * @param fixSchedule Fix leg schedule of the swap.
+	 * @param floatSchedule Float leg schedule of the swap.
+	 * @param strike The strike of the product this annuity mapping is being created for.
+	 * @param model The model containing curve and cube.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 * @param lowerBound The lowest strike the Piterbarg annuity mapping may use during replication, when normalizing.
+	 * @param upperBound The maximum strike the Piterbarg annuity mapping may use during replication, when normalizing.
+	 * @param numberOfEvaluationPoints The number of points the replication may evaluate Piterbarg annuity mapping is normalizing.
+	 */
+	public MultiPiterbargAnnuityMapping(final Schedule fixSchedule, final Schedule floatSchedule, final double strike,
+			final VolatilityCubeModel model, final String discountCurveName, final String forwardCurveName, final String volatilityCubeName,
+			final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="fc" id="L69">		super();</span>
+
+		//create a new volatility cube out of the given one, scaled by the iborOisDecorrelation
+<span class="fc" id="L72">		final VolatilityCube baseCube = model.getVolatilityCube(volatilityCubeName);</span>
+<span class="fc" id="L73">		final LocalDate referenceDate = baseCube.getReferenceDate();</span>
+<span class="fc" id="L74">		this.iborOisDecorrelation = model.getVolatilityCube(volatilityCubeName).getIborOisDecorrelation();</span>
+<span class="fc" id="L75">		final VolatilityCube tempCube = new ScaledVolatilityCube(&quot;MultiPiterbargCubeFrom&quot;+volatilityCubeName, referenceDate, volatilityCubeName,</span>
+<span class="fc" id="L76">				iborOisDecorrelation, baseCube.getCorrelationDecay());</span>
+<span class="fc" id="L77">		final VolatilityCubeModel tempModel = model.addVolatilityCube(tempCube);</span>
+
+<span class="fc" id="L79">		final String offsetCode = getOffsetCode(forwardCurveName);</span>
+<span class="fc" id="L80">		final ForwardCurve forwardFromDiscount = new ForwardCurveFromDiscountCurve(discountCurveName, referenceDate, offsetCode);</span>
+
+<span class="fc" id="L82">		this.basicMapping = new BasicPiterbargAnnuityMapping(fixSchedule, floatSchedule, strike, tempModel, discountCurveName, tempCube.getName(),</span>
+				lowerBound, upperBound, numberOfEvaluationPoints);
+<span class="fc" id="L84">		this.iborSwapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), tempModel);</span>
+<span class="fc" id="L85">		this.oisSwapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardFromDiscount, tempModel);</span>
+<span class="fc" id="L86">	}</span>
+
+	@Override
+	public double getValue(final double swapRate) {
+<span class="fc" id="L90">		return basicMapping.getValue(oisSwapRate + iborOisDecorrelation * (swapRate - iborSwapRate));</span>
+	}
+
+	@Override
+	public double getFirstDerivative(final double swapRate) {
+<span class="fc" id="L95">		return basicMapping.getFirstDerivative(oisSwapRate + iborOisDecorrelation * (swapRate - iborSwapRate)) * iborOisDecorrelation;</span>
+	}
+
+	@Override
+	public double getSecondDerivative(final double swapRate) {
+<span class="fc" id="L100">		return basicMapping.getSecondDerivative(oisSwapRate + iborOisDecorrelation * (swapRate - iborSwapRate)) * iborOisDecorrelation * iborOisDecorrelation;</span>
+	}
+
+	// gets the offset code from from the forward curve name
+	private static String getOffsetCode(final String forwardCurveName) {
+<span class="fc" id="L105">		final String[] splits = forwardCurveName.split(&quot;(?&lt;=\\D)(?=\\d)&quot;);</span>
+<span class="fc" id="L106">		String offsetCode = splits[splits.length-1];</span>
+<span class="pc bpc" id="L107" title="3 of 6 branches missed.">		if(offsetCode != null &amp;&amp; offsetCode.length() &gt; 0 &amp;&amp; offsetCode.charAt(offsetCode.length() - 1) == ')') {</span>
+<span class="nc" id="L108">			offsetCode = offsetCode.substring(0, offsetCode.length() - 1);</span>
+		}
+<span class="fc" id="L110">		return offsetCode;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

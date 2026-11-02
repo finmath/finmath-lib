@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractStateIndependentJumpComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">AbstractStateIndependentJumpComponent.java</span></div><h1>AbstractStateIndependentJumpComponent.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+/**
+ * Minimal abstract base class for a state-independent jump component.
+ *
+ * &lt;p&gt;
+ * This class provides boilerplate for jump components whose Levy density does
+ * not
+ * depend on the current PDE state variables. It is intended as a convenient
+ * base
+ * for models such as Bates and Variance Gamma, where the jump law is typically
+ * specified directly in terms of the log-jump size.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The jump contribution is understood in the compensated form
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * integral [ u(..., x exp(y), ...) - u(..., x, ...)
+ *          - x (exp(y) - 1) partial_x u(..., x, ...) ] nu(dy),
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where {@code y} denotes the log-relative jump size and {@code x} is the
+ * affected
+ * state variable.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The integration bounds returned by this class are interpreted as numerical
+ * truncation bounds for the jump variable. For finite-support models they may
+ * coincide with the true support; for infinite-support models they are
+ * numerical
+ * cutoffs chosen by the implementation.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public abstract class AbstractStateIndependentJumpComponent implements JumpComponent {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The state variable index.
+	 */
+	private final int stateVariableIndex;
+	/**
+	 * The lower integration bound.
+	 */
+	private final double lowerIntegrationBound;
+	/**
+	 * The upper integration bound.
+	 */
+	private final double upperIntegrationBound;
+	/**
+	 * The finite activity.
+	 */
+	private final boolean finiteActivity;
+	/**
+	 * The finite variation.
+	 */
+	private final boolean finiteVariation;
+
+	/**
+	 * Creates a state-independent jump component acting on the first state
+	 * variable.
+	 *
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param finiteActivity {@code true} if the jump measure has finite
+	 *     activity.
+	 * @param finiteVariation {@code true} if the jump part has finite
+	 *     variation.
+	 */
+	protected AbstractStateIndependentJumpComponent(
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final boolean finiteActivity,
+			final boolean finiteVariation) {
+<span class="nc" id="L83">		this(0, lowerIntegrationBound, upperIntegrationBound, finiteActivity, finiteVariation);</span>
+<span class="nc" id="L84">	}</span>
+
+	/**
+	 * Creates a state-independent jump component.
+	 *
+	 * @param stateVariableIndex Index of the affected state variable.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param finiteActivity {@code true} if the jump measure has finite
+	 *     activity.
+	 * @param finiteVariation {@code true} if the jump part has finite
+	 *     variation.
+	 */
+	protected AbstractStateIndependentJumpComponent(
+			final int stateVariableIndex,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final boolean finiteActivity,
+<span class="fc" id="L104">			final boolean finiteVariation) {</span>
+
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">		if (stateVariableIndex &lt; 0) {</span>
+<span class="nc" id="L107">			throw new IllegalArgumentException(&quot;State variable index must be non-negative.&quot;);</span>
+		}
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		if (lowerIntegrationBound &gt;= upperIntegrationBound) {</span>
+<span class="nc" id="L110">			throw new IllegalArgumentException(</span>
+					&quot;Lower integration bound must be strictly smaller than upper integration bound.&quot;);
+		}
+
+<span class="fc" id="L114">		this.stateVariableIndex = stateVariableIndex;</span>
+<span class="fc" id="L115">		this.lowerIntegrationBound = lowerIntegrationBound;</span>
+<span class="fc" id="L116">		this.upperIntegrationBound = upperIntegrationBound;</span>
+<span class="fc" id="L117">		this.finiteActivity = finiteActivity;</span>
+<span class="fc" id="L118">		this.finiteVariation = finiteVariation;</span>
+<span class="fc" id="L119">	}</span>
+
+	@Override
+	public int getStateVariableIndex() {
+<span class="fc" id="L123">		return stateVariableIndex;</span>
+	}
+
+	@Override
+	public double getLowerIntegrationBound(final double time, final double... stateVariables) {
+<span class="fc" id="L128">		return lowerIntegrationBound;</span>
+	}
+
+	@Override
+	public double getUpperIntegrationBound(final double time, final double... stateVariables) {
+<span class="fc" id="L133">		return upperIntegrationBound;</span>
+	}
+
+	@Override
+	public final double getLevyDensity(
+			final double time,
+			final double jumpSize,
+			final double... stateVariables) {
+<span class="fc" id="L141">		return getLevyDensity(time, jumpSize);</span>
+	}
+
+	@Override
+	public boolean isStateDependent() {
+<span class="nc" id="L146">		return false;</span>
+	}
+
+	@Override
+	public boolean isFiniteActivity() {
+<span class="nc" id="L151">		return finiteActivity;</span>
+	}
+
+	@Override
+	public boolean isFiniteVariation() {
+<span class="nc" id="L156">		return finiteVariation;</span>
+	}
+
+	/**
+	 * Returns the Levy density at the given log-jump size.
+	 *
+	 * &lt;p&gt;
+	 * Implementations only need to provide the state-independent density
+	 * {@code nu(y)}. Dependence on the PDE state variables is intentionally
+	 * excluded
+	 * from this base class.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The evaluation time.
+	 * @param jumpSize The log-relative jump size.
+	 * @return The Levy density at the given jump size.
+	 */
+	protected abstract double getLevyDensity(double time, double jumpSize);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>IndependentIncrements.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">IndependentIncrements.java</span></div><h1>IndependentIncrements.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 05.07.2014
+ */
+package net.finmath.montecarlo;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Interface description of a time-discrete n-dimensional stochastic process
+ * \( X = (X_{1},\ldots,X_{n}) \) provided by independent
+ * increments \( \Delta X(t_{i}) = X(t_{i+1})-X(t_{i}) \).
+ *
+ * Here the dimension &lt;i&gt;n&lt;/i&gt; is called factors since this process is used to
+ * generate multi-dimensional multi-factor processes and there one might
+ * use a different number of factors to generate processes of different
+ * dimension.
+ *
+ * @author Christian Fries
+ * @version 1.3
+ */
+public interface IndependentIncrements {
+
+	/**
+	 * Return the increment for a given timeIndex.
+	 *
+	 * The method returns the random variable vector
+	 *	 &lt;i&gt;&amp;Delta; X(t&lt;sub&gt;i&lt;/sub&gt;) := X(t&lt;sub&gt;i+1&lt;/sub&gt;)-X(t&lt;sub&gt;i&lt;/sub&gt;)&lt;/i&gt;
+	 * for the given time index &lt;i&gt;i&lt;/i&gt;.
+	 *
+	 * @param timeIndex The time index (corresponding to the this class's time discretization)
+	 * @return The vector-valued increment (as a vector (array) of random variables).
+	 */
+	default RandomVariable[] getIncrement(final int timeIndex)
+	{
+<span class="fc" id="L38">		final RandomVariable[] increment = new RandomVariable[getNumberOfFactors()];</span>
+<span class="fc bfc" id="L39" title="All 2 branches covered.">		for(int factorIndex = 0; factorIndex&lt;getNumberOfFactors(); factorIndex++) {</span>
+<span class="fc" id="L40">			increment[factorIndex] = getIncrement(timeIndex, factorIndex);</span>
+		}
+<span class="fc" id="L42">		return increment;</span>
+	}
+
+	/**
+	 * Return the increment for a given timeIndex and given factor.
+	 *
+	 * The method returns the random variable
+	 *	 &lt;i&gt;&amp;Delta; X&lt;sub&gt;j&lt;/sub&gt;(t&lt;sub&gt;i&lt;/sub&gt;) := X&lt;sub&gt;j&lt;/sub&gt;(t&lt;sub&gt;i+1&lt;/sub&gt;)-X(t&lt;sub&gt;i&lt;/sub&gt;)&lt;/i&gt;
+	 * for the given time index &lt;i&gt;i&lt;/i&gt; and a given factor (index) &lt;i&gt;j&lt;/i&gt;
+	 *
+	 * @param timeIndex The time index (corresponding to the this class's time discretization)
+	 * @param factor The index of the factor (independent scalar increment)
+	 * @return The factor (component) of the increments (a random variable)
+	 */
+	RandomVariable getIncrement(int timeIndex, int factor);
+
+
+	/**
+	 * Returns the time discretization used for this set of time-discrete Brownian increments.
+	 *
+	 * @return The time discretization used for this set of time-discrete Brownian increments.
+	 */
+	TimeDiscretization getTimeDiscretization();
+
+	/**
+	 * Returns the number of factors.
+	 *
+	 * @return The number of factors.
+	 */
+	int getNumberOfFactors();
+
+	/**
+	 * Returns the number of paths.
+	 *
+	 * @return The number of paths.
+	 */
+	int getNumberOfPaths();
+
+	/**
+	 * Returns a random variable which is initialized to a constant,
+	 * but has exactly the same number of paths or discretization points as the ones used by this BrownianMotion.
+	 *
+	 * @param value The constant value to be used for initialized the random variable.
+	 * @return A new random variable.
+	 */
+	RandomVariable getRandomVariableForConstant(double value);
+
+	/**
+	 * Return a new object implementing BrownianMotion
+	 * having the same specifications as this object but a different seed
+	 * for the random number generator.
+	 *
+	 * This method is useful if you like to make Monte-Carlo samplings by changing
+	 * the seed.
+	 *
+	 * @param seed New value for the seed.
+	 * @return New object implementing BrownianMotion.
+	 */
+	IndependentIncrements getCloneWithModifiedSeed(int seed);
+
+
+	/**
+	 * Return a new object implementing BrownianMotion
+	 * having the same specifications as this object but a different
+	 * time discretization.
+	 *
+	 * @param newTimeDiscretization New time discretization
+	 * @return New object implementing BrownianMotion.
+	 */
+	IndependentIncrements getCloneWithModifiedTimeDiscretization(TimeDiscretization newTimeDiscretization);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

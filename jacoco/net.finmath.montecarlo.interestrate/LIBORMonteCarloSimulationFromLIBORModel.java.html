@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORMonteCarloSimulationFromLIBORModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate</a> &gt; <span class="el_source">LIBORMonteCarloSimulationFromLIBORModel.java</span></div><h1>LIBORMonteCarloSimulationFromLIBORModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements convenient methods for a LIBOR market model, based on a given &lt;code&gt;LIBORModel&lt;/code&gt; model
+ * (e.g. implemented by &lt;code&gt;LIBORMarketModelFromCovarianceModel&lt;/code&gt;) and &lt;code&gt;MonteCarloProcess&lt;/code&gt;
+ * process (e.g. implemented by &lt;code&gt;EulerSchemeFromProcessModel&lt;/code&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LIBORMonteCarloSimulationFromLIBORModel implements LIBORModelMonteCarloSimulationModel {
+
+	private final LIBORModel model;
+	private final MonteCarloProcess process;
+
+	public LIBORMonteCarloSimulationFromLIBORModel(final MonteCarloProcess process) {
+<span class="fc" id="L33">		super();</span>
+		// TODO Validate type
+<span class="fc" id="L35">		this.model		= (LIBORModel) process.getModel();</span>
+<span class="fc" id="L36">		this.process	= process;</span>
+<span class="fc" id="L37">	}</span>
+
+	/**
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcess.
+	 *
+	 * @param model The LIBORMarketModelFromCovarianceModel.
+	 * @param process The process.
+	 */
+	@Deprecated
+	public LIBORMonteCarloSimulationFromLIBORModel(final LIBORModel model, final MonteCarloProcess process) {
+<span class="fc" id="L47">		super();</span>
+<span class="fc" id="L48">		this.model		= model;</span>
+<span class="fc" id="L49">		this.process	= process;</span>
+<span class="fc" id="L50">	}</span>
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="fc" id="L54">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L59">		int timeIndex = getTimeIndex(time);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">		if(timeIndex &lt; 0) {</span>
+<span class="fc" id="L61">			timeIndex = (-timeIndex-1)-1;</span>
+		}
+<span class="fc" id="L63">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="fc" id="L68">		return process.getNumberOfFactors();</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="fc" id="L73">		return process.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="fc" id="L78">		return model.getReferenceDate();</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L83">		return process.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L88">		return process.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L93">		return process.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L98">		return model.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public BrownianMotion getBrownianMotion() {
+<span class="nc" id="L103">		return (BrownianMotion)process.getStochasticDriver();</span>
+	}
+
+	@Override
+	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
+<span class="fc" id="L108">		return model.getLIBOR(process, timeIndex, liborIndex);</span>
+	}
+
+	@Override
+	public RandomVariable[] getLIBORs(final int timeIndex) throws CalculationException
+	{
+<span class="nc" id="L114">		final RandomVariable[] randomVariableVector = new RandomVariable[getNumberOfComponents()];</span>
+<span class="nc bnc" id="L115" title="All 2 branches missed.">		for(int componentIndex=0; componentIndex&lt;getNumberOfComponents(); componentIndex++) {</span>
+<span class="nc" id="L116">			randomVariableVector[componentIndex] = getLIBOR(timeIndex, componentIndex);</span>
+		}
+
+<span class="nc" id="L119">		return randomVariableVector;</span>
+	}
+
+	@Override
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException
+	{
+<span class="fc" id="L125">		return model.getForwardRate(process, time, periodStart, periodEnd);</span>
+	}
+
+	@Override
+	public double getLiborPeriod(final int timeIndex) {
+<span class="fc" id="L130">		return model.getLiborPeriod(timeIndex);</span>
+	}
+
+	@Override
+	public TimeDiscretization getLiborPeriodDiscretization() {
+<span class="fc" id="L135">		return model.getLiborPeriodDiscretization();</span>
+	}
+
+	@Override
+	public int getLiborPeriodIndex(final double time) {
+<span class="fc" id="L140">		return model.getLiborPeriodIndex(time);</span>
+	}
+
+	public int getNumberOfComponents() {
+<span class="nc" id="L144">		return model.getNumberOfComponents();</span>
+	}
+
+	@Override
+	public int getNumberOfLibors() {
+<span class="fc" id="L149">		return model.getNumberOfLibors();</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+<span class="fc" id="L154">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public LIBORModel getModel() {
+<span class="fc" id="L159">		return model;</span>
+	}
+
+	@Override
+	public MonteCarloProcess getProcess() {
+<span class="nc" id="L164">		return process;</span>
+	}
+
+	@Override
+	public Object getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L169">		final MonteCarloProcessFromProcessModel process = (MonteCarloProcessFromProcessModel) ((MonteCarloProcessFromProcessModel)getProcess()).getCloneWithModifiedSeed(seed);</span>
+<span class="nc" id="L170">		return new LIBORMonteCarloSimulationFromLIBORModel(model, process);</span>
+	}
+
+	@Override
+	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) throws CalculationException {
+<span class="nc" id="L175">		final LIBORModel modelClone = model.getCloneWithModifiedData(dataModified);</span>
+<span class="nc bnc" id="L176" title="All 4 branches missed.">		if(dataModified.containsKey(&quot;discountCurve&quot;) &amp;&amp; dataModified.size() == 1) {</span>
+			// In this case we may re-use the underlying process
+			// Reuse process associated with other model
+<span class="nc" id="L179">			final LIBORMonteCarloSimulationFromLIBORModel lmmSimClone = new LIBORMonteCarloSimulationFromLIBORModel(modelClone, process);</span>
+<span class="nc" id="L180">			return lmmSimClone;</span>
+		}
+		else {
+<span class="nc" id="L183">			return new LIBORMonteCarloSimulationFromLIBORModel(getProcess().getCloneWithModifiedModel(modelClone));</span>
+		}
+	}
+
+	/**
+	 * Create a clone of this simulation modifying one of its properties (if any).
+	 *
+	 * @param entityKey The entity to modify.
+	 * @param dataModified The data which should be changed in the new model
+	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public LIBORModelMonteCarloSimulationModel getCloneWithModifiedData(final String entityKey, final Object dataModified) throws CalculationException
+	{
+<span class="nc" id="L197">		final Map&lt;String, Object&gt; dataModifiedMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L198">		dataModifiedMap.put(entityKey, dataModified);</span>
+<span class="nc" id="L199">		return getCloneWithModifiedData(dataModifiedMap);</span>
+	}
+
+	@Override
+	public Map&lt;String, RandomVariable&gt; getModelParameters() {
+<span class="fc" id="L204">		return model.getModelParameters();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

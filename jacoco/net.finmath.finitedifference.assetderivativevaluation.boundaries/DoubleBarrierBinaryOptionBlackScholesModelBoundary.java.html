@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DoubleBarrierBinaryOptionBlackScholesModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DoubleBarrierBinaryOptionBlackScholesModelBoundary.java</span></div><h1>DoubleBarrierBinaryOptionBlackScholesModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DoubleBarrierBinaryOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+
+/**
+ * Boundary conditions for {@link DoubleBarrierBinaryOption} under
+ * {@link FDMBlackScholesModel}.
+ *
+ * &lt;p&gt;
+ * Since the double barriers are enforced internally by the product through
+ * state constraints, the outer-domain boundaries simply reflect the value
+ * of the already-triggered state outside the barrier band:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;KNOCK_OUT: zero on both sides,&lt;/li&gt;
+ *   &lt;li&gt;KNOCK_IN: discounted cash on both sides,&lt;/li&gt;
+ *   &lt;li&gt;KIKO: discounted cash at the lower side, zero at the upper side,&lt;/li&gt;
+ *   &lt;li&gt;KOKI: zero at the lower side, discounted cash at the upper side.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DoubleBarrierBinaryOptionBlackScholesModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMBlackScholesModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L44">	public DoubleBarrierBinaryOptionBlackScholesModelBoundary(final FDMBlackScholesModel model) {</span>
+<span class="nc" id="L45">		this.model = model;</span>
+<span class="nc" id="L46">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L54">		final DoubleBarrierBinaryOption option = (DoubleBarrierBinaryOption) product;</span>
+<span class="nc" id="L55">		final double value = getLowerBoundaryValue(option, time);</span>
+
+<span class="nc" id="L57">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L58">				StandardBoundaryCondition.dirichlet(value)</span>
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L68">		final DoubleBarrierBinaryOption option = (DoubleBarrierBinaryOption) product;</span>
+<span class="nc" id="L69">		final double value = getUpperBoundaryValue(option, time);</span>
+
+<span class="nc" id="L71">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L72">				StandardBoundaryCondition.dirichlet(value)</span>
+		};
+	}
+
+	private double getLowerBoundaryValue(
+			final DoubleBarrierBinaryOption option,
+			final double time) {
+
+<span class="nc bnc" id="L80" title="All 5 branches missed.">		switch (option.getDoubleBarrierType()) {</span>
+		case KNOCK_OUT:
+<span class="nc" id="L82">			return 0.0;</span>
+		case KNOCK_IN:
+<span class="nc" id="L84">			return getDiscountedCashValue(option, time);</span>
+		case KIKO:
+<span class="nc" id="L86">			return getDiscountedCashValue(option, time);</span>
+		case KOKI:
+<span class="nc" id="L88">			return 0.0;</span>
+		default:
+<span class="nc" id="L90">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+	}
+
+	private double getUpperBoundaryValue(
+			final DoubleBarrierBinaryOption option,
+			final double time) {
+
+<span class="nc bnc" id="L98" title="All 5 branches missed.">		switch (option.getDoubleBarrierType()) {</span>
+		case KNOCK_OUT:
+<span class="nc" id="L100">			return 0.0;</span>
+		case KNOCK_IN:
+<span class="nc" id="L102">			return getDiscountedCashValue(option, time);</span>
+		case KIKO:
+<span class="nc" id="L104">			return 0.0;</span>
+		case KOKI:
+<span class="nc" id="L106">			return getDiscountedCashValue(option, time);</span>
+		default:
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+	}
+
+	private double getDiscountedCashValue(
+			final DoubleBarrierBinaryOption option,
+			final double time) {
+
+<span class="nc bnc" id="L116" title="All 2 branches missed.">		if (option.getCashPayoff() == 0.0) {</span>
+<span class="nc" id="L117">			return 0.0;</span>
+		}
+
+<span class="nc" id="L120">		final double effectiveTime = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (effectiveTime &gt;= option.getMaturity()) {</span>
+<span class="nc" id="L123">			return option.getCashPayoff();</span>
+		}
+
+<span class="nc" id="L126">		final double discountFactorAtTime =</span>
+<span class="nc" id="L127">				model.getRiskFreeCurve().getDiscountFactor(effectiveTime);</span>
+<span class="nc" id="L128">		final double discountFactorAtMaturity =</span>
+<span class="nc" id="L129">				model.getRiskFreeCurve().getDiscountFactor(option.getMaturity());</span>
+
+<span class="nc" id="L131">		return option.getCashPayoff() * discountFactorAtMaturity / discountFactorAtTime;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

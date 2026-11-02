@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableUniqueVariableFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward.alternative</a> &gt; <span class="el_source">RandomVariableUniqueVariableFactory.java</span></div><h1>RandomVariableUniqueVariableFactory.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
+
+import java.util.ArrayList;
+
+import net.finmath.montecarlo.AbstractRandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * @author Stefan Sedlmair
+ * @version 1.0
+ */
+public class RandomVariableUniqueVariableFactory extends AbstractRandomVariableFactory {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -45129698827709536L;
+
+	/**
+	 *
+	 */
+<span class="nc" id="L23">	private static ArrayList&lt;RandomVariable&gt; listOfAllVariables = new ArrayList&lt;&gt;();</span>
+
+	/* starting index for adding variables to array list. */
+<span class="nc" id="L26">	private static int currentFactoryID = 0;</span>
+
+	/**
+	 *  empty constructor: does nothing since all elements of this class are static!
+	 * */
+<span class="nc" id="L31">	public RandomVariableUniqueVariableFactory() {</span>
+		/* do nothing */
+<span class="nc" id="L33">	}</span>
+
+	/*---------------------------------------------------------------------------------------------------------------------------------*/
+
+	/**
+	 * Add an object of {@link RandomVariable} to variable list at the index of the current ID
+	 * and rises the current ID to the next one.
+	 * @param randomvariable object of {@link RandomVariable} to add to ArrayList and return as {@link RandomVariableUniqueVariable}
+	 * @param isConstant boolean such that if true the derivative will be set to zero
+	 * @param parentVariables List of {@link RandomVariableUniqueVariable} that are the parents of the new instance
+	 * @param parentOperatorType Operator type
+	 * @return new instance of {@link RandomVariableUniqueVariable}
+	 **/
+	public RandomVariable createRandomVariable(final RandomVariable randomvariable, final boolean isConstant, final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables, final RandomVariableUniqueVariable.OperatorType parentOperatorType) {
+
+<span class="nc" id="L48">		final int factoryID = currentFactoryID++;</span>
+
+<span class="nc" id="L50">		listOfAllVariables.add(</span>
+				factoryID,
+				randomvariable
+				);
+
+<span class="nc" id="L55">		return new RandomVariableUniqueVariable(factoryID, isConstant, parentVariables, parentOperatorType);</span>
+	}
+
+	public RandomVariable createRandomVariable(final double time, final double value, final boolean isConstant) {
+
+<span class="nc" id="L60">		final RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();</span>
+<span class="nc" id="L61">		final RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, value);</span>
+
+<span class="nc" id="L63">		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+	}
+
+	public RandomVariable createRandomVariable(final double time, final double[] values, final boolean isConstant) {
+
+<span class="nc" id="L68">		final RandomVariableFromArrayFactory randomvariablefactory = new RandomVariableFromArrayFactory();</span>
+<span class="nc" id="L69">		final RandomVariable newrandomvariable = randomvariablefactory.createRandomVariable(time, values);</span>
+
+<span class="nc" id="L71">		return createRandomVariable(newrandomvariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+	}
+
+	public RandomVariable createRandomVariable(final RandomVariable randomvariable) {
+<span class="nc" id="L75">		return createRandomVariable(randomvariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double)
+	 */
+	@Override
+	public RandomVariable createRandomVariable(final double time, final double value) {
+<span class="nc" id="L83">		return createRandomVariable(time, value, /*isConstant*/ false);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.AbstractRandomVariableFactory#createRandomVariable(double, double[])
+	 */
+	@Override
+	public RandomVariable createRandomVariable(final double time, final double[] values) {
+<span class="nc" id="L91">		return createRandomVariable(time, values, /*isConstant*/ false);</span>
+
+	}
+
+	/*---------------------------------------------------------------------------------------------------------------------------------*/
+
+
+	/**
+	 * @return ArrayList containing all Variables and Constants of the session in the JVM
+	 * */
+	public ArrayList&lt;RandomVariable&gt; getListOfAllVariables(){
+<span class="nc" id="L102">		return listOfAllVariables;</span>
+	}
+
+	/**
+	 * @return Number of Entries in the List
+	 * */
+	public int getNumberOfEntriesInList(){
+		/* starts at zero and is increased by one every time a new variable is added */
+<span class="nc" id="L110">		return currentFactoryID;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

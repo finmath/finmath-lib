@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ActivatedBarrierTrace2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">ActivatedBarrierTrace2D.java</span></div><h1>ActivatedBarrierTrace2D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Immutable container for the activated post-hit value traced along the barrier
+ * as a function of the second state variable and time.
+ *
+ * &lt;p&gt;
+ * The intended usage is the direct 2D knock-in formulation:
+ * first solve the activated vanilla problem, then extract its value on the
+ * barrier and use that trace as interface data for the pre-hit PDE.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The data layout is values[secondIndex][timeIndex].
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class ActivatedBarrierTrace2D {
+
+	/**
+	 * The tolerance.
+	 */
+	private static final double TOLERANCE = 1E-12;
+
+	/**
+	 * The barrier value.
+	 */
+	private final double barrierValue;
+	/**
+	 * The second state grid.
+	 */
+	private final double[] secondStateGrid;
+	/**
+	 * The time grid.
+	 */
+	private final TimeDiscretization timeGrid;
+	/**
+	 * The values.
+	 */
+	private final double[][] values;
+
+	/**
+	 * Creates an immutable barrier trace container.
+	 *
+	 * @param barrierValue The barrier level in the first state variable.
+	 * @param secondStateGrid The grid of the second state variable.
+	 * @param timeGrid The time discretization corresponding to the trace
+	 *     values.
+	 * @param values Trace values with layout values[secondIndex][timeIndex].
+	 */
+	public ActivatedBarrierTrace2D(
+			final double barrierValue,
+			final double[] secondStateGrid,
+			final TimeDiscretization timeGrid,
+<span class="nc" id="L58">			final double[][] values) {</span>
+
+<span class="nc bnc" id="L60" title="All 4 branches missed.">		if (secondStateGrid == null || secondStateGrid.length == 0) {</span>
+<span class="nc" id="L61">			throw new IllegalArgumentException(&quot;secondStateGrid must not be null or empty.&quot;);</span>
+		}
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (timeGrid == null) {</span>
+<span class="nc" id="L64">			throw new IllegalArgumentException(&quot;timeGrid must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L66" title="All 4 branches missed.">		if (values == null || values.length != secondStateGrid.length) {</span>
+<span class="nc" id="L67">			throw new IllegalArgumentException(</span>
+					&quot;values must have one row for each second-state grid point.&quot;);
+		}
+
+<span class="nc" id="L71">		final int expectedTimeCount = timeGrid.getNumberOfTimes();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc bnc" id="L73" title="All 4 branches missed.">			if (values[i] == null || values[i].length != expectedTimeCount) {</span>
+<span class="nc" id="L74">				throw new IllegalArgumentException(</span>
+						&quot;Each values row must have length equal to timeGrid.getNumberOfTimes().&quot;);
+			}
+		}
+
+<span class="nc" id="L79">		this.barrierValue = barrierValue;</span>
+<span class="nc" id="L80">		this.secondStateGrid = secondStateGrid.clone();</span>
+<span class="nc" id="L81">		this.timeGrid = timeGrid;</span>
+<span class="nc" id="L82">		this.values = deepCopy(values);</span>
+<span class="nc" id="L83">	}</span>
+
+	/**
+	 * Returns the barrier level.
+	 *
+	 * @return The barrier value.
+	 */
+	public double getBarrierValue() {
+<span class="nc" id="L91">		return barrierValue;</span>
+	}
+
+	/**
+	 * Returns a defensive copy of the second-state grid.
+	 *
+	 * @return The second-state grid.
+	 */
+	public double[] getSecondStateGrid() {
+<span class="nc" id="L100">		return secondStateGrid.clone();</span>
+	}
+
+	/**
+	 * Returns the time grid.
+	 *
+	 * @return The time discretization.
+	 */
+	public TimeDiscretization getTimeGrid() {
+<span class="nc" id="L109">		return timeGrid;</span>
+	}
+
+	/**
+	 * Returns a defensive deep copy of the stored trace values.
+	 *
+	 * @return The full trace matrix with layout values[secondIndex][timeIndex].
+	 */
+	public double[][] getValues() {
+<span class="nc" id="L118">		return deepCopy(values);</span>
+	}
+
+	/**
+	 * Returns the stored value for a given second-state row and time index.
+	 *
+	 * @param secondIndex The second-state index.
+	 * @param timeIndex The time index.
+	 * @return The trace value.
+	 */
+	public double getValue(final int secondIndex, final int timeIndex) {
+<span class="nc" id="L129">		validateSecondIndex(secondIndex);</span>
+<span class="nc" id="L130">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L131">		return values[secondIndex][timeIndex];</span>
+	}
+
+	/**
+	 * Returns the trace value for a given second-state row and time.
+	 *
+	 * &lt;p&gt;
+	 * If tau lies exactly on a time node, that node value is returned.
+	 * Otherwise linear interpolation in time is used between the enclosing
+	 * nodes.
+	 * Values outside the grid are clamped to the nearest endpoint.
+	 * &lt;/p&gt;
+	 *
+	 * @param secondIndex The second-state index.
+	 * @param tau The time coordinate.
+	 * @return The interpolated trace value.
+	 */
+	public double getValue(final int secondIndex, final double tau) {
+<span class="nc" id="L149">		validateSecondIndex(secondIndex);</span>
+
+<span class="nc" id="L151">		final int numberOfTimes = timeGrid.getNumberOfTimes();</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		if (numberOfTimes == 1) {</span>
+<span class="nc" id="L153">			return values[secondIndex][0];</span>
+		}
+
+<span class="nc" id="L156">		final double firstTime = timeGrid.getTime(0);</span>
+<span class="nc" id="L157">		final double lastTime = timeGrid.getTime(numberOfTimes - 1);</span>
+
+<span class="nc bnc" id="L159" title="All 2 branches missed.">		if (tau &lt;= firstTime + TOLERANCE) {</span>
+<span class="nc" id="L160">			return values[secondIndex][0];</span>
+		}
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		if (tau &gt;= lastTime - TOLERANCE) {</span>
+<span class="nc" id="L163">			return values[secondIndex][numberOfTimes - 1];</span>
+		}
+
+<span class="nc" id="L166">		final int upperIndex = timeGrid.getTimeIndexNearestGreaterOrEqual(tau);</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if (upperIndex &lt; 0) {</span>
+<span class="nc" id="L168">			return values[secondIndex][numberOfTimes - 1];</span>
+		}
+
+<span class="nc" id="L171">		final double upperTime = timeGrid.getTime(upperIndex);</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		if (Math.abs(upperTime - tau) &lt;= TOLERANCE) {</span>
+<span class="nc" id="L173">			return values[secondIndex][upperIndex];</span>
+		}
+
+<span class="nc" id="L176">		final int lowerIndex = upperIndex - 1;</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		if (lowerIndex &lt; 0) {</span>
+<span class="nc" id="L178">			return values[secondIndex][upperIndex];</span>
+		}
+
+<span class="nc" id="L181">		final double lowerTime = timeGrid.getTime(lowerIndex);</span>
+<span class="nc" id="L182">		final double lowerValue = values[secondIndex][lowerIndex];</span>
+<span class="nc" id="L183">		final double upperValue = values[secondIndex][upperIndex];</span>
+
+<span class="nc" id="L185">		final double weight = (tau - lowerTime) / (upperTime - lowerTime);</span>
+<span class="nc" id="L186">		return (1.0 - weight) * lowerValue + weight * upperValue;</span>
+	}
+
+	/**
+	 * Returns the number of second-state rows.
+	 *
+	 * @return The number of second-state grid points.
+	 */
+	public int getNumberOfSecondStatePoints() {
+<span class="nc" id="L195">		return secondStateGrid.length;</span>
+	}
+
+	/**
+	 * Returns the number of time nodes.
+	 *
+	 * @return The number of time points.
+	 */
+	public int getNumberOfTimePoints() {
+<span class="nc" id="L204">		return timeGrid.getNumberOfTimes();</span>
+	}
+
+	private void validateSecondIndex(final int secondIndex) {
+<span class="nc bnc" id="L208" title="All 4 branches missed.">		if (secondIndex &lt; 0 || secondIndex &gt;= secondStateGrid.length) {</span>
+<span class="nc" id="L209">			throw new IndexOutOfBoundsException(</span>
+					&quot;secondIndex out of bounds: &quot; + secondIndex);
+		}
+<span class="nc" id="L212">	}</span>
+
+	private void validateTimeIndex(final int timeIndex) {
+<span class="nc bnc" id="L215" title="All 4 branches missed.">		if (timeIndex &lt; 0 || timeIndex &gt;= timeGrid.getNumberOfTimes()) {</span>
+<span class="nc" id="L216">			throw new IndexOutOfBoundsException(</span>
+					&quot;timeIndex out of bounds: &quot; + timeIndex);
+		}
+<span class="nc" id="L219">	}</span>
+
+	private static double[][] deepCopy(final double[][] source) {
+<span class="nc" id="L222">		final double[][] copy = new double[source.length][];</span>
+<span class="nc bnc" id="L223" title="All 2 branches missed.">		for (int i = 0; i &lt; source.length; i++) {</span>
+<span class="nc" id="L224">			copy[i] = source[i].clone();</span>
+		}
+<span class="nc" id="L226">		return copy;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

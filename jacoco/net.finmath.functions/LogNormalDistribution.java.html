@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogNormalDistribution.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">LogNormalDistribution.java</span></div><h1>LogNormalDistribution.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 10.01.2021
+ */
+package net.finmath.functions;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LogNormalDistribution {
+
+	// Create normal distribution (for if we use Jakarta Commons Math)
+<span class="nc" id="L15">	static final org.apache.commons.math3.distribution.LogNormalDistribution logNormalDistribution  = new org.apache.commons.math3.distribution.LogNormalDistribution();</span>
+
+	public static class LogNormalDistributionParameters {
+		private final double mean;
+		private final double standardDeviation;
+		private final double mu;
+		private final double sigma;
+
+		public LogNormalDistributionParameters(double mean, double standardDeviation, double mu, double sigma) {
+<span class="nc" id="L24">			super();</span>
+<span class="nc" id="L25">			this.mean = mean;</span>
+<span class="nc" id="L26">			this.standardDeviation = standardDeviation;</span>
+<span class="nc" id="L27">			this.mu = mu;</span>
+<span class="nc" id="L28">			this.sigma = sigma;</span>
+<span class="nc" id="L29">		}</span>
+
+		public double getMean() {
+<span class="nc" id="L32">			return mean;</span>
+		}
+
+		public double getStandardDeviation() {
+<span class="nc" id="L36">			return standardDeviation;</span>
+		}
+
+		public double getMu() {
+<span class="nc" id="L40">			return mu;</span>
+		}
+
+		public double getSigma() {
+<span class="nc" id="L44">			return sigma;</span>
+		}
+	}
+
+	private LogNormalDistribution() {
+	}
+
+	public static LogNormalDistributionParameters getParametersFromMuAndSigma(double mu, double sigma) {
+<span class="nc" id="L52">		final double mean = Math.exp(mu) * Math.exp(sigma*sigma/2);</span>
+<span class="nc" id="L53">		final double standardDeviation = Math.exp(mu) * Math.sqrt((Math.exp(Math.pow(sigma,2))-1)*Math.exp(Math.pow(sigma,2)));</span>
+
+<span class="nc" id="L55">		return new LogNormalDistributionParameters(mean, standardDeviation, mu, sigma);</span>
+	}
+
+	public static LogNormalDistributionParameters getParametersFromMeanAndStdDev(double mean, double standardDeviation) {
+<span class="nc" id="L59">		final double mu = Math.log(  mean / Math.sqrt(Math.pow(standardDeviation / mean,2)+1 ) );</span>
+<span class="nc" id="L60">		final double sigma = Math.sqrt( 2 * (Math.log(mean)-mu) );</span>
+
+<span class="nc" id="L62">		return new LogNormalDistributionParameters(mean, standardDeviation, mu, sigma);</span>
+	}
+
+	/**
+	 * Returns the value of the density at x.
+	 *
+	 * @param x Argument
+	 * @return The value of the density at x.
+	 */
+	public static double density(final double x) {
+<span class="nc" id="L72">		return logNormalDistribution.density(x);</span>
+	}
+
+	/**
+	 * Cumulative distribution function of the standard normal distribution.
+	 * The implementation is currently using Jakarta commons-math
+	 *
+	 * @param x A sample point
+	 * @return The probability of being below x, given x is standard normal
+	 */
+	public static double cumulativeDistribution(final double x) {
+<span class="nc" id="L83">		return logNormalDistribution.cumulativeProbability(x);</span>
+	}
+
+	/**
+	 * Inverse of the cumulative distribution function of the standard normal distribution using Jakarta commons-math
+	 *
+	 * @param p The probability
+	 * @return The quantile
+	 */
+	public static double inverseCumulativeDistribution(final double p) {
+<span class="nc" id="L93">		return logNormalDistribution.inverseCumulativeProbability(p);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

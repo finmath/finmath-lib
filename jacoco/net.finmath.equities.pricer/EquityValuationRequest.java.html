@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EquityValuationRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.pricer</a> &gt; <span class="el_source">EquityValuationRequest.java</span></div><h1>EquityValuationRequest.java</h1><pre class="source lang-java linenums">package net.finmath.equities.pricer;
+
+import java.util.ArrayList;
+
+import net.finmath.equities.products.Option;
+
+/**
+ * Class to store a pricing request handed to implementations of the IOptionPricer interface.
+ *
+ * @author Andreas Grotz
+ */
+
+public class EquityValuationRequest {
+
+<span class="fc" id="L15">	enum CalculationRequestType</span>
+	{
+<span class="fc" id="L17">		Price,</span>
+<span class="fc" id="L18">		EqDelta,</span>
+<span class="fc" id="L19">		EqGamma,</span>
+<span class="fc" id="L20">		EqVega,</span>
+<span class="fc" id="L21">		Theta,</span>
+	}
+
+	private final Option option;
+	private final ArrayList&lt;CalculationRequestType&gt; calcsRequested;
+
+	public EquityValuationRequest(final Option option, final ArrayList&lt;CalculationRequestType&gt; calcsRequested)
+<span class="nc" id="L28">	{</span>
+<span class="nc" id="L29">		this.option = option;</span>
+<span class="nc" id="L30">		this.calcsRequested = calcsRequested;</span>
+<span class="nc" id="L31">	}</span>
+
+	public Option getOption() {
+<span class="nc" id="L34">		return option;</span>
+	}
+
+	public ArrayList&lt;CalculationRequestType&gt; getCalcsRequested() {
+<span class="nc" id="L38">		return calcsRequested;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

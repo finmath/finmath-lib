@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloIntegrator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.integration</a> &gt; <span class="el_source">MonteCarloIntegrator.java</span></div><h1>MonteCarloIntegrator.java</h1><pre class="source lang-java linenums">package net.finmath.integration;
+
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.DoubleStream;
+
+import org.apache.commons.lang3.Validate;
+
+import net.finmath.randomnumbers.MersenneTwister;
+import net.finmath.randomnumbers.RandomNumberGenerator1D;
+
+
+/**
+ * A simple integrator using Monte-Carlo integration.
+ *
+ * The constructor has an optional argument to allow
+ * parallel function evaluation. In that case, the integration rule
+ * uses Java 8 parallel streams to evaluate.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class MonteCarloIntegrator extends AbstractRealIntegral{
+
+	private final int		numberOfEvaluationPoints;
+	private final int		seed;
+
+	/**
+	 * Create an integrator using Monte-Carlo integration.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
+	 * @param seed The seed of the random number generator.
+	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
+	 */
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final int seed, final boolean useParallelEvaluation) {
+<span class="fc" id="L37">		super(lowerBound, upperBound);</span>
+<span class="fc" id="L38">		Validate.exclusiveBetween(0, Integer.MAX_VALUE, numberOfEvaluationPoints, &quot;Parameter numberOfEvaluationPoints required to be &gt; 0.&quot;);</span>
+<span class="fc" id="L39">		this.numberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="fc" id="L40">		this.seed = seed;</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * Create an integrator using Monte-Carlo.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3.
+	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
+	 */
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
+<span class="nc" id="L52">		this(lowerBound, upperBound, numberOfEvaluationPoints, 3141 /* fixed seed */, useParallelEvaluation);</span>
+<span class="nc" id="L53">	}</span>
+
+	/**
+	 * Create an integrator using Monte-Carlo.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
+	 */
+	public MonteCarloIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="nc" id="L63">		this(lowerBound, upperBound, numberOfEvaluationPoints, false);</span>
+<span class="nc" id="L64">	}</span>
+
+	@Override
+	public double integrate(final DoubleUnaryOperator integrand) {
+<span class="fc" id="L68">		final double	lowerBound			= getLowerBound();</span>
+<span class="fc" id="L69">		final double	upperBound			= getUpperBound();</span>
+<span class="fc" id="L70">		final double	range				= upperBound-lowerBound;</span>
+
+		// Create random number sequence generator (we use MersenneTwister)
+<span class="fc" id="L73">		final RandomNumberGenerator1D mersenneTwister	= new MersenneTwister(seed);</span>
+
+<span class="fc" id="L75">		final DoubleStream randomNumberSequence = DoubleStream.generate(mersenneTwister).limit(numberOfEvaluationPoints);</span>
+
+		// Integrate f(a x + b) on [0,1)
+<span class="fc" id="L78">		return randomNumberSequence.map(x -&gt; lowerBound + x * range).map(integrand).sum() * range / numberOfEvaluationPoints;</span>
+	}
+
+	public int getNumberOfEvaluationPoints() {
+<span class="fc" id="L82">		return numberOfEvaluationPoints;</span>
+	}
+
+	public int getSeed() {
+<span class="nc" id="L86">		return seed;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

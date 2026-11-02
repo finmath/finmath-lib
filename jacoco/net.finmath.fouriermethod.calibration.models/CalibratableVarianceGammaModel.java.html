@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CalibratableVarianceGammaModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.calibration.models</a> &gt; <span class="el_source">CalibratableVarianceGammaModel.java</span></div><h1>CalibratableVarianceGammaModel.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.calibration.models;
+
+import net.finmath.fouriermethod.calibration.ScalarParameterInformation;
+import net.finmath.fouriermethod.calibration.ScalarParameterInformationImplementation;
+import net.finmath.fouriermethod.calibration.Unconstrained;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.fouriermethod.models.VarianceGammaModel;
+import net.finmath.modelling.ModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+
+/**
+ * This class is creates new instances of VarianceGammaModel and communicates with the optimization algorithm.
+ *
+ * This class provides clones of herself: in such a way the information concerning constraints is not lost.
+ *
+ * The method getCharacteristicFunction is then passed to the FFT pricing routine.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class CalibratableVarianceGammaModel implements CalibratableProcess {
+	private final VarianceGammaModelDescriptor descriptor;
+
+	private final ScalarParameterInformation sigmaInfo;
+	private final ScalarParameterInformation thetaInfo;
+	private final ScalarParameterInformation nuInfo;
+	/*
+	 * Upper and lower bounds are collected here for convenience:
+	 * such vectors are then passed to the factory of the optimization algorithm.
+	 * In this way we guarantee consistency between the constraints in the model
+	 * and the constraints in the optimizer factory.
+	 */
+	private final double[] parameterUpperBounds;
+	private final double[] parameterLowerBounds;
+
+	/**
+	 * Basic constructor where all parameters are to be calibrated.
+	 * All parameters are unconstrained.
+	 *
+	 * @param descriptor The model descriptor for the Variance Gamma model.
+	 */
+	public CalibratableVarianceGammaModel(VarianceGammaModelDescriptor descriptor) {
+<span class="nc" id="L42">		super();</span>
+<span class="nc" id="L43">		this.descriptor = descriptor;</span>
+<span class="nc" id="L44">		this.sigmaInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());</span>
+<span class="nc" id="L45">		this.thetaInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());</span>
+<span class="nc" id="L46">		this.nuInfo = new ScalarParameterInformationImplementation(true, new Unconstrained());</span>
+<span class="nc" id="L47">		this.parameterUpperBounds = extractUpperBounds();</span>
+<span class="nc" id="L48">		this.parameterLowerBounds = extractLowerBounds();</span>
+<span class="nc" id="L49">	}</span>
+
+	/**
+	 *
+	 * @param descriptor The model descriptor for the Variance Gamma model.
+	 * @param sigmaInfo A constraint for the parameter sigma.
+	 * @param thetaInfo A constraint for the parameter theta.
+	 * @param nuInfo A constraint for the parameter nu.
+	 */
+	public CalibratableVarianceGammaModel(VarianceGammaModelDescriptor descriptor, ScalarParameterInformation sigmaInfo,
+<span class="fc" id="L59">			ScalarParameterInformation thetaInfo, ScalarParameterInformation nuInfo) {</span>
+<span class="fc" id="L60">		this.descriptor = descriptor;</span>
+<span class="fc" id="L61">		this.sigmaInfo = sigmaInfo;</span>
+<span class="fc" id="L62">		this.thetaInfo = thetaInfo;</span>
+<span class="fc" id="L63">		this.nuInfo = nuInfo;</span>
+<span class="fc" id="L64">		this.parameterUpperBounds = extractUpperBounds();</span>
+<span class="fc" id="L65">		this.parameterLowerBounds = extractLowerBounds();</span>
+<span class="fc" id="L66">	}</span>
+
+	@Override
+	public CalibratableProcess getCloneForModifiedParameters(double[] parameters) {
+
+		//If the parameters are to be calibrated we update the value, otherwise we use the stored one.
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		final double sigma = sigmaInfo.getIsParameterToCalibrate() ? sigmaInfo.getConstraint().apply(parameters[0]) : descriptor.getSigma();</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">		final double theta = thetaInfo.getIsParameterToCalibrate() ? thetaInfo.getConstraint().apply(parameters[1]) : descriptor.getTheta();</span>
+<span class="pc bpc" id="L74" title="1 of 2 branches missed.">		final double nu = nuInfo.getIsParameterToCalibrate() ? nuInfo.getConstraint().apply(parameters[2]) : descriptor.getNu();</span>
+
+<span class="fc" id="L76">		final VarianceGammaModelDescriptor newDescriptor = new VarianceGammaModelDescriptor(descriptor.getReferenceDate(),</span>
+<span class="fc" id="L77">				descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(), descriptor.getDiscountCurveForDiscountRate(),</span>
+				sigma, theta, nu);
+
+<span class="fc" id="L80">		return new CalibratableVarianceGammaModel(newDescriptor,sigmaInfo, thetaInfo, nuInfo);</span>
+	}
+
+	@Override
+	public ModelDescriptor getModelDescriptor() {
+<span class="fc" id="L85">		return descriptor;</span>
+	}
+
+	@Override
+	public CharacteristicFunctionModel getCharacteristicFunctionModel() {
+<span class="fc" id="L90">		return new VarianceGammaModel(null, descriptor.getInitialValue(),descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L91">				descriptor.getDiscountCurveForDiscountRate(), descriptor.getSigma(), descriptor.getTheta(), descriptor.getNu());</span>
+	}
+
+	@Override
+	public double[] getParameterLowerBounds() {
+<span class="fc" id="L96">		return parameterLowerBounds;</span>
+	}
+
+	@Override
+	public double[] getParameterUpperBounds() {
+<span class="fc" id="L101">		return parameterUpperBounds;</span>
+	}
+
+	private double[] extractUpperBounds() {
+<span class="fc" id="L105">		final double[] upperBounds = new double[3];</span>
+<span class="fc" id="L106">		final double threshold = 1E6;</span>
+<span class="pc bpc" id="L107" title="1 of 2 branches missed.">		upperBounds[0] = sigmaInfo.getConstraint().getUpperBound() &gt; threshold ? threshold : sigmaInfo.getConstraint().getUpperBound();</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">		upperBounds[1] = thetaInfo.getConstraint().getUpperBound() &gt; threshold ? threshold : thetaInfo.getConstraint().getUpperBound();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		upperBounds[2] = nuInfo.getConstraint().getUpperBound() &gt; threshold ? threshold : nuInfo.getConstraint().getUpperBound();</span>
+
+<span class="fc" id="L111">		return upperBounds;</span>
+	}
+
+	private double[] extractLowerBounds() {
+<span class="fc" id="L115">		final double[] upperBounds = new double[3];</span>
+<span class="fc" id="L116">		final double threshold = -1E6;</span>
+<span class="pc bpc" id="L117" title="1 of 2 branches missed.">		upperBounds[0] = sigmaInfo.getConstraint().getLowerBound() &lt; threshold ? threshold : sigmaInfo.getConstraint().getLowerBound();</span>
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">		upperBounds[1] = thetaInfo.getConstraint().getLowerBound() &lt; threshold ? threshold : thetaInfo.getConstraint().getLowerBound();</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">		upperBounds[2] = nuInfo.getConstraint().getLowerBound() &lt; threshold ? threshold : nuInfo.getConstraint().getLowerBound();</span>
+
+<span class="fc" id="L121">		return upperBounds;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

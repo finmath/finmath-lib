@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractLIBORCovarianceModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">AbstractLIBORCovarianceModel.java</span></div><h1>AbstractLIBORCovarianceModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * A base class and interface description for the instantaneous covariance of
+ * an forward rate interest rate model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractLIBORCovarianceModel implements Serializable, LIBORCovarianceModel {
+
+	private static final long serialVersionUID = 5364544247367259329L;
+
+	private final TimeDiscretization		timeDiscretization;
+	private final TimeDiscretization		liborPeriodDiscretization;
+	private final int						numberOfFactors;
+
+	/**
+	 * Constructor consuming time discretizations, which are handled by the super class.
+	 *
+	 * @param timeDiscretization The vector of simulation time discretization points.
+	 * @param liborPeriodDiscretization The vector of tenor discretization points.
+	 * @param numberOfFactors The number of factors to use (a factor reduction is performed)
+	 */
+	public AbstractLIBORCovarianceModel(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.timeDiscretization			= timeDiscretization;</span>
+<span class="fc" id="L40">		this.liborPeriodDiscretization	= liborPeriodDiscretization;</span>
+<span class="fc" id="L41">		this.numberOfFactors			= numberOfFactors;</span>
+<span class="fc" id="L42">	}</span>
+
+	@Override
+	public	RandomVariable[]	getFactorLoading(final double time, final double component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L46">		int componentIndex = liborPeriodDiscretization.getTimeIndex(component);</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">		if(componentIndex &lt; 0) {</span>
+<span class="fc" id="L48">			componentIndex = -componentIndex - 2;</span>
+		}
+<span class="fc" id="L50">		return getFactorLoading(time, componentIndex, realizationAtTimeIndex);</span>
+	}
+
+	@Override
+	public	RandomVariable[]	getFactorLoading(final double time, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L55">		int timeIndex = timeDiscretization.getTimeIndex(time);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">		if(timeIndex &lt; 0) {</span>
+<span class="fc" id="L57">			timeIndex = -timeIndex - 2;</span>
+		}
+<span class="fc" id="L59">		return getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+	}
+
+	@Override
+	public abstract	RandomVariable[]	getFactorLoading(int timeIndex, int component, RandomVariable[] realizationAtTimeIndex);
+
+	@Override
+	public abstract RandomVariable	getFactorLoadingPseudoInverse(int timeIndex, int component, int factor, RandomVariable[] realizationAtTimeIndex);
+
+	@Override
+	public RandomVariable getCovariance(final double time, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L70">		int timeIndex = timeDiscretization.getTimeIndex(time);</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L72">			timeIndex = Math.abs(timeIndex)-2;</span>
+		}
+
+<span class="fc" id="L75">		return getCovariance(timeIndex, component1, component2, realizationAtTimeIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getCovariance(final int timeIndex, final int component1, final int component2, final RandomVariable[] realizationAtTimeIndex) {
+
+<span class="fc" id="L81">		final RandomVariable[] factorLoadingOfComponent1 = getFactorLoading(timeIndex, component1, realizationAtTimeIndex);</span>
+<span class="fc" id="L82">		final RandomVariable[] factorLoadingOfComponent2 = getFactorLoading(timeIndex, component2, realizationAtTimeIndex);</span>
+
+		// Multiply first factor loading (this avoids that we have to init covariance to 0).
+<span class="fc" id="L85">		RandomVariable covariance = factorLoadingOfComponent1[0].mult(factorLoadingOfComponent2[0]);</span>
+
+		// Add others, if any
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		for(int factorIndex=1; factorIndex&lt;this.getNumberOfFactors(); factorIndex++) {</span>
+<span class="fc" id="L89">			covariance = covariance.addProduct(factorLoadingOfComponent1[factorIndex],factorLoadingOfComponent2[factorIndex]);</span>
+		}
+
+<span class="fc" id="L92">		return covariance;</span>
+	}
+
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L98">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public TimeDiscretization getLiborPeriodDiscretization() {
+<span class="fc" id="L103">		return liborPeriodDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="fc" id="L108">		return numberOfFactors;</span>
+	}
+
+	@Override
+	public abstract AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(Map&lt;String, Object&gt; dataModified) throws CalculationException;
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_UNKNOWN.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_UNKNOWN.java</span></div><h1>DayCountConvention_UNKNOWN.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+/**
+ * Implements a placeholder object for an unknown day count convention, throwing an exception,
+ * whenever a day count or day count fraction is requested.
+ *
+ * This class may become handy, if you like to construct products based on possibly incomplete data
+ * where an exception is thrown late, i.e., not at construction time, but at evaluation time.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_UNKNOWN implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = -3204506898077711668L;
+
+	private final String errorMessage;
+
+	/**
+	 * Create the unknown day count convention.
+	 */
+<span class="nc" id="L31">	public DayCountConvention_UNKNOWN() {</span>
+<span class="nc" id="L32">		errorMessage = &quot;Requesting day count on an unknown day count convention.&quot;;</span>
+<span class="nc" id="L33">	}</span>
+
+	/**
+	 * Create the unknown day count convention.
+	 *
+	 * @param name A given name, which will be shown in the {@link IllegalArgumentException} when any method is called on this object.
+	 */
+<span class="nc" id="L40">	public DayCountConvention_UNKNOWN(final String name) {</span>
+<span class="nc" id="L41">		errorMessage = &quot;Requesting day count on an unknown day count convention (name=&quot; + name + &quot;).&quot;;</span>
+<span class="nc" id="L42">	}</span>
+
+	@Override
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc" id="L46">		throw new IllegalArgumentException(errorMessage);</span>
+	}
+
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc" id="L51">		throw new IllegalArgumentException(errorMessage);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

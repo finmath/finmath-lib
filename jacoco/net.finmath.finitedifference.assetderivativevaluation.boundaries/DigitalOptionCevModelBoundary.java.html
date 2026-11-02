@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalOptionCevModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DigitalOptionCevModelBoundary.java</span></div><h1>DigitalOptionCevModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DigitalOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DigitalPayoffType;
+
+/**
+ * Boundary conditions for {@link DigitalOption} under the
+ * {@link FDMCevModel}.
+ *
+ * &lt;p&gt;
+ * The boundary asymptotics depend on the exercise style:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;European exercise: discounted continuation asymptotics.&lt;/li&gt;
+ *   &lt;li&gt;Bermudan / American exercise: early-exercise asymptotics.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Conventions:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;For a cash-or-nothing call, the lower boundary is zero.&lt;/li&gt;
+ *   &lt;li&gt;For a cash-or-nothing put, the upper boundary is zero.&lt;/li&gt;
+ *   &lt;li&gt;For an asset-or-nothing call, the lower boundary is zero.&lt;/li&gt;
+ *   &lt;li&gt;For an asset-or-nothing put, the upper boundary is zero.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * At the in-the-money far boundary, the value is:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;European cash digital: discounted cash payoff.&lt;/li&gt;
+ *   &lt;li&gt;European asset digital: dividend-adjusted stock value.&lt;/li&gt;
+ *   &lt;li&gt;Bermudan/American cash digital: immediate cash payoff.&lt;/li&gt;
+ *   &lt;li&gt;Bermudan/American asset digital: immediate stock value.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalOptionCevModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMCevModel model;
+
+	/**
+	 * Creates the boundary condition associated with a given
+	 * {@link FDMCevModel}.
+	 *
+	 * @param model The CEV model used to determine
+	 *              risk-free and dividend discount factors.
+	 */
+<span class="nc" id="L65">	public DigitalOptionCevModelBoundary(final FDMCevModel model) {</span>
+<span class="nc" id="L66">		this.model = model;</span>
+<span class="nc" id="L67">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L75">		final DigitalOption option = (DigitalOption) product;</span>
+<span class="nc" id="L76">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L77">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+<span class="nc" id="L78">		final Exercise exercise = option.getExercise();</span>
+
+<span class="nc bnc" id="L80" title="All 2 branches missed.">		if (sign == CallOrPut.CALL) {</span>
+<span class="nc" id="L81">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L82">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L86">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L90">					? getDiscountedCashValue(option, time)</span>
+<span class="nc" id="L91">							: option.getCashPayoff();</span>
+
+<span class="nc" id="L93">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L94">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L97">			final double stateVariable = stateVariables[0];</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L99">					? getDiscountedAssetValue(stateVariable, option, time)</span>
+<span class="nc" id="L100">							: stateVariable;</span>
+
+<span class="nc" id="L102">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L103">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		} else {
+<span class="nc" id="L106">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L116">		final DigitalOption option = (DigitalOption) product;</span>
+<span class="nc" id="L117">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L118">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+<span class="nc" id="L119">		final Exercise exercise = option.getExercise();</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		if (sign == CallOrPut.PUT) {</span>
+<span class="nc" id="L122">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L123">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L127">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L129" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L131">					? getDiscountedCashValue(option, time)</span>
+<span class="nc" id="L132">							: option.getCashPayoff();</span>
+
+<span class="nc" id="L134">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L135">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+<span class="nc bnc" id="L137" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L138">			final double stateVariable = stateVariables[0];</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">			final double value = isEuropeanExercise(exercise)</span>
+<span class="nc" id="L140">					? getDiscountedAssetValue(stateVariable, option, time)</span>
+<span class="nc" id="L141">							: stateVariable;</span>
+
+<span class="nc" id="L143">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L144">					StandardBoundaryCondition.dirichlet(value)</span>
+			};
+		} else {
+<span class="nc" id="L147">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Returns true if the exercise is European.
+	 *
+	 * @param exercise The exercise specification.
+	 * @return True if and only if the exercise is European.
+	 */
+	private boolean isEuropeanExercise(final Exercise exercise) {
+<span class="nc bnc" id="L158" title="All 4 branches missed.">		return exercise != null &amp;&amp; exercise.isEuropean();</span>
+	}
+
+	/**
+	 * Returns the discounted cash payoff for a European cash-or-nothing
+	 * digital.
+	 *
+	 * @param option The digital option.
+	 * @param time The current model time.
+	 * @return Discounted cash payoff.
+	 */
+	private double getDiscountedCashValue(final DigitalOption option, final double time) {
+
+<span class="nc" id="L171">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L172">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L174">		final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L176">		return option.getCashPayoff() * Math.exp(-riskFreeRate * (maturity - time));</span>
+	}
+
+	/**
+	 * Returns the discounted stock asymptotic value for a European
+	 * asset-or-nothing digital.
+	 *
+	 * @param stateVariable The boundary stock level.
+	 * @param option The digital option.
+	 * @param time The current model time.
+	 * @return Discounted stock value.
+	 */
+	private double getDiscountedAssetValue(
+			final double stateVariable,
+			final DigitalOption option,
+			final double time) {
+
+<span class="nc" id="L193">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L194">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+
+<span class="nc" id="L196">		final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L198">		return stateVariable * Math.exp(-dividendYieldRate * (maturity - time));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

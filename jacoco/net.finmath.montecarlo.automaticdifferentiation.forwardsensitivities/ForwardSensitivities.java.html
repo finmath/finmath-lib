@@ -1,0 +1,2252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardSensitivities.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities</a> &gt; <span class="el_source">ForwardSensitivities.java</span></div><h1>ForwardSensitivities.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.IntStream;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.functions.LinearAlgebra;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.automaticdifferentiation.IndependentModelParameterProvider;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Provides static methods to obtain reduced stochastic hedge ratios dV/dP_j.
+ *
+ * The hedge ratios are represented in a finite solution basis
+ *
+ *\[ phi_j^r(omega_l) = sum_q xi_j^q X_q(omega_l) \text{.} \]
+ *
+ * Two reduced coefficient criteria and one unreduced pathwise benchmark are supported:
+ *
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link ReductionMethod#L2}: minimize the full empirical pathwise residual
+ *       1/N sum_l ||A_l phi_l^r - b_l||^2.&lt;/li&gt;
+ *   &lt;li&gt;{@link ReductionMethod#PROJECTED_GALERKIN}: impose the projected moment equations
+ *       &amp;lt;A phi^r - b, Y_s&amp;gt;_N = 0, where Y_s may differ from the solution basis X_q.&lt;/li&gt;
+ *   &lt;li&gt;{@link ReductionMethod#PATHWISE}: optionally project dV/dM and dP_j/dM onto
+ *       the solution basis first, then solve dV/dM = phi^T dP/dM path by path,
+ *       without reducing phi to a finite basis.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Here b_l is the pathwise derivative of the derivative value with respect to model
+ * primitives M_i, and A_l is the pathwise derivative of hedge instruments P_j
+ * with respect to the same primitives.
+ *
+ * See https://ssrn.com/abstract=6758541 for documentation.
+ *
+ * @author Christian Fries
+ */
+<span class="nc" id="L50">public class ForwardSensitivities {</span>
+
+	/* Relative numerical-rank threshold for the column-equilibrated QR factorization. */
+<span class="fc" id="L53">	private static final double QR_RANK_TOLERANCE_FACTOR = 32.0 * Math.ulp(1.0);</span>
+
+	/**
+	 * The reduced coefficient criterion used to determine the basis coefficients.
+	 */
+<span class="fc" id="L58">	public enum ReductionMethod {</span>
+
+		/**
+		 * Empirical L2 residual minimization:
+		 *
+		 *     min_xi 1/N sum_l ||A_l phi_l^r - b_l||_2^2 + lambda ||xi||_2^2.
+		 *
+		 * The returned reduced matrix is the normal matrix X^T A^T A X / N,
+		 * and the returned right-hand side is X^T A^T b / N.
+		 */
+<span class="fc" id="L68">		L2,</span>
+
+		/**
+		 * Projected/Galerkin, or Petrov-Galerkin, moment matching:
+		 *
+		 *     &amp;lt;(A phi^r - b)_i, Y_s&amp;gt;_N = 0.
+		 *
+		 * If Y_s = X_s, this is the usual Galerkin case. If the test basis differs
+		 * from the solution basis, it is a Petrov-Galerkin projected moment system.
+		 *
+		 * If the system is not solved exactly, the code solves the reduced least-squares
+		 * problem ||B xi - beta||^2 + lambda ||xi||^2.
+		 */
+<span class="fc" id="L81">		PROJECTED_GALERKIN,</span>
+
+		/**
+		 * No hedge-ratio reduction: optionally project the input derivatives
+		 * b = dV/dM and A_j = dP_j/dM onto the solution basis, then solve the
+		 * pathwise least-squares problem
+		 *
+		 *     min_phi_l ||A_l phi_l - b_l||_2^2
+		 *
+		 * independently for every Monte-Carlo path l. This directly returns the
+		 * pathwise hedge ratios phi_j(l) = dV/dP_j(l) and is intended as a
+		 * benchmark for the reduced projection methods. Regularization is not
+		 * supported for this method.
+		 */
+<span class="fc" id="L95">		PATHWISE</span>
+	}
+
+	/**
+	 * Result container for a reduced stochastic hedge-ratio calculation.
+	 *
+	 * hedgeRatios[j] is the reconstructed stochastic hedge ratio phi_j^r(t, omega),
+	 * or the unreduced pathwise hedge ratio phi_j(t, omega) for PATHWISE.
+	 * coefficients[j][q] is xi_j^q with respect to the solution basis X_q.
+	 * For PATHWISE, coefficients is empty since no basis expansion of phi is used.
+	 */
+	public static final class ProjectedHedgeRatioResult {
+
+		private final RandomVariable[] hedgeRatios;
+		private final double[][] coefficients;      // [hedgeIndex][solutionBasisIndex] = xi_j^q
+		private final double[][] reducedMatrix;     // method-dependent reduced system matrix
+		private final double[] reducedRhs;          // method-dependent reduced system right-hand side
+		private final List&lt;String&gt; riskFactorNames; // row risk factors M_i
+		private final ReductionMethod reductionMethod;
+		private final Timings timings;
+
+		public ProjectedHedgeRatioResult(
+				final RandomVariable[] hedgeRatios,
+				final double[][] coefficients,
+				final double[][] reducedMatrix,
+				final double[] reducedRhs,
+				final List&lt;String&gt; riskFactorNames,
+				final ReductionMethod reductionMethod,
+<span class="fc" id="L123">				final Timings timings) {</span>
+<span class="fc" id="L124">			this.hedgeRatios = hedgeRatios;</span>
+<span class="fc" id="L125">			this.coefficients = coefficients;</span>
+<span class="fc" id="L126">			this.reducedMatrix = reducedMatrix;</span>
+<span class="fc" id="L127">			this.reducedRhs = reducedRhs;</span>
+<span class="fc" id="L128">			this.riskFactorNames = riskFactorNames;</span>
+<span class="fc" id="L129">			this.reductionMethod = reductionMethod;</span>
+<span class="fc" id="L130">			this.timings = timings;</span>
+<span class="fc" id="L131">		}</span>
+
+		public RandomVariable[] getHedgeRatios() {
+<span class="fc" id="L134">			return hedgeRatios;</span>
+		}
+
+		public double[][] getCoefficients() {
+<span class="fc" id="L138">			return coefficients;</span>
+		}
+
+		/**
+		 * Method-dependent reduced system matrix.
+		 *
+		 * &lt;ul&gt;
+		 *   &lt;li&gt;PROJECTED_GALERKIN: B with rows (i,s) for test basis Y_s
+		 *       and columns (j,q) for solution basis X_q.&lt;/li&gt;
+		 *   &lt;li&gt;L2: normal matrix G = D^T D / N with columns (j,q).&lt;/li&gt;
+		 *   &lt;li&gt;PATHWISE: empty matrix, since no reduced system is assembled.&lt;/li&gt;
+		 * &lt;/ul&gt;
+		 */
+		public double[][] getReducedMatrix() {
+<span class="nc" id="L152">			return reducedMatrix;</span>
+		}
+
+		/**
+		 * Method-dependent reduced right-hand side.
+		 *
+		 * &lt;ul&gt;
+		 *   &lt;li&gt;PROJECTED_GALERKIN: beta with rows (i,s) for test basis Y_s.&lt;/li&gt;
+		 *   &lt;li&gt;L2: h = D^T b / N with columns (j,q).&lt;/li&gt;
+		 *   &lt;li&gt;PATHWISE: empty vector, since no reduced right-hand side is assembled.&lt;/li&gt;
+		 * &lt;/ul&gt;
+		 */
+		public double[] getReducedRhs() {
+<span class="nc" id="L165">			return reducedRhs;</span>
+		}
+
+		public List&lt;String&gt; getRiskFactorNames() {
+<span class="nc" id="L169">			return riskFactorNames;</span>
+		}
+
+		public ReductionMethod getReductionMethod() {
+<span class="nc" id="L173">			return reductionMethod;</span>
+		}
+
+		public Timings getTimings() {
+<span class="fc" id="L177">			return timings;</span>
+		}
+	}
+
+	public static final class Timings {
+		private final long timingProjectSystem;
+		private final long timingSolveSystem;
+
+		public Timings(long timingProjectSystem, long timingSolveSystem) {
+<span class="fc" id="L186">			super();</span>
+<span class="fc" id="L187">			this.timingProjectSystem = timingProjectSystem;</span>
+<span class="fc" id="L188">			this.timingSolveSystem = timingSolveSystem;</span>
+<span class="fc" id="L189">		}</span>
+		public long getTimingProjectSystem() {
+<span class="fc" id="L191">			return timingProjectSystem;</span>
+		}
+
+		public long getTimingSolveSystem() {
+<span class="fc" id="L195">			return timingSolveSystem;</span>
+		}
+	}
+
+	/**
+	 * General reduced stochastic hedge-ratio calculation supporting both coefficient criteria.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param basisFunctions Basis random variables X_q evaluated on the same paths.
+	 *                       For PROJECTED_GALERKIN this basis is used both as solution
+	 *                       and test basis. For PATHWISE this basis is used only for
+	 *                       the optional derivative projection.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion.
+	 *                             Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduced coefficient criterion.
+	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosReduced(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] basisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) throws CalculationException {
+
+<span class="nc" id="L224">		return getHedgeRatios(</span>
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				basisFunctions,
+				basisFunctions,
+				regularizationLambda,
+				reductionMethod);
+	}
+
+	/**
+	 * General reduced stochastic hedge-ratio calculation supporting both coefficient criteria.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
+	 *                               For PATHWISE, this is optional; if supplied, b=dV/dM
+	 *                               and A_j=dP_j/dM are first projected onto this basis.
+	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
+	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
+	 *                           the solution basis is used as the test basis. Ignored for PATHWISE.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion.
+	 *                             Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduced coefficient criterion.
+	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatios(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) throws CalculationException {
+
+<span class="nc" id="L263">		validateInputs(</span>
+				parameterIDsByName,
+				derivativeValue,
+				hedgePortfolioValues,
+				solutionBasisFunctions,
+				testBasisFunctions,
+				regularizationLambda,
+				reductionMethod);
+
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		if(!(derivativeValue instanceof RandomVariableDifferentiable)) {</span>
+<span class="nc" id="L273">			throw new IllegalArgumentException(</span>
+					&quot;The product value is not a RandomVariableDifferentiable. &quot;
+							+ &quot;Check that the model was created with RandomVariableDifferentiableAADFactory.&quot;);
+		}
+
+<span class="nc" id="L278">		final Map&lt;Long, RandomVariable&gt; derivativeGradient = ((RandomVariableDifferentiable)derivativeValue).getGradient();</span>
+<span class="nc" id="L279">		final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients = new ArrayList&lt;Map&lt;Long, RandomVariable&gt;&gt;(hedgePortfolioValues.length);</span>
+
+<span class="nc bnc" id="L281" title="All 2 branches missed.">		for(final RandomVariable hedgeInstrumentProtoValue : hedgePortfolioValues) {</span>
+<span class="nc bnc" id="L282" title="All 2 branches missed.">			if(hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable) {</span>
+<span class="nc" id="L283">				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());</span>
+			}
+			else {
+<span class="nc" id="L286">				hedgePortfolioGradients.add(Collections.&lt;Long, RandomVariable&gt;emptyMap());</span>
+			}
+		}
+
+<span class="nc" id="L290">		return getHedgeRatios(parameterIDsByName, evaluationTime, derivativeGradient, hedgePortfolioGradients,solutionBasisFunctions,</span>
+				testBasisFunctions,
+				regularizationLambda,
+<span class="nc" id="L293">				reductionMethod, derivativeValue.size());</span>
+	}
+
+
+	/**
+	 * General reduced stochastic hedge-ratio calculation supporting both coefficient criteria.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeGradient The product gradient d V / dM  (getGradient of a {@code RandomVariableDifferentiable} of the derivative V.
+	 * @param hedgePortfolioGradients The gradients (getGradient of a {@code RandomVariableDifferentiable} of the hedge-instrument values P_j.
+	 * @param solutionBasisFunctions Basis random variables X_q used for the hedge ratios.
+	 *                               For PATHWISE, this is optional; if supplied, b=dV/dM
+	 *                               and A_j=dP_j/dM are first projected onto this basis.
+	 * @param testBasisFunctions Basis random variables Y_s used for PROJECTED_GALERKIN moments.
+	 *                           May be null for L2. If null for PROJECTED_GALERKIN,
+	 *                           the solution basis is used as the test basis. Ignored for PATHWISE.
+	 * @param regularizationLambda Absolute lambda in the selected regularized criterion.
+	 *                             Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduced coefficient criterion.
+	 * @return stochastic hedge ratios and reduced-system diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatios(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod,
+			final int numberOfPaths) throws CalculationException {
+
+<span class="fc" id="L326">		validateGradientInputs(</span>
+				parameterIDsByName,
+				derivativeGradient,
+				hedgePortfolioGradients,
+				solutionBasisFunctions,
+				testBasisFunctions,
+				regularizationLambda,
+				reductionMethod,
+				numberOfPaths);
+
+<span class="fc bfc" id="L336" title="All 2 branches covered.">		if(reductionMethod == ReductionMethod.PATHWISE) {</span>
+<span class="fc" id="L337">			return getHedgeRatiosPathwise(</span>
+					parameterIDsByName,
+					evaluationTime,
+					derivativeGradient,
+					hedgePortfolioGradients,
+					solutionBasisFunctions,
+					numberOfPaths);
+		}
+
+<span class="fc" id="L346">		final int numberOfHedges = hedgePortfolioGradients.size();</span>
+<span class="fc" id="L347">		final int numberOfSolutionBasisFunctions = solutionBasisFunctions.length;</span>
+
+<span class="fc" id="L349">		final List&lt;String&gt; riskFactorNames = new ArrayList&lt;&gt;(parameterIDsByName.keySet());</span>
+<span class="fc" id="L350">		final Set&lt;Long&gt; independentIDs = new HashSet&lt;&gt;(parameterIDsByName.values());</span>
+
+<span class="fc" id="L352">		final long timingProjectSystemStart = System.currentTimeMillis();</span>
+
+		/*
+		 * b_{l i} = dV / dM_i, pathwise.
+		 */
+<span class="fc" id="L357">		final Map&lt;String, RandomVariable&gt; productSensitivities = getGradientByModelParameterName(</span>
+				derivativeGradient,
+				parameterIDsByName,
+				independentIDs);
+
+		/*
+		 * A_{l i j} = dP_j / dM_i, pathwise.
+		 */
+<span class="fc" id="L365">		final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L366" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+
+			/*
+			 * A hedge may be deterministic at evaluationTime, e.g. a matured bond.
+			 * In that case its gradient is zero.
+			 */
+<span class="fc" id="L372">			final Map&lt;String, RandomVariable&gt; sensitivities = getGradientByModelParameterName(</span>
+<span class="fc" id="L373">					hedgePortfolioGradients.get(hedgeIndex),</span>
+					parameterIDsByName,
+					independentIDs);
+
+<span class="fc" id="L377">			hedgeSensitivities.add(sensitivities);</span>
+		}
+
+		/*
+		 * X[q][path] = X_q(omega_path), the solution basis.: solutionBasisFunctions[basisIndex]
+		 */
+		/*
+		final double[][] solutionBasisValues = new double[numberOfSolutionBasisFunctions][numberOfPaths];
+		for(int basisIndex = 0; basisIndex &lt; numberOfSolutionBasisFunctions; basisIndex++) {
+			if(solutionBasisFunctions[basisIndex] == null) {
+				throw new IllegalArgumentException(&quot;solutionBasisFunctions[&quot; + basisIndex + &quot;] is null.&quot;);
+			}
+			solutionBasisValues[basisIndex] = getPathValues(solutionBasisFunctions[basisIndex], numberOfPaths);
+		}
+		*/
+
+		/*
+		 * Y[s][path] = Y_s(omega_path), the test basis. It is used only by
+		 * PROJECTED_GALERKIN. If no test basis is supplied, use X as Y.
+		 */
+		/*
+		double[][] testBasisValues = null;
+		if(testBasisFunctions != null) {
+			testBasisValues = new double[testBasisFunctions.length][numberOfPaths];
+			for(int basisIndex = 0; basisIndex &lt; testBasisFunctions.length; basisIndex++) {
+				if(testBasisFunctions[basisIndex] == null) {
+					throw new IllegalArgumentException(&quot;testBasisFunctions[&quot; + basisIndex + &quot;] is null.&quot;);
+				}
+				testBasisValues[basisIndex] = getPathValues(testBasisFunctions[basisIndex], numberOfPaths);
+			}
+		}
+		*/
+
+		final ReducedSystem reducedSystem;
+<span class="pc bpc" id="L411" title="1 of 3 branches missed.">		switch(reductionMethod) {</span>
+		case PROJECTED_GALERKIN:
+<span class="fc" id="L413">			reducedSystem = assembleProjectedGalerkinSystem(</span>
+					riskFactorNames,
+					productSensitivities,
+					hedgeSensitivities,
+					solutionBasisFunctions,
+<span class="pc bpc" id="L418" title="1 of 2 branches missed.">					testBasisFunctions != null ? testBasisFunctions : solutionBasisFunctions, numberOfPaths, numberOfHedges);</span>
+//					solutionBasisValues,
+//					testBasisFunctions != null ? testBasisValues : solutionBasisValues, numberOfPaths, numberOfHedges);
+<span class="fc" id="L421">			break;</span>
+
+		case L2:
+<span class="fc" id="L424">			reducedSystem = assembleEmpiricalL2NormalSystem(</span>
+					riskFactorNames,
+					productSensitivities,
+					hedgeSensitivities,
+					solutionBasisFunctions,
+//					solutionBasisValues,
+					numberOfPaths,
+					numberOfHedges);
+<span class="fc" id="L432">			break;</span>
+
+		default:
+<span class="nc" id="L435">			throw new IllegalArgumentException(&quot;Unsupported reductionMethod: &quot; + reductionMethod);</span>
+		}
+
+<span class="fc" id="L438">		final long timingProjectSystem = System.currentTimeMillis() - timingProjectSystemStart;</span>
+<span class="fc" id="L439">		final long timingSolveSystemStart = System.currentTimeMillis();</span>
+
+<span class="fc" id="L441">		final double[] solution = solveReducedSystem(</span>
+				reducedSystem.matrix,
+				reducedSystem.rhs,
+				regularizationLambda,
+				reducedSystem.isNormalEquationSystem);
+
+<span class="fc" id="L447">		final long timingSolveSystem = System.currentTimeMillis() - timingSolveSystemStart;</span>
+
+		/*
+		 * Unflatten xi_j^q.
+		 */
+<span class="fc" id="L452">		final double[][] coefficients = new double[numberOfHedges][numberOfSolutionBasisFunctions];</span>
+<span class="fc bfc" id="L453" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc bfc" id="L454" title="All 2 branches covered.">			for(int basisIndex = 0; basisIndex &lt; numberOfSolutionBasisFunctions; basisIndex++) {</span>
+<span class="fc" id="L455">				coefficients[hedgeIndex][basisIndex] =</span>
+<span class="fc" id="L456">						solution[columnIndex(hedgeIndex, basisIndex, numberOfHedges)];</span>
+			}
+		}
+
+<span class="fc" id="L460">		final RandomVariable[] hedgeRatios = reconstructHedgeRatios(</span>
+				evaluationTime,
+				coefficients,
+				solutionBasisFunctions);
+
+<span class="fc" id="L465">		return new ProjectedHedgeRatioResult(</span>
+				hedgeRatios,
+				coefficients,
+				reducedSystem.matrix,
+				reducedSystem.rhs,
+<span class="fc" id="L470">				Collections.unmodifiableList(riskFactorNames),</span>
+				reductionMethod,
+				new Timings(timingProjectSystem, timingSolveSystem));
+	}
+
+
+	/**
+	 * Unreduced pathwise hedge-ratio calculation.
+	 *
+	 * This solves, independently for every path l,
+	 *
+	 *     min_phi_l ||A_l phi_l - b_l||_2^2,
+	 *
+	 * where b_l is dV/dM on path l and A_l contains dP_j/dM on path l.
+	 * The returned hedgeRatios[j] are the full pathwise hedge ratios phi_j(l).
+	 * No finite basis and no reduced system are used.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues) throws CalculationException {
+
+<span class="nc" id="L499">		return getHedgeRatiosPathwise(</span>
+				parameterIDsByName,
+				evaluationTime,
+				derivativeValue,
+				hedgePortfolioValues,
+				null);
+	}
+
+	/**
+	 * Pathwise hedge-ratio calculation with optional derivative projection.
+	 *
+	 * If projectionBasisFunctions is non-null, every component of b=dV/dM and
+	 * A_j=dP_j/dM is first replaced by its empirical least-squares projection
+	 *
+	 *     X X^+ Y,
+	 *
+	 * where X is the matrix of projection basis realizations and X^+ is its
+	 * Moore-Penrose pseudo-inverse. This also supports dependent basis functions.
+	 * The pathwise solve is then performed on the projected derivatives. If
+	 * projectionBasisFunctions is null, this method is identical to
+	 * {@link #getHedgeRatiosPathwise(Map, double, RandomVariable, RandomVariable[])}.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeValue The product value V.
+	 * @param hedgePortfolioValues The hedge-instrument values P_j.
+	 * @param projectionBasisFunctions Optional basis used for empirical conditional-expectation projection.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] projectionBasisFunctions) throws CalculationException {
+
+<span class="nc" id="L535">		validatePathwiseInputs(parameterIDsByName, derivativeValue, hedgePortfolioValues);</span>
+
+<span class="nc" id="L537">		validateOptionalBasisFunctions(projectionBasisFunctions, &quot;projectionBasisFunctions&quot;);</span>
+
+<span class="nc bnc" id="L539" title="All 2 branches missed.">		if(!(derivativeValue instanceof RandomVariableDifferentiable)) {</span>
+<span class="nc" id="L540">			throw new IllegalArgumentException(</span>
+					&quot;The product value is not a RandomVariableDifferentiable. &quot;
+							+ &quot;Check that the model was created with RandomVariableDifferentiableAADFactory.&quot;);
+		}
+
+<span class="nc" id="L545">		final Map&lt;Long, RandomVariable&gt; derivativeGradient = ((RandomVariableDifferentiable)derivativeValue).getGradient();</span>
+<span class="nc" id="L546">		final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients = new ArrayList&lt;Map&lt;Long, RandomVariable&gt;&gt;(hedgePortfolioValues.length);</span>
+
+<span class="nc bnc" id="L548" title="All 2 branches missed.">		for(final RandomVariable hedgeInstrumentProtoValue : hedgePortfolioValues) {</span>
+<span class="nc bnc" id="L549" title="All 2 branches missed.">			if(hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable) {</span>
+<span class="nc" id="L550">				hedgePortfolioGradients.add(((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient());</span>
+			}
+			else {
+<span class="nc" id="L553">				hedgePortfolioGradients.add(Collections.&lt;Long, RandomVariable&gt;emptyMap());</span>
+			}
+		}
+
+<span class="nc" id="L557">		return getHedgeRatiosPathwise(</span>
+				parameterIDsByName,
+				evaluationTime,
+				derivativeGradient,
+				hedgePortfolioGradients,
+				projectionBasisFunctions,
+<span class="nc" id="L563">				derivativeValue.size());</span>
+	}
+
+	/**
+	 * Unreduced pathwise hedge-ratio calculation using pre-computed AAD gradients.
+	 *
+	 * This solves, independently for every path l,
+	 *
+	 *     min_phi_l ||A_l phi_l - b_l||_2^2,
+	 *
+	 * where b_l is dV/dM on path l and A_l contains dP_j/dM on path l.
+	 * The original rectangular sensitivity system is solved path by path. A
+	 * column-equilibrated QR solve provides the full-rank fast path without
+	 * squaring the condition number. Rank-deficient systems fall back to an
+	 * SVD-based least-squares solve and hence return a minimum-norm solution.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeGradient The product gradient dV/dM.
+	 * @param hedgePortfolioGradients The hedge-instrument gradients dP_j/dM.
+	 * @param numberOfPaths Number of Monte-Carlo paths.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+			final int numberOfPaths) throws CalculationException {
+
+<span class="fc" id="L593">		return getHedgeRatiosPathwise(</span>
+				parameterIDsByName,
+				evaluationTime,
+				derivativeGradient,
+				hedgePortfolioGradients,
+				null,
+				numberOfPaths);
+	}
+
+	/**
+	 * Pathwise hedge-ratio calculation using pre-computed AAD gradients and optional
+	 * empirical projection of the input derivatives.
+	 *
+	 * If projectionBasisFunctions is non-null, every component of b=dV/dM and
+	 * A_j=dP_j/dM is first replaced by its least-squares projection onto the span
+	 * of projectionBasisFunctions before the pathwise systems are solved.
+	 *
+	 * @param parameterIDsByName Map of model-parameter names to AAD IDs.
+	 * @param evaluationTime The time t at which the hedge ratios are calculated.
+	 * @param derivativeGradient The product gradient dV/dM.
+	 * @param hedgePortfolioGradients The hedge-instrument gradients dP_j/dM.
+	 * @param projectionBasisFunctions Optional basis used for empirical conditional-expectation projection.
+	 * @param numberOfPaths Number of Monte-Carlo paths.
+	 * @return pathwise stochastic hedge ratios and timing diagnostics.
+	 */
+	public static ProjectedHedgeRatioResult getHedgeRatiosPathwise(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final double evaluationTime,
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+			final RandomVariable[] projectionBasisFunctions,
+			final int numberOfPaths) throws CalculationException {
+
+<span class="fc" id="L626">		validatePathwiseGradientInputs(</span>
+				parameterIDsByName,
+				derivativeGradient,
+				hedgePortfolioGradients,
+				projectionBasisFunctions,
+				numberOfPaths);
+
+<span class="fc" id="L633">		final int numberOfHedges = hedgePortfolioGradients.size();</span>
+
+<span class="fc" id="L635">		final List&lt;String&gt; riskFactorNames = new ArrayList&lt;&gt;(parameterIDsByName.keySet());</span>
+<span class="fc" id="L636">		final Set&lt;Long&gt; independentIDs = new HashSet&lt;&gt;(parameterIDsByName.values());</span>
+
+<span class="fc" id="L638">		final long timingProjectSystemStart = System.currentTimeMillis();</span>
+
+		/*
+		 * b_{l i} = dV / dM_i, pathwise.
+		 */
+<span class="fc" id="L643">		Map&lt;String, RandomVariable&gt; productSensitivities = getGradientByModelParameterName(</span>
+				derivativeGradient,
+				parameterIDsByName,
+				independentIDs);
+
+		/*
+		 * A_{l i j} = dP_j / dM_i, pathwise.
+		 */
+<span class="fc" id="L651">		List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L652" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L653">			final Map&lt;String, RandomVariable&gt; sensitivities = getGradientByModelParameterName(</span>
+<span class="fc" id="L654">					hedgePortfolioGradients.get(hedgeIndex),</span>
+					parameterIDsByName,
+					independentIDs);
+
+<span class="fc" id="L658">			hedgeSensitivities.add(sensitivities);</span>
+		}
+
+<span class="fc bfc" id="L661" title="All 2 branches covered.">		if(projectionBasisFunctions != null) {</span>
+<span class="fc" id="L662">			final EmpiricalProjection projection = new EmpiricalProjection(projectionBasisFunctions, numberOfPaths);</span>
+<span class="fc" id="L663">			productSensitivities = projectSensitivityMap(productSensitivities, projection);</span>
+<span class="fc" id="L664">			hedgeSensitivities = projectSensitivityMaps(hedgeSensitivities, projection);</span>
+		}
+
+<span class="fc" id="L667">		final long timingProjectSystem = System.currentTimeMillis() - timingProjectSystemStart;</span>
+<span class="fc" id="L668">		final long timingSolveSystemStart = System.currentTimeMillis();</span>
+
+<span class="fc" id="L670">		final RandomVariable[] hedgeRatios = solvePathwiseHedgeRatios(</span>
+				evaluationTime,
+				riskFactorNames,
+				productSensitivities,
+				hedgeSensitivities,
+				numberOfPaths,
+				numberOfHedges);
+
+<span class="fc" id="L678">		final long timingSolveSystem = System.currentTimeMillis() - timingSolveSystemStart;</span>
+
+<span class="fc" id="L680">		return new ProjectedHedgeRatioResult(</span>
+				hedgeRatios,
+				new double[numberOfHedges][0],
+				new double[0][0],
+				new double[0],
+<span class="fc" id="L685">				Collections.unmodifiableList(riskFactorNames),</span>
+				ReductionMethod.PATHWISE,
+				new Timings(timingProjectSystem, timingSolveSystem));
+	}
+
+	/**
+	 * Empirical Gram-Schmidt orthonormalization.
+	 *
+	 * Use this if your raw basis is not already orthonormal under
+	 *
+	 *     &lt;X,Y&gt;_N = 1/N sum_l X_l Y_l.
+	 *
+	 * The returned basis satisfies &lt;X_k, X_q&gt;_N approximately delta_{kq}.
+	 *
+	 * Orthonormality is convenient for interpreting projected coefficients. It is
+	 * not required for the empirical L2 residual formulation.
+	 */
+	static RandomVariable[] orthonormalizeBasis(
+			final RandomVariable[] rawBasis,
+			final int numberOfPaths,
+			final double filtrationTime,
+			final double tolerance) {
+
+<span class="nc bnc" id="L708" title="All 4 branches missed.">		if(rawBasis == null || rawBasis.length == 0) {</span>
+<span class="nc" id="L709">			throw new IllegalArgumentException(&quot;rawBasis must contain at least one basis function.&quot;);</span>
+		}
+
+<span class="nc" id="L712">		final List&lt;double[]&gt; orthonormalValues = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L714" title="All 2 branches missed.">		for(int basisIndex = 0; basisIndex &lt; rawBasis.length; basisIndex++) {</span>
+
+<span class="nc bnc" id="L716" title="All 2 branches missed.">			if(rawBasis[basisIndex] == null) {</span>
+<span class="nc" id="L717">				throw new IllegalArgumentException(&quot;rawBasis[&quot; + basisIndex + &quot;] is null.&quot;);</span>
+			}
+
+<span class="nc" id="L720">			final double[] vector = getPathValues(rawBasis[basisIndex], numberOfPaths);</span>
+
+<span class="nc bnc" id="L722" title="All 2 branches missed.">			for(final double[] previous : orthonormalValues) {</span>
+<span class="nc" id="L723">				final double projection = empiricalInnerProduct(vector, previous);</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">				for(int path = 0; path &lt; numberOfPaths; path++) {</span>
+<span class="nc" id="L725">					vector[path] -= projection * previous[path];</span>
+				}
+<span class="nc" id="L727">			}</span>
+
+<span class="nc" id="L729">			final double norm = Math.sqrt(empiricalInnerProduct(vector, vector));</span>
+<span class="nc bnc" id="L730" title="All 2 branches missed.">			if(norm &lt;= tolerance) {</span>
+<span class="nc" id="L731">				throw new IllegalArgumentException(</span>
+						&quot;rawBasis[&quot; + basisIndex + &quot;] is linearly dependent &quot;
+								+ &quot;under the empirical inner product. Norm = &quot; + norm);
+			}
+
+<span class="nc bnc" id="L736" title="All 2 branches missed.">			for(int path = 0; path &lt; numberOfPaths; path++) {</span>
+<span class="nc" id="L737">				vector[path] /= norm;</span>
+			}
+
+<span class="nc" id="L740">			orthonormalValues.add(vector);</span>
+		}
+
+<span class="nc" id="L743">		final RandomVariableFactory factory = new RandomVariableFromArrayFactory();</span>
+<span class="nc" id="L744">		final RandomVariable[] result = new RandomVariable[orthonormalValues.size()];</span>
+
+<span class="nc bnc" id="L746" title="All 2 branches missed.">		for(int basisIndex = 0; basisIndex &lt; result.length; basisIndex++) {</span>
+<span class="nc" id="L747">			result[basisIndex] =</span>
+<span class="nc" id="L748">					factory.createRandomVariable(filtrationTime, orthonormalValues.get(basisIndex));</span>
+		}
+
+<span class="nc" id="L751">		return result;</span>
+	}
+
+	/**
+	 * Extract differentiable model parameters M_i and their AAD IDs.
+	 */
+	public static Map&lt;String, Long&gt; getDifferentiableModelParameterIDs(
+			final IndependentModelParameterProvider parameterProvider) {
+
+<span class="nc" id="L760">		final Map&lt;String, RandomVariable&gt; modelParameters = parameterProvider.getModelParameters();</span>
+<span class="nc" id="L761">		final Map&lt;String, Long&gt; parameterIDsByName = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L763" title="All 2 branches missed.">		if(modelParameters == null) {</span>
+<span class="nc" id="L764">			return parameterIDsByName;</span>
+		}
+
+<span class="nc bnc" id="L767" title="All 2 branches missed.">		for(final Entry&lt;String, RandomVariable&gt; entry : modelParameters.entrySet()) {</span>
+<span class="nc" id="L768">			final RandomVariable parameter = entry.getValue();</span>
+
+<span class="nc bnc" id="L770" title="All 2 branches missed.">			if(parameter instanceof RandomVariableDifferentiable) {</span>
+<span class="nc" id="L771">				parameterIDsByName.put(</span>
+<span class="nc" id="L772">						entry.getKey(),</span>
+<span class="nc" id="L773">						((RandomVariableDifferentiable) parameter).getID());</span>
+			}
+<span class="nc" id="L775">		}</span>
+
+<span class="nc" id="L777">		return parameterIDsByName;</span>
+	}
+
+	/**
+	 * Gradient d(value) / d(model parameter), returned by model-parameter name.
+	 */
+	private static Map&lt;String, RandomVariable&gt; getGradientByModelParameterName(
+			final Map&lt;Long, RandomVariable&gt; gradientByID,
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final Set&lt;Long&gt; independentIDs) {
+
+<span class="fc" id="L788">		final Map&lt;String, RandomVariable&gt; gradientByName = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L790" title="All 2 branches covered.">		for(final Entry&lt;String, Long&gt; parameterEntry : parameterIDsByName.entrySet()) {</span>
+			// TODO Check if this is a performance impact
+<span class="pc bpc" id="L792" title="1 of 2 branches missed.">			if(!independentIDs.contains(parameterEntry.getValue())) {</span>
+<span class="nc" id="L793">				continue;</span>
+			}
+<span class="fc" id="L795">			final RandomVariable derivative = gradientByID.get(parameterEntry.getValue());</span>
+
+<span class="fc bfc" id="L797" title="All 2 branches covered.">			if(derivative != null) {</span>
+				// The additional getValues prevents that the derivative itself is still a differentiable
+				// which would be a performance impact and is not necessary here (since we project to non-differentiables)
+<span class="fc" id="L800">				gradientByName.put(parameterEntry.getKey(), derivative.getValues());</span>
+			}
+<span class="fc" id="L802">		}</span>
+
+<span class="fc" id="L804">		return gradientByName;</span>
+	}
+
+	private static ReducedSystem assembleProjectedGalerkinSystem(
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+<span class="fc" id="L816">		final int numberOfRiskFactors = riskFactorNames.size();</span>
+<span class="fc" id="L817">		final int numberOfSolutionBasisFunctions = solutionBasisFunctions.length;</span>
+<span class="fc" id="L818">		final int numberOfTestBasisFunctions = testBasisFunctions.length;</span>
+
+		/*
+		 * Flattened system:
+		 *
+		 * row(i,s) = s * n + i,
+		 * col(j,q) = q * m + j.
+		 */
+<span class="fc" id="L826">		final int numberOfRows = numberOfRiskFactors * numberOfTestBasisFunctions;</span>
+<span class="fc" id="L827">		final int numberOfColumns = numberOfHedges * numberOfSolutionBasisFunctions;</span>
+
+<span class="fc" id="L829">		final double[][] reducedMatrix = new double[numberOfRows][numberOfColumns];</span>
+<span class="fc" id="L830">		final double[] reducedRhs = new double[numberOfRows];</span>
+
+<span class="fc" id="L832">		IntStream.range(0, numberOfRiskFactors).parallel().forEach(riskFactorIndex -&gt;</span>
+		{
+<span class="fc" id="L834">			final String riskFactorName = riskFactorNames.get(riskFactorIndex);</span>
+
+<span class="fc" id="L836">			final RandomVariable productGradient = productSensitivities.get(riskFactorName);</span>
+
+<span class="fc" id="L838">			final RandomVariable[] hedgeGradient = new RandomVariable[numberOfHedges];</span>
+<span class="fc bfc" id="L839" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L840">				hedgeGradient[hedgeIndex] = hedgeSensitivities.get(hedgeIndex).get(riskFactorName);</span>
+			}
+
+<span class="fc bfc" id="L843" title="All 2 branches covered.">			for(int testBasisIndex = 0; testBasisIndex &lt; numberOfTestBasisFunctions; testBasisIndex++) {</span>
+
+<span class="fc" id="L845">				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);</span>
+
+<span class="fc" id="L847">				final RandomVariable testBasisFunction = testBasisFunctions[testBasisIndex].getValues();</span>
+
+				/*
+				 * beta_i^s = 1/N sum_l b_{l i} Y_{l s}.
+				 */
+<span class="pc bpc" id="L852" title="1 of 2 branches missed.">				final double beta = productGradient != null ? productGradient.getAverageFast(testBasisFunction) : 0.0;</span>
+<span class="fc" id="L853">				reducedRhs[row] = beta;</span>
+
+				/*
+				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} Y_{l s}.
+				 */
+<span class="fc bfc" id="L858" title="All 2 branches covered.">				for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="pc bpc" id="L859" title="1 of 2 branches missed.">					final RandomVariable hedgeGradientTimesTest = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(testBasisFunction) : null;</span>
+<span class="fc bfc" id="L860" title="All 2 branches covered.">					for(int coefficientBasisIndex = 0; coefficientBasisIndex &lt; numberOfSolutionBasisFunctions; coefficientBasisIndex++) {</span>
+<span class="pc bpc" id="L861" title="1 of 2 branches missed.">						final double entry = hedgeGradientTimesTest != null ? hedgeGradientTimesTest.getAverageFast(solutionBasisFunctions[coefficientBasisIndex]) : 0.0;</span>
+
+<span class="fc" id="L863">						final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);</span>
+
+<span class="fc" id="L865">						reducedMatrix[row][column] = entry;</span>
+					}
+				}
+			}
+<span class="fc" id="L869">		});</span>
+
+<span class="fc" id="L871">		return new ReducedSystem(reducedMatrix, reducedRhs, false);</span>
+	}
+
+	private static ReducedSystem assembleProjectedGalerkinSystem(
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities,
+			final double[][] solutionBasisValues,
+			final double[][] testBasisValues,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+<span class="nc" id="L883">		final int numberOfRiskFactors = riskFactorNames.size();</span>
+<span class="nc" id="L884">		final int numberOfSolutionBasisFunctions = solutionBasisValues.length;</span>
+<span class="nc" id="L885">		final int numberOfTestBasisFunctions = testBasisValues.length;</span>
+
+		/*
+		 * Flattened system:
+		 *
+		 * row(i,s) = s * n + i,
+		 * col(j,q) = q * m + j.
+		 */
+<span class="nc" id="L893">		final int numberOfRows = numberOfRiskFactors * numberOfTestBasisFunctions;</span>
+<span class="nc" id="L894">		final int numberOfColumns = numberOfHedges * numberOfSolutionBasisFunctions;</span>
+
+<span class="nc" id="L896">		final double[][] reducedMatrix = new double[numberOfRows][numberOfColumns];</span>
+<span class="nc" id="L897">		final double[] reducedRhs = new double[numberOfRows];</span>
+
+<span class="nc bnc" id="L899" title="All 2 branches missed.">		for(int riskFactorIndex = 0; riskFactorIndex &lt; numberOfRiskFactors; riskFactorIndex++) {</span>
+
+<span class="nc" id="L901">			final String riskFactorName = riskFactorNames.get(riskFactorIndex);</span>
+
+<span class="nc" id="L903">			final double[] productGradient =</span>
+<span class="nc" id="L904">					getPathValuesOrZero(productSensitivities.get(riskFactorName), numberOfPaths);</span>
+
+<span class="nc" id="L906">			final double[][] hedgeGradient = new double[numberOfHedges][];</span>
+<span class="nc bnc" id="L907" title="All 2 branches missed.">			for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="nc" id="L908">				hedgeGradient[hedgeIndex] =</span>
+<span class="nc" id="L909">						getPathValuesOrZero(</span>
+<span class="nc" id="L910">								hedgeSensitivities.get(hedgeIndex).get(riskFactorName),</span>
+								numberOfPaths);
+			}
+
+<span class="nc bnc" id="L914" title="All 2 branches missed.">			for(int testBasisIndex = 0; testBasisIndex &lt; numberOfTestBasisFunctions; testBasisIndex++) {</span>
+
+<span class="nc" id="L916">				final int row = rowIndex(riskFactorIndex, testBasisIndex, numberOfRiskFactors);</span>
+
+				/*
+				 * beta_i^s = 1/N sum_l b_{l i} Y_{l s}.
+				 */
+<span class="nc" id="L921">				double beta = 0.0;</span>
+<span class="nc bnc" id="L922" title="All 2 branches missed.">				for(int path = 0; path &lt; numberOfPaths; path++) {</span>
+<span class="nc" id="L923">					beta += productGradient[path] * testBasisValues[testBasisIndex][path];</span>
+				}
+<span class="nc" id="L925">				reducedRhs[row] = beta / numberOfPaths;</span>
+
+				/*
+				 * B_{ij}^{sq} = 1/N sum_l A_{l i j} X_{l q} Y_{l s}.
+				 */
+<span class="nc bnc" id="L930" title="All 2 branches missed.">				for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="nc" id="L931">					for(int coefficientBasisIndex = 0;</span>
+<span class="nc bnc" id="L932" title="All 2 branches missed.">							coefficientBasisIndex &lt; numberOfSolutionBasisFunctions;</span>
+<span class="nc" id="L933">							coefficientBasisIndex++) {</span>
+
+<span class="nc" id="L935">						double entry = 0.0;</span>
+<span class="nc bnc" id="L936" title="All 2 branches missed.">						for(int path = 0; path &lt; numberOfPaths; path++) {</span>
+<span class="nc" id="L937">							entry += hedgeGradient[hedgeIndex][path]</span>
+									* solutionBasisValues[coefficientBasisIndex][path]
+											* testBasisValues[testBasisIndex][path];
+						}
+
+<span class="nc" id="L942">						final int column = columnIndex(</span>
+								hedgeIndex,
+								coefficientBasisIndex,
+								numberOfHedges);
+
+<span class="nc" id="L947">						reducedMatrix[row][column] = entry / numberOfPaths;</span>
+					}
+				}
+			}
+		}
+
+<span class="nc" id="L953">		return new ReducedSystem(reducedMatrix, reducedRhs, false);</span>
+	}
+
+	private static ReducedSystem assembleEmpiricalL2NormalSystem(
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities,
+			final RandomVariable[] basisFunctions,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+<span class="fc" id="L964">		final int numberOfRiskFactors = riskFactorNames.size();</span>
+<span class="fc" id="L965">		final int numberOfBasisFunctions = basisFunctions.length;</span>
+<span class="fc" id="L966">		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;</span>
+
+<span class="fc" id="L968">		double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];</span>
+<span class="fc" id="L969">		double[] normalRhs = new double[numberOfColumns];</span>
+
+<span class="fc bfc" id="L971" title="All 2 branches covered.">		for(int riskFactorIndex=0; riskFactorIndex&lt;numberOfRiskFactors; riskFactorIndex++)</span>
+		{
+<span class="fc" id="L973">			final String riskFactorName = riskFactorNames.get(riskFactorIndex);</span>
+
+<span class="fc" id="L975">			final RandomVariable productDerivative = productSensitivities.get(riskFactorName);</span>
+
+<span class="fc" id="L977">			final RandomVariable[] hedgesDerivative = new RandomVariable[numberOfHedges];</span>
+<span class="fc" id="L978">			boolean hasAnyHedgeDerivative = false;</span>
+
+<span class="fc bfc" id="L980" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L981">				final RandomVariable hedgeDerivative = hedgeSensitivities.get(hedgeIndex).get(riskFactorName);</span>
+<span class="fc" id="L982">				hedgesDerivative[hedgeIndex] = hedgeDerivative;</span>
+<span class="fc bfc" id="L983" title="All 2 branches covered.">				hasAnyHedgeDerivative |= hedgeDerivative != null;</span>
+			}
+
+			// If A_i = 0, this risk factor cannot affect the coefficients.
+			// A nonzero productDerivative would only add a constant residual term.
+<span class="pc bpc" id="L988" title="1 of 2 branches missed.">			if(!hasAnyHedgeDerivative) continue;</span>
+
+			/*
+			 * D_{(l,i),(j,q)} = A_{l i j} X_{l q}.
+			 */
+<span class="fc" id="L993">			final RandomVariable[] designRow = new RandomVariable[numberOfColumns];</span>
+
+			/*
+			for(int coefficientBasisIndex = 0; coefficientBasisIndex &lt; numberOfBasisFunctions; coefficientBasisIndex++) {
+				final RandomVariable basisFunction = basisFunctions[coefficientBasisIndex];
+				for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {
+					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);
+					designRow[column] = hedgeGradient[hedgeIndex] != null ? hedgeGradient[hedgeIndex].mult(basisFunction) : null;
+				}
+			}
+			 */
+
+			/*
+			 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
+			 * A = hedgeSensitivities, j = hedgeIndex,i = riskFactorIndex, l = pathIndex
+			 * b = productSensitivities, j = hedgeIndex,i = riskFactorIndex, l = pathIndex
+			 * X = basisFunctions, q = coefficientBasisIndex, l = pathIndex
+			 */
+<span class="fc" id="L1011">			IntStream.range(0, numberOfHedges).parallel().forEach(hedgeIndex -&gt; {</span>
+//			for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {
+<span class="fc" id="L1013">				final RandomVariable hedgeDerivative = hedgesDerivative[hedgeIndex];</span>
+<span class="fc bfc" id="L1014" title="All 2 branches covered.">				if(hedgeDerivative == null) return;</span>
+
+<span class="fc bfc" id="L1016" title="All 2 branches covered.">				for(int coefficientBasisIndex = 0; coefficientBasisIndex &lt; numberOfBasisFunctions; coefficientBasisIndex++) {</span>
+<span class="fc" id="L1017">					final RandomVariable basisFunction = basisFunctions[coefficientBasisIndex].getValues();</span>
+
+<span class="fc" id="L1019">					final int column = columnIndex(hedgeIndex, coefficientBasisIndex, numberOfHedges);</span>
+<span class="fc" id="L1020">					designRow[column] = hedgeDerivative.mult(basisFunction);</span>
+
+<span class="pc bpc" id="L1022" title="1 of 2 branches missed.">					if(productDerivative != null) {</span>
+<span class="fc" id="L1023">						normalRhs[column] += productDerivative.getAverageFast(designRow[column]);</span>
+					}
+				}
+<span class="fc" id="L1026">			});</span>
+
+			/*
+			 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
+			 */
+			/*
+			if(productGradient != null ) {
+				for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {
+					final RandomVariable value1 = designRow[column1];
+					if(value1 == null) continue;
+					normalRhs[column1] += designRow[column1] != null ? productGradient.getAverage(value1) : 0.0;
+				}
+			}
+			 */
+
+			/*
+			 * G_{(j,q),(k,p)} = 1/N sum_l sum_i A_{l i j} A_{l i k} X_{l q} X_{l p}.
+			 * Accumulate the lower triangle and mirror after all paths.
+			 */
+			// Parallelize over columns
+<span class="fc" id="L1046">			IntStream.range(0, numberOfColumns).parallel().forEach(column1 -&gt; {</span>
+//			for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {
+<span class="fc" id="L1048">				final RandomVariable value1 = designRow[column1];</span>
+<span class="fc bfc" id="L1049" title="All 2 branches covered.">				if(value1 == null) return;</span>
+<span class="fc bfc" id="L1050" title="All 2 branches covered.">				for(int column2 = 0; column2 &lt;= column1; column2++) {</span>
+<span class="fc" id="L1051">					final RandomVariable value2 = designRow[column2];</span>
+<span class="fc bfc" id="L1052" title="All 2 branches covered.">					if(value2 == null) continue;</span>
+<span class="fc" id="L1053">					normalMatrix[column1][column2] += value1.getAverageFast(value2);</span>
+				}
+<span class="fc" id="L1055">			});</span>
+		}
+
+<span class="fc bfc" id="L1058" title="All 2 branches covered.">		for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {</span>
+<span class="fc bfc" id="L1059" title="All 2 branches covered.">			for(int column2 = 0; column2 &lt; column1; column2++) {</span>
+<span class="fc" id="L1060">				normalMatrix[column2][column1] = normalMatrix[column1][column2];</span>
+			}
+		}
+
+<span class="fc" id="L1064">		return new ReducedSystem(normalMatrix, normalRhs, true);</span>
+	}
+
+	private static ReducedSystem assembleEmpiricalL2NormalSystem(
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities,
+			final double[][] basisValues,
+			final int numberOfPaths,
+			final int numberOfHedges) {
+
+<span class="nc" id="L1075">		final int numberOfRiskFactors = riskFactorNames.size();</span>
+<span class="nc" id="L1076">		final int numberOfBasisFunctions = basisValues.length;</span>
+<span class="nc" id="L1077">		final int numberOfColumns = numberOfHedges * numberOfBasisFunctions;</span>
+
+<span class="nc" id="L1079">		final double[][] normalMatrix = new double[numberOfColumns][numberOfColumns];</span>
+<span class="nc" id="L1080">		final double[] normalRhs = new double[numberOfColumns];</span>
+<span class="nc" id="L1081">		final double[] designRow = new double[numberOfColumns];</span>
+<span class="nc" id="L1082">		final double scale = 1.0 / numberOfPaths;</span>
+
+<span class="nc bnc" id="L1084" title="All 2 branches missed.">		for(int riskFactorIndex = 0; riskFactorIndex &lt; numberOfRiskFactors; riskFactorIndex++) {</span>
+
+<span class="nc" id="L1086">			final String riskFactorName = riskFactorNames.get(riskFactorIndex);</span>
+
+<span class="nc" id="L1088">			final double[] productGradient =</span>
+<span class="nc" id="L1089">					getPathValuesOrZero(productSensitivities.get(riskFactorName), numberOfPaths);</span>
+
+<span class="nc" id="L1091">			final double[][] hedgeGradient = new double[numberOfHedges][];</span>
+<span class="nc bnc" id="L1092" title="All 2 branches missed.">			for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="nc" id="L1093">				hedgeGradient[hedgeIndex] =</span>
+<span class="nc" id="L1094">						getPathValuesOrZero(</span>
+<span class="nc" id="L1095">								hedgeSensitivities.get(hedgeIndex).get(riskFactorName),</span>
+								numberOfPaths);
+			}
+
+<span class="nc bnc" id="L1099" title="All 2 branches missed.">			for(int path = 0; path &lt; numberOfPaths; path++) {</span>
+
+				/*
+				 * D_{(l,i),(j,q)} = A_{l i j} X_{l q}.
+				 */
+<span class="nc" id="L1104">				for(int coefficientBasisIndex = 0;</span>
+<span class="nc bnc" id="L1105" title="All 2 branches missed.">						coefficientBasisIndex &lt; numberOfBasisFunctions;</span>
+<span class="nc" id="L1106">						coefficientBasisIndex++) {</span>
+<span class="nc" id="L1107">					final double basisValue = basisValues[coefficientBasisIndex][path];</span>
+<span class="nc bnc" id="L1108" title="All 2 branches missed.">					for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="nc" id="L1109">						final int column = columnIndex(</span>
+								hedgeIndex,
+								coefficientBasisIndex,
+								numberOfHedges);
+<span class="nc" id="L1113">						designRow[column] = hedgeGradient[hedgeIndex][path] * basisValue;</span>
+					}
+				}
+
+				/*
+				 * h_{(j,q)} = 1/N sum_l sum_i A_{l i j} b_{l i} X_{l q}.
+				 */
+<span class="nc" id="L1120">				final double rhsValue = productGradient[path];</span>
+<span class="nc bnc" id="L1121" title="All 2 branches missed.">				for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {</span>
+<span class="nc" id="L1122">					normalRhs[column1] += scale * designRow[column1] * rhsValue;</span>
+				}
+
+				/*
+				 * G_{(j,q),(k,p)} = 1/N sum_l sum_i A_{l i j} A_{l i k} X_{l q} X_{l p}.
+				 * Accumulate the lower triangle and mirror after all paths.
+				 */
+<span class="nc bnc" id="L1129" title="All 2 branches missed.">				for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {</span>
+<span class="nc" id="L1130">					final double value1 = designRow[column1];</span>
+<span class="nc bnc" id="L1131" title="All 2 branches missed.">					for(int column2 = 0; column2 &lt;= column1; column2++) {</span>
+<span class="nc" id="L1132">						normalMatrix[column1][column2] += scale * value1 * designRow[column2];</span>
+					}
+				}
+			}
+		}
+
+<span class="nc bnc" id="L1138" title="All 2 branches missed.">		for(int column1 = 0; column1 &lt; numberOfColumns; column1++) {</span>
+<span class="nc bnc" id="L1139" title="All 2 branches missed.">			for(int column2 = 0; column2 &lt; column1; column2++) {</span>
+<span class="nc" id="L1140">				normalMatrix[column2][column1] = normalMatrix[column1][column2];</span>
+			}
+		}
+
+<span class="nc" id="L1144">		return new ReducedSystem(normalMatrix, normalRhs, true);</span>
+	}
+
+	/**
+	 * Solves a reduced hedge-ratio system, optionally recognizing that the supplied
+	 * matrix is already a Gram/normal matrix. Active normal systems are diagonally
+	 * equilibrated before the Cholesky fast path. If equilibration or Cholesky fails,
+	 * the unscaled system is solved by SVD so an exactly rank-deficient system retains
+	 * its minimum-Euclidean-norm solution in the original coordinates.
+	 *
+	 * @param matrix The reduced system matrix.
+	 * @param rhs The reduced right-hand side.
+	 * @param regularizationLambda The finite, non-negative regularization parameter.
+	 * @param matrixIsNormalEquationSystem Whether matrix is already a Gram/normal matrix.
+	 * @return The reduced-system solution.
+	 * @throws CalculationException Thrown if the numerical solve fails.
+	 */
+	public static double[] solveReducedSystem(
+			final double[][] matrix,
+			final double[] rhs,
+			final double regularizationLambda,
+			final boolean matrixIsNormalEquationSystem) throws CalculationException {
+
+<span class="pc bpc" id="L1167" title="2 of 4 branches missed.">		if(!Double.isFinite(regularizationLambda) || regularizationLambda &lt; 0.0) {</span>
+<span class="nc" id="L1168">			throw new IllegalArgumentException(&quot;regularizationLambda must be finite and non-negative.&quot;);</span>
+		}
+
+		/*
+		 * Perform a pruning
+		 */
+		int[] rows;
+		int[] cols;
+<span class="fc bfc" id="L1176" title="All 2 branches covered.">		if(matrixIsNormalEquationSystem) {</span>
+<span class="pc bpc" id="L1177" title="2 of 4 branches missed.">			if(matrix.length != rhs.length || matrix[0].length != matrix.length) {</span>
+<span class="nc" id="L1178">				throw new IllegalArgumentException(&quot;Normal equation system must be square and match the RHS dimension.&quot;);</span>
+			}
+
+			// Pruning rows and cols simultaneously only to ensure square matrix.
+<span class="fc" id="L1182">			final int[] active = IntStream.range(0, matrix.length).parallel()</span>
+<span class="pc bpc" id="L1183" title="3 of 4 branches missed.">					.filter(i -&gt; !LinearAlgebra.matrixIsRowZero(matrix, i) || !LinearAlgebra.matrixIsColZero(matrix, i)).toArray();</span>
+
+			// Build a mask of active columns/rows
+<span class="fc" id="L1186">			final boolean[] isActive = new boolean[matrix.length];</span>
+<span class="fc bfc" id="L1187" title="All 2 branches covered.">			for(final int index : active) {</span>
+<span class="fc" id="L1188">				isActive[index] = true;</span>
+			}
+
+			/*
+			 * Sanity check. In a consistent normal equation system G = D^T D, h = D^T b,
+			 * a structurally zero row/column of G must have zero RHS.
+			 */
+<span class="fc bfc" id="L1195" title="All 2 branches covered.">			for(int i = 0; i &lt; rhs.length; i++) {</span>
+<span class="pc bpc" id="L1196" title="3 of 4 branches missed.">				if(!isActive[i] &amp;&amp; rhs[i] != 0.0) {</span>
+<span class="nc" id="L1197">					throw new IllegalArgumentException(</span>
+							&quot;Inconsistent normal equation system: zero row/column with non-zero RHS at index &quot; + i);
+				}
+			}
+
+<span class="fc" id="L1202">			rows = active;</span>
+<span class="fc" id="L1203">			cols = active;</span>
+<span class="fc" id="L1204">		}</span>
+		else {
+<span class="fc" id="L1206">			rows = IntStream.range(0, matrix.length).parallel().</span>
+<span class="pc bpc" id="L1207" title="1 of 2 branches missed.">					filter(i -&gt; !LinearAlgebra.matrixIsRowZero(matrix, i)).toArray();</span>
+<span class="fc" id="L1208">			cols = IntStream.range(0, matrix[0].length).parallel()</span>
+<span class="pc bpc" id="L1209" title="1 of 2 branches missed.">					.filter(i -&gt; !LinearAlgebra.matrixIsColZero(matrix, i)).toArray();</span>
+		}
+
+<span class="pc bpc" id="L1212" title="2 of 4 branches missed.">		if(cols.length == 0 || rows.length == 0) {</span>
+			// Nothing to do
+<span class="nc" id="L1214">			return new double[matrix[0].length];</span>
+		}
+
+<span class="fc" id="L1217">		double[][] matrixPruned = new double[rows.length][cols.length];</span>
+<span class="fc" id="L1218">		double[] rhsPrunded = new double[rows.length];</span>
+		double[] solutionPruned;
+
+<span class="fc bfc" id="L1221" title="All 2 branches covered.">		for(int row = 0; row&lt;rows.length; row++) {</span>
+<span class="fc bfc" id="L1222" title="All 2 branches covered.">			for(int col = 0; col&lt;cols.length; col++) {</span>
+<span class="fc" id="L1223">				matrixPruned[row][col] = matrix[rows[row]][cols[col]];</span>
+			}
+<span class="fc" id="L1225">			rhsPrunded[row] = rhs[rows[row]];</span>
+		}
+
+<span class="fc bfc" id="L1228" title="All 2 branches covered.">		if(matrixIsNormalEquationSystem) {</span>
+			/*
+			 * The matrix is already G = D^T D / N and rhs is h = D^T b / N.
+			 * Tikhonov regularization for
+			 *
+			 *     ||D z - b||_N^2 + lambda ||z||^2
+			 *
+			 * is therefore implemented by solving (G + lambda I) z = h.
+			 * Do not call solveLinearEquationTikonov here, because that would regularize
+			 * the normal equations themselves.
+			 */
+<span class="fc" id="L1239">			solutionPruned = solveEquilibratedNormalSystem(matrixPruned, rhsPrunded, regularizationLambda);</span>
+		}
+<span class="pc bpc" id="L1241" title="1 of 2 branches missed.">		else if(regularizationLambda &gt; 0.0) {</span>
+			/*
+			 * Projected/Galerkin system. finmath's solveLinearEquationTikonov(A,b,lambdaFinmath)
+			 * solves the augmented least-squares problem with lambdaFinmath * I. Hence it
+			 * corresponds to ||Az-b||^2 + lambdaFinmath^2 ||z||^2.
+			 *
+			 * Our input regularizationLambda is the absolute lambda in
+			 * ||Az-b||^2 + lambda ||z||^2, so we pass sqrt(lambda).
+			 */
+
+			/*
+			solutionPruned = LinearAlgebra.solveLinearEquationTikonov(
+					matrixPruned,
+					rhsPrunded,
+					Math.sqrt(regularizationLambda));
+			 */
+
+			/*
+			 * Projected/Galerkin system.
+			 *
+			 * Current objective:
+			 *
+			 *     ||B z - beta||^2 + lambda ||z||^2.
+			 *
+			 * Instead of solving the augmented system
+			 *
+			 *     [B; sqrt(lambda) I] z ≈ [beta; 0]
+			 *
+			 * by SVD, solve the equivalent normal equation
+			 *
+			 *     (B^T B + lambda I) z = B^T beta.
+			 */
+<span class="nc" id="L1273">			solutionPruned = LinearAlgebra.solveTikhonovViaNormalEquations(</span>
+					matrixPruned,
+					rhsPrunded,
+					regularizationLambda);
+		}
+		else {
+<span class="fc" id="L1279">			solutionPruned = LinearAlgebra.solveLinearEquationLeastSquare(matrixPruned, rhsPrunded);</span>
+		}
+
+<span class="fc" id="L1282">		double[] solution = new double[matrix[0].length];</span>
+<span class="fc bfc" id="L1283" title="All 2 branches covered.">		for(int col = 0; col &lt; cols.length; col++) {</span>
+<span class="fc" id="L1284">			solution[cols[col]] = solutionPruned[col];</span>
+		}
+<span class="fc" id="L1286">		return solution;</span>
+	}
+
+	private static double[] solveEquilibratedNormalSystem(
+			final double[][] gramMatrix,
+			final double[] rhs,
+			final double regularizationLambda) {
+
+<span class="fc" id="L1294">		final int dimension = gramMatrix.length;</span>
+<span class="fc" id="L1295">		final double[][] unscaledMatrix = new double[dimension][dimension];</span>
+<span class="fc" id="L1296">		final double[] sqrtDiagonal = new double[dimension];</span>
+<span class="fc" id="L1297">		boolean canEquilibrate = true;</span>
+
+<span class="fc bfc" id="L1299" title="All 2 branches covered.">		for(int row = 0; row &lt; dimension; row++) {</span>
+<span class="fc" id="L1300">			System.arraycopy(gramMatrix[row], 0, unscaledMatrix[row], 0, dimension);</span>
+<span class="fc" id="L1301">			unscaledMatrix[row][row] += regularizationLambda;</span>
+
+<span class="fc" id="L1303">			final double diagonal = gramMatrix[row][row];</span>
+<span class="pc bpc" id="L1304" title="2 of 4 branches missed.">			if(!(diagonal &gt; 0.0) || !Double.isFinite(diagonal)) {</span>
+<span class="nc" id="L1305">				canEquilibrate = false;</span>
+			}
+			else {
+<span class="fc" id="L1308">				sqrtDiagonal[row] = Math.sqrt(diagonal);</span>
+			}
+		}
+
+<span class="pc bpc" id="L1312" title="1 of 2 branches missed.">		if(canEquilibrate) {</span>
+<span class="fc" id="L1313">			final double[][] equilibratedMatrix = new double[dimension][dimension];</span>
+<span class="fc" id="L1314">			final double[] equilibratedRhs = new double[dimension];</span>
+
+<span class="fc bfc" id="L1316" title="All 2 branches covered.">			for(int row = 0; row &lt; dimension; row++) {</span>
+<span class="fc" id="L1317">				equilibratedRhs[row] = rhs[row] / sqrtDiagonal[row];</span>
+<span class="fc bfc" id="L1318" title="All 2 branches covered.">				for(int column = 0; column &lt; dimension; column++) {</span>
+<span class="fc" id="L1319">					final double largerScale = Math.max(sqrtDiagonal[row], sqrtDiagonal[column]);</span>
+<span class="fc" id="L1320">					final double smallerScale = Math.min(sqrtDiagonal[row], sqrtDiagonal[column]);</span>
+<span class="fc" id="L1321">					equilibratedMatrix[row][column] = gramMatrix[row][column] / largerScale / smallerScale;</span>
+				}
+<span class="fc" id="L1323">				equilibratedMatrix[row][row] += regularizationLambda / gramMatrix[row][row];</span>
+			}
+
+<span class="pc bpc" id="L1326" title="2 of 4 branches missed.">			if(allFinite(equilibratedMatrix) &amp;&amp; allFinite(equilibratedRhs)) {</span>
+				try {
+<span class="fc" id="L1328">					final double[] equilibratedSolution = LinearAlgebra.solveLinearEquationCholesky(</span>
+							equilibratedMatrix,
+							equilibratedRhs);
+<span class="fc" id="L1331">					final double[] solution = new double[dimension];</span>
+<span class="fc bfc" id="L1332" title="All 2 branches covered.">					for(int index = 0; index &lt; dimension; index++) {</span>
+<span class="fc" id="L1333">						solution[index] = equilibratedSolution[index] / sqrtDiagonal[index];</span>
+					}
+<span class="pc bpc" id="L1335" title="1 of 2 branches missed.">					if(allFinite(solution)) {</span>
+<span class="fc" id="L1336">						return solution;</span>
+					}
+				}
+<span class="fc" id="L1339">				catch(final RuntimeException choleskyFailed) {</span>
+					// Fall through to the unscaled SVD below.
+<span class="nc" id="L1341">				}</span>
+			}
+		}
+
+<span class="fc" id="L1345">		return LinearAlgebra.solveLinearEquationSVD(unscaledMatrix, rhs);</span>
+	}
+
+	private static boolean allFinite(final double[] vector) {
+<span class="fc bfc" id="L1349" title="All 2 branches covered.">		for(final double value : vector) {</span>
+<span class="pc bpc" id="L1350" title="1 of 2 branches missed.">			if(!Double.isFinite(value)) {</span>
+<span class="nc" id="L1351">				return false;</span>
+			}
+		}
+<span class="fc" id="L1354">		return true;</span>
+	}
+
+	private static boolean allFinite(final double[][] matrix) {
+<span class="fc bfc" id="L1358" title="All 2 branches covered.">		for(final double[] row : matrix) {</span>
+<span class="pc bpc" id="L1359" title="1 of 2 branches missed.">			if(!allFinite(row)) {</span>
+<span class="nc" id="L1360">				return false;</span>
+			}
+		}
+<span class="fc" id="L1363">		return true;</span>
+	}
+
+
+	private static Map&lt;String, RandomVariable&gt; projectSensitivityMap(
+			final Map&lt;String, RandomVariable&gt; sensitivities,
+			final EmpiricalProjection projection) throws CalculationException {
+
+<span class="fc" id="L1371">		final Map&lt;String, RandomVariable&gt; projectedSensitivities = new LinkedHashMap&lt;String, RandomVariable&gt;();</span>
+
+<span class="fc bfc" id="L1373" title="All 2 branches covered.">		for(final Entry&lt;String, RandomVariable&gt; sensitivity : sensitivities.entrySet()) {</span>
+<span class="fc" id="L1374">			final RandomVariable projectedSensitivity = projection.project(sensitivity.getValue());</span>
+<span class="pc bpc" id="L1375" title="1 of 2 branches missed.">			if(projectedSensitivity != null) {</span>
+<span class="fc" id="L1376">				projectedSensitivities.put(sensitivity.getKey(), projectedSensitivity);</span>
+			}
+<span class="fc" id="L1378">		}</span>
+
+<span class="fc" id="L1380">		return projectedSensitivities;</span>
+	}
+
+	private static List&lt;Map&lt;String, RandomVariable&gt;&gt; projectSensitivityMaps(
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; sensitivities,
+			final EmpiricalProjection projection) throws CalculationException {
+
+<span class="fc" id="L1387">		final List&lt;Map&lt;String, RandomVariable&gt;&gt; projectedSensitivities = new ArrayList&lt;Map&lt;String, RandomVariable&gt;&gt;(sensitivities.size());</span>
+
+<span class="fc bfc" id="L1389" title="All 2 branches covered.">		for(final Map&lt;String, RandomVariable&gt; sensitivity : sensitivities) {</span>
+<span class="fc" id="L1390">			projectedSensitivities.add(projectSensitivityMap(sensitivity, projection));</span>
+<span class="fc" id="L1391">		}</span>
+
+<span class="fc" id="L1393">		return projectedSensitivities;</span>
+	}
+
+	/**
+	 * Empirical least-squares projection onto span(X): Y -&gt; X X^+ Y.
+	 *
+	 * The basis columns are normalized before forming empirical inner products, so
+	 * the positive-definiteness check is independent of their absolute scale. A
+	 * Cholesky factor of the normalized Gram matrix is reused when possible. For a
+	 * linearly dependent or ill-conditioned basis, the original rectangular design
+	 * matrix is solved by the robust least-squares solver instead of solving normal
+	 * equations.
+	 */
+	private static final class EmpiricalProjection {
+
+		private static final double CHOLESKY_TOLERANCE = 1E-14;
+
+		private final RandomVariable[] basisFunctions;
+		private final double[][] gramMatrix;
+		private final double[][] gramMatrixCholeskyFactor;
+		private final double[][] leastSquaresDesignMatrix;
+		private final int numberOfPaths;
+
+		private EmpiricalProjection(
+				final RandomVariable[] basisFunctions,
+<span class="fc" id="L1418">				final int numberOfPaths) {</span>
+
+<span class="pc bpc" id="L1420" title="2 of 4 branches missed.">			if(basisFunctions == null || basisFunctions.length == 0) {</span>
+<span class="nc" id="L1421">				throw new IllegalArgumentException(&quot;basisFunctions must contain at least one basis function.&quot;);</span>
+			}
+
+<span class="fc" id="L1424">			this.numberOfPaths = numberOfPaths;</span>
+<span class="fc" id="L1425">			this.basisFunctions = new RandomVariable[basisFunctions.length];</span>
+<span class="fc bfc" id="L1426" title="All 2 branches covered.">			for(int basisIndex = 0; basisIndex &lt; basisFunctions.length; basisIndex++) {</span>
+<span class="pc bpc" id="L1427" title="1 of 2 branches missed.">				if(basisFunctions[basisIndex] == null) {</span>
+<span class="nc" id="L1428">					throw new IllegalArgumentException(&quot;basisFunctions[&quot; + basisIndex + &quot;] is null.&quot;);</span>
+				}
+
+				/*
+				 * Check the number of paths for non-deterministic basis functions and strip
+				 * possible AAD information from the basis before repeatedly using it.
+				 */
+<span class="fc" id="L1435">				final RandomVariable basisValue = basisFunctions[basisIndex].getValues();</span>
+<span class="fc" id="L1436">				final double basisNorm = getRobustEuclideanNorm(getPathValues(basisValue, numberOfPaths));</span>
+<span class="pc bpc" id="L1437" title="2 of 4 branches missed.">				this.basisFunctions[basisIndex] = basisNorm &gt; 0.0 &amp;&amp; Double.isFinite(basisNorm)</span>
+<span class="fc" id="L1438">						? basisValue.div(basisNorm)</span>
+<span class="pc" id="L1439">						: basisValue;</span>
+			}
+
+<span class="fc" id="L1442">			gramMatrix = new double[basisFunctions.length][basisFunctions.length];</span>
+<span class="fc bfc" id="L1443" title="All 2 branches covered.">			for(int row = 0; row &lt; basisFunctions.length; row++) {</span>
+<span class="fc bfc" id="L1444" title="All 2 branches covered.">				for(int column = 0; column &lt;= row; column++) {</span>
+<span class="fc" id="L1445">					gramMatrix[row][column] = this.basisFunctions[row].getAverageFast(this.basisFunctions[column]);</span>
+<span class="fc" id="L1446">					gramMatrix[column][row] = gramMatrix[row][column];</span>
+				}
+			}
+
+<span class="fc" id="L1450">			gramMatrixCholeskyFactor = getCholeskyFactor(gramMatrix, CHOLESKY_TOLERANCE);</span>
+
+<span class="pc bpc" id="L1452" title="1 of 2 branches missed.">			if(gramMatrixCholeskyFactor == null) {</span>
+<span class="fc" id="L1453">				leastSquaresDesignMatrix = new double[numberOfPaths][basisFunctions.length];</span>
+<span class="fc bfc" id="L1454" title="All 2 branches covered.">				for(int basisIndex = 0; basisIndex &lt; basisFunctions.length; basisIndex++) {</span>
+<span class="fc" id="L1455">					final double[] basisRealizations = getPathValues(this.basisFunctions[basisIndex], numberOfPaths);</span>
+<span class="fc bfc" id="L1456" title="All 2 branches covered.">					for(int pathIndex = 0; pathIndex &lt; numberOfPaths; pathIndex++) {</span>
+<span class="fc" id="L1457">						leastSquaresDesignMatrix[pathIndex][basisIndex] = basisRealizations[pathIndex];</span>
+					}
+				}
+			}
+			else {
+<span class="nc" id="L1462">				leastSquaresDesignMatrix = null;</span>
+			}
+<span class="fc" id="L1464">		}</span>
+
+		private RandomVariable project(final RandomVariable randomVariable) throws CalculationException {
+
+<span class="pc bpc" id="L1468" title="1 of 2 branches missed.">			if(randomVariable == null) {</span>
+<span class="nc" id="L1469">				return null;</span>
+			}
+
+<span class="fc" id="L1472">			final RandomVariable value = randomVariable.getValues();</span>
+<span class="fc" id="L1473">			final double[] rhs = new double[basisFunctions.length];</span>
+<span class="fc bfc" id="L1474" title="All 2 branches covered.">			for(int basisIndex = 0; basisIndex &lt; basisFunctions.length; basisIndex++) {</span>
+<span class="fc" id="L1475">				rhs[basisIndex] = value.getAverageFast(basisFunctions[basisIndex]);</span>
+			}
+
+<span class="pc bpc" id="L1478" title="1 of 2 branches missed.">			final double[] coefficients = gramMatrixCholeskyFactor != null</span>
+<span class="nc" id="L1479">					? solveWithCholeskyFactor(gramMatrixCholeskyFactor, rhs)</span>
+<span class="fc" id="L1480">					: solveLeastSquaresRobust(</span>
+							leastSquaresDesignMatrix,
+<span class="fc" id="L1482">							getPathValues(value, numberOfPaths));</span>
+
+<span class="fc" id="L1484">			RandomVariable projection = Scalar.of(0.0);</span>
+<span class="fc bfc" id="L1485" title="All 2 branches covered.">			for(int basisIndex = 0; basisIndex &lt; basisFunctions.length; basisIndex++) {</span>
+<span class="fc" id="L1486">				projection = projection.addProduct(basisFunctions[basisIndex], coefficients[basisIndex]);</span>
+			}
+
+<span class="fc" id="L1489">			return projection.getValues();</span>
+		}
+	}
+
+	private static double[][] getCholeskyFactor(
+			final double[][] matrix,
+			final double relativeTolerance) {
+
+<span class="fc" id="L1497">		final int dimension = matrix.length;</span>
+<span class="pc bpc" id="L1498" title="1 of 2 branches missed.">		if(dimension == 0) {</span>
+<span class="nc" id="L1499">			return new double[0][0];</span>
+		}
+
+<span class="fc" id="L1502">		double maxDiagonal = 0.0;</span>
+<span class="fc bfc" id="L1503" title="All 2 branches covered.">		for(int row = 0; row &lt; dimension; row++) {</span>
+<span class="fc" id="L1504">			maxDiagonal = Math.max(maxDiagonal, Math.abs(matrix[row][row]));</span>
+		}
+<span class="pc bpc" id="L1506" title="2 of 4 branches missed.">		if(!(maxDiagonal &gt; 0.0) || !Double.isFinite(maxDiagonal)) {</span>
+<span class="nc" id="L1507">			return null;</span>
+		}
+<span class="fc" id="L1509">		final double tolerance = relativeTolerance * maxDiagonal;</span>
+
+<span class="fc" id="L1511">		final double[][] factor = new double[dimension][dimension];</span>
+<span class="pc bpc" id="L1512" title="1 of 2 branches missed.">		for(int row = 0; row &lt; dimension; row++) {</span>
+<span class="fc bfc" id="L1513" title="All 2 branches covered.">			for(int column = 0; column &lt;= row; column++) {</span>
+<span class="fc" id="L1514">				double sum = matrix[row][column];</span>
+<span class="fc bfc" id="L1515" title="All 2 branches covered.">				for(int k = 0; k &lt; column; k++) {</span>
+<span class="fc" id="L1516">					sum -= factor[row][k] * factor[column][k];</span>
+				}
+
+<span class="fc bfc" id="L1519" title="All 2 branches covered.">				if(row == column) {</span>
+<span class="fc bfc" id="L1520" title="All 2 branches covered.">					if(sum &lt;= tolerance) {</span>
+<span class="fc" id="L1521">						return null;</span>
+					}
+<span class="fc" id="L1523">					factor[row][column] = Math.sqrt(sum);</span>
+				}
+				else {
+<span class="fc" id="L1526">					factor[row][column] = sum / factor[column][column];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L1531">		return factor;</span>
+	}
+
+	private static double[] solveWithCholeskyFactor(
+			final double[][] lowerTriangularFactor,
+			final double[] rhs) {
+
+<span class="nc" id="L1538">		final int dimension = rhs.length;</span>
+<span class="nc" id="L1539">		final double[] forwardSolution = new double[dimension];</span>
+
+<span class="nc bnc" id="L1541" title="All 2 branches missed.">		for(int row = 0; row &lt; dimension; row++) {</span>
+<span class="nc" id="L1542">			double value = rhs[row];</span>
+<span class="nc bnc" id="L1543" title="All 2 branches missed.">			for(int column = 0; column &lt; row; column++) {</span>
+<span class="nc" id="L1544">				value -= lowerTriangularFactor[row][column] * forwardSolution[column];</span>
+			}
+<span class="nc" id="L1546">			forwardSolution[row] = value / lowerTriangularFactor[row][row];</span>
+		}
+
+<span class="nc" id="L1549">		final double[] solution = new double[dimension];</span>
+<span class="nc bnc" id="L1550" title="All 2 branches missed.">		for(int row = dimension-1; row &gt;= 0; row--) {</span>
+<span class="nc" id="L1551">			double value = forwardSolution[row];</span>
+<span class="nc bnc" id="L1552" title="All 2 branches missed.">			for(int column = row+1; column &lt; dimension; column++) {</span>
+<span class="nc" id="L1553">				value -= lowerTriangularFactor[column][row] * solution[column];</span>
+			}
+<span class="nc" id="L1555">			solution[row] = value / lowerTriangularFactor[row][row];</span>
+		}
+
+<span class="nc" id="L1558">		return solution;</span>
+	}
+
+	private static RandomVariable[] solvePathwiseHedgeRatios(
+			final double evaluationTime,
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final List&lt;Map&lt;String, RandomVariable&gt;&gt; hedgeSensitivities,
+			final int numberOfPaths,
+			final int numberOfHedges) throws CalculationException {
+
+<span class="fc" id="L1569">		final double[][] hedgeRatioRealizations = new double[numberOfHedges][numberOfPaths];</span>
+<span class="fc bfc" id="L1570" title="All 2 branches covered.">		if(numberOfHedges == 1) {</span>
+<span class="fc" id="L1571">			IntStream.range(0, numberOfPaths).parallel().forEach(pathIndex -&gt;</span>
+<span class="fc" id="L1572">				hedgeRatioRealizations[0][pathIndex] = solveSingleHedgeRatioPathwise(</span>
+						pathIndex,
+						riskFactorNames,
+						productSensitivities,
+<span class="fc" id="L1576">						hedgeSensitivities.get(0)));</span>
+<span class="fc" id="L1577">			return createPathwiseHedgeRatios(evaluationTime, hedgeRatioRealizations);</span>
+		}
+
+		try {
+<span class="fc" id="L1581">			IntStream.range(0, numberOfPaths).parallel().forEach(pathIndex -&gt; {</span>
+
+				/*
+				 * Store A column-major. The QR fast path operates on these columns in
+				 * place, avoiding one row-array allocation per risk factor and a second
+				 * copy of the full pathwise system.
+				 */
+<span class="fc" id="L1588">				final double[][] sensitivityMatrixColumns = new double[numberOfHedges][riskFactorNames.size()];</span>
+<span class="fc" id="L1589">				final double[] productDerivative = new double[riskFactorNames.size()];</span>
+<span class="fc" id="L1590">				int numberOfActiveRows = 0;</span>
+
+<span class="fc bfc" id="L1592" title="All 2 branches covered.">				for(final String riskFactorName : riskFactorNames) {</span>
+
+<span class="fc" id="L1594">					final RandomVariable productSensitivity = productSensitivities.get(riskFactorName);</span>
+<span class="fc" id="L1595">					boolean hasAnyHedgeDerivative = false;</span>
+<span class="fc bfc" id="L1596" title="All 2 branches covered.">					for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L1597">						final RandomVariable hedgeSensitivity = hedgeSensitivities.get(hedgeIndex).get(riskFactorName);</span>
+<span class="fc" id="L1598">						final double hedgeDerivative = getPathValueOrZero(hedgeSensitivity, pathIndex);</span>
+<span class="fc" id="L1599">						sensitivityMatrixColumns[hedgeIndex][numberOfActiveRows] = hedgeDerivative;</span>
+<span class="fc bfc" id="L1600" title="All 2 branches covered.">						hasAnyHedgeDerivative |= hedgeDerivative != 0.0;</span>
+					}
+
+<span class="pc bpc" id="L1603" title="1 of 2 branches missed.">					if(hasAnyHedgeDerivative) {</span>
+<span class="fc" id="L1604">						productDerivative[numberOfActiveRows] = getPathValueOrZero(productSensitivity, pathIndex);</span>
+<span class="fc" id="L1605">						numberOfActiveRows++;</span>
+					}
+<span class="fc" id="L1607">				}</span>
+
+				final double[] pathwiseHedgeRatios;
+				try {
+<span class="pc bpc" id="L1611" title="1 of 2 branches missed.">					pathwiseHedgeRatios = numberOfActiveRows == 0</span>
+<span class="nc" id="L1612">							? new double[numberOfHedges]</span>
+<span class="fc" id="L1613">							: solveLeastSquaresRobust(</span>
+									sensitivityMatrixColumns,
+									productDerivative,
+									numberOfActiveRows);
+				}
+<span class="nc" id="L1618">				catch(final CalculationException exception) {</span>
+<span class="nc" id="L1619">					throw new RuntimeException(exception);</span>
+<span class="fc" id="L1620">				}</span>
+
+<span class="fc bfc" id="L1622" title="All 2 branches covered.">				for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L1623">					hedgeRatioRealizations[hedgeIndex][pathIndex] = pathwiseHedgeRatios[hedgeIndex];</span>
+				}
+<span class="fc" id="L1625">			});</span>
+		}
+<span class="nc" id="L1627">		catch(final RuntimeException exception) {</span>
+<span class="nc bnc" id="L1628" title="All 2 branches missed.">			if(exception.getCause() instanceof CalculationException) {</span>
+<span class="nc" id="L1629">				throw (CalculationException)exception.getCause();</span>
+			}
+<span class="nc" id="L1631">			throw exception;</span>
+<span class="fc" id="L1632">		}</span>
+
+<span class="fc" id="L1634">		return createPathwiseHedgeRatios(evaluationTime, hedgeRatioRealizations);</span>
+	}
+
+	private static RandomVariable[] createPathwiseHedgeRatios(
+			final double evaluationTime,
+			final double[][] hedgeRatioRealizations) {
+
+<span class="fc" id="L1641">		final RandomVariableFactory factory = new RandomVariableFromArrayFactory();</span>
+<span class="fc" id="L1642">		final int numberOfHedges = hedgeRatioRealizations.length;</span>
+<span class="fc" id="L1643">		final RandomVariable[] hedgeRatios = new RandomVariable[numberOfHedges];</span>
+<span class="fc bfc" id="L1644" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+<span class="fc" id="L1645">			hedgeRatios[hedgeIndex] = factory.createRandomVariable(evaluationTime, hedgeRatioRealizations[hedgeIndex]);</span>
+		}
+
+<span class="fc" id="L1648">		return hedgeRatios;</span>
+	}
+
+	private static double solveSingleHedgeRatioPathwise(
+			final int pathIndex,
+			final List&lt;String&gt; riskFactorNames,
+			final Map&lt;String, RandomVariable&gt; productSensitivities,
+			final Map&lt;String, RandomVariable&gt; hedgeSensitivities) {
+
+<span class="fc" id="L1657">		double hedgeScale = 0.0;</span>
+<span class="fc" id="L1658">		double productScale = 0.0;</span>
+<span class="fc bfc" id="L1659" title="All 2 branches covered.">		for(final String riskFactorName : riskFactorNames) {</span>
+<span class="fc" id="L1660">			final double hedgeDerivative = getPathValueOrZero(hedgeSensitivities.get(riskFactorName), pathIndex);</span>
+<span class="fc bfc" id="L1661" title="All 2 branches covered.">			if(hedgeDerivative == 0.0) {</span>
+<span class="fc" id="L1662">				continue;</span>
+			}
+<span class="fc" id="L1664">			final double productDerivative = getPathValueOrZero(productSensitivities.get(riskFactorName), pathIndex);</span>
+<span class="pc bpc" id="L1665" title="2 of 4 branches missed.">			if(!Double.isFinite(hedgeDerivative) || !Double.isFinite(productDerivative)) {</span>
+<span class="nc" id="L1666">				throw new IllegalArgumentException(&quot;Pathwise sensitivities must be finite.&quot;);</span>
+			}
+<span class="fc" id="L1668">			hedgeScale = Math.max(hedgeScale, Math.abs(hedgeDerivative));</span>
+<span class="fc" id="L1669">			productScale = Math.max(productScale, Math.abs(productDerivative));</span>
+<span class="fc" id="L1670">		}</span>
+
+<span class="pc bpc" id="L1672" title="1 of 4 branches missed.">		if(hedgeScale == 0.0 || productScale == 0.0) {</span>
+<span class="fc" id="L1673">			return 0.0;</span>
+		}
+
+<span class="fc" id="L1676">		double numerator = 0.0;</span>
+<span class="fc" id="L1677">		double numeratorCorrection = 0.0;</span>
+<span class="fc" id="L1678">		double denominator = 0.0;</span>
+<span class="fc" id="L1679">		double denominatorCorrection = 0.0;</span>
+<span class="fc bfc" id="L1680" title="All 2 branches covered.">		for(final String riskFactorName : riskFactorNames) {</span>
+<span class="fc" id="L1681">			final double hedgeDerivative = getPathValueOrZero(hedgeSensitivities.get(riskFactorName), pathIndex);</span>
+<span class="pc bpc" id="L1682" title="1 of 2 branches missed.">			if(hedgeDerivative == 0.0) {</span>
+<span class="nc" id="L1683">				continue;</span>
+			}
+<span class="fc" id="L1685">			final double normalizedHedgeDerivative = hedgeDerivative / hedgeScale;</span>
+<span class="fc" id="L1686">			final double normalizedProductDerivative = getPathValueOrZero(</span>
+<span class="fc" id="L1687">					productSensitivities.get(riskFactorName),</span>
+					pathIndex) / productScale;
+
+<span class="fc" id="L1690">			final double numeratorTerm = normalizedHedgeDerivative * normalizedProductDerivative;</span>
+<span class="fc" id="L1691">			final double adjustedNumeratorTerm = numeratorTerm - numeratorCorrection;</span>
+<span class="fc" id="L1692">			final double nextNumerator = numerator + adjustedNumeratorTerm;</span>
+<span class="fc" id="L1693">			numeratorCorrection = (nextNumerator - numerator) - adjustedNumeratorTerm;</span>
+<span class="fc" id="L1694">			numerator = nextNumerator;</span>
+
+<span class="fc" id="L1696">			final double denominatorTerm = normalizedHedgeDerivative * normalizedHedgeDerivative;</span>
+<span class="fc" id="L1697">			final double adjustedDenominatorTerm = denominatorTerm - denominatorCorrection;</span>
+<span class="fc" id="L1698">			final double nextDenominator = denominator + adjustedDenominatorTerm;</span>
+<span class="fc" id="L1699">			denominatorCorrection = (nextDenominator - denominator) - adjustedDenominatorTerm;</span>
+<span class="fc" id="L1700">			denominator = nextDenominator;</span>
+<span class="fc" id="L1701">		}</span>
+
+<span class="fc" id="L1703">		return scaleByRatio(numerator / denominator, productScale, hedgeScale);</span>
+	}
+
+	private static double scaleByRatio(
+			final double value,
+			final double numeratorScale,
+			final double denominatorScale) {
+
+<span class="fc" id="L1711">		final int numeratorExponent = Math.getExponent(numeratorScale);</span>
+<span class="fc" id="L1712">		final int denominatorExponent = Math.getExponent(denominatorScale);</span>
+<span class="fc" id="L1713">		final double numeratorMantissa = Math.scalb(numeratorScale, -numeratorExponent);</span>
+<span class="fc" id="L1714">		final double denominatorMantissa = Math.scalb(denominatorScale, -denominatorExponent);</span>
+<span class="fc" id="L1715">		final double scaledValue = value * numeratorMantissa / denominatorMantissa;</span>
+<span class="fc" id="L1716">		return Math.scalb(scaledValue, numeratorExponent - denominatorExponent);</span>
+	}
+
+	private static double[] solveLeastSquaresRobust(
+			final double[][] matrix,
+			final double[] rhs) throws CalculationException {
+
+<span class="pc bpc" id="L1723" title="4 of 8 branches missed.">		if(matrix == null || matrix.length == 0 || matrix[0] == null || matrix[0].length == 0) {</span>
+<span class="nc" id="L1724">			throw new IllegalArgumentException(&quot;matrix must contain at least one row and one column.&quot;);</span>
+		}
+<span class="pc bpc" id="L1726" title="2 of 4 branches missed.">		if(rhs == null || rhs.length != matrix.length) {</span>
+<span class="nc" id="L1727">			throw new IllegalArgumentException(&quot;rhs length must match the number of matrix rows.&quot;);</span>
+		}
+
+<span class="fc" id="L1730">		final int numberOfRows = matrix.length;</span>
+<span class="fc" id="L1731">		final int numberOfColumns = matrix[0].length;</span>
+<span class="fc" id="L1732">		final double[][] matrixColumns = new double[numberOfColumns][numberOfRows];</span>
+<span class="fc bfc" id="L1733" title="All 2 branches covered.">		for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="pc bpc" id="L1734" title="2 of 4 branches missed.">			if(matrix[row] == null || matrix[row].length != numberOfColumns) {</span>
+<span class="nc" id="L1735">				throw new IllegalArgumentException(&quot;matrix must be rectangular.&quot;);</span>
+			}
+<span class="fc bfc" id="L1737" title="All 2 branches covered.">			for(int column = 0; column &lt; numberOfColumns; column++) {</span>
+<span class="fc" id="L1738">				matrixColumns[column][row] = matrix[row][column];</span>
+			}
+		}
+
+<span class="fc" id="L1742">		return solveLeastSquaresRobust(matrixColumns, rhs, numberOfRows);</span>
+	}
+
+	/**
+	 * Solves a rectangular least-squares system supplied as matrix columns.
+	 *
+	 * Full-column-rank systems use a column-equilibrated, pivoted modified
+	 * Gram-Schmidt QR decomposition with re-orthogonalization. The decomposition
+	 * operates on working copies of the columns and avoids a heavyweight solver
+	 * object on every Monte-Carlo path. The original columns are retained so that,
+	 * if numerical rank is lost (or the system is underdetermined), an SVD solve uses
+	 * the unmodified matrix and provides the minimum-norm least-squares solution.
+	 */
+	private static double[] solveLeastSquaresRobust(
+			final double[][] matrixColumns,
+			final double[] rhs,
+			final int numberOfRows) throws CalculationException {
+
+<span class="pc bpc" id="L1760" title="3 of 6 branches missed.">		if(matrixColumns == null || matrixColumns.length == 0 || numberOfRows &lt;= 0) {</span>
+<span class="nc" id="L1761">			throw new IllegalArgumentException(&quot;matrix must contain at least one row and one column.&quot;);</span>
+		}
+<span class="pc bpc" id="L1763" title="2 of 4 branches missed.">		if(rhs == null || rhs.length &lt; numberOfRows) {</span>
+<span class="nc" id="L1764">			throw new IllegalArgumentException(&quot;rhs must contain all matrix rows.&quot;);</span>
+		}
+
+<span class="fc" id="L1767">		final int numberOfColumns = matrixColumns.length;</span>
+<span class="fc" id="L1768">		final double[] columnNorms = new double[numberOfColumns];</span>
+<span class="fc" id="L1769">		final double[][] qrColumns = new double[numberOfColumns][];</span>
+<span class="fc" id="L1770">		final int[] originalColumns = new int[numberOfColumns];</span>
+<span class="fc" id="L1771">		int numberOfActiveColumns = 0;</span>
+
+<span class="fc bfc" id="L1773" title="All 2 branches covered.">		for(int column = 0; column &lt; numberOfColumns; column++) {</span>
+<span class="pc bpc" id="L1774" title="2 of 4 branches missed.">			if(matrixColumns[column] == null || matrixColumns[column].length &lt; numberOfRows) {</span>
+<span class="nc" id="L1775">				throw new IllegalArgumentException(&quot;Each matrix column must contain all matrix rows.&quot;);</span>
+			}
+
+<span class="fc" id="L1778">			final double columnNorm = getRobustEuclideanNorm(matrixColumns[column], numberOfRows);</span>
+<span class="pc bpc" id="L1779" title="1 of 2 branches missed.">			if(!Double.isFinite(columnNorm)) {</span>
+<span class="nc" id="L1780">				return solveLeastSquaresUsingSVD(matrixColumns, rhs, numberOfRows);</span>
+			}
+<span class="fc" id="L1782">			columnNorms[column] = columnNorm;</span>
+<span class="pc bpc" id="L1783" title="1 of 2 branches missed.">			if(columnNorm &gt; 0.0) {</span>
+<span class="fc" id="L1784">				qrColumns[numberOfActiveColumns] = Arrays.copyOf(matrixColumns[column], numberOfRows);</span>
+<span class="fc" id="L1785">				originalColumns[numberOfActiveColumns] = column;</span>
+<span class="fc" id="L1786">				numberOfActiveColumns++;</span>
+			}
+		}
+
+<span class="pc bpc" id="L1790" title="1 of 2 branches missed.">		if(numberOfActiveColumns == 0) {</span>
+<span class="nc" id="L1791">			return new double[numberOfColumns];</span>
+		}
+
+<span class="pc bpc" id="L1794" title="1 of 2 branches missed.">		if(numberOfRows &lt; numberOfActiveColumns) {</span>
+<span class="nc" id="L1795">			return solveLeastSquaresUsingSVD(matrixColumns, rhs, numberOfRows);</span>
+		}
+
+<span class="fc bfc" id="L1798" title="All 2 branches covered.">		for(int qrColumn = 0; qrColumn &lt; numberOfActiveColumns; qrColumn++) {</span>
+<span class="fc" id="L1799">			final double columnNorm = columnNorms[originalColumns[qrColumn]];</span>
+<span class="fc bfc" id="L1800" title="All 2 branches covered.">			for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="fc" id="L1801">				qrColumns[qrColumn][row] /= columnNorm;</span>
+			}
+		}
+
+<span class="fc" id="L1805">		final double[][] upperTriangularFactor = new double[numberOfActiveColumns][numberOfActiveColumns];</span>
+<span class="fc" id="L1806">		final double[] transformedRhs = new double[numberOfActiveColumns];</span>
+<span class="fc" id="L1807">		final double rankTolerance = QR_RANK_TOLERANCE_FACTOR</span>
+<span class="fc" id="L1808">				* Math.max(numberOfRows, numberOfActiveColumns);</span>
+
+<span class="fc bfc" id="L1810" title="All 2 branches covered.">		for(int step = 0; step &lt; numberOfActiveColumns; step++) {</span>
+<span class="fc" id="L1811">			int pivot = step;</span>
+<span class="fc" id="L1812">			double pivotNorm = getRobustEuclideanNorm(qrColumns[step], numberOfRows);</span>
+<span class="fc bfc" id="L1813" title="All 2 branches covered.">			for(int candidate = step+1; candidate &lt; numberOfActiveColumns; candidate++) {</span>
+<span class="fc" id="L1814">				final double candidateNorm = getRobustEuclideanNorm(qrColumns[candidate], numberOfRows);</span>
+<span class="fc bfc" id="L1815" title="All 2 branches covered.">				if(candidateNorm &gt; pivotNorm) {</span>
+<span class="fc" id="L1816">					pivot = candidate;</span>
+<span class="fc" id="L1817">					pivotNorm = candidateNorm;</span>
+				}
+			}
+
+<span class="fc bfc" id="L1821" title="All 2 branches covered.">			if(pivot != step) {</span>
+<span class="fc" id="L1822">				final double[] pivotColumn = qrColumns[pivot];</span>
+<span class="fc" id="L1823">				qrColumns[pivot] = qrColumns[step];</span>
+<span class="fc" id="L1824">				qrColumns[step] = pivotColumn;</span>
+
+<span class="fc" id="L1826">				final int originalColumn = originalColumns[pivot];</span>
+<span class="fc" id="L1827">				originalColumns[pivot] = originalColumns[step];</span>
+<span class="fc" id="L1828">				originalColumns[step] = originalColumn;</span>
+
+<span class="fc bfc" id="L1830" title="All 2 branches covered.">				for(int previousStep = 0; previousStep &lt; step; previousStep++) {</span>
+<span class="fc" id="L1831">					final double entry = upperTriangularFactor[previousStep][pivot];</span>
+<span class="fc" id="L1832">					upperTriangularFactor[previousStep][pivot] = upperTriangularFactor[previousStep][step];</span>
+<span class="fc" id="L1833">					upperTriangularFactor[previousStep][step] = entry;</span>
+				}
+			}
+
+			/*
+			 * Complete the second modified Gram-Schmidt sweep for the selected
+			 * column. Corrections against later q vectors may reintroduce components
+			 * along earlier q vectors, so immediate per-q double subtraction is not
+			 * equivalent to this full corrective sweep.
+			 */
+<span class="fc bfc" id="L1843" title="All 2 branches covered.">			for(int previousStep = 0; previousStep &lt; step; previousStep++) {</span>
+<span class="fc" id="L1844">				final double correction = innerProduct(qrColumns[previousStep], qrColumns[step], numberOfRows);</span>
+<span class="fc bfc" id="L1845" title="All 2 branches covered.">				for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="fc" id="L1846">					qrColumns[step][row] -= correction * qrColumns[previousStep][row];</span>
+				}
+<span class="fc" id="L1848">				upperTriangularFactor[previousStep][step] += correction;</span>
+			}
+
+<span class="fc" id="L1851">			pivotNorm = getRobustEuclideanNorm(qrColumns[step], numberOfRows);</span>
+<span class="pc bpc" id="L1852" title="1 of 4 branches missed.">			if(!(pivotNorm &gt; rankTolerance) || !Double.isFinite(pivotNorm)) {</span>
+<span class="fc" id="L1853">				return solveLeastSquaresUsingSVD(matrixColumns, rhs, numberOfRows);</span>
+			}
+
+<span class="fc" id="L1856">			upperTriangularFactor[step][step] = pivotNorm;</span>
+<span class="fc bfc" id="L1857" title="All 2 branches covered.">			for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="fc" id="L1858">				qrColumns[step][row] /= pivotNorm;</span>
+			}
+<span class="fc" id="L1860">			transformedRhs[step] = innerProduct(qrColumns[step], rhs, numberOfRows);</span>
+
+<span class="fc bfc" id="L1862" title="All 2 branches covered.">			for(int column = step+1; column &lt; numberOfActiveColumns; column++) {</span>
+<span class="fc" id="L1863">				final double projection = innerProduct(qrColumns[step], qrColumns[column], numberOfRows);</span>
+<span class="fc bfc" id="L1864" title="All 2 branches covered.">				for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="fc" id="L1865">					qrColumns[column][row] -= projection * qrColumns[step][row];</span>
+				}
+<span class="fc" id="L1867">				upperTriangularFactor[step][column] = projection;</span>
+			}
+		}
+
+<span class="fc" id="L1871">		final double[] equilibratedSolution = new double[numberOfActiveColumns];</span>
+<span class="fc bfc" id="L1872" title="All 2 branches covered.">		for(int row = numberOfActiveColumns-1; row &gt;= 0; row--) {</span>
+<span class="fc" id="L1873">			double value = transformedRhs[row];</span>
+<span class="fc bfc" id="L1874" title="All 2 branches covered.">			for(int column = row+1; column &lt; numberOfActiveColumns; column++) {</span>
+<span class="fc" id="L1875">				value -= upperTriangularFactor[row][column] * equilibratedSolution[column];</span>
+			}
+<span class="fc" id="L1877">			equilibratedSolution[row] = value / upperTriangularFactor[row][row];</span>
+<span class="pc bpc" id="L1878" title="1 of 2 branches missed.">			if(!Double.isFinite(equilibratedSolution[row])) {</span>
+<span class="nc" id="L1879">				return solveLeastSquaresUsingSVD(matrixColumns, rhs, numberOfRows);</span>
+			}
+		}
+
+<span class="fc" id="L1883">		final double[] solution = new double[numberOfColumns];</span>
+<span class="fc bfc" id="L1884" title="All 2 branches covered.">		for(int qrColumn = 0; qrColumn &lt; numberOfActiveColumns; qrColumn++) {</span>
+<span class="fc" id="L1885">			final int originalColumn = originalColumns[qrColumn];</span>
+<span class="fc" id="L1886">			solution[originalColumn] = equilibratedSolution[qrColumn] / columnNorms[originalColumn];</span>
+		}
+<span class="fc" id="L1888">		return solution;</span>
+	}
+
+	private static double[] solveLeastSquaresUsingSVD(
+			final double[][] originalMatrixColumns,
+			final double[] rhs,
+			final int numberOfRows) {
+
+<span class="fc" id="L1896">		final double[][] matrix = new double[numberOfRows][originalMatrixColumns.length];</span>
+<span class="fc bfc" id="L1897" title="All 2 branches covered.">		for(int column = 0; column &lt; originalMatrixColumns.length; column++) {</span>
+<span class="fc bfc" id="L1898" title="All 2 branches covered.">			for(int row = 0; row &lt; numberOfRows; row++) {</span>
+<span class="fc" id="L1899">				matrix[row][column] = originalMatrixColumns[column][row];</span>
+			}
+		}
+<span class="fc" id="L1902">		return LinearAlgebra.solveLinearEquationLeastSquare(matrix, Arrays.copyOf(rhs, numberOfRows));</span>
+	}
+
+	private static RandomVariable[] reconstructHedgeRatios(
+			final double evaluationTime,
+			final double[][] coefficients,
+			final RandomVariable[] basisValues) {
+
+<span class="fc" id="L1910">		final int numberOfHedges = coefficients.length;</span>
+<span class="fc" id="L1911">		final int numberOfBasisFunctions = basisValues.length;</span>
+
+<span class="fc" id="L1913">		final RandomVariable[] hedgeRatios = new RandomVariable[numberOfHedges];</span>
+
+<span class="fc bfc" id="L1915" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; numberOfHedges; hedgeIndex++) {</span>
+
+<span class="fc" id="L1917">			RandomVariable hedgeRatio = Scalar.of(0);</span>
+<span class="fc bfc" id="L1918" title="All 2 branches covered.">			for(int basisIndex = 0; basisIndex &lt; numberOfBasisFunctions; basisIndex++) {</span>
+<span class="fc" id="L1919">				hedgeRatio = hedgeRatio.addProduct(basisValues[basisIndex], coefficients[hedgeIndex][basisIndex]);</span>
+			}
+
+<span class="fc" id="L1922">			hedgeRatios[hedgeIndex] = hedgeRatio;</span>
+		}
+
+<span class="fc" id="L1925">		return hedgeRatios;</span>
+	}
+
+	private static void validateInputs(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+
+<span class="nc" id="L1937">		validateParameterIDs(parameterIDsByName);</span>
+<span class="nc bnc" id="L1938" title="All 2 branches missed.">		if(derivativeValue == null) {</span>
+<span class="nc" id="L1939">			throw new IllegalArgumentException(&quot;derivativeValue must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L1941" title="All 4 branches missed.">		if(hedgePortfolioValues == null || hedgePortfolioValues.length == 0) {</span>
+<span class="nc" id="L1942">			throw new IllegalArgumentException(&quot;hedgePortfolioValues must contain at least one hedge instrument.&quot;);</span>
+		}
+<span class="nc bnc" id="L1944" title="All 2 branches missed.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgePortfolioValues.length; hedgeIndex++) {</span>
+<span class="nc bnc" id="L1945" title="All 2 branches missed.">			if(hedgePortfolioValues[hedgeIndex] == null) {</span>
+<span class="nc" id="L1946">				throw new IllegalArgumentException(&quot;hedgePortfolioValues[&quot; + hedgeIndex + &quot;] must not be null.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L1950">		validateReductionConfiguration(</span>
+				solutionBasisFunctions,
+				testBasisFunctions,
+				regularizationLambda,
+				reductionMethod);
+<span class="nc" id="L1955">	}</span>
+
+	private static void validateGradientInputs(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod,
+			final int numberOfPaths) {
+
+<span class="fc" id="L1967">		validateParameterIDs(parameterIDsByName);</span>
+<span class="fc" id="L1968">		validateGradients(derivativeGradient, hedgePortfolioGradients);</span>
+<span class="fc bfc" id="L1969" title="All 2 branches covered.">		if(numberOfPaths &lt;= 0) {</span>
+<span class="fc" id="L1970">			throw new IllegalArgumentException(&quot;numberOfPaths must be positive.&quot;);</span>
+		}
+
+<span class="fc" id="L1973">		validateReductionConfiguration(</span>
+				solutionBasisFunctions,
+				testBasisFunctions,
+				regularizationLambda,
+				reductionMethod);
+<span class="fc" id="L1978">	}</span>
+
+	private static void validateReductionConfiguration(
+			final RandomVariable[] solutionBasisFunctions,
+			final RandomVariable[] testBasisFunctions,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+
+<span class="fc bfc" id="L1986" title="All 2 branches covered.">		if(reductionMethod == null) {</span>
+<span class="fc" id="L1987">			throw new IllegalArgumentException(&quot;reductionMethod must not be null.&quot;);</span>
+		}
+<span class="fc bfc" id="L1989" title="All 4 branches covered.">		if(!Double.isFinite(regularizationLambda) || regularizationLambda &lt; 0.0) {</span>
+<span class="fc" id="L1990">			throw new IllegalArgumentException(&quot;regularizationLambda must be finite and non-negative.&quot;);</span>
+		}
+<span class="fc bfc" id="L1992" title="All 2 branches covered.">		if(reductionMethod == ReductionMethod.PATHWISE) {</span>
+<span class="fc bfc" id="L1993" title="All 2 branches covered.">			if(regularizationLambda != 0.0) {</span>
+<span class="fc" id="L1994">				throw new IllegalArgumentException(&quot;regularizationLambda must be 0.0 for PATHWISE.&quot;);</span>
+			}
+<span class="fc" id="L1996">			validateOptionalBasisFunctions(solutionBasisFunctions, &quot;solutionBasisFunctions&quot;);</span>
+<span class="fc" id="L1997">			return;</span>
+		}
+
+<span class="fc" id="L2000">		validateRequiredBasisFunctions(solutionBasisFunctions, &quot;solutionBasisFunctions&quot;);</span>
+<span class="fc bfc" id="L2001" title="All 2 branches covered.">		if(reductionMethod == ReductionMethod.PROJECTED_GALERKIN) {</span>
+<span class="fc" id="L2002">			validateOptionalBasisFunctions(testBasisFunctions, &quot;testBasisFunctions&quot;);</span>
+		}
+<span class="fc" id="L2004">	}</span>
+
+	private static void validatePathwiseInputs(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final RandomVariable derivativeValue,
+			final RandomVariable[] hedgePortfolioValues) {
+
+<span class="nc" id="L2011">		validateParameterIDs(parameterIDsByName);</span>
+<span class="nc bnc" id="L2012" title="All 2 branches missed.">		if(derivativeValue == null) {</span>
+<span class="nc" id="L2013">			throw new IllegalArgumentException(&quot;derivativeValue must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L2015" title="All 4 branches missed.">		if(hedgePortfolioValues == null || hedgePortfolioValues.length == 0) {</span>
+<span class="nc" id="L2016">			throw new IllegalArgumentException(&quot;hedgePortfolioValues must contain at least one hedge instrument.&quot;);</span>
+		}
+<span class="nc bnc" id="L2018" title="All 2 branches missed.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgePortfolioValues.length; hedgeIndex++) {</span>
+<span class="nc bnc" id="L2019" title="All 2 branches missed.">			if(hedgePortfolioValues[hedgeIndex] == null) {</span>
+<span class="nc" id="L2020">				throw new IllegalArgumentException(&quot;hedgePortfolioValues[&quot; + hedgeIndex + &quot;] must not be null.&quot;);</span>
+			}
+		}
+<span class="nc" id="L2023">	}</span>
+
+	private static void validatePathwiseGradientInputs(
+			final Map&lt;String, Long&gt; parameterIDsByName,
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+			final RandomVariable[] projectionBasisFunctions,
+			final int numberOfPaths) {
+
+<span class="fc" id="L2032">		validateParameterIDs(parameterIDsByName);</span>
+<span class="fc" id="L2033">		validateGradients(derivativeGradient, hedgePortfolioGradients);</span>
+<span class="pc bpc" id="L2034" title="1 of 2 branches missed.">		if(numberOfPaths &lt;= 0) {</span>
+<span class="nc" id="L2035">			throw new IllegalArgumentException(&quot;numberOfPaths must be positive.&quot;);</span>
+		}
+<span class="fc" id="L2037">		validateOptionalBasisFunctions(projectionBasisFunctions, &quot;projectionBasisFunctions&quot;);</span>
+<span class="fc" id="L2038">	}</span>
+
+	private static void validateParameterIDs(final Map&lt;String, Long&gt; parameterIDsByName) {
+
+<span class="pc bpc" id="L2042" title="1 of 4 branches missed.">		if(parameterIDsByName == null || parameterIDsByName.isEmpty()) {</span>
+<span class="fc" id="L2043">			throw new IllegalArgumentException(&quot;parameterIDsByName must contain at least one parameter.&quot;);</span>
+		}
+<span class="fc bfc" id="L2045" title="All 2 branches covered.">		for(final Entry&lt;String, Long&gt; parameter : parameterIDsByName.entrySet()) {</span>
+<span class="pc bpc" id="L2046" title="2 of 4 branches missed.">			if(parameter.getKey() == null || parameter.getValue() == null) {</span>
+<span class="nc" id="L2047">				throw new IllegalArgumentException(&quot;parameterIDsByName must not contain null names or IDs.&quot;);</span>
+			}
+<span class="fc" id="L2049">		}</span>
+<span class="fc" id="L2050">	}</span>
+
+	private static void validateGradients(
+			final Map&lt;Long, RandomVariable&gt; derivativeGradient,
+			final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients) {
+
+<span class="fc bfc" id="L2056" title="All 2 branches covered.">		if(derivativeGradient == null) {</span>
+<span class="fc" id="L2057">			throw new IllegalArgumentException(&quot;derivativeGradient must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L2059" title="1 of 4 branches missed.">		if(hedgePortfolioGradients == null || hedgePortfolioGradients.isEmpty()) {</span>
+<span class="fc" id="L2060">			throw new IllegalArgumentException(&quot;hedgePortfolioGradients must contain at least one hedge instrument.&quot;);</span>
+		}
+<span class="fc bfc" id="L2062" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgePortfolioGradients.size(); hedgeIndex++) {</span>
+<span class="fc bfc" id="L2063" title="All 2 branches covered.">			if(hedgePortfolioGradients.get(hedgeIndex) == null) {</span>
+<span class="fc" id="L2064">				throw new IllegalArgumentException(&quot;hedgePortfolioGradients[&quot; + hedgeIndex + &quot;] must not be null.&quot;);</span>
+			}
+		}
+<span class="fc" id="L2067">	}</span>
+
+	private static void validateRequiredBasisFunctions(
+			final RandomVariable[] basisFunctions,
+			final String argumentName) {
+
+<span class="fc bfc" id="L2073" title="All 4 branches covered.">		if(basisFunctions == null || basisFunctions.length == 0) {</span>
+<span class="fc" id="L2074">			throw new IllegalArgumentException(argumentName + &quot; must contain at least one basis function.&quot;);</span>
+		}
+<span class="fc" id="L2076">		validateBasisFunctionElements(basisFunctions, argumentName);</span>
+<span class="fc" id="L2077">	}</span>
+
+	private static void validateOptionalBasisFunctions(
+			final RandomVariable[] basisFunctions,
+			final String argumentName) {
+
+<span class="fc bfc" id="L2083" title="All 2 branches covered.">		if(basisFunctions == null) {</span>
+<span class="fc" id="L2084">			return;</span>
+		}
+<span class="fc bfc" id="L2086" title="All 2 branches covered.">		if(basisFunctions.length == 0) {</span>
+<span class="fc" id="L2087">			throw new IllegalArgumentException(argumentName + &quot; must be null or contain at least one basis function.&quot;);</span>
+		}
+<span class="fc" id="L2089">		validateBasisFunctionElements(basisFunctions, argumentName);</span>
+<span class="fc" id="L2090">	}</span>
+
+	private static void validateBasisFunctionElements(
+			final RandomVariable[] basisFunctions,
+			final String argumentName) {
+
+<span class="fc bfc" id="L2096" title="All 2 branches covered.">		for(int basisIndex = 0; basisIndex &lt; basisFunctions.length; basisIndex++) {</span>
+<span class="fc bfc" id="L2097" title="All 2 branches covered.">			if(basisFunctions[basisIndex] == null) {</span>
+<span class="fc" id="L2098">				throw new IllegalArgumentException(argumentName + &quot;[&quot; + basisIndex + &quot;] must not be null.&quot;);</span>
+			}
+		}
+<span class="fc" id="L2101">	}</span>
+
+	private static double[] getPathValuesOrZero(final RandomVariable randomVariable, final int numberOfPaths) {
+
+<span class="nc bnc" id="L2105" title="All 2 branches missed.">		if(randomVariable == null) {</span>
+<span class="nc" id="L2106">			return new double[numberOfPaths];</span>
+		}
+
+<span class="nc" id="L2109">		return getPathValues(randomVariable, numberOfPaths);</span>
+	}
+
+	private static double getPathValueOrZero(final RandomVariable randomVariable, final int pathIndex) {
+
+<span class="fc bfc" id="L2114" title="All 2 branches covered.">		if(randomVariable == null) {</span>
+<span class="fc" id="L2115">			return 0.0;</span>
+		}
+
+<span class="fc" id="L2118">		return randomVariable.get(pathIndex);</span>
+	}
+
+	private static double[] getPathValues(
+			final RandomVariable randomVariable,
+			final int numberOfPaths) {
+
+<span class="fc" id="L2125">		final double[] values = new double[numberOfPaths];</span>
+
+<span class="fc bfc" id="L2127" title="All 2 branches covered.">		if(randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L2128">			Arrays.fill(values, randomVariable.doubleValue());</span>
+<span class="fc" id="L2129">			return values;</span>
+		}
+
+<span class="pc bpc" id="L2132" title="1 of 2 branches missed.">		if(randomVariable.size() != numberOfPaths) {</span>
+<span class="nc" id="L2133">			throw new IllegalArgumentException(</span>
+<span class="nc" id="L2134">					&quot;RandomVariable has size &quot; + randomVariable.size()</span>
+					+ &quot; but model has &quot; + numberOfPaths + &quot; paths.&quot;);
+		}
+
+<span class="fc" id="L2138">		return randomVariable.getRealizations();</span>
+	}
+
+	private static double[][] copyMatrix(final double[][] matrix) {
+<span class="nc" id="L2142">		final double[][] copy = new double[matrix.length][];</span>
+<span class="nc bnc" id="L2143" title="All 2 branches missed.">		for(int row = 0; row &lt; matrix.length; row++) {</span>
+<span class="nc" id="L2144">			copy[row] = Arrays.copyOf(matrix[row], matrix[row].length);</span>
+		}
+<span class="nc" id="L2146">		return copy;</span>
+	}
+
+	/*
+	 * Helpers
+	 */
+
+	private static double getRobustEuclideanNorm(final double[] vector) {
+<span class="fc" id="L2154">		return getRobustEuclideanNorm(vector, vector.length);</span>
+	}
+
+	private static double getRobustEuclideanNorm(final double[] vector, final int length) {
+
+<span class="fc" id="L2159">		double maximumAbsoluteValue = 0.0;</span>
+<span class="fc bfc" id="L2160" title="All 2 branches covered.">		for(int index = 0; index &lt; length; index++) {</span>
+<span class="fc" id="L2161">			final double value = vector[index];</span>
+<span class="fc" id="L2162">			final double absoluteValue = Math.abs(value);</span>
+<span class="pc bpc" id="L2163" title="1 of 2 branches missed.">			if(Double.isNaN(absoluteValue)) {</span>
+<span class="nc" id="L2164">				return Double.NaN;</span>
+			}
+<span class="fc" id="L2166">			maximumAbsoluteValue = Math.max(maximumAbsoluteValue, absoluteValue);</span>
+		}
+
+<span class="pc bpc" id="L2169" title="1 of 4 branches missed.">		if(maximumAbsoluteValue == 0.0 || Double.isInfinite(maximumAbsoluteValue)) {</span>
+<span class="fc" id="L2170">			return maximumAbsoluteValue;</span>
+		}
+
+<span class="fc" id="L2173">		double scaledSumOfSquares = 0.0;</span>
+<span class="fc bfc" id="L2174" title="All 2 branches covered.">		for(int index = 0; index &lt; length; index++) {</span>
+<span class="fc" id="L2175">			final double value = vector[index];</span>
+<span class="fc" id="L2176">			final double scaledValue = value / maximumAbsoluteValue;</span>
+<span class="fc" id="L2177">			scaledSumOfSquares += scaledValue * scaledValue;</span>
+		}
+<span class="fc" id="L2179">		return maximumAbsoluteValue * Math.sqrt(scaledSumOfSquares);</span>
+	}
+
+	private static double innerProduct(final double[] x, final double[] y, final int length) {
+
+<span class="pc bpc" id="L2184" title="2 of 4 branches missed.">		if(x.length &lt; length || y.length &lt; length) {</span>
+<span class="nc" id="L2185">			throw new IllegalArgumentException(&quot;Vectors do not contain the requested number of entries.&quot;);</span>
+		}
+
+<span class="fc" id="L2188">		double sum = 0.0;</span>
+<span class="fc" id="L2189">		double compensation = 0.0;</span>
+<span class="fc bfc" id="L2190" title="All 2 branches covered.">		for(int index = 0; index &lt; length; index++) {</span>
+<span class="fc" id="L2191">			final double product = x[index] * y[index];</span>
+<span class="fc" id="L2192">			final double compensatedProduct = product - compensation;</span>
+<span class="fc" id="L2193">			final double newSum = sum + compensatedProduct;</span>
+<span class="fc" id="L2194">			compensation = (newSum - sum) - compensatedProduct;</span>
+<span class="fc" id="L2195">			sum = newSum;</span>
+		}
+<span class="fc" id="L2197">		return sum;</span>
+	}
+
+	private static double empiricalInnerProduct(final double[] x, final double[] y) {
+
+<span class="nc bnc" id="L2202" title="All 2 branches missed.">		if(x.length != y.length) {</span>
+<span class="nc" id="L2203">			throw new IllegalArgumentException(&quot;Vector lengths do not match.&quot;);</span>
+		}
+
+<span class="nc" id="L2206">		double sum = 0.0;</span>
+<span class="nc bnc" id="L2207" title="All 2 branches missed.">		for(int i = 0; i &lt; x.length; i++) {</span>
+<span class="nc" id="L2208">			sum += x[i] * y[i];</span>
+		}
+
+<span class="nc" id="L2211">		return sum / x.length;</span>
+	}
+
+	/*
+	 * Zero-based versions of:
+	 *
+	 * row(i,s) = (s-1)n + i,
+	 * col(j,q) = (q-1)m + j.
+	 */
+	private static int rowIndex(
+			final int riskFactorIndex,
+			final int testBasisIndex,
+			final int numberOfRiskFactors) {
+
+<span class="fc" id="L2225">		return testBasisIndex * numberOfRiskFactors + riskFactorIndex;</span>
+	}
+
+	private static int columnIndex(
+			final int hedgeIndex,
+			final int coefficientBasisIndex,
+			final int numberOfHedges) {
+
+<span class="fc" id="L2233">		return coefficientBasisIndex * numberOfHedges + hedgeIndex;</span>
+	}
+
+	private static final class ReducedSystem {
+
+		private final double[][] matrix;
+		private final double[] rhs;
+		private final boolean isNormalEquationSystem;
+
+		private ReducedSystem(
+				final double[][] matrix,
+				final double[] rhs,
+<span class="fc" id="L2245">				final boolean isNormalEquationSystem) {</span>
+<span class="fc" id="L2246">			this.matrix = matrix;</span>
+<span class="fc" id="L2247">			this.rhs = rhs;</span>
+<span class="fc" id="L2248">			this.isNormalEquationSystem = isNormalEquationSystem;</span>
+<span class="fc" id="L2249">		}</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

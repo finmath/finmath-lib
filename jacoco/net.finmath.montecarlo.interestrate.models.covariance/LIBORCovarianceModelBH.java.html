@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCovarianceModelBH.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCovarianceModelBH.java</span></div><h1>LIBORCovarianceModelBH.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 16.09.2007
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * A five parameter covariance model corresponding.
+ *
+ * The model is provided for analysis / illustration. It has some bad properties.
+ * Use in production in not recommended.
+ *
+ * @author Christian Fries
+ * @since finmath-lib 3.6.0
+ * @version 1.0
+ */
+public class LIBORCovarianceModelBH extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = 2094266336585778694L;
+
+<span class="nc" id="L29">	private double[] parameter = new double[5]; // sigma1,alpha1,sigma2,alpha2,rho</span>
+
+	/**
+	 * Create model.
+	 *
+	 * @param timeDiscretization The simulation time discretization.
+	 * @param liborPeriodDiscretization The fixed forward rate discretization.
+	 * @param numberOfFactors The number of factors.
+	 * @param parameter Vector of size 5.
+	 */
+	public LIBORCovarianceModelBH(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double[] parameter) {
+<span class="nc" id="L40">		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);</span>
+<span class="nc" id="L41">		this.parameter = parameter;</span>
+<span class="nc" id="L42">	}</span>
+
+	/**
+	 * Create model with default parameter.
+	 *
+	 * @param timeDiscretization The simulation time discretization.
+	 * @param liborPeriodDiscretization The fixed forward rate discretization.
+	 * @param numberOfFactors The number of factors.
+	 */
+	public LIBORCovarianceModelBH(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
+<span class="nc" id="L52">		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);</span>
+<span class="nc" id="L53">		parameter[0] =  0.4690;		// sigma1</span>
+<span class="nc" id="L54">		parameter[1] =  0.0452;		// alpha1</span>
+<span class="nc" id="L55">		parameter[2] =  0.3500;		// sigma2</span>
+<span class="nc" id="L56">		parameter[3] =  0.0100;		// alpha2</span>
+<span class="nc" id="L57">		parameter[4] = -0.8918;		// rho</span>
+<span class="nc" id="L58">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L62">		final LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameterAsDouble());</span>
+<span class="nc" id="L63">		return model;</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L68">		return parameter;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L73">		final double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);</span>
+
+<span class="nc bnc" id="L75" title="All 2 branches missed.">		final double s1 = timeToMaturity &lt;= 0 ? 0 : parameter[0] * Math.exp(-parameter[1] * timeToMaturity);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		final double s2 = timeToMaturity &lt;= 0 ? 0 : parameter[2] * Math.exp(-parameter[3] * timeToMaturity);</span>
+<span class="nc" id="L77">		final double rho = parameter[4];</span>
+
+<span class="nc" id="L79">		final RandomVariable[] factorLoading = new RandomVariable[2];</span>
+<span class="nc" id="L80">		factorLoading[0] = new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), Math.sqrt(1-rho*rho) * s1);</span>
+<span class="nc" id="L81">		factorLoading[1] = new RandomVariableFromDoubleArray(getTimeDiscretization().getTime(timeIndex), rho * s1 + s2);</span>
+
+<span class="nc" id="L83">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L88">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="nc" id="L93">		final LIBORCovarianceModelBH model = new LIBORCovarianceModelBH(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), parameters);</span>
+<span class="nc" id="L94">		return model;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L100">		TimeDiscretization timeDiscretization = this.getTimeDiscretization();</span>
+<span class="nc" id="L101">		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();</span>
+<span class="nc" id="L102">		int numberOfFactors = this.getNumberOfFactors();</span>
+<span class="nc" id="L103">		double[] parameter = this.parameter;</span>
+
+<span class="nc bnc" id="L105" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc" id="L106">			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;timeDiscretization&quot;, timeDiscretization);</span>
+<span class="nc" id="L107">			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;liborPeriodDiscretization&quot;, liborPeriodDiscretization);</span>
+<span class="nc" id="L108">			numberOfFactors = (int)dataModified.getOrDefault(&quot;numberOfFactors&quot;, numberOfFactors);</span>
+<span class="nc" id="L109">			parameter = (double[])dataModified.getOrDefault(&quot;parameter&quot;, parameter);</span>
+		}
+
+<span class="nc" id="L112">		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelBH(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);</span>
+<span class="nc" id="L113">		return newModel;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

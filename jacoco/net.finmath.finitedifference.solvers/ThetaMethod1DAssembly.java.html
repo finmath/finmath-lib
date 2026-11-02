@@ -1,0 +1,460 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThetaMethod1DAssembly.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">ThetaMethod1DAssembly.java</span></div><h1>ThetaMethod1DAssembly.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import java.util.Arrays;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+
+/**
+ * Shared matrix-free assembly utilities for one-dimensional theta-method
+ * finite-difference solvers.
+ *
+ * &lt;p&gt;
+ * This class is primarily numerical: it assembles the one-dimensional spatial
+ * operator directly into tridiagonal coefficients.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The generic assembly methods work with arrays for drift, variance, and local
+ * discount / reaction coefficients, which allows state-dependent reaction terms
+ * as required for interest-rate PDEs.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For backward compatibility with equity-only solvers using deterministic
+ * discounting, the class also provides convenience methods based on a scalar
+ * short rate.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class ThetaMethod1DAssembly {
+
+	/**
+	 * The safe time epsilon.
+	 */
+	private static final double SAFE_TIME_EPSILON = 1E-6;
+
+	private ThetaMethod1DAssembly() {
+	}
+
+	/**
+	 * Container for model coefficients on a one-dimensional grid in the
+	 * deterministic-rate equity case.
+	 *
+	 * &lt;p&gt;
+	 * This compatibility container is still useful for jump and two-state
+	 * equity
+	 * solvers, where the discounting term is spatially constant.
+	 * &lt;/p&gt;
+	 */
+	public static final class ModelCoefficients {
+
+		/**
+		 * The drift.
+		 */
+		private final double[] drift;
+		/**
+		 * The variance.
+		 */
+		private final double[] variance;
+		/**
+		 * The short rate.
+		 */
+		private final double shortRate;
+
+		/**
+		 * Performs the operation.
+		 *
+		 * @param drift The value.
+		 * @param variance The value.
+		 * @param shortRate The value.
+		 */
+		public ModelCoefficients(
+				final double[] drift,
+				final double[] variance,
+<span class="fc" id="L75">				final double shortRate) {</span>
+<span class="fc" id="L76">			this.drift = drift;</span>
+<span class="fc" id="L77">			this.variance = variance;</span>
+<span class="fc" id="L78">			this.shortRate = shortRate;</span>
+<span class="fc" id="L79">		}</span>
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double[] getDrift() {
+<span class="fc" id="L87">			return drift;</span>
+		}
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double[] getVariance() {
+<span class="fc" id="L96">			return variance;</span>
+		}
+
+		/**
+		 * Returns the value.
+		 *
+		 * @return The value.
+		 */
+		public double getShortRate() {
+<span class="fc" id="L105">			return shortRate;</span>
+		}
+	}
+
+	private static final class RowCoefficients {
+
+		/**
+		 * The lower.
+		 */
+		private final double lower;
+		/**
+		 * The diag.
+		 */
+		private final double diag;
+		/**
+		 * The upper.
+		 */
+		private final double upper;
+
+<span class="fc" id="L124">		private RowCoefficients(final double lower, final double diag, final double upper) {</span>
+<span class="fc" id="L125">			this.lower = lower;</span>
+<span class="fc" id="L126">			this.diag = diag;</span>
+<span class="fc" id="L127">			this.upper = upper;</span>
+<span class="fc" id="L128">		}</span>
+	}
+
+	/**
+	 * Compatibility method for equity-only solvers with deterministic
+	 * discounting.
+	 *
+	 * &lt;p&gt;
+	 * Evaluates the one-dimensional drift, variance, and scalar short rate on
+	 * the
+	 * supplied grid at one time.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference equity model.
+	 * @param xGrid The one-dimensional state grid.
+	 * @param time The running time.
+	 * @return The model coefficients.
+	 */
+	public static ModelCoefficients buildModelCoefficients(
+			final FiniteDifferenceEquityModel model,
+			final double[] xGrid,
+			final double time) {
+
+<span class="fc" id="L151">		final int numberOfGridPoints = xGrid.length;</span>
+
+<span class="fc" id="L153">		final double[] drift = new double[numberOfGridPoints];</span>
+<span class="fc" id="L154">		final double[] variance = new double[numberOfGridPoints];</span>
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		for (int i = 0; i &lt; numberOfGridPoints; i++) {</span>
+<span class="fc" id="L157">			final double x = xGrid[i];</span>
+
+<span class="fc" id="L159">			drift[i] = model.getDrift(time, x)[0];</span>
+
+<span class="fc" id="L161">			final double[][] factorLoading = model.getFactorLoading(time, x);</span>
+
+<span class="fc" id="L163">			double localVariance = 0.0;</span>
+<span class="fc bfc" id="L164" title="All 2 branches covered.">			for (int factor = 0; factor &lt; factorLoading[0].length; factor++) {</span>
+<span class="fc" id="L165">				final double b = factorLoading[0][factor];</span>
+<span class="fc" id="L166">				localVariance += b * b;</span>
+			}
+<span class="fc" id="L168">			variance[i] = localVariance;</span>
+		}
+
+<span class="fc" id="L171">		return new ModelCoefficients(drift, variance, getShortRate(model, time));</span>
+	}
+
+	/**
+	 * Compatibility method for equity-only solvers with deterministic
+	 * discounting.
+	 *
+	 * &lt;p&gt;
+	 * Computes the continuously compounded short rate implied by the model
+	 * discount curve.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference equity model.
+	 * @param time The running time.
+	 * @return The short rate.
+	 */
+	public static double getShortRate(final FiniteDifferenceEquityModel model, final double time) {
+<span class="fc bfc" id="L188" title="All 2 branches covered.">		final double safeTime = time == 0.0 ? SAFE_TIME_EPSILON : Math.max(time, SAFE_TIME_EPSILON);</span>
+<span class="fc" id="L189">		return -Math.log(model.getRiskFreeCurve().getDiscountFactor(safeTime)) / safeTime;</span>
+	}
+
+	/**
+	 * Compatibility overload for deterministic-rate solvers.
+	 *
+	 * &lt;p&gt;
+	 * Builds the left-hand side matrix for the theta step using a scalar short
+	 * rate.
+	 * &lt;/p&gt;
+	 *
+	 * @param lhs The tridiagonal matrix to overwrite.
+	 * @param xGrid The one-dimensional state grid.
+	 * @param drift The drift values on the grid.
+	 * @param variance The variance values on the grid.
+	 * @param shortRate The scalar short rate.
+	 * @param deltaTau The time step size.
+	 * @param theta The theta parameter.
+	 */
+	public static void buildThetaLeftHandSide(
+			final TridiagonalMatrix lhs,
+			final double[] xGrid,
+			final double[] drift,
+			final double[] variance,
+			final double shortRate,
+			final double deltaTau,
+			final double theta) {
+
+<span class="fc" id="L217">		final double[] localDiscountRate = new double[xGrid.length];</span>
+<span class="fc" id="L218">		Arrays.fill(localDiscountRate, shortRate);</span>
+
+<span class="fc" id="L220">		buildThetaLeftHandSide(</span>
+				lhs,
+				xGrid,
+				drift,
+				variance,
+				localDiscountRate,
+				deltaTau,
+				theta
+				);
+<span class="fc" id="L229">	}</span>
+
+	/**
+	 * Builds the left-hand side matrix for the theta step:
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;
+	 * I - theta * dt * L(t_{m+1}).
+	 * &lt;/i&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @param lhs The tridiagonal matrix to overwrite.
+	 * @param xGrid The one-dimensional state grid.
+	 * @param drift The drift values on the grid.
+	 * @param variance The variance values on the grid.
+	 * @param localDiscountRate The local reaction / discount coefficients on
+	 *     the grid.
+	 * @param deltaTau The time step size.
+	 * @param theta The theta parameter.
+	 */
+	public static void buildThetaLeftHandSide(
+			final TridiagonalMatrix lhs,
+			final double[] xGrid,
+			final double[] drift,
+			final double[] variance,
+			final double[] localDiscountRate,
+			final double deltaTau,
+			final double theta) {
+
+<span class="fc" id="L258">		final double alpha = theta * deltaTau;</span>
+
+<span class="fc bfc" id="L260" title="All 2 branches covered.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="fc" id="L261">			final RowCoefficients spatial = spatialOperatorRow(</span>
+					i,
+					xGrid,
+					drift[i],
+					variance[i],
+					localDiscountRate[i]
+					);
+
+<span class="fc" id="L269">			lhs.getLowerDiagonal()[i] = -alpha * spatial.lower;</span>
+<span class="fc" id="L270">			lhs.getMainDiagonal()[i] = 1.0 - alpha * spatial.diag;</span>
+<span class="fc" id="L271">			lhs.getUpperDiagonal()[i] = -alpha * spatial.upper;</span>
+		}
+<span class="fc" id="L273">	}</span>
+
+	/**
+	 * Compatibility overload for deterministic-rate solvers.
+	 *
+	 * &lt;p&gt;
+	 * Builds the right-hand side operator for the theta step using a scalar
+	 * short
+	 * rate.
+	 * &lt;/p&gt;
+	 *
+	 * @param rhsOperator The tridiagonal matrix to overwrite.
+	 * @param xGrid The one-dimensional state grid.
+	 * @param drift The drift values on the grid.
+	 * @param variance The variance values on the grid.
+	 * @param shortRate The scalar short rate.
+	 * @param deltaTau The time step size.
+	 * @param theta The theta parameter.
+	 */
+	public static void buildThetaRightHandSide(
+			final TridiagonalMatrix rhsOperator,
+			final double[] xGrid,
+			final double[] drift,
+			final double[] variance,
+			final double shortRate,
+			final double deltaTau,
+			final double theta) {
+
+<span class="fc" id="L301">		final double[] localDiscountRate = new double[xGrid.length];</span>
+<span class="fc" id="L302">		Arrays.fill(localDiscountRate, shortRate);</span>
+
+<span class="fc" id="L304">		buildThetaRightHandSide(</span>
+				rhsOperator,
+				xGrid,
+				drift,
+				variance,
+				localDiscountRate,
+				deltaTau,
+				theta
+				);
+<span class="fc" id="L313">	}</span>
+
+	/**
+	 * Builds the right-hand side operator for the theta step:
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;
+	 * I + (1-theta) * dt * L(t_m).
+	 * &lt;/i&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @param rhsOperator The tridiagonal matrix to overwrite.
+	 * @param xGrid The one-dimensional state grid.
+	 * @param drift The drift values on the grid.
+	 * @param variance The variance values on the grid.
+	 * @param localDiscountRate The local reaction / discount coefficients on
+	 *     the grid.
+	 * @param deltaTau The time step size.
+	 * @param theta The theta parameter.
+	 */
+	public static void buildThetaRightHandSide(
+			final TridiagonalMatrix rhsOperator,
+			final double[] xGrid,
+			final double[] drift,
+			final double[] variance,
+			final double[] localDiscountRate,
+			final double deltaTau,
+			final double theta) {
+
+<span class="fc" id="L342">		final double alpha = (1.0 - theta) * deltaTau;</span>
+
+<span class="fc bfc" id="L344" title="All 2 branches covered.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="fc" id="L345">			final RowCoefficients spatial = spatialOperatorRow(</span>
+					i,
+					xGrid,
+					drift[i],
+					variance[i],
+					localDiscountRate[i]
+					);
+
+<span class="fc" id="L353">			rhsOperator.getLowerDiagonal()[i] = alpha * spatial.lower;</span>
+<span class="fc" id="L354">			rhsOperator.getMainDiagonal()[i] = 1.0 + alpha * spatial.diag;</span>
+<span class="fc" id="L355">			rhsOperator.getUpperDiagonal()[i] = alpha * spatial.upper;</span>
+		}
+<span class="fc" id="L357">	}</span>
+
+	/**
+	 * Applies a tridiagonal operator to a vector.
+	 *
+	 * @param matrix The tridiagonal matrix.
+	 * @param vector The vector.
+	 * @return The product {@code matrix * vector}.
+	 */
+	public static double[] apply(final TridiagonalMatrix matrix, final double[] vector) {
+<span class="fc" id="L367">		final int n = vector.length;</span>
+<span class="fc" id="L368">		final double[] result = new double[n];</span>
+
+<span class="fc bfc" id="L370" title="All 2 branches covered.">		for (int i = 0; i &lt; n; i++) {</span>
+<span class="fc" id="L371">			double value = matrix.getMainDiagonal()[i] * vector[i];</span>
+<span class="fc bfc" id="L372" title="All 2 branches covered.">			if (i &gt; 0) {</span>
+<span class="fc" id="L373">				value += matrix.getLowerDiagonal()[i] * vector[i - 1];</span>
+			}
+<span class="fc bfc" id="L375" title="All 2 branches covered.">			if (i &lt; n - 1) {</span>
+<span class="fc" id="L376">				value += matrix.getUpperDiagonal()[i] * vector[i + 1];</span>
+			}
+<span class="fc" id="L378">			result[i] = value;</span>
+		}
+
+<span class="fc" id="L381">		return result;</span>
+	}
+
+	/**
+	 * Overwrites one matrix row with a Dirichlet condition.
+	 *
+	 * @param matrix The matrix.
+	 * @param rhs The right-hand side vector.
+	 * @param row The row to overwrite.
+	 * @param value The prescribed value.
+	 */
+	public static void overwriteAsDirichlet(
+			final TridiagonalMatrix matrix,
+			final double[] rhs,
+			final int row,
+			final double value) {
+
+<span class="fc" id="L398">		matrix.getLowerDiagonal()[row] = 0.0;</span>
+<span class="fc" id="L399">		matrix.getMainDiagonal()[row] = 1.0;</span>
+<span class="fc" id="L400">		matrix.getUpperDiagonal()[row] = 0.0;</span>
+<span class="fc" id="L401">		rhs[row] = value;</span>
+<span class="fc" id="L402">	}</span>
+
+	private static RowCoefficients spatialOperatorRow(
+			final int i,
+			final double[] xGrid,
+			final double drift,
+			final double variance,
+			final double localDiscountRate) {
+
+<span class="fc" id="L411">		final int n = xGrid.length;</span>
+<span class="fc" id="L412">		final double halfVariance = 0.5 * variance;</span>
+
+<span class="fc" id="L414">		double firstDerivativeLower = 0.0;</span>
+<span class="fc" id="L415">		double firstDerivativeDiagonal = 0.0;</span>
+<span class="fc" id="L416">		double firstDerivativeUpper = 0.0;</span>
+
+<span class="fc" id="L418">		double secondDerivativeLower = 0.0;</span>
+<span class="fc" id="L419">		double secondDerivativeDiagonal = 0.0;</span>
+<span class="fc" id="L420">		double secondDerivativeUpper = 0.0;</span>
+
+<span class="fc bfc" id="L422" title="All 2 branches covered.">		if (i == 0) {</span>
+<span class="fc" id="L423">			final double h1 = xGrid[1] - xGrid[0];</span>
+<span class="fc" id="L424">			final double h2 = xGrid[2] - xGrid[1];</span>
+
+<span class="fc" id="L426">			firstDerivativeDiagonal = -1.0 / h1;</span>
+<span class="fc" id="L427">			firstDerivativeUpper = 1.0 / h1;</span>
+
+<span class="fc" id="L429">			secondDerivativeDiagonal = -2.0 / (h1 * h2);</span>
+<span class="fc" id="L430">			secondDerivativeUpper = 2.0 / (h1 * (h1 + h2));</span>
+<span class="fc bfc" id="L431" title="All 2 branches covered.">		} else if (i == n - 1) {</span>
+<span class="fc" id="L432">			final double h0 = xGrid[i] - xGrid[i - 1];</span>
+<span class="fc" id="L433">			final double h3 = xGrid[i - 1] - xGrid[i - 2];</span>
+
+<span class="fc" id="L435">			firstDerivativeLower = -1.0 / h0;</span>
+<span class="fc" id="L436">			firstDerivativeDiagonal = 1.0 / h0;</span>
+
+<span class="fc" id="L438">			secondDerivativeLower = 2.0 / (h0 * (h0 + h3));</span>
+<span class="fc" id="L439">			secondDerivativeDiagonal = -2.0 / (h3 * h0);</span>
+<span class="fc" id="L440">		} else {</span>
+<span class="fc" id="L441">			final double h0 = xGrid[i] - xGrid[i - 1];</span>
+<span class="fc" id="L442">			final double h1 = xGrid[i + 1] - xGrid[i];</span>
+
+<span class="fc" id="L444">			firstDerivativeLower = -h1 / (h0 * (h1 + h0));</span>
+<span class="fc" id="L445">			firstDerivativeDiagonal = (h1 - h0) / (h1 * h0);</span>
+<span class="fc" id="L446">			firstDerivativeUpper = h0 / (h1 * (h0 + h1));</span>
+
+<span class="fc" id="L448">			secondDerivativeLower = 2.0 / (h0 * (h0 + h1));</span>
+<span class="fc" id="L449">			secondDerivativeDiagonal = -2.0 / (h0 * h1);</span>
+<span class="fc" id="L450">			secondDerivativeUpper = 2.0 / (h1 * (h0 + h1));</span>
+		}
+
+<span class="fc" id="L453">		return new RowCoefficients(</span>
+				drift * firstDerivativeLower + halfVariance * secondDerivativeLower,
+				drift * firstDerivativeDiagonal + halfVariance * secondDerivativeDiagonal - localDiscountRate,
+				drift * firstDerivativeUpper + halfVariance * secondDerivativeUpper
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

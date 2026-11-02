@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Solver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.calibration</a> &gt; <span class="el_source">Solver.java</span></div><h1>Solver.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.11.2012
+ */
+package net.finmath.marketdata2.calibration;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.marketdata2.products.AnalyticProduct;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.optimizer.SolverException;
+import net.finmath.optimizer.StochasticOptimizer;
+import net.finmath.optimizer.StochasticOptimizerFactory;
+import net.finmath.optimizer.StochasticPathwiseOptimizerFactoryLevenbergMarquardt;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Generates a calibrated model for a given set
+ * of &lt;code&gt;calibrationProducts&lt;/code&gt; with respect to given &lt;code&gt;CurveFromInterpolationPoints&lt;/code&gt;s.
+ *
+ * The model and the curve are assumed to be immutable, i.e., the solver
+ * will return a calibrate clone, containing clones for every curve
+ * which is part of the set of curves to be calibrated.
+ *
+ * The calibration is performed as a multi-threaded global optimization.
+ * I will greatly profit from a multi-core architecture.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Solver {
+
+	private final AnalyticModel			model;
+	private final List&lt;AnalyticProduct&gt;	calibrationProducts;
+	private final List&lt;Double&gt;						calibrationTargetValues;
+	private final double							calibrationAccuracy;
+	private final ParameterTransformation			parameterTransformation;
+
+	private StochasticOptimizerFactory		optimizerFactory;
+
+	private	final	double	evaluationTime;
+<span class="pc" id="L47">	private final	int		maxIterations	= 1000;</span>
+
+<span class="pc" id="L49">	private 		int		iterations		= 0;</span>
+<span class="pc" id="L50">	private 		double	accuracy		= Double.POSITIVE_INFINITY;</span>
+
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 *
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 * @param calibrationTargetValues Array of target values for the objective functions.
+	 * @param parameterTransformation A parameter transformation, if any, otherwise null.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param optimizerFactory A factory providing the optimizer (for the given objective function)
+	 */
+	public Solver(final AnalyticModel model, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, final ParameterTransformation parameterTransformation, final double evaluationTime, final StochasticOptimizerFactory optimizerFactory) {
+<span class="nc" id="L64">		super();</span>
+<span class="nc" id="L65">		this.model = model;</span>
+<span class="nc" id="L66">		this.calibrationProducts = calibrationProducts;</span>
+<span class="nc" id="L67">		this.calibrationTargetValues = calibrationTargetValues;</span>
+<span class="nc" id="L68">		this.parameterTransformation = parameterTransformation;</span>
+<span class="nc" id="L69">		this.evaluationTime = evaluationTime;</span>
+<span class="nc" id="L70">		this.optimizerFactory = optimizerFactory;</span>
+<span class="nc" id="L71">		calibrationAccuracy = 0.0;</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 *
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 * @param calibrationTargetValues Array of target values for the objective functions.
+	 * @param parameterTransformation A parameter transformation, if any, otherwise null.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy The error tolerance of the solver.
+	 */
+	public Solver(final AnalyticModel model, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, final ParameterTransformation parameterTransformation, final double evaluationTime, final double calibrationAccuracy) {
+<span class="fc" id="L86">		super();</span>
+<span class="fc" id="L87">		this.model = model;</span>
+<span class="fc" id="L88">		this.calibrationProducts = calibrationProducts;</span>
+<span class="fc" id="L89">		this.calibrationTargetValues = calibrationTargetValues;</span>
+<span class="fc" id="L90">		this.parameterTransformation = parameterTransformation;</span>
+<span class="fc" id="L91">		this.evaluationTime = evaluationTime;</span>
+<span class="fc" id="L92">		this.calibrationAccuracy = calibrationAccuracy;</span>
+<span class="fc" id="L93">		optimizerFactory = null;</span>
+<span class="fc" id="L94">	}</span>
+
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 *
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 * @param calibrationTargetValues Array of target values for the objective functions.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy The error tolerance of the solver.
+	 */
+	public Solver(final AnalyticModel model, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, final double evaluationTime, final double calibrationAccuracy) {
+<span class="nc" id="L107">		this(model, calibrationProducts, calibrationTargetValues, null, evaluationTime, calibrationAccuracy);</span>
+<span class="nc" id="L108">	}</span>
+
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 *
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 * @param evaluationTime Evaluation time applied to the calibration products.
+	 * @param calibrationAccuracy The error tolerance of the solver.
+	 */
+	public Solver(final AnalyticModel model, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final double evaluationTime, final double calibrationAccuracy) {
+<span class="fc" id="L120">		this(model, calibrationProducts, null, null, evaluationTime, calibrationAccuracy);</span>
+<span class="fc" id="L121">	}</span>
+
+	/**
+	 * Generate a solver for the given parameter objects (independents) and
+	 * objective functions (dependents).
+	 *
+	 * @param model The model from which a calibrated clone should be created.
+	 * @param calibrationProducts The objective functions.
+	 */
+	public Solver(final AnalyticModel model, final Vector&lt;AnalyticProduct&gt; calibrationProducts) {
+<span class="fc" id="L131">		this(model, calibrationProducts, 0.0, 0.0);</span>
+<span class="fc" id="L132">	}</span>
+
+	/**
+	 * Find the model such that the equation
+	 * &lt;code&gt;
+	 * objectiveFunctions.getValue(model) = 0
+	 * &lt;/code&gt;
+	 * holds.
+	 *
+	 * @param objectsToCalibrate The set of parameterized objects to calibrate.
+	 * @return A reference to a calibrated clone of the given model.
+	 * @throws net.finmath.optimizer.SolverException Thrown if the underlying optimizer does not find a solution.
+	 */
+	public AnalyticModel getCalibratedModel(final Set&lt;ParameterObject&gt; objectsToCalibrate) throws SolverException {
+<span class="fc" id="L146">		final ParameterAggregation&lt;ParameterObject&gt; parameterAggregate = new ParameterAggregation&lt;&gt;(objectsToCalibrate);</span>
+
+		// Set solver parameters
+		final RandomVariable[] initialParameters;
+
+		// Apply parameter transformation to solver parameter space
+<span class="pc bpc" id="L152" title="1 of 2 branches missed.">		if(parameterTransformation != null) {</span>
+<span class="nc" id="L153">			initialParameters = parameterTransformation.getSolverParameter(parameterAggregate.getParameter());</span>
+		} else {
+<span class="fc" id="L155">			initialParameters = parameterAggregate.getParameter();</span>
+		}
+
+<span class="fc" id="L158">		final RandomVariable[] zeros				= new RandomVariable[calibrationProducts.size()];</span>
+<span class="fc" id="L159">		final RandomVariable[] ones				= new RandomVariable[calibrationProducts.size()];</span>
+<span class="fc" id="L160">		final RandomVariable[] lowerBound			= new RandomVariable[initialParameters.length];</span>
+<span class="fc" id="L161">		final RandomVariable[] upperBound			= new RandomVariable[initialParameters.length];</span>
+<span class="fc" id="L162">		java.util.Arrays.fill(zeros, new RandomVariableFromDoubleArray(0.0));</span>
+<span class="fc" id="L163">		java.util.Arrays.fill(ones, new RandomVariableFromDoubleArray(1.0));</span>
+<span class="fc" id="L164">		java.util.Arrays.fill(lowerBound, new RandomVariableFromDoubleArray(Double.NEGATIVE_INFINITY));</span>
+<span class="fc" id="L165">		java.util.Arrays.fill(upperBound, new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY));</span>
+
+<span class="fc" id="L167">		final StochasticOptimizer.ObjectiveFunction objectiveFunction = new StochasticOptimizer.ObjectiveFunction() {</span>
+			@Override
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
+<span class="fc" id="L170">				RandomVariable[] modelParameters = parameters;</span>
+				try {
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">					if(parameterTransformation != null) {</span>
+<span class="nc" id="L173">						modelParameters = parameterTransformation.getParameter(parameters);</span>
+						// Copy back the parameter constrain to inform the optimizer
+<span class="nc" id="L175">						System.arraycopy(parameterTransformation.getSolverParameter(modelParameters), 0, parameters, 0, parameters.length);</span>
+					}
+
+<span class="fc" id="L178">					final Map&lt;ParameterObject, RandomVariable[]&gt; curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(modelParameters);</span>
+<span class="fc" id="L179">					final AnalyticModel modelClone = model.getCloneForParameter(curvesParameterPairs);</span>
+<span class="fc bfc" id="L180" title="All 2 branches covered.">					for(int i=0; i&lt;calibrationProducts.size(); i++) {</span>
+<span class="fc" id="L181">						values[i] = calibrationProducts.get(i).getValue(evaluationTime, modelClone);</span>
+					}
+<span class="pc bpc" id="L183" title="1 of 2 branches missed.">					if(calibrationTargetValues != null) {</span>
+<span class="nc bnc" id="L184" title="All 2 branches missed.">						for(int i=0; i&lt;calibrationTargetValues.size(); i++) {</span>
+<span class="nc" id="L185">							values[i].sub(calibrationTargetValues.get(i));</span>
+						}
+					}
+<span class="nc" id="L188">				} catch (final CloneNotSupportedException e) {</span>
+<span class="nc" id="L189">					throw new SolverException(e);</span>
+<span class="fc" id="L190">				}</span>
+<span class="fc" id="L191">			}</span>
+		};
+
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">		if(optimizerFactory == null) {</span>
+<span class="fc" id="L195">			final int maxThreads		= Math.min(2 * Math.max(Runtime.getRuntime().availableProcessors(), 1), initialParameters.length);</span>
+<span class="fc" id="L196">			optimizerFactory = new StochasticPathwiseOptimizerFactoryLevenbergMarquardt(maxIterations, calibrationAccuracy, maxThreads);</span>
+		}
+
+<span class="fc" id="L199">		final StochasticOptimizer optimizer = optimizerFactory.getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, zeros);</span>
+<span class="fc" id="L200">		optimizer.run();</span>
+
+<span class="fc" id="L202">		iterations = optimizer.getIterations();</span>
+
+<span class="fc" id="L204">		RandomVariable[] bestParameters = optimizer.getBestFitParameters();</span>
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">		if(parameterTransformation != null) {</span>
+<span class="nc" id="L206">			bestParameters = parameterTransformation.getParameter(bestParameters);</span>
+		}
+
+<span class="fc" id="L209">		AnalyticModel calibratedModel = null;</span>
+		try {
+
+<span class="fc" id="L212">			final Map&lt;ParameterObject, RandomVariable[]&gt; curvesParameterPairs = parameterAggregate.getObjectsToModifyForParameter(bestParameters);</span>
+<span class="fc" id="L213">			calibratedModel = model.getCloneForParameter(curvesParameterPairs);</span>
+<span class="nc" id="L214">		} catch (final CloneNotSupportedException e) {</span>
+<span class="nc" id="L215">			throw new SolverException(e);</span>
+<span class="fc" id="L216">		}</span>
+
+<span class="fc" id="L218">		accuracy = 0.0;</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">		for(int i=0; i&lt;calibrationProducts.size(); i++) {</span>
+<span class="fc" id="L220">			double error = calibrationProducts.get(i).getValue(evaluationTime, calibratedModel).getStandardDeviation();</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">			if(calibrationTargetValues != null) {</span>
+<span class="nc" id="L222">				error -= calibrationTargetValues.get(i);</span>
+			}
+<span class="fc" id="L224">			accuracy += error * error;</span>
+		}
+<span class="fc" id="L226">		accuracy = Math.sqrt(accuracy/calibrationProducts.size());</span>
+
+<span class="fc" id="L228">		return calibratedModel;</span>
+	}
+
+	/**
+	 * Returns the number of iterations required in the last solver step.
+	 *
+	 * @return The number of iterations required.
+	 */
+	public int getIterations() {
+<span class="fc" id="L237">		return iterations;</span>
+	}
+
+	/**
+	 * Returns the accuracy achieved in the last solver run.
+	 *
+	 * @return The accuracy achieved in the last solver run.
+	 */
+	public double getAccuracy() {
+<span class="nc" id="L246">		return accuracy;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

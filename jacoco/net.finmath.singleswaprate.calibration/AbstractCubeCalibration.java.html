@@ -1,0 +1,464 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractCubeCalibration.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.calibration</a> &gt; <span class="el_source">AbstractCubeCalibration.java</span></div><h1>AbstractCubeCalibration.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.calibration;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Stream;
+
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice.QuotingConvention;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
+import net.finmath.singleswaprate.data.DataTable.TableConvention;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.singleswaprate.model.volatilities.VolatilityCube;
+import net.finmath.singleswaprate.products.CashSettledPayerSwaption;
+import net.finmath.singleswaprate.products.CashSettledReceiverSwaption;
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Abstract class providing a default method of calibrating a parametric cube to market data, which can be implemented quickly for any cube by implementing the methods:
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;code&gt;buildCube&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;initializeParameters&lt;/code&gt;&lt;/li&gt;
+ * &lt;li&gt;&lt;code&gt;applyParameterBounds&lt;/code&gt;&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public abstract class AbstractCubeCalibration {
+
+	private final LocalDate referenceDate;
+
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
+
+	private final String discountCurveName;
+	private final String forwardCurveName;
+
+	private final VolatilityCubeModel model;
+
+	private final AnnuityMappingType annuityMappingType;
+
+<span class="fc" id="L52">	private int maxIterations = 250;</span>
+<span class="fc" id="L53">	private int numberOfThreads = Runtime.getRuntime().availableProcessors();</span>
+
+<span class="fc" id="L55">	private boolean replicationUseAsOffset = true;</span>
+<span class="fc" id="L56">	private double replicationLowerBound   = -0.15;</span>
+<span class="fc" id="L57">	private double replicationUpperBound   = 0.15;</span>
+<span class="fc" id="L58">	private int replicationNumberOfEvaluationPoints = 500;</span>
+
+	//calculation
+	private double[] initialParameters;
+	private double[] calibratedParameters;
+
+	private double[] marketTargets;
+<span class="fc" id="L65">	private final ArrayList&lt;SwaptionInfo&gt; payerSwaptions = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L66">	private final ArrayList&lt;SwaptionInfo&gt; receiverSwaptions = new ArrayList&lt;&gt;();</span>
+
+
+	/**
+	 * Create the calibrator.
+	 *
+	 * @param referenceDate The reference date of the cube.
+	 * @param cashPayerPremiums The lattice containing market targets for cash settled payer swaptions. The lattice needs to be quoted in QuotingConvention.PRICE.
+	 * @param cashReceiverPremiums The lattice containing market targets for cash settled receiver swaptions. The lattice needs to be quoted in QuotingConvention.PRICE.
+	 * @param model The model providing context.
+	 * @param annuityMappingType The type of annuity mapping to be used for calibration.
+	 *
+	 * @throws IllegalArgumentException Triggers when data is not provided in QuotingConvention.Price.
+	 */
+	public AbstractCubeCalibration(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums,
+			final VolatilityCubeModel model, final AnnuityMappingType annuityMappingType) {
+<span class="fc" id="L82">		super();</span>
+<span class="pc bpc" id="L83" title="2 of 4 branches missed.">		if(cashPayerPremiums.getQuotingConvention() != QuotingConvention.PAYERPRICE || cashReceiverPremiums.getQuotingConvention() != QuotingConvention.RECEIVERPRICE) {</span>
+<span class="nc" id="L84">			throw new IllegalArgumentException(&quot;Swaption data not provided in QuotingConvention.PAYERPRICE and QuotingConvention.RECEIVERPRICE respectively.&quot;);</span>
+		}
+<span class="fc" id="L86">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L87">		this.cashPayerPremiums = cashPayerPremiums;</span>
+<span class="fc" id="L88">		this.cashReceiverPremiums = cashReceiverPremiums;</span>
+<span class="fc" id="L89">		this.model = model;</span>
+<span class="fc" id="L90">		this.annuityMappingType = annuityMappingType;</span>
+
+<span class="fc" id="L92">		discountCurveName	= cashPayerPremiums.getDiscountCurveName();</span>
+<span class="fc" id="L93">		forwardCurveName	= cashPayerPremiums.getForwardCurveName();</span>
+<span class="fc" id="L94">	}</span>
+
+
+	// adjust these methods to adapt to different cubes
+	/**
+	 * Build the cube from a set of parameters. These need to be an array of all parameters to be calibrated.
+	 *
+	 * @param name The name the cube will carry.
+	 * @param parameters The parameters of the cube as array.
+	 * @return The volatility cube.
+	 */
+	protected abstract VolatilityCube buildCube(String name, double[] parameters);
+
+	/**
+	 * Prepare the parameters for the start of the calibration.
+	 */
+	protected abstract void initializeParameters();
+
+	/**
+	 * Apply bounds to parameters. Such as volatility larger zero.
+	 *
+	 * @param parameters The raw parameters of the cube as array.
+	 * @return The parameters with their respective bounds applied.
+	 */
+	protected abstract double[] applyParameterBounds(double[] parameters);
+
+	//following methods apply to all cubes
+
+	/**
+	 * Run the calibration.
+	 *
+	 * @param cubeName The name of the final cube.
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown, when solvers fail to find suitable parameters.
+	 */
+	public VolatilityCube calibrate(final String cubeName) throws SolverException {
+
+		// sort target data for calibration
+<span class="fc" id="L133">		generateTargets();</span>
+
+		//setup initial parameters
+<span class="fc" id="L136">		initializeParameters();</span>
+
+<span class="fc" id="L138">		runOptimization();</span>
+
+<span class="fc" id="L140">		return buildCube(cubeName, calibratedParameters);</span>
+	}
+
+	/**
+	 * Run the calibration.
+	 *
+	 * @throws SolverException Thrown, when solvers fail to find suitable parameters.
+	 */
+	private void runOptimization() throws SolverException {
+
+<span class="fc" id="L150">		final LevenbergMarquardt optimizer = new LevenbergMarquardt(getInitialParameters(), marketTargets, maxIterations, numberOfThreads) {</span>
+
+			/**
+			 *
+			 */
+			private static final long serialVersionUID = -7604474677930060206L;
+
+			@Override
+			public void setValues(double[] parameters, final double[] values) {
+
+				//apply bounds to the parameters
+<span class="fc" id="L161">				parameters = applyParameterBounds(parameters);</span>
+
+				//get volatility cube and add to temporary model
+<span class="fc" id="L164">				final String tempCubeName = &quot;tempCube&quot;;</span>
+<span class="fc" id="L165">				final VolatilityCube cube = buildCube(tempCubeName, parameters);</span>
+<span class="fc" id="L166">				final VolatilityCubeModel tempModel = getModel().addVolatilityCube(cube);</span>
+
+				//pre allocate space
+				Schedule floatSchedule;
+				Schedule fixSchedule;
+				double forwardSwapRate;
+				double strike;
+				String mappingName;
+				AnnuityMapping mapping;
+				AnnuityMappingFactory factory;
+<span class="fc" id="L176">				final Map&lt;String, AnnuityMapping&gt; container = new HashMap&lt;&gt;();</span>
+
+<span class="fc" id="L178">				int index = 0;</span>
+				//calculate cash payer swaption values
+<span class="fc" id="L180">				SchedulePrototype fixMetaSchedule	= cashPayerPremiums.getFixMetaSchedule();</span>
+<span class="fc" id="L181">				SchedulePrototype floatMetaSchedule	= cashPayerPremiums.getFloatMetaSchedule();</span>
+<span class="fc bfc" id="L182" title="All 2 branches covered.">				for(final SwaptionInfo swaption : payerSwaptions) {</span>
+<span class="fc" id="L183">					fixSchedule = fixMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);</span>
+<span class="fc" id="L184">					floatSchedule = floatMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);</span>
+<span class="fc" id="L185">					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(getForwardCurveName()), tempModel);</span>
+<span class="fc" id="L186">					strike = forwardSwapRate + swaption.moneyness;</span>
+
+					final double replicationLowerBound =
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">							replicationUseAsOffset ? forwardSwapRate + AbstractCubeCalibration.this.replicationLowerBound : AbstractCubeCalibration.this.replicationLowerBound;</span>
+					final double replicationUpperBound =
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">							replicationUseAsOffset ? forwardSwapRate + AbstractCubeCalibration.this.replicationUpperBound : AbstractCubeCalibration.this.replicationUpperBound;</span>
+
+					// see if appropriate mapping already exists, otherwise generate
+<span class="fc" id="L194">					mappingName = swaption.toString();</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">					if(container.containsKey(mappingName)) {</span>
+<span class="nc" id="L196">						mapping = container.get(mappingName);</span>
+					} else {
+<span class="fc" id="L198">						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, getForwardCurveName(), tempCubeName, strike,</span>
+								replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+<span class="fc" id="L200">						mapping = factory.build(annuityMappingType, tempModel);</span>
+<span class="fc" id="L201">						container.put(mappingName, mapping);</span>
+					}
+
+<span class="fc" id="L204">					final CashSettledPayerSwaption css = new CashSettledPayerSwaption(fixSchedule, floatSchedule, strike, discountCurveName, getForwardCurveName(),</span>
+							tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+<span class="fc" id="L206">					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);</span>
+<span class="fc" id="L207">				}</span>
+
+				//calculate cash receiver swaption values
+<span class="fc" id="L210">				fixMetaSchedule		= cashReceiverPremiums.getFixMetaSchedule();</span>
+<span class="fc" id="L211">				floatMetaSchedule	= cashReceiverPremiums.getFloatMetaSchedule();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">				for(final SwaptionInfo swaption : receiverSwaptions) {</span>
+<span class="fc" id="L213">					fixSchedule = fixMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);</span>
+<span class="fc" id="L214">					floatSchedule = floatMetaSchedule.generateSchedule(getReferenceDate(), swaption.maturity, swaption.termination);</span>
+<span class="fc" id="L215">					forwardSwapRate	= Swap.getForwardSwapRate(fixSchedule, floatSchedule, tempModel.getForwardCurve(getForwardCurveName()), tempModel);</span>
+<span class="fc" id="L216">					strike = forwardSwapRate + swaption.moneyness;</span>
+
+					final double replicationLowerBound =
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">							replicationUseAsOffset ? forwardSwapRate + AbstractCubeCalibration.this.replicationLowerBound : AbstractCubeCalibration.this.replicationLowerBound;</span>
+					final double replicationUpperBound =
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">							replicationUseAsOffset ? forwardSwapRate + AbstractCubeCalibration.this.replicationUpperBound : AbstractCubeCalibration.this.replicationUpperBound;</span>
+
+					// see if appropriate mapping already exists, otherwise generate
+<span class="fc" id="L224">					mappingName = swaption.toString();</span>
+<span class="fc bfc" id="L225" title="All 2 branches covered.">					if(container.containsKey(mappingName)) {</span>
+<span class="fc" id="L226">						mapping = container.get(mappingName);</span>
+					} else {
+<span class="fc" id="L228">						factory = new AnnuityMappingFactory(fixSchedule, floatSchedule, discountCurveName, getForwardCurveName(), tempCubeName, strike,</span>
+								replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);
+<span class="fc" id="L230">						mapping = factory.build(annuityMappingType, tempModel);</span>
+<span class="fc" id="L231">						container.put(mappingName, mapping);</span>
+					}
+
+<span class="fc" id="L234">					final CashSettledReceiverSwaption css = new CashSettledReceiverSwaption(fixSchedule, floatSchedule, strike, discountCurveName,</span>
+<span class="fc" id="L235">							getForwardCurveName(), tempCubeName, annuityMappingType, replicationLowerBound, replicationUpperBound,</span>
+							replicationNumberOfEvaluationPoints);
+<span class="fc" id="L237">					values[index++] = css.getValue(floatSchedule.getFixing(0), mapping, tempModel);</span>
+<span class="fc" id="L238">				}</span>
+
+				// output for testing
+				//					StringBuilder builder = new StringBuilder();
+				//					builder.append(&quot;Parameters:\t&quot;);
+				//					for(double parameter : parameters)
+				//						builder.append(parameter +&quot;\t&quot;);
+				//					builder.append(&quot;\nMeanSquaredError:\t&quot; + getMeanSquaredError(values) + &quot;\nValues:\t&quot;);
+				//					for(double value : values)
+				//						builder.append(value +&quot;\t&quot;);
+				//					builder.append(&quot;\nTargets:\t&quot;);
+				//					for(double target : marketTargets)
+				//						builder.append(target + &quot;\t&quot;);
+				////					builder.append(&quot;\nSwaptions:\t&quot;);
+				////					for(SwaptionInfo swaption : payerSwaptions)
+				////						builder.append(&quot;payer/&quot;+swaption.toString().replaceAll(&quot;, &quot;, &quot;/&quot;)+&quot;\t&quot;);
+				////					for(SwaptionInfo swaption : receiverSwaptions)
+				////						builder.append(&quot;receiver/&quot;+swaption.toString().replaceAll(&quot;, &quot;, &quot;/&quot;)+&quot;\t&quot;);
+				//					builder.append('\n');
+				//					String string = builder.toString();
+				//
+				//				synchronized (System.out) {
+				//					System.out.println(string);
+				//				}
+<span class="fc" id="L262">			}</span>
+
+		};
+<span class="fc" id="L265">		optimizer.run();</span>
+<span class="fc" id="L266">		System.out.println(&quot;Optimizer finished after &quot; +optimizer.getIterations() +&quot; iterations with mean error &quot; + optimizer.getRootMeanSquaredError());</span>
+
+<span class="fc" id="L268">		calibratedParameters = applyParameterBounds(optimizer.getBestFitParameters());</span>
+<span class="fc" id="L269">	}</span>
+
+	/**
+	 * Build the target array.
+	 *
+	 */
+	private void generateTargets() {
+
+		//convert data tables to swaptions and target array
+		//order: cashPayer(strike maturity termination) cashReceiver(strike maturity termination)
+
+		//prep temp variables
+<span class="fc" id="L281">		final ArrayList&lt;Double&gt; targetsPayer 	  = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L282">		final ArrayList&lt;Double&gt; targetsReceiver = new ArrayList&lt;&gt;();</span>
+
+		//sort all data into array lists
+<span class="fc bfc" id="L285" title="All 2 branches covered.">		for(final int moneyness : cashPayerPremiums.getMoneyness()) {</span>
+<span class="fc bfc" id="L286" title="All 2 branches covered.">			for(final int maturity : cashPayerPremiums.getMaturities(moneyness)) {</span>
+<span class="fc bfc" id="L287" title="All 2 branches covered.">				for(final int termination : cashPayerPremiums.getTenors(moneyness, maturity)) {</span>
+<span class="fc" id="L288">					targetsPayer.add(cashPayerPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="fc" id="L289">					payerSwaptions.add( new SwaptionInfo(moneyness, maturity, termination));</span>
+				}
+			}
+		}
+
+<span class="fc bfc" id="L294" title="All 2 branches covered.">		for(final int moneyness : cashReceiverPremiums.getMoneyness()) {</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">			for(final int maturity : cashReceiverPremiums.getMaturities(moneyness)) {</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">				for(final int termination : cashReceiverPremiums.getTenors(moneyness, maturity)) {</span>
+<span class="fc" id="L297">					targetsReceiver.add(cashReceiverPremiums.getValue(maturity, termination, moneyness));</span>
+<span class="fc" id="L298">					receiverSwaptions.add( new SwaptionInfo(-moneyness, maturity, termination));</span>
+				}
+			}
+		}
+
+<span class="fc" id="L303">		this.marketTargets = Stream.concat(targetsPayer.stream(), targetsReceiver.stream()).mapToDouble(Double::doubleValue).toArray();</span>
+<span class="fc" id="L304">	}</span>
+
+
+	/**
+	 * Set the parameters for calibration.
+	 *
+	 * @param maxIterations The maximum number of iterations done during calibration.
+	 * @param numberOfThreads The number of processor threads to be used.
+	 */
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
+<span class="fc" id="L314">		this.maxIterations		= maxIterations;</span>
+<span class="fc" id="L315">		this.numberOfThreads 	= numberOfThreads;</span>
+<span class="fc" id="L316">	}</span>
+
+	/**
+	 * @return The maximum number of iterations of the optimizer.
+	 */
+	public int getMaxIterations() {
+<span class="nc" id="L322">		return maxIterations;</span>
+	}
+
+
+	/**
+	 * @return The number of threads the optimizer is allowed to use.
+	 */
+	public int getNumberOfThreads() {
+<span class="nc" id="L330">		return numberOfThreads;</span>
+	}
+
+	/**
+	 * Set the parameters for the swaption replication.
+	 *
+	 * @param useAsOffset Are the values of lower and upperBound to be understood as offsets from the par swap rate?
+	 * @param lowerBound The lowest strike allowed.
+	 * @param upperBound The maximal strike allowed.
+	 * @param numberOfEvaluationPoints The number of points to be evaluated during the integration.
+	 */
+	public void setReplicationParameters(final boolean useAsOffset, final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="fc" id="L342">		this.replicationUseAsOffset = useAsOffset;</span>
+<span class="fc" id="L343">		this.replicationLowerBound  = lowerBound;</span>
+<span class="fc" id="L344">		this.replicationUpperBound  = upperBound;</span>
+<span class="fc" id="L345">		this.replicationNumberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="fc" id="L346">	}</span>
+
+	/**
+	 * @return True when the replication bounds are to be understood as offset from the par swap rate.
+	 */
+	public boolean isReplicationUseAsOffset() {
+<span class="nc" id="L352">		return replicationUseAsOffset;</span>
+	}
+
+	/**
+	 * @return The lowest strike allowed during swaption replication.
+	 */
+	public double getReplicationLowerBound() {
+<span class="nc" id="L359">		return replicationLowerBound;</span>
+	}
+
+	/**
+	 * @return The maximal strike allowed during swaption replication.
+	 */
+	public double getReplicationUpperBound() {
+<span class="nc" id="L366">		return replicationUpperBound;</span>
+	}
+
+	/**
+	 * @return The number of points to be evaluated during swaption replication.
+	 */
+	public int getReplicationNumberOfEvaluationPoints() {
+<span class="nc" id="L373">		return replicationNumberOfEvaluationPoints;</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L380">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the model
+	 */
+	public VolatilityCubeModel getModel() {
+<span class="fc" id="L387">		return model;</span>
+	}
+
+	/**
+	 * @return the forwardCurveName
+	 */
+	public String getForwardCurveName() {
+<span class="fc" id="L394">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * @return the initialParameters
+	 */
+	public double[] getInitialParameters() {
+<span class="fc" id="L401">		return initialParameters;</span>
+	}
+
+
+	/**
+	 * @param initialParameters the initialParameters to set
+	 */
+	public void setInitialParameters(final double[] initialParameters) {
+<span class="fc" id="L409">		this.initialParameters = initialParameters;</span>
+<span class="fc" id="L410">	}</span>
+
+	/**
+	 * Compact identifier for the swaptions to be created during the optimization.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	protected class SwaptionInfo {
+		private final double moneyness;
+		private final LocalDate maturity;
+		private final LocalDate termination;
+
+		/**
+		 * Create the swaption with convention &lt;code&gt;inMONTHS&lt;/code&gt;.
+		 *
+		 * @param moneyness
+		 * @param maturity
+		 * @param termination
+		 */
+<span class="fc" id="L431">		SwaptionInfo(final int moneyness, final int maturity, final int termination) {</span>
+<span class="fc" id="L432">			this.moneyness = moneyness / 10000.0;</span>
+<span class="fc" id="L433">			this.maturity = getReferenceDate().plusMonths(maturity);</span>
+<span class="fc" id="L434">			this.termination = this.maturity.plusMonths(termination);</span>
+<span class="fc" id="L435">		}</span>
+
+		/**
+		 * Create the swaption.
+		 *
+		 * @param moneyness
+		 * @param maturity
+		 * @param termination
+		 * @param tableConvention
+		 *
+		 * @throws IOException Triggers when the table convention is not recognized.
+		 */
+<span class="nc" id="L447">		SwaptionInfo(final int moneyness, final int maturity, final int termination, final TableConvention tableConvention) throws IOException {</span>
+<span class="nc" id="L448">			this.moneyness = moneyness /10000.0;</span>
+<span class="nc bnc" id="L449" title="All 5 branches missed.">			switch(tableConvention) {</span>
+<span class="nc" id="L450">			case MONTHS : this.maturity = getReferenceDate().plusMonths(maturity); this.termination = this.maturity.plusMonths(termination); break;</span>
+<span class="nc" id="L451">			case YEARS  : this.maturity = getReferenceDate().plusYears(maturity); this.termination = this.maturity.plusYears(termination); break;</span>
+<span class="nc" id="L452">			case DAYS   : this.maturity = getReferenceDate().plusDays(maturity); this.termination = this.maturity.plusDays(termination); break;</span>
+<span class="nc" id="L453">			case WEEKS  : this.maturity = getReferenceDate().plusDays(maturity * 7); this.termination = this.maturity.plusDays(termination * 7); break;</span>
+<span class="nc" id="L454">			default : throw new IOException(&quot;TableConvention &quot;+tableConvention+&quot; not recognized.&quot;);</span>
+			}
+<span class="nc" id="L456">		}</span>
+
+		@Override
+		public String toString() {
+<span class="fc" id="L460">			return moneyness +&quot;/&quot;+maturity+&quot;/&quot;+termination;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

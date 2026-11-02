@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FPMLParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor.xmlparser</a> &gt; <span class="el_source">FPMLParser.java</span></div><h1>FPMLParser.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor.xmlparser;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.Objects;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
+import net.finmath.time.ScheduleGenerator;
+import net.finmath.time.ScheduleGenerator.DaycountConvention;
+import net.finmath.time.ScheduleGenerator.Frequency;
+import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.businessdaycalendar.AbstractBusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingTARGETHolidays;
+
+/**
+ * Class for parsing trades saved in FpML to product descriptors.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class FPMLParser implements XMLParser {
+
+	private final String homePartyId;
+	private final String forwardCurveName;
+	private final String discountCurveName;
+
+<span class="fc" id="L42">	private final AbstractBusinessdayCalendar abstractBusinessdayCalendar = new BusinessdayCalendarExcludingTARGETHolidays();</span>
+<span class="fc" id="L43">	private final ShortPeriodConvention shortPeriodConvention= ScheduleGenerator.ShortPeriodConvention.LAST;</span>
+
+	/**
+	 * Construct the parser.
+	 *
+	 * @param homePartyId Id of the agent doing the valuation.
+	 * @param forwardCurveName Name of the forward curve to be given to the descriptors.
+	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
+	 */
+	public FPMLParser(final String homePartyId, final String forwardCurveName, final String discountCurveName) {
+<span class="fc" id="L53">		super();</span>
+<span class="fc" id="L54">		this.homePartyId = homePartyId;</span>
+<span class="fc" id="L55">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L56">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L57">	}</span>
+
+	/**
+	 * Construct the parser.
+	 *
+	 * @param homePartyId Id of the agent doing the valuation.
+	 * @param discountCurveName Name of the discount curve to be given to the descriptors.
+	 */
+	public FPMLParser(final String homePartyId, final String discountCurveName) {
+<span class="fc" id="L66">		this(homePartyId, null, discountCurveName);</span>
+<span class="fc" id="L67">	}</span>
+
+	@Override
+	public ProductDescriptor getProductDescriptor(final File file) throws SAXException, IOException, ParserConfigurationException {
+
+<span class="fc" id="L72">		final Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(file);</span>
+<span class="fc" id="L73">		doc.getDocumentElement().normalize();</span>
+
+<span class="nc" id="L75">		return getProductDescriptor(doc);</span>
+	}
+
+	/**
+	 * Generates a product descriptor from an already existing Document.
+	 *
+	 * @param node The leaf node where the product description starts in the XML.
+	 * @return ProductDescriptor
+	 * @throws IllegalArgumentException Thrown id the document is not an FpML 5 document.
+	 */
+	public ProductDescriptor getProductDescriptor(Node node) {
+
+		//Check compatibility and assign proper parser
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">		if (!node.getNodeName().equalsIgnoreCase(&quot;dataDocument&quot;)) {</span>
+<span class="fc" id="L89">			throw new IllegalArgumentException(&quot;This parser is meant for XML of type dataDocument, according to FpML 5, but file is &quot; + node.getNodeName() + &quot;.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (!node.getAttributes().getNamedItem(&quot;fpmlVersion&quot;).getNodeValue().split(&quot;-&quot;)[0].equals(&quot;5&quot;)) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;This parser is meant for FpML of version 5.*, file is version &quot; + node.getAttributes().getNamedItem(&quot;fpmlVersion&quot;));</span>
+		}
+
+		//Isolate trade node
+<span class="nc" id="L97">		Element trade = null;</span>
+<span class="nc" id="L98">		String tradeName = null;</span>
+
+<span class="nc" id="L100">		final NodeList tradeWrapper = node.getOwnerDocument().getElementsByTagName(&quot;trade&quot;).item(0).getChildNodes();</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		for(int index = 0; index &lt; tradeWrapper.getLength(); index++) {</span>
+<span class="nc bnc" id="L102" title="All 4 branches missed.">			if((tradeWrapper.item(index).getNodeType() != Node.ELEMENT_NODE) || tradeWrapper.item(index).getNodeName().equalsIgnoreCase(&quot;tradeHeader&quot;)) {</span>
+<span class="nc" id="L103">				continue;</span>
+			}
+<span class="nc" id="L105">			trade = (Element) tradeWrapper.item(index);</span>
+<span class="nc" id="L106">			tradeName		= trade.getNodeName().toUpperCase();</span>
+<span class="nc" id="L107">			break;</span>
+		}
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if(Objects.isNull(trade)) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;&lt;trade&gt; node is missing.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		if(&quot;SWAP&quot;.equals(tradeName)) {</span>
+<span class="nc" id="L115">			return getSwapProductDescriptor(trade);</span>
+		}
+		else {
+<span class="nc" id="L118">			throw new IllegalArgumentException(&quot;This FpML parser is not set up to process trades of type &quot;+tradeName+&quot;.&quot;);</span>
+		}
+
+	}
+
+	/**
+	 * Construct an InterestRateSwapProductDescriptor from a node in a FpML file.
+	 *
+	 * @param trade The node containing the swap.
+	 * @return Descriptor of the swap.
+	 */
+	private ProductDescriptor getSwapProductDescriptor(final Element trade) {
+
+<span class="nc" id="L131">		InterestRateSwapLegProductDescriptor legReceiver = null;</span>
+<span class="nc" id="L132">		InterestRateSwapLegProductDescriptor legPayer = null;</span>
+
+<span class="nc" id="L134">		final NodeList legs = trade.getElementsByTagName(&quot;swapStream&quot;);</span>
+<span class="nc bnc" id="L135" title="All 2 branches missed.">		for(int legIndex = 0; legIndex &lt; legs.getLength(); legIndex++) {</span>
+<span class="nc" id="L136">			final Element leg = (Element) legs.item(legIndex);</span>
+
+<span class="nc" id="L138">			final boolean isPayer = leg.getElementsByTagName(&quot;payerPartyReference&quot;).item(0).getAttributes().getNamedItem(&quot;href&quot;).getNodeValue().equals(homePartyId);</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">			if(isPayer) {</span>
+<span class="nc" id="L141">				legPayer = getSwapLegProductDescriptor(leg);</span>
+			} else {
+<span class="nc" id="L143">				legReceiver = getSwapLegProductDescriptor(leg);</span>
+			}
+		}
+
+<span class="nc" id="L147">		return new InterestRateSwapProductDescriptor(legReceiver, legPayer);</span>
+	}
+
+	/**
+	 * Construct an InterestRateSwapLegProductDescriptor from a node in a FpML file.
+	 *
+	 * @param leg The node containing the leg.
+	 * @return Descriptor of the swap leg.
+	 */
+	private InterestRateSwapLegProductDescriptor getSwapLegProductDescriptor(final Element leg) {
+
+		//is this a fixed rate leg?
+<span class="nc" id="L159">		final boolean isFixed = leg.getElementsByTagName(&quot;calculationPeriodDates&quot;).item(0).getAttributes().getNamedItem(&quot;id&quot;).getTextContent().equalsIgnoreCase(&quot;fixedCalcPeriodDates&quot;);</span>
+
+		//get start and end dates of contract
+<span class="nc" id="L162">		final LocalDate startDate		= LocalDate.parse(((Element) leg.getElementsByTagName(&quot;effectiveDate&quot;).item(0)).getElementsByTagName(&quot;unadjustedDate&quot;).item(0).getTextContent());</span>
+<span class="nc" id="L163">		final LocalDate maturityDate	= LocalDate.parse(((Element) leg.getElementsByTagName(&quot;terminationDate&quot;).item(0)).getElementsByTagName(&quot;unadjustedDate&quot;).item(0).getTextContent());</span>
+
+		//determine fixing/payment offset if available
+<span class="nc" id="L166">		int fixingOffsetDays = 0;</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if(leg.getElementsByTagName(&quot;fixingDates&quot;).getLength() &gt; 0) {</span>
+<span class="nc" id="L168">			fixingOffsetDays = Integer.parseInt(((Element) leg.getElementsByTagName(&quot;fixingDates&quot;).item(0)).getElementsByTagName(&quot;periodMultiplier&quot;).item(0).getTextContent());</span>
+		}
+<span class="nc" id="L170">		int paymentOffsetDays = 0;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		if(leg.getElementsByTagName(&quot;paymentDaysOffset&quot;).getLength() &gt; 0) {</span>
+<span class="nc" id="L172">			paymentOffsetDays = Integer.parseInt(((Element) leg.getElementsByTagName(&quot;paymentDaysOffset&quot;).item(0)).getElementsByTagName(&quot;periodMultiplier&quot;).item(0).getTextContent());</span>
+		}
+
+		//Crop xml date roll convention to match internal format
+<span class="nc" id="L176">		String xmlInput = ((Element) leg.getElementsByTagName(&quot;calculationPeriodDatesAdjustments&quot;).item(0)).getElementsByTagName(&quot;businessDayConvention&quot;).item(0).getTextContent();</span>
+<span class="nc" id="L177">		xmlInput = xmlInput.replaceAll(&quot;ING&quot;, &quot;&quot;);</span>
+<span class="nc" id="L178">		final DateRollConvention dateRollConvention = DateRollConvention.getEnum(xmlInput);</span>
+
+		//get daycount convention
+<span class="nc" id="L181">		final DaycountConvention daycountConvention = DaycountConvention.getEnum(leg.getElementsByTagName(&quot;dayCountFraction&quot;).item(0).getTextContent());</span>
+
+		//get trade frequency
+<span class="nc" id="L184">		Frequency frequency = null;</span>
+<span class="nc" id="L185">		final Element calcNode = (Element) leg.getElementsByTagName(&quot;calculationPeriodFrequency&quot;).item(0);</span>
+<span class="nc" id="L186">		final int multiplier = Integer.parseInt(calcNode.getElementsByTagName(&quot;periodMultiplier&quot;).item(0).getTextContent());</span>
+
+<span class="nc bnc" id="L188" title="All 4 branches missed.">		switch(calcNode.getElementsByTagName(&quot;period&quot;).item(0).getTextContent().toUpperCase()) {</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		case &quot;D&quot; : if(multiplier == 1) {frequency = Frequency.DAILY;} break;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">		case &quot;Y&quot; : if(multiplier == 1) {frequency = Frequency.ANNUAL;} break;</span>
+		case &quot;M&quot; :
+<span class="nc bnc" id="L192" title="All 4 branches missed.">			switch(multiplier) {</span>
+<span class="nc" id="L193">			case 1 : frequency = Frequency.MONTHLY; break;</span>
+<span class="nc" id="L194">			case 3 : frequency = Frequency.QUARTERLY; break;</span>
+<span class="nc" id="L195">			case 6 : frequency = Frequency.SEMIANNUAL; break;</span>
+			default:
+<span class="nc" id="L197">				throw new IllegalArgumentException(&quot;Unknown periodMultiplier &quot;+calcNode.getElementsByTagName(&quot;periodMultiplier&quot;).item(0).getTextContent()+&quot;.&quot;);</span>
+			}
+			break;
+		default:
+<span class="nc" id="L201">			throw new IllegalArgumentException(&quot;Unknown period &quot;+calcNode.getElementsByTagName(&quot;period&quot;).item(0).getTextContent()+&quot;.&quot;);</span>
+		}
+
+		//build schedule
+<span class="nc" id="L205">		final ScheduleDescriptor schedule = new ScheduleDescriptor(startDate, maturityDate, frequency, daycountConvention, shortPeriodConvention,</span>
+				dateRollConvention, abstractBusinessdayCalendar, fixingOffsetDays, paymentOffsetDays);
+
+		// get notional
+<span class="nc" id="L209">		final double notional = Double.parseDouble(((Element) leg.getElementsByTagName(&quot;notionalSchedule&quot;).item(0)).getElementsByTagName(&quot;initialValue&quot;).item(0).getTextContent());</span>
+
+		// get fixed rate and forward curve if applicable
+<span class="nc" id="L212">		double spread = 0;</span>
+<span class="nc" id="L213">		String forwardCurveName = &quot;&quot;;</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		if(isFixed) {</span>
+<span class="nc" id="L215">			spread = Double.parseDouble(((Element) leg.getElementsByTagName(&quot;fixedRateSchedule&quot;).item(0)).getElementsByTagName(&quot;initialValue&quot;).item(0).getTextContent());</span>
+		} else {
+			// The forward curve in the product is overwritten if the parser has a set forward curve
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			forwardCurveName = Objects.isNull(this.forwardCurveName) ? leg.getElementsByTagName(&quot;floatingRateIndex&quot;).item(0).getTextContent() : this.forwardCurveName;</span>
+		}
+
+<span class="nc" id="L221">		return new InterestRateSwapLegProductDescriptor(forwardCurveName, discountCurveName, schedule, notional, spread, false);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

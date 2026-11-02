@@ -1,0 +1,434 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaptionGeneralizedAnalyticApproximation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">SwaptionGeneralizedAnalyticApproximation.java</span></div><h1>SwaptionGeneralizedAnalyticApproximation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 17.05.2007
+ * Created on 30.03.2014
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.lang.ref.WeakReference;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * This class implements an analytic swaption valuation formula under
+ * a LIBOR market model. The algorithm implemented here is the
+ * OIS discounting version of the algorithm described in
+ * ISBN 0470047224 (see {@link net.finmath.montecarlo.interestrate.products.SwaptionSingleCurveAnalyticApproximation}).
+ *
+ * The approximation assumes that the forward rates (LIBOR) follow a
+ * &lt;b&gt;normal model&lt;/b&gt; or &lt;b&gt;log-normal model&lt;/b&gt; and that the model provides the integrated
+ * instantaneous covariance of the forward rates or the integrated
+ * instantaneous covariance of the log-forward rates
+ *
+ * The getValue method calculates the approximated integrated instantaneous variance of the swap rate,
+ * using the approximation
+ * \[
+ * 	\frac{d log(S(t))}{d log(L(t))} \approx \frac{d log(S(0))}{d log(L(0))} = : w.
+ * \]
+ *
+ * Since \( L \) is a vector, \( w \) is a gradient (vector). The class then approximates
+ * the Black volatility of a swaption via
+ * \[
+ * 	\sigma_S^{2} T := \sum_{i,j} w_{i} \gamma_{i,j} w_{j}
+ * \]
+ * where \( (\gamma_{i,j})_{i,j = 1,...,m} \) is the covariance matrix of the forward rates.
+ *
+ * The valuation can be performed in terms of value or implied Black volatility.
+ *
+ *
+ * @author Christian Fries
+ * @author Lorenzo Torricelli
+ * @date 17.05.2017.
+ * @version 1.0
+ */
+public class SwaptionGeneralizedAnalyticApproximation extends AbstractTermStructureMonteCarloProduct implements net.finmath.modelling.products.Swaption {
+
+<span class="fc" id="L62">	public enum StateSpace { //state space of the underlying LMM</span>
+<span class="fc" id="L63">		NORMAL,</span>
+<span class="fc" id="L64">		LOGNORMAL</span>
+	}
+
+<span class="fc" id="L67">	public enum ValueUnit {</span>
+		/** Returns the value of the swaption **/
+<span class="fc" id="L69">		VALUE,</span>
+		/** Returns the Black-Scholes implied integrated variance, i.e., &lt;i&gt;&amp;sigma;&lt;sup&gt;2&lt;/sup&gt; T&lt;/i&gt; **/
+<span class="fc" id="L71">		INTEGRATEDVARIANCE,</span>
+		/** Returns the Black-Scholes implied volatility, i.e., &lt;i&gt;&amp;sigma;&lt;/i&gt; **/
+<span class="fc" id="L73">		VOLATILITY</span>
+	}
+
+	private final double      swaprate;
+	private final double[]    swapTenor;       // Vector of swap tenor (period start and end dates). Start of first period is the option maturity.
+	private final ValueUnit   valueUnit;
+	private final StateSpace  stateSpace;
+
+
+	private Map&lt;String, double[]&gt;						cachedLogSwaprateDerivative;
+	private WeakReference&lt;TimeDiscretization&gt;	cachedLogSwaprateDerivativeTimeDiscretization;
+	private WeakReference&lt;DiscountCurve&gt;		cachedLogSwaprateDerivativeDiscountCurve;
+	private WeakReference&lt;ForwardCurve&gt;		cachedLogSwaprateDerivativeForwardCurve;
+<span class="fc" id="L86">	private final Object					cachedLogSwaprateDerivativeLock = new Object();</span>
+
+	private Map&lt;String, double[]&gt;						cachedSwaprateDerivative;
+	private WeakReference&lt;TimeDiscretization&gt;	cachedSwaprateDerivativeTimeDiscretization;
+	private WeakReference&lt;DiscountCurve&gt;		cachedSwaprateDerivativeDiscountCurve;
+	private WeakReference&lt;ForwardCurve&gt;		cachedSwaprateDerivativeForwardCurve;
+<span class="fc" id="L92">	private final Object					cachedSwaprateDerivativeLock = new Object();</span>
+
+	/**
+	 * Create an analytic swaption approximation product for
+	 * log normal forward rate model.
+	 *
+	 * Note: It is implicitly assumed that swapTenor[0] is the exercise date (no forward starting).
+	 *
+	 * @param swaprate The strike swap rate of the swaption.
+	 * @param swapTenor The swap tenor in doubles.
+	 * @param valueUnit The unit of the quantity returned by the getValues method.
+	 * @param stateSpace The state space of the LMM (lognormal or normal)
+	 */
+	public SwaptionGeneralizedAnalyticApproximation(final double swaprate, final double[] swapTenor, final ValueUnit valueUnit, final StateSpace stateSpace) {
+<span class="fc" id="L106">		super();</span>
+<span class="fc" id="L107">		this.swaprate	= swaprate;</span>
+<span class="fc" id="L108">		this.swapTenor	= swapTenor;</span>
+<span class="fc" id="L109">		this.valueUnit	= valueUnit;</span>
+<span class="fc" id="L110">		this.stateSpace	= stateSpace;</span>
+<span class="fc" id="L111">	}</span>
+
+	/**
+	 * Create an analytic swaption approximation product for
+	 * log normal forward rate model.
+	 *
+	 * Note: It is implicitly assumed that swapTenor.getTime(0) is the exercise date (no forward starting).
+	 *
+	 * @param swaprate The strike swap rate of the swaption.
+	 * @param swapTenor The swap tenor in doubles.
+	 * @param stateSpace The state space of the LMM (lognormal or normal)
+	 */
+	public SwaptionGeneralizedAnalyticApproximation(final double swaprate, final TimeDiscretization swapTenor, final StateSpace stateSpace) {
+<span class="nc" id="L124">		this(swaprate, swapTenor.getAsDoubleArray(), ValueUnit.VALUE, stateSpace);</span>
+<span class="nc" id="L125">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) {
+<span class="fc" id="L129">		final ProcessModel modelBase = model.getModel();</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">		if(modelBase instanceof LIBORMarketModel) {</span>
+<span class="fc" id="L131">			return getValues(evaluationTime, model.getTimeDiscretization(), (LIBORMarketModel)modelBase);</span>
+		} else {
+<span class="nc" id="L133">			throw new IllegalArgumentException(&quot;This product requires a simulation where the underlying model is of type LIBORMarketModel.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Calculates the approximated integrated instantaneous variance of the swap rate,
+	 * using the approximation d S/d L (t) = d  S/d L (0).
+	 *
+	 * @param evaluationTime Time at which the product is evaluated.
+	 * @param timeDiscretization The time discretization used for integrating the covariance.
+	 * @param model A model implementing the LIBORModelMonteCarloSimulationModel
+	 * @return Depending on the value of value unit, the method returns either
+	 * the approximated integrated instantaneous variance of the swap rate (ValueUnit.INTEGRATEDVARIANCE)
+	 * or the value using the Black formula (ValueUnit.VALUE).
+	 * @TODO make initial values an arg and use evaluation time.
+	 */
+	public RandomVariable getValues(final double evaluationTime, final TimeDiscretization timeDiscretization, final LIBORMarketModel model) {
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">		if(evaluationTime &gt; 0) {</span>
+<span class="nc" id="L151">			throw new RuntimeException(&quot;Forward start evaluation currently not supported.&quot;);</span>
+		}
+
+<span class="fc" id="L154">		final double swapStart    = swapTenor[0];</span>
+<span class="fc" id="L155">		final double swapEnd      = swapTenor[swapTenor.length-1];</span>
+
+<span class="fc" id="L157">		final int swapStartIndex  = model.getLiborPeriodIndex(swapStart);</span>
+<span class="fc" id="L158">		final int swapEndIndex    = model.getLiborPeriodIndex(swapEnd);</span>
+<span class="fc" id="L159">		final int optionMaturityIndex = model.getCovarianceModel().getTimeDiscretization().getTimeIndex(swapStart)-1;</span>
+		double[]    swapCovarianceWeights;
+
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">		if(stateSpace==StateSpace.LOGNORMAL){  //Hash map types, so you can tell whether to return values or vols depending upon the string passed</span>
+<span class="nc" id="L163">			final Map&lt;String, double[]&gt;  logSwapRateDerivative  = getLogSwapRateDerivative(model.getLiborPeriodDiscretization(), model.getDiscountCurve(), model.getForwardRateCurve());</span>
+<span class="nc" id="L164">			swapCovarianceWeights  = logSwapRateDerivative.get(&quot;values&quot;);</span>
+<span class="nc" id="L165">		}</span>
+		else  //adding the normal case
+		{
+<span class="fc" id="L168">			final Map&lt;String, double[]&gt;  swapRateDerivative  = getSwapRateDerivative(model.getLiborPeriodDiscretization(), model.getAnalyticModel(), model.getDiscountCurve(), model.getForwardRateCurve());</span>
+<span class="fc" id="L169">			swapCovarianceWeights  = swapRateDerivative.get(&quot;values&quot;);</span>
+		}
+
+		// Get the integrated libor covariance from the model
+<span class="fc" id="L173">		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance(timeDiscretization)[optionMaturityIndex];</span>
+
+		// Calculate integrated swap rate covariance
+<span class="fc" id="L176">		double integratedSwapRateVariance = 0.0;</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">		for(int componentIndex1 = swapStartIndex; componentIndex1 &lt; swapEndIndex; componentIndex1++) {</span>
+			// Sum the libor cross terms (use symmetry)
+<span class="fc bfc" id="L179" title="All 2 branches covered.">			for(int componentIndex2 = componentIndex1+1; componentIndex2 &lt; swapEndIndex; componentIndex2++) { //2*sum; symmetric summing</span>
+<span class="fc" id="L180">				integratedSwapRateVariance += 2.0 * swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex2-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex2];</span>
+			}
+			// Add diagonal term (libor variance term)
+<span class="fc" id="L183">			integratedSwapRateVariance += swapCovarianceWeights[componentIndex1-swapStartIndex] * swapCovarianceWeights[componentIndex1-swapStartIndex] * integratedLIBORCovariance[componentIndex1][componentIndex1];</span>
+		}
+
+		// Return integratedSwapRateVariance if requested
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">		if(valueUnit == ValueUnit.INTEGRATEDVARIANCE) {</span>
+<span class="nc" id="L188">			return new Scalar(integratedSwapRateVariance);</span>
+		}
+
+<span class="fc" id="L191">		final double volatility		= Math.sqrt(integratedSwapRateVariance / swapStart);</span>
+
+		// Return integratedSwapRateVariance if requested
+<span class="fc bfc" id="L194" title="All 2 branches covered.">		if(valueUnit == ValueUnit.VOLATILITY) {</span>
+<span class="fc" id="L195">			return new Scalar(volatility);</span>
+		}
+
+		// Use black formula for swaption to calculate the price
+<span class="fc" id="L199">		final double parSwaprate	= net.finmath.marketdata.products.Swap.getForwardSwapRate(new TimeDiscretizationFromArray(swapTenor), new TimeDiscretizationFromArray(swapTenor), model.getForwardRateCurve(), model.getDiscountCurve());</span>
+<span class="fc" id="L200">		final double swapAnnuity	= net.finmath.marketdata.products.SwapAnnuity.getSwapAnnuity(new TimeDiscretizationFromArray(swapTenor), model.getDiscountCurve());</span>
+
+<span class="fc" id="L202">		final double optionMaturity	= swapStart;</span>
+		double valueSwaption;
+<span class="pc bpc" id="L204" title="1 of 2 branches missed.">		if(stateSpace==StateSpace.LOGNORMAL) {</span>
+<span class="nc" id="L205">			valueSwaption = AnalyticFormulas.blackModelSwaptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);</span>
+		}
+		else {
+<span class="fc" id="L208">			valueSwaption = AnalyticFormulas.bachelierOptionValue(parSwaprate, volatility, optionMaturity, swaprate, swapAnnuity);</span>
+		}
+
+<span class="fc" id="L211">		return new Scalar(valueSwaption);</span>
+	}
+
+	/**
+	 * This function calculate the partial derivative &lt;i&gt;d log(S) / d log(L&lt;sub&gt;k&lt;/sub&gt;)&lt;/i&gt; for
+	 * a given swap rate with respect to a vector of forward rates (on a given forward rate tenor).
+	 *
+	 * It also returns some useful other quantities like the corresponding discount factors and swap annuities.
+	 *
+	 * @param liborPeriodDiscretization The libor period discretization.
+	 * @param discountCurve The discount curve. If this parameter is null, the discount curve will be calculated from the forward curve.
+	 * @param forwardCurve The forward curve.
+	 * @return A map containing the partial derivatives (key &quot;value&quot;), the discount factors (key &quot;discountFactors&quot;) and the annuities (key &quot;annuities&quot;) as vectors of double[] (indexed by forward rate tenor index starting at swap start)
+	 */
+
+	public Map&lt;String, double[]&gt; getLogSwapRateDerivative(final TimeDiscretization liborPeriodDiscretization, DiscountCurve discountCurve, final ForwardCurve forwardCurve) {
+
+		/*
+		 * We cache the calculation of the log swaprate derivative. In a calibration this method might be called quite often with the same arguments.
+		 */
+<span class="nc" id="L231">		synchronized (cachedLogSwaprateDerivativeLock) {</span>
+
+<span class="nc bnc" id="L233" title="All 2 branches missed.">			if(</span>
+					cachedLogSwaprateDerivative != null
+<span class="nc bnc" id="L235" title="All 2 branches missed.">					&amp;&amp; liborPeriodDiscretization == cachedLogSwaprateDerivativeTimeDiscretization.get()</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">					&amp;&amp; discountCurve == cachedLogSwaprateDerivativeDiscountCurve.get()</span>
+<span class="nc bnc" id="L237" title="All 2 branches missed.">					&amp;&amp; forwardCurve == cachedLogSwaprateDerivativeForwardCurve.get()</span>
+					) {
+<span class="nc" id="L239">				return cachedLogSwaprateDerivative;</span>
+			}
+<span class="nc" id="L241">			cachedLogSwaprateDerivativeTimeDiscretization = new WeakReference&lt;&gt;(liborPeriodDiscretization);</span>
+<span class="nc" id="L242">			cachedLogSwaprateDerivativeDiscountCurve = new WeakReference&lt;&gt;(discountCurve);</span>
+<span class="nc" id="L243">			cachedLogSwaprateDerivativeForwardCurve = new WeakReference&lt;&gt;(forwardCurve);</span>
+
+			/*
+			 * Small workaround for the case that the discount curve is not set. This part will be removed later.
+			 */
+<span class="nc" id="L248">			AnalyticModelFromCurvesAndVols model = null;</span>
+<span class="nc bnc" id="L249" title="All 2 branches missed.">			if(discountCurve == null) {</span>
+<span class="nc" id="L250">				discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());</span>
+<span class="nc" id="L251">				model					= new AnalyticModelFromCurvesAndVols(new Curve[] { forwardCurve, discountCurve });</span>
+			}
+
+<span class="nc" id="L254">			final double swapStart    = swapTenor[0];</span>
+<span class="nc" id="L255">			final double swapEnd      = swapTenor[swapTenor.length-1];</span>
+
+			// Get the indices of the swap start and end on the forward rate tenor
+<span class="nc" id="L258">			final int swapStartIndex  = liborPeriodDiscretization.getTimeIndex(swapStart);</span>
+<span class="nc" id="L259">			final int swapEndIndex    = liborPeriodDiscretization.getTimeIndex(swapEnd);</span>
+
+			// Precalculate forward rates and discount factors. Note: the swap contains swapEndIndex-swapStartIndex forward rates
+<span class="nc" id="L262">			final double[] forwardRates       = new double[swapEndIndex-swapStartIndex+1];</span>
+<span class="nc" id="L263">			final double[] discountFactors    = new double[swapEndIndex-swapStartIndex+1];</span>
+
+			// Calculate discount factor at swap start
+<span class="nc" id="L266">			discountFactors[0] = discountCurve.getDiscountFactor(model, swapStart);</span>
+
+			// Calculate discount factors for swap period ends (used for swap annuity)
+<span class="nc bnc" id="L269" title="All 2 branches missed.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) {</span>
+<span class="nc" id="L270">				final double libor = forwardCurve.getForward(null, liborPeriodDiscretization.getTime(liborPeriodIndex));</span>
+
+<span class="nc" id="L272">				forwardRates[liborPeriodIndex-swapStartIndex]       = libor;</span>
+<span class="nc" id="L273">				discountFactors[liborPeriodIndex-swapStartIndex+1]  = discountCurve.getDiscountFactor(model, liborPeriodDiscretization.getTime(liborPeriodIndex+1));</span>
+			}
+
+			// Precalculate swap annuities
+<span class="nc" id="L277">			final double[]    swapAnnuities   = new double[swapTenor.length-1]; //calculates the annuities value for EVERY libor period (must be used later in the weight calulation)</span>
+<span class="nc" id="L278">			double      swapAnnuity     = 0.0;</span>
+			//note: the final element of the loop, i.e. the final value of the local variable swap annuity is the total annuity discount factor of the swap
+<span class="nc bnc" id="L280" title="All 2 branches missed.">			for(int swapPeriodIndex = swapTenor.length-2; swapPeriodIndex &gt;= 0; swapPeriodIndex--) {</span>
+<span class="nc" id="L281">				final int periodEndIndex = liborPeriodDiscretization.getTimeIndex(swapTenor[swapPeriodIndex+1]);</span>
+<span class="nc" id="L282">				swapAnnuity += discountFactors[periodEndIndex-swapStartIndex] * (swapTenor[swapPeriodIndex+1]-swapTenor[swapPeriodIndex]);</span>
+<span class="nc" id="L283">				swapAnnuities[swapPeriodIndex] = swapAnnuity;</span>
+			}
+
+			// Precalculate weights: The formula is take from ISBN 0470047224.
+<span class="nc" id="L287">			final double[] swapCovarianceWeights = new double[swapEndIndex-swapStartIndex];</span>
+
+<span class="nc" id="L289">			double valueFloatLeg = 0.0;</span>
+<span class="nc bnc" id="L290" title="All 2 branches missed.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) { //loop on the Libor index</span>
+<span class="nc" id="L291">				final double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);</span>
+<span class="nc" id="L292">				valueFloatLeg += forwardRates[liborPeriodIndex-swapStartIndex] * discountFactors[liborPeriodIndex-swapStartIndex+1] * liborPeriodLength; //P(0, T_a)-P(0,T_b)</span>
+			}
+
+<span class="nc" id="L295">			int swapPeriodIndex = 0;   //loop on the swap index</span>
+<span class="nc" id="L296">			double valueFloatLegUpToSwapStart = 0.0;</span>
+<span class="nc bnc" id="L297" title="All 2 branches missed.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) {</span>
+<span class="nc bnc" id="L298" title="All 2 branches missed.">				if(liborPeriodDiscretization.getTime(liborPeriodIndex) &gt;= swapTenor[swapPeriodIndex+1]) {</span>
+<span class="nc" id="L299">					swapPeriodIndex++;</span>
+				}
+
+<span class="nc" id="L302">				final double libor				= forwardRates[liborPeriodIndex-swapStartIndex];  //libor=L_k</span>
+<span class="nc" id="L303">				final double liborPeriodLength	= liborPeriodDiscretization.getTimeStep(liborPeriodIndex);</span>
+
+<span class="nc" id="L305">				valueFloatLegUpToSwapStart += forwardRates[liborPeriodIndex-swapStartIndex] * discountFactors[liborPeriodIndex-swapStartIndex+1] * liborPeriodLength;   //P(0, T_a)-P(0,T_k+1)</span>
+
+<span class="nc" id="L307">				final double discountFactorAtPeriodEnd = discountCurve.getDiscountFactor(model, liborPeriodDiscretization.getTime(liborPeriodIndex+1)); // P(0,T_k+1)</span>
+<span class="nc" id="L308">				final double derivativeFloatLeg	= (discountFactorAtPeriodEnd + valueFloatLegUpToSwapStart - valueFloatLeg) * liborPeriodLength / (1.0 + libor * liborPeriodLength) / valueFloatLeg; //=P(0,T_b)/P(0,T_a)-P(0,T_b)</span>
+<span class="nc" id="L309">				final double derivativeFixLeg		= - swapAnnuities[swapPeriodIndex] / swapAnnuity * liborPeriodLength / (1.0 + libor * liborPeriodLength); //second summand pag 379, with a minus</span>
+
+<span class="nc" id="L311">				swapCovarianceWeights[liborPeriodIndex-swapStartIndex] = (derivativeFloatLeg - derivativeFixLeg) * libor;    // and a minus here mathc the formula</span>
+
+			}
+
+			// Return results
+<span class="nc" id="L316">			final Map&lt;String, double[]&gt; results = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L317">			results.put(&quot;values&quot;,			swapCovarianceWeights);</span>
+<span class="nc" id="L318">			results.put(&quot;discountFactors&quot;,	discountFactors);</span>
+<span class="nc" id="L319">			results.put(&quot;swapAnnuities&quot;,	swapAnnuities);</span>
+
+<span class="nc" id="L321">			cachedLogSwaprateDerivative = results;</span>
+
+<span class="nc" id="L323">			return results;</span>
+		}
+	}
+
+
+	/**
+	 * Returns the derivative of the swap rate (associated with this swap) with respect to the forward rates  dS/dL_{i}.
+	 *
+	 * @param liborPeriodDiscretization Forward rate discretization.
+	 * @param model The analytic model providing the context for discountCurve and forwardCurve.
+	 * @param discountCurve The discount curve.
+	 * @param forwardCurve The forward curve.
+	 * @return A map containing the derivative of the swap rate with respect to the forward rates  dS/dL_{i} under the key &quot;values&quot;.
+	 */
+	public Map&lt;String, double[]&gt; getSwapRateDerivative(final TimeDiscretization liborPeriodDiscretization, final AnalyticModel model, DiscountCurve discountCurve, final ForwardCurve forwardCurve) {
+
+		/*
+		 * We cache the calculation of the log swaprate derivative. In a calibration this method might be called quite often with the same arguments.
+		 */
+<span class="fc" id="L342">		synchronized (cachedSwaprateDerivativeLock) {</span>
+
+<span class="fc bfc" id="L344" title="All 2 branches covered.">			if(</span>
+					cachedSwaprateDerivative != null
+<span class="fc bfc" id="L346" title="All 2 branches covered.">					&amp;&amp; liborPeriodDiscretization == cachedSwaprateDerivativeTimeDiscretization.get()</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">					&amp;&amp; discountCurve == cachedSwaprateDerivativeDiscountCurve.get()</span>
+<span class="pc bpc" id="L348" title="1 of 2 branches missed.">					&amp;&amp; forwardCurve == cachedSwaprateDerivativeForwardCurve.get()</span>
+					) {
+<span class="fc" id="L350">				return cachedSwaprateDerivative;</span>
+			}
+<span class="fc" id="L352">			cachedSwaprateDerivativeTimeDiscretization = new WeakReference&lt;&gt;(liborPeriodDiscretization);</span>
+<span class="fc" id="L353">			cachedSwaprateDerivativeDiscountCurve = new WeakReference&lt;&gt;(discountCurve);</span>
+<span class="fc" id="L354">			cachedSwaprateDerivativeForwardCurve = new WeakReference&lt;&gt;(forwardCurve);</span>
+
+			/*
+			 * Small workaround for the case that the discount curve is not set.  Obtain it from the forward curve
+			 */
+<span class="pc bpc" id="L359" title="1 of 2 branches missed.">			if(discountCurve == null) {</span>
+<span class="nc" id="L360">				discountCurve	= new DiscountCurveFromForwardCurve(forwardCurve.getName());</span>
+			}
+
+<span class="fc" id="L363">			final double swapStart    = swapTenor[0];</span>
+<span class="fc" id="L364">			final double swapEnd      = swapTenor[swapTenor.length-1];</span>
+
+			// Get the indices of the swap start and end on the forward rate tenor
+<span class="fc" id="L367">			final int swapStartIndex  = liborPeriodDiscretization.getTimeIndex(swapStart);</span>
+<span class="fc" id="L368">			final int swapEndIndex    = liborPeriodDiscretization.getTimeIndex(swapEnd);</span>
+
+			// Precalculate forward rates and discount factors. Note: the swap contains swapEndIndex-swapStartIndex forward rates
+<span class="fc" id="L371">			final double[] forwardRates       = new double[swapEndIndex-swapStartIndex+1];</span>
+<span class="fc" id="L372">			final double[] discountFactors    = new double[swapEndIndex-swapStartIndex+1];</span>
+
+			// Calculate discount factor at swap start
+<span class="fc" id="L375">			discountFactors[0] = discountCurve.getDiscountFactor(model, swapStart);</span>
+
+			// Calculate discount factors for swap period ends (used for swap annuity)
+<span class="fc bfc" id="L378" title="All 2 branches covered.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) {</span>
+<span class="fc" id="L379">				final double libor = forwardCurve.getForward(model, liborPeriodDiscretization.getTime(liborPeriodIndex));</span>
+
+<span class="fc" id="L381">				forwardRates[liborPeriodIndex-swapStartIndex]       = libor;</span>
+<span class="fc" id="L382">				discountFactors[liborPeriodIndex-swapStartIndex+1]  = discountCurve.getDiscountFactor(model, liborPeriodDiscretization.getTime(liborPeriodIndex+1));</span>
+			}
+
+			// Precalculate swap annuities
+<span class="fc" id="L386">			final double[]    swapAnnuities   = new double[swapTenor.length-1];</span>
+<span class="fc" id="L387">			double      swapAnnuity     = 0.0;</span>
+<span class="fc bfc" id="L388" title="All 2 branches covered.">			for(int swapPeriodIndex = swapTenor.length-2; swapPeriodIndex &gt;= 0; swapPeriodIndex--) {  //Backward calculation</span>
+<span class="fc" id="L389">				final int periodEndIndex = liborPeriodDiscretization.getTimeIndex(swapTenor[swapPeriodIndex+1]);</span>
+<span class="fc" id="L390">				swapAnnuity += discountFactors[periodEndIndex-swapStartIndex] * (swapTenor[swapPeriodIndex+1]-swapTenor[swapPeriodIndex]); //P(0,T_i)*Delta_i</span>
+<span class="fc" id="L391">				swapAnnuities[swapPeriodIndex] = swapAnnuity;</span>
+			}
+
+			// Precalculate weights: The formula is take from ISBN 0470047224
+<span class="fc" id="L395">			final double[] swapCovarianceWeights = new double[swapEndIndex-swapStartIndex];</span>
+
+<span class="fc" id="L397">			double valueFloatLeg = 0.0;</span>
+<span class="fc bfc" id="L398" title="All 2 branches covered.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) {</span>
+<span class="fc" id="L399">				final double liborPeriodLength = liborPeriodDiscretization.getTimeStep(liborPeriodIndex);</span>
+<span class="fc" id="L400">				valueFloatLeg += forwardRates[liborPeriodIndex-swapStartIndex] * discountFactors[liborPeriodIndex-swapStartIndex+1] * liborPeriodLength;</span>
+			}
+
+<span class="fc" id="L403">			int swapPeriodIndex = 0;</span>
+<span class="fc" id="L404">			double valueFloatLegUpToSwapStart = 0.0;</span>
+<span class="fc bfc" id="L405" title="All 2 branches covered.">			for(int liborPeriodIndex = swapStartIndex; liborPeriodIndex &lt; swapEndIndex; liborPeriodIndex++) {</span>
+<span class="fc bfc" id="L406" title="All 2 branches covered.">				if(liborPeriodDiscretization.getTime(liborPeriodIndex) &gt;= swapTenor[swapPeriodIndex+1]) {</span>
+<span class="fc" id="L407">					swapPeriodIndex++;</span>
+				}
+
+<span class="fc" id="L410">				final double libor				= forwardRates[liborPeriodIndex-swapStartIndex];</span>
+<span class="fc" id="L411">				final double liborPeriodLength	= liborPeriodDiscretization.getTimeStep(liborPeriodIndex);</span>
+
+<span class="fc" id="L413">				valueFloatLegUpToSwapStart += forwardRates[liborPeriodIndex-swapStartIndex] * discountFactors[liborPeriodIndex-swapStartIndex+1] * liborPeriodLength;</span>
+
+<span class="fc" id="L415">				final double discountFactorAtPeriodEnd = discountCurve.getDiscountFactor(model, liborPeriodDiscretization.getTime(liborPeriodIndex+1));</span>
+<span class="fc" id="L416">				final double derivativeFloatLeg	= (discountFactorAtPeriodEnd + valueFloatLegUpToSwapStart - valueFloatLeg) * liborPeriodLength / (1.0 + libor * liborPeriodLength) / swapAnnuity; //instead of /vlaueOfFloatingLeg</span>
+<span class="fc" id="L417">				final double derivativeFixLeg		= - swapAnnuities[swapPeriodIndex] / (swapAnnuity * swapAnnuity)* liborPeriodLength / (1.0 + libor * liborPeriodLength);  //instead  of /swapAnnuity</span>
+
+<span class="fc" id="L419">				swapCovarianceWeights[liborPeriodIndex-swapStartIndex] = (derivativeFloatLeg - valueFloatLeg*derivativeFixLeg) ; //no Libor multiplication factor</span>
+			}
+
+			// Return results
+<span class="fc" id="L423">			final Map&lt;String, double[]&gt; results = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L424">			results.put(&quot;values&quot;,			swapCovarianceWeights);</span>
+<span class="fc" id="L425">			results.put(&quot;discountFactors&quot;,	discountFactors);</span>
+<span class="fc" id="L426">			results.put(&quot;swapAnnuities&quot;,	swapAnnuities);</span>
+
+<span class="fc" id="L428">			cachedSwaprateDerivative = results;</span>
+
+<span class="fc" id="L430">			return results;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

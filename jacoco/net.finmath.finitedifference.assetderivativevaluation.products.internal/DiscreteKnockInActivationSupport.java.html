@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscreteKnockInActivationSupport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products.internal</a> &gt; <span class="el_source">DiscreteKnockInActivationSupport.java</span></div><h1>DiscreteKnockInActivationSupport.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products.internal;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+
+/**
+ * Utility methods for discretely monitored knock-in products.
+ *
+ * &lt;p&gt;
+ * Discretely monitored knock-in products are commonly priced by solving a
+ * pre-hit continuation problem and replacing values by an activated
+ * continuation value on monitoring dates where the barrier has been breached.
+ * This class provides shared helpers for extracting the activated continuation
+ * vector from a previously computed activated value surface.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The activated surface is assumed to be indexed by space point in the first
+ * array dimension and by finite-difference time index in the second array
+ * dimension. The time index is inferred from {@code maturity - time}, matching
+ * the backward-time convention used by the finite-difference solvers.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * One-dimensional activated vectors may be interpolated from the activated
+ * grid to the target grid if the grids differ. Two-dimensional activated
+ * vectors currently require the activated and target grids to match in both
+ * state variables.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class DiscreteKnockInActivationSupport {
+
+	private DiscreteKnockInActivationSupport() {
+	}
+
+	/**
+	 * Tests whether two one-dimensional grids are equal within a given absolute
+	 * tolerance.
+	 *
+	 * @param first The first grid.
+	 * @param second The second grid.
+	 * @param tolerance The absolute tolerance used pointwise.
+	 * @return {@code true} if the grids have the same length and all
+	 *     corresponding
+	 * grid points differ by at most {@code tolerance}; {@code false} otherwise.
+	 */
+	public static boolean hasSameGrid(
+			final double[] first,
+			final double[] second,
+			final double tolerance) {
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if (first.length != second.length) {</span>
+<span class="nc" id="L58">			return false;</span>
+		}
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		for (int i = 0; i &lt; first.length; i++) {</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">			if (Math.abs(first[i] - second[i]) &gt; tolerance) {</span>
+<span class="nc" id="L63">				return false;</span>
+			}
+		}
+
+<span class="nc" id="L67">		return true;</span>
+	}
+
+	/**
+	 * Builds a zero terminal value vector matching the spatial size of a
+	 * discretization.
+	 *
+	 * &lt;p&gt;
+	 * For one-dimensional discretizations, the returned vector has the length
+	 * of
+	 * the first spatial grid. For two-dimensional discretizations, the returned
+	 * vector has the product length of the first and second spatial grids,
+	 * using
+	 * the same flattened indexing convention as {@link #flatten(int, int,
+	 * int)}.
+	 * &lt;/p&gt;
+	 *
+	 * @param discretization The space-time discretization.
+	 * @return A zero-filled terminal value vector.
+	 * @throws IllegalArgumentException Thrown if the discretization is neither
+	 *         one-dimensional nor two-dimensional.
+	 */
+	public static double[] buildZeroTerminalValues(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L90">		final int dims = discretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L93">			final double[] grid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L94">			return new double[grid.length];</span>
+		}
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		if (dims == 2) {</span>
+<span class="nc" id="L98">			final double[] grid0 = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L99">			final double[] grid1 = discretization.getSpaceGrid(1).getGrid();</span>
+<span class="nc" id="L100">			return new double[grid0.length * grid1.length];</span>
+		}
+
+<span class="nc" id="L103">		throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+	}
+
+	/**
+	 * Extracts an activated continuation vector at a given event time.
+	 *
+	 * &lt;p&gt;
+	 * The method converts the event time into a solver time index using
+	 * {@code maturity - time}. If the resulting time is not an exact time-grid
+	 * point, the nearest previous time index is used. The extracted vector is
+	 * represented on the spatial grid of {@code targetModel}.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The event time.
+	 * @param maturity The product maturity.
+	 * @param activatedSurface The activated continuation surface, indexed by
+	 *        flattened space point and time index.
+	 * @param activatedDiscretization The discretization on which the activated
+	 *        surface was computed.
+	 * @param targetModel The target model whose spatial discretization
+	 *     determines
+	 *        the returned vector.
+	 * @param gridTolerance The absolute tolerance used when comparing grids.
+	 * @return The activated continuation vector represented on the target model
+	 *     grid.
+	 * @throws IllegalArgumentException Thrown if the target discretization is
+	 *     neither
+	 * one-dimensional nor two-dimensional, or if a two-dimensional activated
+	 *         surface is requested on a non-matching target grid.
+	 */
+	public static double[] getActivatedVectorAt(
+			final double time,
+			final double maturity,
+			final double[][] activatedSurface,
+			final SpaceTimeDiscretization activatedDiscretization,
+			final FiniteDifferenceEquityModel targetModel,
+			final double gridTolerance) {
+
+<span class="nc" id="L141">		final double tau = maturity - time;</span>
+<span class="nc" id="L142">		int timeIndex = activatedDiscretization.getTimeDiscretization().getTimeIndex(tau);</span>
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L145">			timeIndex = activatedDiscretization.getTimeDiscretization()</span>
+<span class="nc" id="L146">					.getTimeIndexNearestLessOrEqual(tau);</span>
+		}
+
+<span class="nc" id="L149">		final SpaceTimeDiscretization targetDiscretization = targetModel.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L150">		final int dims = targetDiscretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L153">			return getActivatedVectorAt1D(</span>
+					timeIndex,
+					activatedSurface,
+					activatedDiscretization,
+					targetDiscretization,
+					gridTolerance
+					);
+		}
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		if (dims == 2) {</span>
+<span class="nc" id="L163">			return getActivatedVectorAt2D(</span>
+					timeIndex,
+					activatedSurface,
+					activatedDiscretization,
+					targetDiscretization,
+					gridTolerance
+					);
+		}
+
+<span class="nc" id="L172">		throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+	}
+
+	/**
+	 * Extracts a one-dimensional activated vector at a given time index.
+	 *
+	 * &lt;p&gt;
+	 * If source and target grids match within the supplied tolerance, values
+	 * are
+	 * copied directly. Otherwise, the activated surface column is linearly
+	 * interpolated from the source grid to the target grid with constant
+	 * extrapolation.
+	 * &lt;/p&gt;
+	 *
+	 * @param timeIndex The activated surface time index.
+	 * @param activatedSurface The activated continuation surface.
+	 * @param sourceDiscretization The discretization of the activated surface.
+	 * @param targetDiscretization The target discretization.
+	 * @param gridTolerance The absolute tolerance used when comparing grids.
+	 * @return The activated vector represented on the target grid.
+	 */
+	private static double[] getActivatedVectorAt1D(
+			final int timeIndex,
+			final double[][] activatedSurface,
+			final SpaceTimeDiscretization sourceDiscretization,
+			final SpaceTimeDiscretization targetDiscretization,
+			final double gridTolerance) {
+
+<span class="nc" id="L200">		final double[] targetGrid = targetDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L201">		final double[] sourceGrid = sourceDiscretization.getSpaceGrid(0).getGrid();</span>
+
+<span class="nc" id="L203">		final double[] activatedVector = new double[targetGrid.length];</span>
+
+<span class="nc bnc" id="L205" title="All 2 branches missed.">		if (hasSameGrid(sourceGrid, targetGrid, gridTolerance)) {</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">			for (int i = 0; i &lt; targetGrid.length; i++) {</span>
+<span class="nc" id="L207">				activatedVector[i] = activatedSurface[i][timeIndex];</span>
+			}
+<span class="nc" id="L209">			return activatedVector;</span>
+		}
+
+<span class="nc" id="L212">		final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+				sourceGrid,
+<span class="nc" id="L214">				getColumn(activatedSurface, timeIndex),</span>
+				InterpolationMethod.LINEAR,
+				ExtrapolationMethod.CONSTANT
+				);
+
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		for (int i = 0; i &lt; targetGrid.length; i++) {</span>
+<span class="nc" id="L220">			activatedVector[i] = interpolator.getValue(targetGrid[i]);</span>
+		}
+
+<span class="nc" id="L223">		return activatedVector;</span>
+	}
+
+	/**
+	 * Extracts a two-dimensional activated vector at a given time index.
+	 *
+	 * &lt;p&gt;
+	 * The method assumes flattened two-dimensional indexing, where
+	 * {@code flatten(i, j, n0)} maps the first-state index {@code i} and
+	 * second-state index {@code j} into the one-dimensional value vector.
+	 * Two-dimensional interpolation is not performed; source and target grids
+	 * must match in both state variables within the supplied tolerance.
+	 * &lt;/p&gt;
+	 *
+	 * @param timeIndex The activated surface time index.
+	 * @param activatedSurface The activated continuation surface.
+	 * @param sourceDiscretization The discretization of the activated surface.
+	 * @param targetDiscretization The target discretization.
+	 * @param gridTolerance The absolute tolerance used when comparing grids.
+	 * @return The activated vector represented on the target grid.
+	 * @throws IllegalArgumentException Thrown if the source and target grids do
+	 *         not match in both state variables.
+	 */
+	private static double[] getActivatedVectorAt2D(
+			final int timeIndex,
+			final double[][] activatedSurface,
+			final SpaceTimeDiscretization sourceDiscretization,
+			final SpaceTimeDiscretization targetDiscretization,
+			final double gridTolerance) {
+
+<span class="nc" id="L253">		final double[] targetX0 = targetDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L254">		final double[] targetX1 = targetDiscretization.getSpaceGrid(1).getGrid();</span>
+<span class="nc" id="L255">		final double[] sourceX0 = sourceDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L256">		final double[] sourceX1 = sourceDiscretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L258" title="All 2 branches missed.">		if (!hasSameGrid(sourceX0, targetX0, gridTolerance)</span>
+<span class="nc bnc" id="L259" title="All 2 branches missed.">				|| !hasSameGrid(sourceX1, targetX1, gridTolerance)) {</span>
+<span class="nc" id="L260">			throw new IllegalArgumentException(</span>
+					&quot;Discrete 2D knock-in currently requires activated and target grids to match.&quot;
+					);
+		}
+
+<span class="nc" id="L265">		final int n0 = targetX0.length;</span>
+<span class="nc" id="L266">		final int n1 = targetX1.length;</span>
+<span class="nc" id="L267">		final double[] activatedVector = new double[n0 * n1];</span>
+
+<span class="nc bnc" id="L269" title="All 2 branches missed.">		for (int j = 0; j &lt; n1; j++) {</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">			for (int i = 0; i &lt; n0; i++) {</span>
+<span class="nc" id="L271">				final int k = flatten(i, j, n0);</span>
+<span class="nc" id="L272">				activatedVector[k] = activatedSurface[k][timeIndex];</span>
+			}
+		}
+
+<span class="nc" id="L276">		return activatedVector;</span>
+	}
+
+	/**
+	 * Flattens a two-dimensional grid index into a one-dimensional vector
+	 * index.
+	 *
+	 * @param i0 The index in the first spatial dimension.
+	 * @param i1 The index in the second spatial dimension.
+	 * @param n0 The number of grid points in the first spatial dimension.
+	 * @return The flattened vector index.
+	 */
+	public static int flatten(final int i0, final int i1, final int n0) {
+<span class="nc" id="L289">		return i0 + i1 * n0;</span>
+	}
+
+	/**
+	 * Extracts a column from a rectangular matrix.
+	 *
+	 * @param matrix The matrix.
+	 * @param columnIndex The column index to extract.
+	 * @return The requested matrix column.
+	 */
+	public static double[] getColumn(final double[][] matrix, final int columnIndex) {
+<span class="nc" id="L300">		final double[] column = new double[matrix.length];</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">		for (int i = 0; i &lt; matrix.length; i++) {</span>
+<span class="nc" id="L302">			column[i] = matrix[i][columnIndex];</span>
+		}
+<span class="nc" id="L304">		return column;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

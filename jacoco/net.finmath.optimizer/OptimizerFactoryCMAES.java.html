@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptimizerFactoryCMAES.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">OptimizerFactoryCMAES.java</span></div><h1>OptimizerFactoryCMAES.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 30.05.2015
+ */
+
+package net.finmath.optimizer;
+
+import org.apache.commons.math3.optim.SimplePointChecker;
+import org.apache.commons.math3.random.MersenneTwister;
+
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class OptimizerFactoryCMAES implements OptimizerFactory {
+
+	private final double	accuracy;
+	private final int		maxIterations;
+	private final double[]	parameterLowerBound;
+	private final double[]	parameterUppderBound;
+	private final double[]	parameterStandardDeviation;
+
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations,
+			final double[] parameterLowerBound, final double[] parameterUppderBound,
+			final double[] parameterStandardDeviation) {
+<span class="nc" id="L30">		super();</span>
+<span class="nc" id="L31">		this.accuracy = accuracy;</span>
+<span class="nc" id="L32">		this.maxIterations = maxIterations;</span>
+<span class="nc" id="L33">		this.parameterLowerBound = parameterLowerBound;</span>
+<span class="nc" id="L34">		this.parameterUppderBound = parameterUppderBound;</span>
+<span class="nc" id="L35">		this.parameterStandardDeviation = parameterStandardDeviation;</span>
+<span class="nc" id="L36">	}</span>
+
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations, final double[] parameterStandardDeviation) {
+<span class="nc" id="L39">		super();</span>
+<span class="nc" id="L40">		this.accuracy = accuracy;</span>
+<span class="nc" id="L41">		this.maxIterations = maxIterations;</span>
+<span class="nc" id="L42">		parameterLowerBound = null;</span>
+<span class="nc" id="L43">		parameterUppderBound = null;</span>
+<span class="nc" id="L44">		this.parameterStandardDeviation = parameterStandardDeviation;</span>
+<span class="nc" id="L45">	}</span>
+
+	public OptimizerFactoryCMAES(final double accuracy, final int maxIterations) {
+<span class="fc" id="L48">		super();</span>
+<span class="fc" id="L49">		this.accuracy = accuracy;</span>
+<span class="fc" id="L50">		this.maxIterations = maxIterations;</span>
+<span class="fc" id="L51">		parameterLowerBound = null;</span>
+<span class="fc" id="L52">		parameterUppderBound = null;</span>
+<span class="fc" id="L53">		parameterStandardDeviation = null;</span>
+<span class="fc" id="L54">	}</span>
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
+<span class="nc" id="L58">		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);</span>
+	}
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] targetValues) {
+<span class="nc" id="L63">		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);</span>
+	}
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterStep, final double[] targetValues) {
+<span class="fc" id="L68">		final double[] values = new double[targetValues.length];</span>
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		final double[] effectiveParameterLowerBound			= parameterLowerBound != null ? parameterLowerBound : lowerBound;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">		final double[] effectiveParameterUpperBound			= parameterUppderBound != null ? parameterUppderBound : upperBound;</span>
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">		final double[] effectiveParameterStandardDeviation	= parameterStandardDeviation != null ? parameterStandardDeviation : parameterStep;</span>
+
+		// Throw exception if std dev is non null, but lower bound / upper bound are null.
+<span class="fc" id="L74">		return new Optimizer() {</span>
+
+			private org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer optimizer;
+			private org.apache.commons.math3.optim.PointValuePair result;
+
+			@Override
+			public double[] getBestFitParameters() {
+<span class="fc" id="L81">				return result.getPoint();</span>
+			}
+
+			@Override
+			public double getRootMeanSquaredError() {
+<span class="fc" id="L86">				return result.getValue();</span>
+			}
+
+			@Override
+			public int getIterations() {
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">				return optimizer != null ? optimizer.getIterations() : 0;</span>
+			}
+
+			@Override
+			public void run() {
+<span class="fc" id="L96">				optimizer = new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer(maxIterations, accuracy, true, 0, 0, new MersenneTwister(3141), false, new SimplePointChecker&lt;org.apache.commons.math3.optim.PointValuePair&gt;(0, 0)) {</span>
+					@Override
+					public double computeObjectiveValue(final double[] parameters) {
+						try {
+<span class="fc" id="L100">							objectiveFunction.setValues(parameters, values);</span>
+<span class="nc" id="L101">						} catch (final SolverException e) {</span>
+<span class="nc" id="L102">							return Double.NaN;</span>
+<span class="fc" id="L103">						}</span>
+<span class="fc" id="L104">						double rms = 0;</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">						for(final double value : values) {</span>
+<span class="fc" id="L106">							rms += value*value;</span>
+						}
+<span class="fc" id="L108">						return Math.sqrt(rms);</span>
+					}
+
+					@Override
+					public org.apache.commons.math3.optim.nonlinear.scalar.GoalType getGoalType() {
+<span class="fc" id="L113">						return org.apache.commons.math3.optim.nonlinear.scalar.GoalType.MINIMIZE;</span>
+					}
+
+					@Override
+					public double[] getStartPoint() {
+<span class="fc" id="L118">						return initialParameters;</span>
+					}
+
+					@Override
+					public double[] getLowerBound() {
+<span class="fc" id="L123">						return effectiveParameterLowerBound;</span>
+					}
+
+					@Override
+					public double[] getUpperBound() {
+<span class="fc" id="L128">						return effectiveParameterUpperBound;</span>
+					}
+				};
+
+				try {
+<span class="fc" id="L133">					result = optimizer.optimize(</span>
+<span class="fc" id="L134">							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.PopulationSize((int) (4 + 3 * Math.log(initialParameters.length))),</span>
+							new org.apache.commons.math3.optim.nonlinear.scalar.noderiv.CMAESOptimizer.Sigma(effectiveParameterStandardDeviation)
+							);
+<span class="nc" id="L137">				} catch(final org.apache.commons.math3.exception.MathIllegalStateException e) {</span>
+<span class="nc" id="L138">					new SolverException(e);</span>
+<span class="fc" id="L139">				}</span>
+<span class="fc" id="L140">			}</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

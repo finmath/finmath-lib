@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_ACT_ACT_AFB.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_ACT_ACT_AFB.java</span></div><h1>DayCountConvention_ACT_ACT_AFB.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Month;
+
+/**
+ * Implementation of ACT/ACT AFB.
+ *
+ * Calculates the day count by calculating the actual number of days between startDate and endDate.
+ *
+ * A fractional day is rounded to the approximately nearest day.
+ *
+ * The day count fraction is calculated using ACT_ACT_AFB convention. The algorithm works as follows:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		If the interval from startDate to endDate spans more than a whole year, then
+ * 		the number of whole years is subtracted from the endDate year and added (as an integer) to the day count fraction.
+ * 		Here, subtraction of whole year(s) means:
+ * 		&lt;ul&gt;
+ * 			&lt;li&gt;
+ * 				If the end date is on a February 29th and the resulting day is not in a leap year,
+ * 				it will be set to February 28th of that year (i.e., we preserve &quot;end of month&quot;).
+ * 			&lt;/li&gt;
+ * 			&lt;li&gt;
+ * 				If the end date is on a February 28th of a non-leap year and the resulting day is in a leap year,
+ * 				it will be on February 29th of that year (i.e., we preserve &quot;end of month&quot;).
+ * 			&lt;/li&gt;
+ * 			&lt;li&gt;
+ * 				Otherwise the resulting day has the same day of month and the same month as the end year.
+ * 			&lt;/li&gt;
+ * 		&lt;/ul&gt;
+ * 	&lt;/li&gt;
+ * 	&lt;li&gt;
+ * 		For the remaining interval the actual number of days is divided by a denominator,
+ * 		where the denominator is 366.0 if February 29th is in between start and end and 365.0 otherwise.
+ * 	&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_ACT_ACT_AFB extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = 3362135261620939045L;
+
+	/**
+	 * Create an ACT/ACT FBA daycount convention.
+	 */
+<span class="nc" id="L56">	public DayCountConvention_ACT_ACT_AFB() {</span>
+<span class="nc" id="L57">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L65">			return -getDaycountFraction(endDate,startDate);</span>
+		}
+
+		/*
+		 * Find the &quot;fractionalPeriodEnd&quot;, i.e. subtract whole years from endDate.
+		 */
+<span class="nc" id="L71">		LocalDate fractionalPeriodEnd = endDate.plusYears(startDate.getYear() - endDate.getYear());</span>
+
+		// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year.
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) {</span>
+<span class="nc" id="L75">			fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());</span>
+		}
+
+<span class="nc bnc" id="L78" title="All 2 branches missed.">		if (fractionalPeriodEnd.isBefore(startDate)) {</span>
+<span class="nc" id="L79">			fractionalPeriodEnd.plusYears(1);</span>
+			// preserving 'end-of-month' if endDate is 28/Feb of non-leap-year or 29/Feb of non-leap-year, again after changing the years.
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			if (endDate.getDayOfMonth() == endDate.lengthOfMonth()) {</span>
+<span class="nc" id="L82">				fractionalPeriodEnd = fractionalPeriodEnd.withDayOfMonth(fractionalPeriodEnd.lengthOfMonth());</span>
+			}
+		}
+
+<span class="nc" id="L86">		double daycountFraction = endDate.getYear() - fractionalPeriodEnd.getYear();</span>
+
+<span class="nc" id="L88">		double fractionPeriodDenominator = 365.0;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		if(fractionalPeriodEnd.isLeapYear()) {</span>
+<span class="nc" id="L90">			final LocalDate feb29th = LocalDate.of(fractionalPeriodEnd.getYear(), Month.FEBRUARY, 29);</span>
+<span class="nc bnc" id="L91" title="All 4 branches missed.">			if(startDate.compareTo(feb29th) &lt;= 0 &amp;&amp; fractionalPeriodEnd.compareTo(feb29th) &gt; 0) {</span>
+<span class="nc" id="L92">				fractionPeriodDenominator = 366.0;</span>
+			}
+<span class="nc" id="L94">		}</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		else if(startDate.isLeapYear()) {</span>
+<span class="nc" id="L96">			final LocalDate feb29th = LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29);</span>
+<span class="nc bnc" id="L97" title="All 4 branches missed.">			if(startDate.compareTo(feb29th) &lt;= 0 &amp;&amp; fractionalPeriodEnd.compareTo(feb29th) &gt; 0) {</span>
+<span class="nc" id="L98">				fractionPeriodDenominator = 366.0;</span>
+			}
+		}
+
+<span class="nc" id="L102">		daycountFraction += getDaycount(startDate, fractionalPeriodEnd) / fractionPeriodDenominator;</span>
+
+<span class="nc" id="L104">		return daycountFraction;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L109">		return &quot;DayCountConvention_ACT_ACT_AFB&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

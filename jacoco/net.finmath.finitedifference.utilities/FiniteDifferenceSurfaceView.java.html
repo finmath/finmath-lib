@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceSurfaceView.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.utilities</a> &gt; <span class="el_source">FiniteDifferenceSurfaceView.java</span></div><h1>FiniteDifferenceSurfaceView.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.utilities;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+
+/**
+ * Lightweight view on a finite-difference value surface.
+ *
+ * &lt;p&gt;
+ * The view couples a raw finite-difference value surface with its
+ * {@link SpaceTimeDiscretization}. It provides indexed access, spatial
+ * interpolation, and dependency-free function adapters for plotting.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FiniteDifferenceSurfaceView {
+
+	/**
+	 * The default number of plot points.
+	 */
+	private static final int DEFAULT_NUMBER_OF_PLOT_POINTS = 100;
+
+	/**
+	 * The discretization.
+	 */
+	private final SpaceTimeDiscretization discretization;
+	/**
+	 * The values.
+	 */
+	private final double[][] values;
+	/**
+	 * The layout.
+	 */
+	private final FiniteDifferenceGridLayout layout;
+
+	/**
+	 * Creates a surface view.
+	 *
+	 * @param discretization The space-time discretization.
+	 * @param values The value surface indexed by flattened spatial index and
+	 *     time index.
+	 */
+	public FiniteDifferenceSurfaceView(
+			final SpaceTimeDiscretization discretization,
+<span class="nc" id="L48">			final double[][] values) {</span>
+
+<span class="nc" id="L50">		this.layout = FiniteDifferenceGridLayout.of(discretization);</span>
+<span class="nc" id="L51">		layout.validateSurface(values);</span>
+
+<span class="nc" id="L53">		this.discretization = discretization;</span>
+<span class="nc" id="L54">		this.values = values;</span>
+<span class="nc" id="L55">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param discretization The value.
+	 * @param values The value.
+	 * @return The value.
+	 */
+	public static FiniteDifferenceSurfaceView of(
+			final SpaceTimeDiscretization discretization,
+			final double[][] values) {
+<span class="nc" id="L67">		return new FiniteDifferenceSurfaceView(discretization, values);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param timeIndex The value.
+	 * @param indices The value.
+	 * @return The value.
+	 */
+	public double getValue(final int timeIndex, final int... indices) {
+<span class="nc" id="L78">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L79">		return values[layout.flatten(indices)][timeIndex];</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @param coordinates The value.
+	 * @return The value.
+	 */
+	public double interpolate(final int timeIndex, final double... coordinates) {
+<span class="nc" id="L90">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L91">		return FiniteDifferenceValueInterpolator.interpolateTimeIndex(</span>
+				values,
+				discretization,
+				timeIndex,
+				coordinates
+				);
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param evaluationTime The value.
+	 * @param maturity The value.
+	 * @param coordinates The value.
+	 * @return The value.
+	 */
+	public double interpolate(
+			final double evaluationTime,
+			final double maturity,
+			final double... coordinates) {
+<span class="nc" id="L111">		return FiniteDifferenceValueInterpolator.interpolateSurface(</span>
+				values,
+				discretization,
+				evaluationTime,
+				maturity,
+				coordinates
+				);
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param timeIndex The value.
+	 * @return The value.
+	 */
+	public double[] getTimeSlice(final int timeIndex) {
+<span class="nc" id="L127">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L128">		return FiniteDifferenceValueInterpolator.getTimeSlice(</span>
+				values,
+				discretization,
+				timeIndex
+				);
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @return The value.
+	 */
+	public DoubleUnaryOperator asFunction1D(final int timeIndex) {
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		if (layout.getDimension() != 1) {</span>
+<span class="nc" id="L143">			throw new IllegalArgumentException(&quot;asFunction1D requires a one-dimensional surface.&quot;);</span>
+		}
+
+<span class="nc" id="L146">		validateTimeIndex(timeIndex);</span>
+
+<span class="nc" id="L148">		return x -&gt; interpolate(timeIndex, x);</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @param xDimension The value.
+	 * @param yDimension The value.
+	 * @param fixedCoordinates The value.
+	 * @return The value.
+	 */
+	public DoubleBinaryOperator asFunction2D(
+			final int timeIndex,
+			final int xDimension,
+			final int yDimension,
+			final double... fixedCoordinates) {
+
+<span class="nc" id="L166">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L167">		validatePlotDimensions(xDimension, yDimension);</span>
+
+<span class="nc" id="L169">		final double[] baseCoordinates = createBaseCoordinates(fixedCoordinates);</span>
+
+<span class="nc" id="L171">		return (x, y) -&gt; {</span>
+<span class="nc" id="L172">			final double[] coordinates = baseCoordinates.clone();</span>
+<span class="nc" id="L173">			coordinates[xDimension] = x;</span>
+<span class="nc" id="L174">			coordinates[yDimension] = y;</span>
+<span class="nc" id="L175">			return interpolate(timeIndex, coordinates);</span>
+		};
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @param numberOfPoints The value.
+	 * @param title The value.
+	 * @param xAxisLabel The value.
+	 * @param yAxisLabel The value.
+	 * @return The value.
+	 */
+	public FiniteDifferencePlotData1D asPlotData1D(
+			final int timeIndex,
+			final int numberOfPoints,
+			final String title,
+			final String xAxisLabel,
+			final String yAxisLabel) {
+
+<span class="nc bnc" id="L196" title="All 2 branches missed.">		if (layout.getDimension() != 1) {</span>
+<span class="nc" id="L197">			throw new IllegalArgumentException(&quot;asPlotData1D requires a one-dimensional surface.&quot;);</span>
+		}
+
+<span class="nc" id="L200">		final double[] grid = discretization.getSpaceGrid(0).getGrid();</span>
+
+<span class="nc" id="L202">		return new FiniteDifferencePlotData1D(</span>
+				grid[0],
+				grid[grid.length - 1],
+				numberOfPoints,
+<span class="nc" id="L206">				asFunction1D(timeIndex),</span>
+				title,
+				xAxisLabel,
+				yAxisLabel
+				);
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @return The value.
+	 */
+	public FiniteDifferencePlotData1D asPlotData1D(final int timeIndex) {
+<span class="nc" id="L220">		return asPlotData1D(</span>
+				timeIndex,
+				DEFAULT_NUMBER_OF_PLOT_POINTS,
+				&quot;&quot;,
+				&quot;x&quot;,
+				&quot;value&quot;
+				);
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @param xDimension The value.
+	 * @param yDimension The value.
+	 * @param numberOfPointsX The value.
+	 * @param numberOfPointsY The value.
+	 * @param title The value.
+	 * @param xAxisLabel The value.
+	 * @param yAxisLabel The value.
+	 * @param zAxisLabel The value.
+	 * @param fixedCoordinates The value.
+	 * @return The value.
+	 */
+	public FiniteDifferencePlotData2D asPlotData2D(
+			final int timeIndex,
+			final int xDimension,
+			final int yDimension,
+			final int numberOfPointsX,
+			final int numberOfPointsY,
+			final String title,
+			final String xAxisLabel,
+			final String yAxisLabel,
+			final String zAxisLabel,
+			final double... fixedCoordinates) {
+
+<span class="nc" id="L256">		validateTimeIndex(timeIndex);</span>
+<span class="nc" id="L257">		validatePlotDimensions(xDimension, yDimension);</span>
+
+<span class="nc" id="L259">		final double[] xGrid = discretization.getSpaceGrid(xDimension).getGrid();</span>
+<span class="nc" id="L260">		final double[] yGrid = discretization.getSpaceGrid(yDimension).getGrid();</span>
+
+<span class="nc" id="L262">		return new FiniteDifferencePlotData2D(</span>
+				xGrid[0],
+				xGrid[xGrid.length - 1],
+				yGrid[0],
+				yGrid[yGrid.length - 1],
+				numberOfPointsX,
+				numberOfPointsY,
+<span class="nc" id="L269">				asFunction2D(timeIndex, xDimension, yDimension, fixedCoordinates),</span>
+				title,
+				xAxisLabel,
+				yAxisLabel,
+				zAxisLabel
+				);
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param timeIndex The value.
+	 * @param xDimension The value.
+	 * @param yDimension The value.
+	 * @return The value.
+	 */
+	public FiniteDifferencePlotData2D asPlotData2D(
+			final int timeIndex,
+			final int xDimension,
+			final int yDimension) {
+
+<span class="nc" id="L290">		return asPlotData2D(</span>
+				timeIndex,
+				xDimension,
+				yDimension,
+				DEFAULT_NUMBER_OF_PLOT_POINTS,
+				DEFAULT_NUMBER_OF_PLOT_POINTS,
+				&quot;&quot;,
+				&quot;x&quot;,
+				&quot;y&quot;,
+				&quot;value&quot;
+				);
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public SpaceTimeDiscretization getDiscretization() {
+<span class="nc" id="L309">		return discretization;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double[][] getValues() {
+<span class="nc" id="L318">		return values;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public FiniteDifferenceGridLayout getLayout() {
+<span class="nc" id="L327">		return layout;</span>
+	}
+
+	private double[] createBaseCoordinates(final double... fixedCoordinates) {
+<span class="nc" id="L331">		final double[] baseCoordinates = new double[layout.getDimension()];</span>
+
+<span class="nc bnc" id="L333" title="All 2 branches missed.">		for (int i = 0; i &lt; baseCoordinates.length; i++) {</span>
+<span class="nc" id="L334">			baseCoordinates[i] = discretization.getCenter(i);</span>
+		}
+
+<span class="nc bnc" id="L337" title="All 4 branches missed.">		if (fixedCoordinates != null &amp;&amp; fixedCoordinates.length &gt; 0) {</span>
+<span class="nc bnc" id="L338" title="All 2 branches missed.">			if (fixedCoordinates.length != layout.getDimension()) {</span>
+<span class="nc" id="L339">				throw new IllegalArgumentException(</span>
+						&quot;fixedCoordinates must either be empty or have one entry per spatial dimension.&quot;
+						);
+			}
+
+<span class="nc bnc" id="L344" title="All 2 branches missed.">			for (int i = 0; i &lt; fixedCoordinates.length; i++) {</span>
+<span class="nc" id="L345">				baseCoordinates[i] = fixedCoordinates[i];</span>
+			}
+		}
+
+<span class="nc" id="L349">		return baseCoordinates;</span>
+	}
+
+	private void validatePlotDimensions(final int xDimension, final int yDimension) {
+<span class="nc bnc" id="L353" title="All 2 branches missed.">		if (xDimension == yDimension) {</span>
+<span class="nc" id="L354">			throw new IllegalArgumentException(&quot;xDimension and yDimension must be different.&quot;);</span>
+		}
+<span class="nc bnc" id="L356" title="All 4 branches missed.">		if (xDimension &lt; 0 || xDimension &gt;= layout.getDimension()) {</span>
+<span class="nc" id="L357">			throw new IllegalArgumentException(&quot;xDimension out of range.&quot;);</span>
+		}
+<span class="nc bnc" id="L359" title="All 4 branches missed.">		if (yDimension &lt; 0 || yDimension &gt;= layout.getDimension()) {</span>
+<span class="nc" id="L360">			throw new IllegalArgumentException(&quot;yDimension out of range.&quot;);</span>
+		}
+<span class="nc" id="L362">	}</span>
+
+	private void validateTimeIndex(final int timeIndex) {
+<span class="nc bnc" id="L365" title="All 4 branches missed.">		if (values.length == 0 || values[0].length == 0) {</span>
+<span class="nc" id="L366">			throw new IllegalArgumentException(&quot;The surface contains no time indices.&quot;);</span>
+		}
+<span class="nc bnc" id="L368" title="All 4 branches missed.">		if (timeIndex &lt; 0 || timeIndex &gt;= values[0].length) {</span>
+<span class="nc" id="L369">			throw new IllegalArgumentException(&quot;timeIndex out of range.&quot;);</span>
+		}
+<span class="nc" id="L371">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

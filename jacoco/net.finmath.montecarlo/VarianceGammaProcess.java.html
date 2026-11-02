@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VarianceGammaProcess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">VarianceGammaProcess.java</span></div><h1>VarianceGammaProcess.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo;
+
+import java.io.Serializable;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implementation of a time-discrete n-dimensional Variance Gamma process via Brownian subordination through
+ * a Gamma Process.
+ *
+ * To simulate the Variance Gamma process with paramters \( (\sigma,\theta,\nu) \) we proceed in two steps:
+ * &lt;ul&gt;
+ *   &lt;li&gt;we simulate the path of a GammaProcess with parameters \( \frac{1}{\nu} and \nu \) &lt;/li&gt;
+ *	&lt;li&gt;use the GammaProcess as a subordinator for a Brownian motion with drift &lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * \( \theta \Gamma(t) + \sigma W(\Gamma(t)) \)
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class VarianceGammaProcess implements IndependentIncrements, Serializable{
+
+	private static final long serialVersionUID = -338038617011804530L;
+
+	private final double sigma;
+	private final double nu;
+	private final double theta;
+
+	private final TimeDiscretization	timeDiscretization;
+
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
+	private final int			seed;
+
+	private GammaProcess myGammaProcess;
+	private BrownianMotion myBrownianMotion;
+
+<span class="fc" id="L42">	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+
+	private transient RandomVariable[][]	varianceGammaIncrements;
+
+	public VarianceGammaProcess(final double sigma, final double nu, final double theta,
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors, final int numberOfPaths, final int seed) {
+<span class="fc" id="L49">		super();</span>
+<span class="fc" id="L50">		this.sigma = sigma;</span>
+<span class="fc" id="L51">		this.nu = nu;</span>
+<span class="fc" id="L52">		this.theta = theta;</span>
+<span class="fc" id="L53">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L54">		this.numberOfFactors = numberOfFactors;</span>
+<span class="fc" id="L55">		this.numberOfPaths = numberOfPaths;</span>
+<span class="fc" id="L56">		this.seed = seed;</span>
+
+<span class="fc" id="L58">		varianceGammaIncrements = null;</span>
+<span class="fc" id="L59">	}</span>
+
+	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+		// Thread safe lazy initialization
+<span class="fc" id="L64">		synchronized(this) {</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">			if(varianceGammaIncrements == null) {</span>
+<span class="fc" id="L66">				doGenerateVarianceGammaIncrements();</span>
+			}
+<span class="fc" id="L68">		}</span>
+
+		/*
+		 *  For performance reasons we return directly the stored data (no defensive copy).
+		 *  We return an immutable object to ensure that the receiver does not alter the data.
+		 */
+<span class="fc" id="L74">		return varianceGammaIncrements[timeIndex][factor];</span>
+	}
+
+	/**
+	 *Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
+	 */
+	private void doGenerateVarianceGammaIncrements() {
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">		if(varianceGammaIncrements != null) {</span>
+<span class="nc" id="L82">			return;</span>
+		}
+
+<span class="fc" id="L85">		myGammaProcess =</span>
+				new GammaProcess(timeDiscretization,numberOfFactors,numberOfPaths,seed,1/nu,nu);
+
+<span class="fc" id="L88">		myBrownianMotion =</span>
+				new BrownianMotionFromMersenneRandomNumbers(timeDiscretization,numberOfFactors,numberOfPaths,seed+1);
+
+<span class="fc" id="L91">		varianceGammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];</span>
+
+		/*
+		 * Generate variance gamma distributed independent increments.
+		 *
+		 * Since we already have a Brownian motion and a Gamma process at our disposal,
+		 * we are simply combining them.
+		 */
+<span class="fc bfc" id="L99" title="All 2 branches covered.">		for(int timeIndex = 0; timeIndex &lt; timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+
+			// Generate uncorrelated Gamma distributed increment
+<span class="fc bfc" id="L102" title="All 2 branches covered.">			for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="fc" id="L103">				varianceGammaIncrements[timeIndex][factor] =</span>
+<span class="fc" id="L104">						(myGammaProcess.getIncrement(timeIndex, factor).mult(theta))</span>
+<span class="fc" id="L105">						.add((myGammaProcess.getIncrement(timeIndex, factor)).sqrt()</span>
+<span class="fc" id="L106">								.mult(myBrownianMotion.getBrownianIncrement(timeIndex,factor)</span>
+<span class="fc" id="L107">										.mult(sigma/Math.sqrt(timeDiscretization.getTimeStep(timeIndex)))));</span>
+			}
+		}
+
+<span class="fc" id="L111">	}</span>
+
+	/**
+	 * @return the sigma
+	 */
+	public double getSigma() {
+<span class="fc" id="L117">		return sigma;</span>
+	}
+
+	/**
+	 * @return the nu
+	 */
+	public double getNu() {
+<span class="fc" id="L124">		return nu;</span>
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+<span class="fc" id="L131">		return theta;</span>
+	}
+
+	/**
+	 * @return the Brownian motion
+	 */
+	public BrownianMotion getBrownianMotion(){
+<span class="nc" id="L138">		return myBrownianMotion;</span>
+	}
+
+	/**
+	 * @return the Gamma subordinator
+	 */
+	public GammaProcess getGammaProcess(){
+<span class="nc" id="L145">		return myGammaProcess;</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L150">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="fc" id="L155">		return numberOfFactors;</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="fc" id="L160">		return numberOfPaths;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L165">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L170">		return new VarianceGammaProcess(sigma, nu,theta, timeDiscretization, numberOfFactors, numberOfPaths, seed);</span>
+	}
+
+	@Override
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
+<span class="nc" id="L175">		return new VarianceGammaProcess(sigma, nu, theta, newTimeDiscretization, numberOfFactors, numberOfPaths, seed);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

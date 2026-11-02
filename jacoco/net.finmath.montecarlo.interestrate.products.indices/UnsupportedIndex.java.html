@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UnsupportedIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">UnsupportedIndex.java</span></div><h1>UnsupportedIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 06.12.2009
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.HashSet;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * An index throwing an exception if his &lt;code&gt;getValue&lt;/code&gt; method is called.
+ *
+ * This class can be used to created indices which triggers an exception only upon usage (i.e., late).
+ *
+ * A typical use case is a financial product referencing an index in one of its past payments,
+ * which is not supported by the current model. In that case the product can be valued as of a future
+ * date, but no necessarily as of a past date.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class UnsupportedIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 5375406324063846793L;
+	private final Exception exception;
+
+	/**
+	 * Creates an unsupported index throwing an exception if his &lt;code&gt;getValue&lt;/code&gt; method is called.
+	 *
+	 * @param name The name of the index.
+	 * @param exception The exception to be thrown if this index is valued.
+	 */
+	public UnsupportedIndex(final String name, final Exception exception) {
+<span class="nc" id="L39">		super(name, null);</span>
+<span class="nc" id="L40">		this.exception = exception;</span>
+<span class="nc" id="L41">	}</span>
+
+	/**
+	 * Creates an unsupported index throwing an exception if his &lt;code&gt;getValue&lt;/code&gt; method is called.
+	 *
+	 * @param exception The exception.
+	 */
+	public UnsupportedIndex(final Exception exception) {
+<span class="nc" id="L49">		super();</span>
+<span class="nc" id="L50">		this.exception = exception;</span>
+<span class="nc" id="L51">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L55">		throw new CalculationException(exception);</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		if(getName() == null) {</span>
+<span class="nc" id="L61">			return null;</span>
+		}
+
+<span class="nc" id="L64">		final Set&lt;String&gt; underlying = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L65">		underlying.add(getName());</span>
+<span class="nc" id="L66">		return underlying;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

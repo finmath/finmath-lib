@@ -1,0 +1,1403 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionSurfaceDataInterpolated.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">OptionSurfaceDataInterpolated.java</span></div><h1>OptionSurfaceDataInterpolated.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * An interpolated equity option surface based on irregular option quotes.
+ * &lt;p&gt;
+ * The class extends {@link OptionSurfaceData} by adding finmath-native
+ * interpolation
+ * and quoting-convention conversion. The underlying market data may be supplied
+ * either as individual {@link OptionData} quotes or as {@link OptionSmileData}
+ * objects.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * The surface does not assume a rectangular grid. Different maturities may have
+ * different strike grids and different numbers of option quotes.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * Internally, the market data are represented as nodal points
+ * {@code (maturity, strike, value)}. The sorted representation is ordered by
+ * maturity first and by strike within maturity. The interpolated value at
+ * {@code (T,K)} is obtained by:
+ * &lt;/p&gt;
+ * &lt;ol&gt;
+ *     &lt;li&gt;interpolating each maturity smile in strike at {@code K};&lt;/li&gt;
+ *     &lt;li&gt;interpolating the resulting values in maturity at {@code T}.&lt;/li&gt;
+ * &lt;/ol&gt;
+ * &lt;p&gt;
+ * This class is intentionally responsible only for interpolation and
+ * quoting-convention conversion.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class OptionSurfaceDataInterpolated extends OptionSurfaceData implements VolatilitySurface {
+
+	/**
+	 * The default strike interpolation method.
+	 */
+<span class="nc" id="L52">	private static final InterpolationMethod DEFAULT_STRIKE_INTERPOLATION_METHOD = InterpolationMethod.CUBIC_SPLINE;</span>
+	/**
+	 * The default strike extrapolation method.
+	 */
+<span class="nc" id="L56">	private static final ExtrapolationMethod DEFAULT_STRIKE_EXTRAPOLATION_METHOD = ExtrapolationMethod.CONSTANT;</span>
+	/**
+	 * The default maturity interpolation method.
+	 */
+<span class="nc" id="L60">	private static final InterpolationMethod DEFAULT_MATURITY_INTERPOLATION_METHOD = InterpolationMethod.LINEAR;</span>
+	/**
+	 * The default maturity extrapolation method.
+	 */
+<span class="nc" id="L64">	private static final ExtrapolationMethod DEFAULT_MATURITY_EXTRAPOLATION_METHOD = ExtrapolationMethod.LINEAR;</span>
+
+	/**
+	 * The option quote comparator.
+	 */
+<span class="nc" id="L69">	private static final Comparator&lt;OptionData&gt; OPTION_QUOTE_COMPARATOR =</span>
+<span class="nc" id="L70">			Comparator.comparingDouble(OptionData::getMaturity)</span>
+<span class="nc" id="L71">			.thenComparingDouble(OptionData::getStrike);</span>
+
+	/**
+	 * The option smile comparator.
+	 */
+<span class="nc" id="L76">	private static final Comparator&lt;OptionSmileData&gt; OPTION_SMILE_COMPARATOR =</span>
+<span class="nc" id="L77">			Comparator.comparingDouble(OptionSmileData::getMaturity);</span>
+
+	/**
+	 * The smiles.
+	 */
+	private final OptionSmileData[] smiles;
+	/**
+	 * The node maturities.
+	 */
+	private final double[] nodeMaturities;
+	/**
+	 * The node strikes.
+	 */
+	private final double[] nodeStrikes;
+	/**
+	 * The node values.
+	 */
+	private final double[] nodeValues;
+	/**
+	 * The unique maturities.
+	 */
+	private final double[] uniqueMaturities;
+
+	/**
+	 * The strike interpolation method.
+	 */
+	private final InterpolationMethod strikeInterpolationMethod;
+	/**
+	 * The strike extrapolation method.
+	 */
+	private final ExtrapolationMethod strikeExtrapolationMethod;
+	/**
+	 * The maturity interpolation method.
+	 */
+	private final InterpolationMethod maturityInterpolationMethod;
+	/**
+	 * The maturity extrapolation method.
+	 */
+	private final ExtrapolationMethod maturityExtrapolationMethod;
+
+	/**
+	 * The smile interpolators.
+	 */
+	private final SmileInterpolator[] smileInterpolators;
+
+	/**
+	 * Creates an interpolated surface from individual option quotes.
+	 * &lt;p&gt;
+	 * The input quotes are required to be sorted by maturity and by strike
+	 * within
+	 * each maturity. Use {@link #ofUnsorted(OptionData[], DiscountCurve,
+	 * DiscountCurve)}
+	 * if the input quotes are not sorted.
+	 * &lt;/p&gt;
+	 *
+	 * @param optionQuotes The individual option quotes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 */
+	public OptionSurfaceDataInterpolated(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L141">		this(</span>
+<span class="nc" id="L142">				prepareFromOptionQuotes(optionQuotes, false),</span>
+				discountCurve,
+				equityForwardCurve,
+				DEFAULT_STRIKE_INTERPOLATION_METHOD,
+				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
+				DEFAULT_MATURITY_INTERPOLATION_METHOD,
+				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
+				);
+<span class="nc" id="L150">	}</span>
+
+	/**
+	 * Creates an interpolated surface from individual option quotes.
+	 * &lt;p&gt;
+	 * The input quotes are required to be sorted by maturity and by strike
+	 * within
+	 * each maturity. Use {@link #ofUnsorted(OptionData[], DiscountCurve,
+	 * DiscountCurve, InterpolationMethod, ExtrapolationMethod,
+	 * InterpolationMethod, ExtrapolationMethod)}
+	 * if the input quotes are not sorted.
+	 * &lt;/p&gt;
+	 *
+	 * @param optionQuotes The individual option quotes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 */
+	public OptionSurfaceDataInterpolated(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L184">		this(</span>
+<span class="nc" id="L185">				prepareFromOptionQuotes(optionQuotes, false),</span>
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+<span class="nc" id="L193">	}</span>
+
+	/**
+	 * Creates an interpolated surface from option smiles.
+	 * &lt;p&gt;
+	 * The input smiles are required to be sorted by maturity. The strikes
+	 * inside
+	 * each smile are required to be sorted increasingly and to be unique. Use
+	 * {@link #ofUnsorted(OptionSmileData[], DiscountCurve, DiscountCurve)} if
+	 * the
+	 * input smiles or strikes are not sorted.
+	 * &lt;/p&gt;
+	 *
+	 * @param smiles The option smiles.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 */
+	public OptionSurfaceDataInterpolated(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L215">		this(</span>
+<span class="nc" id="L216">				prepareFromSmiles(smiles, false),</span>
+				discountCurve,
+				equityForwardCurve,
+				DEFAULT_STRIKE_INTERPOLATION_METHOD,
+				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
+				DEFAULT_MATURITY_INTERPOLATION_METHOD,
+				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
+				);
+<span class="nc" id="L224">	}</span>
+
+	/**
+	 * Creates an interpolated surface from option smiles.
+	 * &lt;p&gt;
+	 * The input smiles are required to be sorted by maturity. The strikes
+	 * inside
+	 * each smile are required to be sorted increasingly and to be unique. Use
+	 * {@link #ofUnsorted(OptionSmileData[], DiscountCurve, DiscountCurve,
+	 * InterpolationMethod, ExtrapolationMethod, InterpolationMethod,
+	 * ExtrapolationMethod)}
+	 * if the input smiles or strikes are not sorted.
+	 * &lt;/p&gt;
+	 *
+	 * @param smiles The option smiles.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 */
+	public OptionSurfaceDataInterpolated(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L259">		this(</span>
+<span class="nc" id="L260">				prepareFromSmiles(smiles, false),</span>
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+<span class="nc" id="L268">	}</span>
+
+	/**
+	 * Internal constructor from a prepared, sorted surface.
+	 *
+	 * @param preparedSurface The prepared surface.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 */
+	private OptionSurfaceDataInterpolated(
+			final PreparedSurface preparedSurface,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L294">		super(preparedSurface.smiles, discountCurve, equityForwardCurve);</span>
+
+<span class="nc" id="L296">		this.smiles = preparedSurface.smiles;</span>
+<span class="nc" id="L297">		this.nodeMaturities = preparedSurface.nodeMaturities;</span>
+<span class="nc" id="L298">		this.nodeStrikes = preparedSurface.nodeStrikes;</span>
+<span class="nc" id="L299">		this.nodeValues = preparedSurface.nodeValues;</span>
+<span class="nc" id="L300">		this.uniqueMaturities = preparedSurface.uniqueMaturities;</span>
+
+<span class="nc" id="L302">		this.strikeInterpolationMethod = Objects.requireNonNull(strikeInterpolationMethod, &quot;strikeInterpolationMethod&quot;);</span>
+<span class="nc" id="L303">		this.strikeExtrapolationMethod = Objects.requireNonNull(strikeExtrapolationMethod, &quot;strikeExtrapolationMethod&quot;);</span>
+<span class="nc" id="L304">		this.maturityInterpolationMethod = Objects.requireNonNull(maturityInterpolationMethod, &quot;maturityInterpolationMethod&quot;);</span>
+<span class="nc" id="L305">		this.maturityExtrapolationMethod = Objects.requireNonNull(maturityExtrapolationMethod, &quot;maturityExtrapolationMethod&quot;);</span>
+
+<span class="nc" id="L307">		this.smileInterpolators = buildSmileInterpolators(preparedSurface.smiles);</span>
+<span class="nc" id="L308">	}</span>
+
+	/**
+	 * Creates an interpolated surface from sorted individual option quotes.
+	 *
+	 * @param optionQuotes The individual option quotes, sorted by maturity and
+	 *     strike.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated of(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L324">		return new OptionSurfaceDataInterpolated(optionQuotes, discountCurve, equityForwardCurve);</span>
+	}
+
+	/**
+	 * Creates an interpolated surface from sorted individual option quotes.
+	 *
+	 * @param optionQuotes The individual option quotes, sorted by maturity and
+	 *     strike.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated of(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L353">		return new OptionSurfaceDataInterpolated(</span>
+				optionQuotes,
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+	}
+
+	/**
+	 * Creates an interpolated surface from unsorted individual option quotes.
+	 * &lt;p&gt;
+	 * The input quotes are sorted by maturity and by strike within maturity.
+	 * Duplicate nodes are not allowed.
+	 * &lt;/p&gt;
+	 *
+	 * @param optionQuotes The individual option quotes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated ofUnsorted(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L381">		return new OptionSurfaceDataInterpolated(</span>
+<span class="nc" id="L382">				prepareFromOptionQuotes(optionQuotes, true),</span>
+				discountCurve,
+				equityForwardCurve,
+				DEFAULT_STRIKE_INTERPOLATION_METHOD,
+				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
+				DEFAULT_MATURITY_INTERPOLATION_METHOD,
+				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
+				);
+	}
+
+	/**
+	 * Creates an interpolated surface from unsorted individual option quotes.
+	 * &lt;p&gt;
+	 * The input quotes are sorted by maturity and by strike within maturity.
+	 * Duplicate nodes are not allowed.
+	 * &lt;/p&gt;
+	 *
+	 * @param optionQuotes The individual option quotes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated ofUnsorted(
+			final OptionData[] optionQuotes,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L421">		return new OptionSurfaceDataInterpolated(</span>
+<span class="nc" id="L422">				prepareFromOptionQuotes(optionQuotes, true),</span>
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+	}
+
+	/**
+	 * Creates an interpolated surface from sorted option smiles.
+	 *
+	 * @param smiles The option smiles, sorted by maturity and with sorted
+	 *     strikes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated of(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L446">		return new OptionSurfaceDataInterpolated(smiles, discountCurve, equityForwardCurve);</span>
+	}
+
+	/**
+	 * Creates an interpolated surface from sorted option smiles.
+	 *
+	 * @param smiles The option smiles, sorted by maturity and with sorted
+	 *     strikes.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated of(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L475">		return new OptionSurfaceDataInterpolated(</span>
+				smiles,
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+	}
+
+	/**
+	 * Creates an interpolated surface from unsorted option smiles.
+	 * &lt;p&gt;
+	 * The smiles are sorted by maturity and the strikes inside each smile are
+	 * sorted increasingly. Duplicate maturities or duplicate strikes inside a
+	 * smile are not allowed.
+	 * &lt;/p&gt;
+	 *
+	 * @param smiles The option smiles.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated ofUnsorted(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve) {
+
+<span class="nc" id="L504">		return new OptionSurfaceDataInterpolated(</span>
+<span class="nc" id="L505">				prepareFromSmiles(smiles, true),</span>
+				discountCurve,
+				equityForwardCurve,
+				DEFAULT_STRIKE_INTERPOLATION_METHOD,
+				DEFAULT_STRIKE_EXTRAPOLATION_METHOD,
+				DEFAULT_MATURITY_INTERPOLATION_METHOD,
+				DEFAULT_MATURITY_EXTRAPOLATION_METHOD
+				);
+	}
+
+	/**
+	 * Creates an interpolated surface from unsorted option smiles.
+	 * &lt;p&gt;
+	 * The smiles are sorted by maturity and the strikes inside each smile are
+	 * sorted increasingly. Duplicate maturities or duplicate strikes inside a
+	 * smile are not allowed.
+	 * &lt;/p&gt;
+	 *
+	 * @param smiles The option smiles.
+	 * @param discountCurve The discount curve.
+	 * @param equityForwardCurve The equity forward curve.
+	 * @param strikeInterpolationMethod The interpolation method in strike
+	 *     direction.
+	 * @param strikeExtrapolationMethod The extrapolation method in strike
+	 *     direction.
+	 * @param maturityInterpolationMethod The interpolation method in maturity
+	 *     direction.
+	 * @param maturityExtrapolationMethod The extrapolation method in maturity
+	 *     direction.
+	 * @return The interpolated option surface.
+	 */
+	public static OptionSurfaceDataInterpolated ofUnsorted(
+			final OptionSmileData[] smiles,
+			final DiscountCurve discountCurve,
+			final DiscountCurve equityForwardCurve,
+			final InterpolationMethod strikeInterpolationMethod,
+			final ExtrapolationMethod strikeExtrapolationMethod,
+			final InterpolationMethod maturityInterpolationMethod,
+			final ExtrapolationMethod maturityExtrapolationMethod) {
+
+<span class="nc" id="L545">		return new OptionSurfaceDataInterpolated(</span>
+<span class="nc" id="L546">				prepareFromSmiles(smiles, true),</span>
+				discountCurve,
+				equityForwardCurve,
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+	}
+
+	/**
+	 * Returns the value in the default quoting convention of the surface.
+	 *
+	 * @param maturity The option maturity.
+	 * @param strike The option strike.
+	 * @return The interpolated value.
+	 */
+	@Override
+	public double getValue(final double maturity, final double strike) {
+<span class="nc" id="L565">		return getValue(maturity, strike, getQuotingConvention());</span>
+	}
+
+	/**
+	 * Returns the value in the requested quoting convention.
+	 *
+	 * @param maturity The option maturity.
+	 * @param strike The option strike.
+	 * @param quotingConvention The requested quoting convention.
+	 * @return The interpolated and, if necessary, converted value.
+	 */
+	@Override
+	public double getValue(
+			final double maturity,
+			final double strike,
+			final QuotingConvention quotingConvention) {
+
+<span class="nc" id="L582">		return getValue(null, maturity, strike, quotingConvention);</span>
+	}
+
+	/**
+	 * Returns the value in the requested quoting convention.
+	 * &lt;p&gt;
+	 * The model argument is currently not used, since the discount curve and
+	 * the
+	 * equity forward curve are stored in the surface.
+	 * &lt;/p&gt;
+	 *
+	 * @param model An analytic model.
+	 * @param maturity The option maturity.
+	 * @param strike The option strike.
+	 * @param quotingConvention The requested quoting convention.
+	 * @return The interpolated and, if necessary, converted value.
+	 */
+	@Override
+	public double getValue(
+			final AnalyticModel model,
+			final double maturity,
+			final double strike,
+			final QuotingConvention quotingConvention) {
+
+<span class="nc" id="L606">		final double valueInSurfaceConvention = getInterpolatedValue(maturity, strike);</span>
+
+<span class="nc bnc" id="L608" title="All 2 branches missed.">		if (quotingConvention.equals(getQuotingConvention())) {</span>
+<span class="nc" id="L609">			return valueInSurfaceConvention;</span>
+		}
+
+<span class="nc" id="L612">		return convertFromSurfaceConvention(maturity, strike, valueInSurfaceConvention, quotingConvention);</span>
+	}
+
+	/**
+	 * Returns the interpolated value in the surface's native quoting
+	 * convention.
+	 *
+	 * @param maturity The option maturity.
+	 * @param strike The option strike.
+	 * @return The interpolated value in the surface's native quoting
+	 *     convention.
+	 */
+	public double getInterpolatedValue(final double maturity, final double strike) {
+
+<span class="nc" id="L626">		final double[] valuesAtStrike = new double[uniqueMaturities.length];</span>
+
+<span class="nc bnc" id="L628" title="All 2 branches missed.">		for (int maturityIndex = 0; maturityIndex &lt; uniqueMaturities.length; maturityIndex++) {</span>
+<span class="nc" id="L629">			valuesAtStrike[maturityIndex] = smileInterpolators[maturityIndex].getValue(strike);</span>
+		}
+
+<span class="nc bnc" id="L632" title="All 2 branches missed.">		if (uniqueMaturities.length == 1) {</span>
+<span class="nc" id="L633">			return valuesAtStrike[0];</span>
+		}
+
+<span class="nc" id="L636">		final RationalFunctionInterpolation maturityInterpolator =</span>
+				new RationalFunctionInterpolation(
+						uniqueMaturities,
+						valuesAtStrike,
+						maturityInterpolationMethod,
+						maturityExtrapolationMethod
+						);
+
+<span class="nc" id="L644">		return maturityInterpolator.getValue(maturity);</span>
+	}
+
+	/**
+	 * Creates a clone of this surface with another quoting convention.
+	 * &lt;p&gt;
+	 * The conversion is performed at the original surface nodes. The
+	 * interpolation
+	 * settings are preserved.
+	 * &lt;/p&gt;
+	 *
+	 * @param newQuotingConvention The new quoting convention.
+	 * @return A surface with the requested quoting convention.
+	 */
+	public OptionSurfaceDataInterpolated getCloneForQuotingConvention(final QuotingConvention newQuotingConvention) {
+
+<span class="nc" id="L660">		Objects.requireNonNull(newQuotingConvention, &quot;newQuotingConvention&quot;);</span>
+
+<span class="nc bnc" id="L662" title="All 2 branches missed.">		if (newQuotingConvention.equals(getQuotingConvention())) {</span>
+<span class="nc" id="L663">			return this;</span>
+		}
+
+<span class="nc" id="L666">		final List&lt;OptionSmileData&gt; convertedSmiles = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L668" title="All 2 branches missed.">		for (final OptionSmileData smile : smiles) {</span>
+
+<span class="nc" id="L670">			final double maturity = smile.getMaturity();</span>
+<span class="nc" id="L671">			final double[] strikes = smile.getStrikes().clone();</span>
+<span class="nc" id="L672">			final double[] convertedValues = new double[strikes.length];</span>
+
+<span class="nc bnc" id="L674" title="All 2 branches missed.">			for (int strikeIndex = 0; strikeIndex &lt; strikes.length; strikeIndex++) {</span>
+
+<span class="nc" id="L676">				final double strike = strikes[strikeIndex];</span>
+<span class="nc" id="L677">				final double originalValue = smile.getSmile().get(strike).getValue();</span>
+
+<span class="nc" id="L679">				convertedValues[strikeIndex] =</span>
+<span class="nc" id="L680">						convertFromSurfaceConvention(</span>
+								maturity,
+								strike,
+								originalValue,
+								newQuotingConvention
+								);
+			}
+
+<span class="nc" id="L688">			convertedSmiles.add(</span>
+					new OptionSmileData(
+<span class="nc" id="L690">							smile.getUnderlying(),</span>
+<span class="nc" id="L691">							smile.getReferenceDate(),</span>
+							strikes,
+							maturity,
+							convertedValues,
+							newQuotingConvention
+							)
+					);
+		}
+
+<span class="nc" id="L700">		return new OptionSurfaceDataInterpolated(</span>
+<span class="nc" id="L701">				convertedSmiles.toArray(new OptionSmileData[0]),</span>
+<span class="nc" id="L702">				getDiscountCurve(),</span>
+<span class="nc" id="L703">				getEquityForwardCurve(),</span>
+				strikeInterpolationMethod,
+				strikeExtrapolationMethod,
+				maturityInterpolationMethod,
+				maturityExtrapolationMethod
+				);
+	}
+
+	/**
+	 * Returns the sorted smiles used by this surface.
+	 *
+	 * @return The sorted smiles.
+	 */
+	public OptionSmileData[] getSmiles() {
+<span class="nc" id="L717">		return smiles.clone();</span>
+	}
+
+	/**
+	 * Returns the flattened node maturities.
+	 *
+	 * @return The node maturities.
+	 */
+	public double[] getNodeMaturities() {
+<span class="nc" id="L726">		return nodeMaturities.clone();</span>
+	}
+
+	/**
+	 * Returns the flattened node strikes.
+	 *
+	 * @return The node strikes.
+	 */
+	public double[] getNodeStrikes() {
+<span class="nc" id="L735">		return nodeStrikes.clone();</span>
+	}
+
+	/**
+	 * Returns the flattened node values in the native quoting convention.
+	 *
+	 * @return The node values.
+	 */
+	public double[] getNodeValues() {
+<span class="nc" id="L744">		return nodeValues.clone();</span>
+	}
+
+	/**
+	 * Returns the sorted unique maturities.
+	 *
+	 * @return The sorted unique maturities.
+	 */
+	@Override
+	public double[] getMaturities() {
+<span class="nc" id="L754">		return uniqueMaturities.clone();</span>
+	}
+
+	/**
+	 * Returns the interpolation method in strike direction.
+	 *
+	 * @return The strike interpolation method.
+	 */
+	public InterpolationMethod getStrikeInterpolationMethod() {
+<span class="nc" id="L763">		return strikeInterpolationMethod;</span>
+	}
+
+	/**
+	 * Returns the extrapolation method in strike direction.
+	 *
+	 * @return The strike extrapolation method.
+	 */
+	public ExtrapolationMethod getStrikeExtrapolationMethod() {
+<span class="nc" id="L772">		return strikeExtrapolationMethod;</span>
+	}
+
+	/**
+	 * Returns the interpolation method in maturity direction.
+	 *
+	 * @return The maturity interpolation method.
+	 */
+	public InterpolationMethod getMaturityInterpolationMethod() {
+<span class="nc" id="L781">		return maturityInterpolationMethod;</span>
+	}
+
+	/**
+	 * Returns the extrapolation method in maturity direction.
+	 *
+	 * @return The maturity extrapolation method.
+	 */
+	public ExtrapolationMethod getMaturityExtrapolationMethod() {
+<span class="nc" id="L790">		return maturityExtrapolationMethod;</span>
+	}
+
+	private double convertFromSurfaceConvention(
+			final double maturity,
+			final double strike,
+			final double value,
+			final QuotingConvention targetConvention) {
+
+<span class="nc" id="L799">		final QuotingConvention sourceConvention = getQuotingConvention();</span>
+
+<span class="nc bnc" id="L801" title="All 2 branches missed.">		if (sourceConvention.equals(targetConvention)) {</span>
+<span class="nc" id="L802">			return value;</span>
+		}
+
+<span class="nc" id="L805">		final double forward = getEquityForwardCurve().getValue(maturity);</span>
+<span class="nc" id="L806">		final double discountFactor = getDiscountCurve().getValue(maturity);</span>
+
+<span class="nc bnc" id="L808" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.VOLATILITYLOGNORMAL</span>
+				&amp;&amp; targetConvention == QuotingConvention.PRICE) {
+
+<span class="nc" id="L811">			return AnalyticFormulas.blackScholesGeneralizedOptionValue(</span>
+					forward,
+					value,
+					maturity,
+					strike,
+					discountFactor
+					);
+		}
+
+<span class="nc bnc" id="L820" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.PRICE</span>
+				&amp;&amp; targetConvention == QuotingConvention.VOLATILITYLOGNORMAL) {
+
+<span class="nc" id="L823">			return AnalyticFormulas.blackScholesOptionImpliedVolatility(</span>
+					forward,
+					maturity,
+					strike,
+					discountFactor,
+					value
+					);
+		}
+
+<span class="nc bnc" id="L832" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.VOLATILITYNORMAL</span>
+				&amp;&amp; targetConvention == QuotingConvention.PRICE) {
+
+<span class="nc" id="L835">			return AnalyticFormulas.bachelierOptionValue(</span>
+					forward,
+					value,
+					maturity,
+					strike,
+					discountFactor
+					);
+		}
+
+<span class="nc bnc" id="L844" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.PRICE</span>
+				&amp;&amp; targetConvention == QuotingConvention.VOLATILITYNORMAL) {
+
+<span class="nc" id="L847">			return AnalyticFormulas.bachelierOptionImpliedVolatility(</span>
+					forward,
+					maturity,
+					strike,
+					discountFactor,
+					value
+					);
+		}
+
+<span class="nc bnc" id="L856" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.VOLATILITYLOGNORMAL</span>
+				&amp;&amp; targetConvention == QuotingConvention.VOLATILITYNORMAL) {
+
+<span class="nc" id="L859">			final double price = AnalyticFormulas.blackScholesGeneralizedOptionValue(</span>
+					forward,
+					value,
+					maturity,
+					strike,
+					discountFactor
+					);
+
+<span class="nc" id="L867">			return AnalyticFormulas.bachelierOptionImpliedVolatility(</span>
+					forward,
+					maturity,
+					strike,
+					discountFactor,
+					price
+					);
+		}
+
+<span class="nc bnc" id="L876" title="All 4 branches missed.">		if (sourceConvention == QuotingConvention.VOLATILITYNORMAL</span>
+				&amp;&amp; targetConvention == QuotingConvention.VOLATILITYLOGNORMAL) {
+
+<span class="nc" id="L879">			final double price = AnalyticFormulas.bachelierOptionValue(</span>
+					forward,
+					value,
+					maturity,
+					strike,
+					discountFactor
+					);
+
+<span class="nc" id="L887">			return AnalyticFormulas.blackScholesOptionImpliedVolatility(</span>
+					forward,
+					maturity,
+					strike,
+					discountFactor,
+					price
+					);
+		}
+
+<span class="nc" id="L896">		throw new IllegalArgumentException(</span>
+				&quot;Unsupported quoting convention conversion from &quot;
+						+ sourceConvention + &quot; to &quot; + targetConvention
+				);
+	}
+
+	private SmileInterpolator[] buildSmileInterpolators(final OptionSmileData[] smiles) {
+
+<span class="nc" id="L904">		final SmileInterpolator[] interpolators = new SmileInterpolator[smiles.length];</span>
+
+<span class="nc bnc" id="L906" title="All 2 branches missed.">		for (int maturityIndex = 0; maturityIndex &lt; smiles.length; maturityIndex++) {</span>
+
+<span class="nc" id="L908">			final OptionSmileData smile = smiles[maturityIndex];</span>
+<span class="nc" id="L909">			final double[] strikes = smile.getStrikes().clone();</span>
+<span class="nc" id="L910">			final double[] values = new double[strikes.length];</span>
+
+<span class="nc bnc" id="L912" title="All 2 branches missed.">			for (int strikeIndex = 0; strikeIndex &lt; strikes.length; strikeIndex++) {</span>
+<span class="nc" id="L913">				values[strikeIndex] = smile.getSmile().get(strikes[strikeIndex]).getValue();</span>
+			}
+
+<span class="nc" id="L916">			interpolators[maturityIndex] =</span>
+					new SmileInterpolator(
+							strikes,
+							values,
+							strikeInterpolationMethod,
+							strikeExtrapolationMethod
+							);
+		}
+
+<span class="nc" id="L925">		return interpolators;</span>
+	}
+
+	private static PreparedSurface prepareFromOptionQuotes(
+			final OptionData[] optionQuotes,
+			final boolean sort) {
+
+<span class="nc" id="L932">		checkOptionQuotes(optionQuotes);</span>
+
+<span class="nc" id="L934">		final OptionData[] quotes = optionQuotes.clone();</span>
+
+<span class="nc bnc" id="L936" title="All 2 branches missed.">		if (sort) {</span>
+<span class="nc" id="L937">			Arrays.sort(quotes, OPTION_QUOTE_COMPARATOR);</span>
+		} else {
+<span class="nc" id="L939">			checkOptionQuotesSorted(quotes);</span>
+		}
+
+<span class="nc" id="L942">		checkOptionQuotesConsistencyAndDuplicates(quotes);</span>
+
+<span class="nc" id="L944">		final List&lt;OptionSmileData&gt; smiles = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L946">		int startIndex = 0;</span>
+
+<span class="nc bnc" id="L948" title="All 2 branches missed.">		while (startIndex &lt; quotes.length) {</span>
+
+<span class="nc" id="L950">			final double maturity = quotes[startIndex].getMaturity();</span>
+<span class="nc" id="L951">			int endIndex = startIndex + 1;</span>
+
+<span class="nc bnc" id="L953" title="All 2 branches missed.">			while (endIndex &lt; quotes.length</span>
+<span class="nc bnc" id="L954" title="All 2 branches missed.">					&amp;&amp; Double.compare(quotes[endIndex].getMaturity(), maturity) == 0) {</span>
+<span class="nc" id="L955">				endIndex++;</span>
+			}
+
+<span class="nc" id="L958">			final int numberOfQuotesInSmile = endIndex - startIndex;</span>
+<span class="nc" id="L959">			final double[] strikes = new double[numberOfQuotesInSmile];</span>
+<span class="nc" id="L960">			final double[] values = new double[numberOfQuotesInSmile];</span>
+
+<span class="nc bnc" id="L962" title="All 2 branches missed.">			for (int quoteIndex = startIndex; quoteIndex &lt; endIndex; quoteIndex++) {</span>
+<span class="nc" id="L963">				final int smileIndex = quoteIndex - startIndex;</span>
+<span class="nc" id="L964">				strikes[smileIndex] = quotes[quoteIndex].getStrike();</span>
+<span class="nc" id="L965">				values[smileIndex] = quotes[quoteIndex].getValue();</span>
+			}
+
+<span class="nc" id="L968">			smiles.add(</span>
+					new OptionSmileData(
+<span class="nc" id="L970">							quotes[startIndex].getUnderlying(),</span>
+<span class="nc" id="L971">							quotes[startIndex].getReferenceDate(),</span>
+							strikes,
+							maturity,
+							values,
+<span class="nc" id="L975">							quotes[startIndex].getConvention()</span>
+							)
+					);
+
+<span class="nc" id="L979">			startIndex = endIndex;</span>
+<span class="nc" id="L980">		}</span>
+
+<span class="nc" id="L982">		return prepareFromSmiles(smiles.toArray(new OptionSmileData[0]), false);</span>
+	}
+
+	private static PreparedSurface prepareFromSmiles(
+			final OptionSmileData[] inputSmiles,
+			final boolean sort) {
+
+<span class="nc" id="L989">		checkSmiles(inputSmiles);</span>
+
+<span class="nc" id="L991">		final OptionSmileData[] smiles = inputSmiles.clone();</span>
+
+<span class="nc bnc" id="L993" title="All 2 branches missed.">		if (sort) {</span>
+<span class="nc" id="L994">			Arrays.sort(smiles, OPTION_SMILE_COMPARATOR);</span>
+		} else {
+<span class="nc" id="L996">			checkSmilesSorted(smiles);</span>
+		}
+
+<span class="nc" id="L999">		checkSmilesConsistencyAndDuplicates(smiles);</span>
+
+<span class="nc" id="L1001">		final OptionSmileData[] normalizedSmiles = new OptionSmileData[smiles.length];</span>
+
+<span class="nc bnc" id="L1003" title="All 2 branches missed.">		for (int maturityIndex = 0; maturityIndex &lt; smiles.length; maturityIndex++) {</span>
+<span class="nc" id="L1004">			normalizedSmiles[maturityIndex] = normalizeSmile(smiles[maturityIndex], sort);</span>
+		}
+
+<span class="nc" id="L1007">		checkSmilesConsistencyAndDuplicates(normalizedSmiles);</span>
+
+<span class="nc" id="L1009">		return flatten(normalizedSmiles);</span>
+	}
+
+	private static OptionSmileData normalizeSmile(
+			final OptionSmileData smile,
+			final boolean sort) {
+
+<span class="nc" id="L1016">		final double[] strikes = smile.getStrikes().clone();</span>
+
+<span class="nc bnc" id="L1018" title="All 2 branches missed.">		if (sort) {</span>
+<span class="nc" id="L1019">			Arrays.sort(strikes);</span>
+		} else {
+<span class="nc" id="L1021">			checkStrictlyIncreasing(strikes, &quot;strikes&quot;);</span>
+		}
+
+<span class="nc" id="L1024">		checkStrictlyIncreasing(strikes, &quot;strikes&quot;);</span>
+
+<span class="nc" id="L1026">		final double[] values = new double[strikes.length];</span>
+
+<span class="nc bnc" id="L1028" title="All 2 branches missed.">		for (int strikeIndex = 0; strikeIndex &lt; strikes.length; strikeIndex++) {</span>
+
+<span class="nc" id="L1030">			final OptionData option = smile.getSmile().get(strikes[strikeIndex]);</span>
+
+<span class="nc bnc" id="L1032" title="All 2 branches missed.">			if (option == null) {</span>
+<span class="nc" id="L1033">				throw new IllegalArgumentException(</span>
+<span class="nc" id="L1034">						&quot;Smile for maturity &quot; + smile.getMaturity()</span>
+						+ &quot; does not contain a quote for strike &quot; + strikes[strikeIndex]
+						);
+			}
+
+<span class="nc" id="L1039">			values[strikeIndex] = option.getValue();</span>
+		}
+
+<span class="nc" id="L1042">		return new OptionSmileData(</span>
+<span class="nc" id="L1043">				smile.getUnderlying(),</span>
+<span class="nc" id="L1044">				smile.getReferenceDate(),</span>
+				strikes,
+<span class="nc" id="L1046">				smile.getMaturity(),</span>
+				values,
+<span class="nc" id="L1048">				smile.getSmile().get(strikes[0]).getConvention()</span>
+				);
+	}
+
+	private static PreparedSurface flatten(final OptionSmileData[] smiles) {
+
+<span class="nc" id="L1054">		int numberOfNodes = 0;</span>
+
+<span class="nc bnc" id="L1056" title="All 2 branches missed.">		for (final OptionSmileData smile : smiles) {</span>
+<span class="nc" id="L1057">			numberOfNodes += smile.getStrikes().length;</span>
+		}
+
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">		if (numberOfNodes &lt; 2) {</span>
+<span class="nc" id="L1061">			throw new IllegalArgumentException(&quot;The surface must contain at least two option quotes.&quot;);</span>
+		}
+
+<span class="nc" id="L1064">		final double[] nodeMaturities = new double[numberOfNodes];</span>
+<span class="nc" id="L1065">		final double[] nodeStrikes = new double[numberOfNodes];</span>
+<span class="nc" id="L1066">		final double[] nodeValues = new double[numberOfNodes];</span>
+<span class="nc" id="L1067">		final double[] uniqueMaturities = new double[smiles.length];</span>
+
+<span class="nc" id="L1069">		int nodeIndex = 0;</span>
+
+<span class="nc bnc" id="L1071" title="All 2 branches missed.">		for (int maturityIndex = 0; maturityIndex &lt; smiles.length; maturityIndex++) {</span>
+
+<span class="nc" id="L1073">			final OptionSmileData smile = smiles[maturityIndex];</span>
+<span class="nc" id="L1074">			final double maturity = smile.getMaturity();</span>
+<span class="nc" id="L1075">			final double[] strikes = smile.getStrikes();</span>
+
+<span class="nc" id="L1077">			uniqueMaturities[maturityIndex] = maturity;</span>
+
+<span class="nc bnc" id="L1079" title="All 2 branches missed.">			for (final double strike : strikes) {</span>
+<span class="nc" id="L1080">				nodeMaturities[nodeIndex] = maturity;</span>
+<span class="nc" id="L1081">				nodeStrikes[nodeIndex] = strike;</span>
+<span class="nc" id="L1082">				nodeValues[nodeIndex] = smile.getSmile().get(strike).getValue();</span>
+<span class="nc" id="L1083">				nodeIndex++;</span>
+			}
+		}
+
+<span class="nc" id="L1087">		return new PreparedSurface(</span>
+				smiles,
+				nodeMaturities,
+				nodeStrikes,
+				nodeValues,
+				uniqueMaturities
+				);
+	}
+
+	private static void checkOptionQuotes(final OptionData[] optionQuotes) {
+
+<span class="nc bnc" id="L1098" title="All 4 branches missed.">		if (optionQuotes == null || optionQuotes.length == 0) {</span>
+<span class="nc" id="L1099">			throw new IllegalArgumentException(&quot;The option quote array must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1102" title="All 2 branches missed.">		for (int quoteIndex = 0; quoteIndex &lt; optionQuotes.length; quoteIndex++) {</span>
+
+<span class="nc" id="L1104">			final OptionData quote = optionQuotes[quoteIndex];</span>
+
+<span class="nc bnc" id="L1106" title="All 2 branches missed.">			if (quote == null) {</span>
+<span class="nc" id="L1107">				throw new IllegalArgumentException(&quot;The option quote at index &quot; + quoteIndex + &quot; is null.&quot;);</span>
+			}
+
+<span class="nc" id="L1110">			checkFinite(quote.getMaturity(), &quot;maturity&quot;);</span>
+<span class="nc" id="L1111">			checkFinite(quote.getStrike(), &quot;strike&quot;);</span>
+<span class="nc" id="L1112">			checkFinite(quote.getValue(), &quot;value&quot;);</span>
+
+<span class="nc bnc" id="L1114" title="All 2 branches missed.">			if (quote.getMaturity() &lt; 0.0) {</span>
+<span class="nc" id="L1115">				throw new IllegalArgumentException(&quot;Option maturity must be non-negative.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">			if (quote.getStrike() &lt;= 0.0) {</span>
+<span class="nc" id="L1119">				throw new IllegalArgumentException(&quot;Option strike must be positive.&quot;);</span>
+			}
+		}
+<span class="nc" id="L1122">	}</span>
+
+	private static void checkOptionQuotesSorted(final OptionData[] quotes) {
+
+<span class="nc bnc" id="L1126" title="All 2 branches missed.">		for (int quoteIndex = 1; quoteIndex &lt; quotes.length; quoteIndex++) {</span>
+
+<span class="nc bnc" id="L1128" title="All 2 branches missed.">			if (OPTION_QUOTE_COMPARATOR.compare(quotes[quoteIndex - 1], quotes[quoteIndex]) &gt; 0) {</span>
+<span class="nc" id="L1129">				throw new IllegalArgumentException(</span>
+						&quot;Option quotes must be sorted by maturity and strike. &quot;
+								+ &quot;Use ofUnsorted(...) for unsorted input.&quot;
+						);
+			}
+		}
+<span class="nc" id="L1135">	}</span>
+
+	private static void checkOptionQuotesConsistencyAndDuplicates(final OptionData[] quotes) {
+
+<span class="nc" id="L1139">		final OptionData firstQuote = quotes[0];</span>
+
+<span class="nc bnc" id="L1141" title="All 2 branches missed.">		for (int quoteIndex = 0; quoteIndex &lt; quotes.length; quoteIndex++) {</span>
+
+<span class="nc" id="L1143">			final OptionData quote = quotes[quoteIndex];</span>
+
+<span class="nc bnc" id="L1145" title="All 2 branches missed.">			if (!Objects.equals(quote.getUnderlying(), firstQuote.getUnderlying())) {</span>
+<span class="nc" id="L1146">				throw new IllegalArgumentException(&quot;All option quotes must have the same underlying.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1149" title="All 2 branches missed.">			if (!Objects.equals(quote.getReferenceDate(), firstQuote.getReferenceDate())) {</span>
+<span class="nc" id="L1150">				throw new IllegalArgumentException(&quot;All option quotes must have the same reference date.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1153" title="All 2 branches missed.">			if (!Objects.equals(quote.getConvention(), firstQuote.getConvention())) {</span>
+<span class="nc" id="L1154">				throw new IllegalArgumentException(&quot;All option quotes must have the same quoting convention.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1157" title="All 2 branches missed.">			if (quoteIndex &gt; 0</span>
+<span class="nc bnc" id="L1158" title="All 2 branches missed.">					&amp;&amp; Double.compare(quotes[quoteIndex - 1].getMaturity(), quote.getMaturity()) == 0</span>
+<span class="nc bnc" id="L1159" title="All 2 branches missed.">					&amp;&amp; Double.compare(quotes[quoteIndex - 1].getStrike(), quote.getStrike()) == 0) {</span>
+
+<span class="nc" id="L1161">				throw new IllegalArgumentException(</span>
+						&quot;Duplicate option quote for maturity &quot;
+<span class="nc" id="L1163">								+ quote.getMaturity()</span>
+								+ &quot; and strike &quot;
+<span class="nc" id="L1165">								+ quote.getStrike()</span>
+						);
+			}
+		}
+<span class="nc" id="L1169">	}</span>
+
+	private static void checkSmiles(final OptionSmileData[] smiles) {
+
+<span class="nc bnc" id="L1173" title="All 4 branches missed.">		if (smiles == null || smiles.length == 0) {</span>
+<span class="nc" id="L1174">			throw new IllegalArgumentException(&quot;The option smile array must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1177" title="All 2 branches missed.">		for (int smileIndex = 0; smileIndex &lt; smiles.length; smileIndex++) {</span>
+
+<span class="nc" id="L1179">			final OptionSmileData smile = smiles[smileIndex];</span>
+
+<span class="nc bnc" id="L1181" title="All 2 branches missed.">			if (smile == null) {</span>
+<span class="nc" id="L1182">				throw new IllegalArgumentException(&quot;The option smile at index &quot; + smileIndex + &quot; is null.&quot;);</span>
+			}
+
+<span class="nc" id="L1185">			checkFinite(smile.getMaturity(), &quot;maturity&quot;);</span>
+
+<span class="nc bnc" id="L1187" title="All 2 branches missed.">			if (smile.getMaturity() &lt; 0.0) {</span>
+<span class="nc" id="L1188">				throw new IllegalArgumentException(&quot;Option maturity must be non-negative.&quot;);</span>
+			}
+
+<span class="nc" id="L1191">			final double[] strikes = smile.getStrikes();</span>
+
+<span class="nc bnc" id="L1193" title="All 4 branches missed.">			if (strikes == null || strikes.length == 0) {</span>
+<span class="nc" id="L1194">				throw new IllegalArgumentException(&quot;Each smile must contain at least one strike.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1197" title="All 2 branches missed.">			for (final double strike : strikes) {</span>
+<span class="nc" id="L1198">				checkFinite(strike, &quot;strike&quot;);</span>
+
+<span class="nc bnc" id="L1200" title="All 2 branches missed.">				if (strike &lt;= 0.0) {</span>
+<span class="nc" id="L1201">					throw new IllegalArgumentException(&quot;Option strike must be positive.&quot;);</span>
+				}
+
+<span class="nc" id="L1204">				final OptionData option = smile.getSmile().get(strike);</span>
+
+<span class="nc bnc" id="L1206" title="All 2 branches missed.">				if (option == null) {</span>
+<span class="nc" id="L1207">					throw new IllegalArgumentException(</span>
+<span class="nc" id="L1208">							&quot;Smile for maturity &quot; + smile.getMaturity()</span>
+							+ &quot; does not contain a quote for strike &quot; + strike
+							);
+				}
+
+<span class="nc" id="L1213">				checkFinite(option.getValue(), &quot;value&quot;);</span>
+			}
+		}
+<span class="nc" id="L1216">	}</span>
+
+	private static void checkSmilesSorted(final OptionSmileData[] smiles) {
+
+<span class="nc bnc" id="L1220" title="All 2 branches missed.">		for (int smileIndex = 1; smileIndex &lt; smiles.length; smileIndex++) {</span>
+
+<span class="nc bnc" id="L1222" title="All 2 branches missed.">			if (smiles[smileIndex].getMaturity() &lt; smiles[smileIndex - 1].getMaturity()) {</span>
+<span class="nc" id="L1223">				throw new IllegalArgumentException(</span>
+						&quot;Option smiles must be sorted by maturity. &quot;
+								+ &quot;Use ofUnsorted(...) for unsorted input.&quot;
+						);
+			}
+		}
+
+<span class="nc bnc" id="L1230" title="All 2 branches missed.">		for (final OptionSmileData smile : smiles) {</span>
+<span class="nc" id="L1231">			checkStrictlyIncreasing(smile.getStrikes(), &quot;strikes&quot;);</span>
+		}
+<span class="nc" id="L1233">	}</span>
+
+	private static void checkSmilesConsistencyAndDuplicates(final OptionSmileData[] smiles) {
+
+<span class="nc" id="L1237">		final OptionSmileData firstSmile = smiles[0];</span>
+<span class="nc" id="L1238">		final String underlying = firstSmile.getUnderlying();</span>
+<span class="nc" id="L1239">		final LocalDate referenceDate = firstSmile.getReferenceDate();</span>
+<span class="nc" id="L1240">		final QuotingConvention convention = firstSmile.getSmile().get(firstSmile.getStrikes()[0]).getConvention();</span>
+
+<span class="nc bnc" id="L1242" title="All 2 branches missed.">		for (int smileIndex = 0; smileIndex &lt; smiles.length; smileIndex++) {</span>
+
+<span class="nc" id="L1244">			final OptionSmileData smile = smiles[smileIndex];</span>
+
+<span class="nc bnc" id="L1246" title="All 2 branches missed.">			if (!Objects.equals(smile.getUnderlying(), underlying)) {</span>
+<span class="nc" id="L1247">				throw new IllegalArgumentException(&quot;All smiles must have the same underlying.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1250" title="All 2 branches missed.">			if (!Objects.equals(smile.getReferenceDate(), referenceDate)) {</span>
+<span class="nc" id="L1251">				throw new IllegalArgumentException(&quot;All smiles must have the same reference date.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">			if (smileIndex &gt; 0</span>
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">					&amp;&amp; Double.compare(smiles[smileIndex - 1].getMaturity(), smile.getMaturity()) == 0) {</span>
+
+<span class="nc" id="L1257">				throw new IllegalArgumentException(</span>
+<span class="nc" id="L1258">						&quot;Duplicate option smile for maturity &quot; + smile.getMaturity()</span>
+						);
+			}
+
+<span class="nc" id="L1262">			final double[] strikes = smile.getStrikes();</span>
+
+<span class="nc" id="L1264">			checkStrictlyIncreasing(strikes, &quot;strikes&quot;);</span>
+
+<span class="nc bnc" id="L1266" title="All 2 branches missed.">			for (final double strike : strikes) {</span>
+
+<span class="nc" id="L1268">				final OptionData option = smile.getSmile().get(strike);</span>
+
+<span class="nc bnc" id="L1270" title="All 2 branches missed.">				if (!Objects.equals(option.getConvention(), convention)) {</span>
+<span class="nc" id="L1271">					throw new IllegalArgumentException(&quot;All smiles must have the same quoting convention.&quot;);</span>
+				}
+
+<span class="nc bnc" id="L1274" title="All 2 branches missed.">				if (!Objects.equals(option.getUnderlying(), underlying)) {</span>
+<span class="nc" id="L1275">					throw new IllegalArgumentException(&quot;All option quotes inside smiles must have the same underlying.&quot;);</span>
+				}
+
+<span class="nc bnc" id="L1278" title="All 2 branches missed.">				if (!Objects.equals(option.getReferenceDate(), referenceDate)) {</span>
+<span class="nc" id="L1279">					throw new IllegalArgumentException(&quot;All option quotes inside smiles must have the same reference date.&quot;);</span>
+				}
+
+<span class="nc bnc" id="L1282" title="All 2 branches missed.">				if (Double.compare(option.getMaturity(), smile.getMaturity()) != 0) {</span>
+<span class="nc" id="L1283">					throw new IllegalArgumentException(</span>
+							&quot;Option quote maturity does not match smile maturity.&quot;
+							);
+				}
+			}
+		}
+<span class="nc" id="L1289">	}</span>
+
+	private static void checkStrictlyIncreasing(final double[] points, final String name) {
+
+<span class="nc bnc" id="L1293" title="All 4 branches missed.">		if (points == null || points.length == 0) {</span>
+<span class="nc" id="L1294">			throw new IllegalArgumentException(name + &quot; must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L1297" title="All 2 branches missed.">		for (int index = 1; index &lt; points.length; index++) {</span>
+<span class="nc bnc" id="L1298" title="All 2 branches missed.">			if (points[index] &lt;= points[index - 1]) {</span>
+<span class="nc" id="L1299">				throw new IllegalArgumentException(</span>
+						name + &quot; must be strictly increasing. Received: &quot;
+<span class="nc" id="L1301">								+ Arrays.toString(points)</span>
+						);
+			}
+		}
+<span class="nc" id="L1305">	}</span>
+
+	private static void checkFinite(final double value, final String name) {
+
+<span class="nc bnc" id="L1309" title="All 4 branches missed.">		if (Double.isNaN(value) || Double.isInfinite(value)) {</span>
+<span class="nc" id="L1310">			throw new IllegalArgumentException(name + &quot; must be finite.&quot;);</span>
+		}
+<span class="nc" id="L1312">	}</span>
+
+	private static final class PreparedSurface {
+
+		/**
+		 * The smiles.
+		 */
+		private final OptionSmileData[] smiles;
+		/**
+		 * The node maturities.
+		 */
+		private final double[] nodeMaturities;
+		/**
+		 * The node strikes.
+		 */
+		private final double[] nodeStrikes;
+		/**
+		 * The node values.
+		 */
+		private final double[] nodeValues;
+		/**
+		 * The unique maturities.
+		 */
+		private final double[] uniqueMaturities;
+
+		private PreparedSurface(
+				final OptionSmileData[] smiles,
+				final double[] nodeMaturities,
+				final double[] nodeStrikes,
+				final double[] nodeValues,
+<span class="nc" id="L1342">				final double[] uniqueMaturities) {</span>
+
+<span class="nc" id="L1344">			this.smiles = smiles;</span>
+<span class="nc" id="L1345">			this.nodeMaturities = nodeMaturities;</span>
+<span class="nc" id="L1346">			this.nodeStrikes = nodeStrikes;</span>
+<span class="nc" id="L1347">			this.nodeValues = nodeValues;</span>
+<span class="nc" id="L1348">			this.uniqueMaturities = uniqueMaturities;</span>
+<span class="nc" id="L1349">		}</span>
+	}
+
+	private static final class SmileInterpolator {
+
+		/**
+		 * The strikes.
+		 */
+		private final double[] strikes;
+		/**
+		 * The values.
+		 */
+		private final double[] values;
+		/**
+		 * The interpolation.
+		 */
+		private final RationalFunctionInterpolation interpolation;
+
+		private SmileInterpolator(
+				final double[] strikes,
+				final double[] values,
+				final InterpolationMethod interpolationMethod,
+<span class="nc" id="L1371">				final ExtrapolationMethod extrapolationMethod) {</span>
+
+<span class="nc" id="L1373">			this.strikes = strikes.clone();</span>
+<span class="nc" id="L1374">			this.values = values.clone();</span>
+
+<span class="nc bnc" id="L1376" title="All 2 branches missed.">			if (strikes.length != values.length) {</span>
+<span class="nc" id="L1377">				throw new IllegalArgumentException(&quot;Number of strikes and values must agree.&quot;);</span>
+			}
+
+<span class="nc bnc" id="L1380" title="All 2 branches missed.">			if (strikes.length == 1) {</span>
+<span class="nc" id="L1381">				this.interpolation = null;</span>
+			} else {
+<span class="nc" id="L1383">				this.interpolation =</span>
+						new RationalFunctionInterpolation(
+								this.strikes,
+								this.values,
+								interpolationMethod,
+								extrapolationMethod
+								);
+			}
+<span class="nc" id="L1391">		}</span>
+
+		private double getValue(final double strike) {
+
+<span class="nc bnc" id="L1395" title="All 2 branches missed.">			if (values.length == 1) {</span>
+<span class="nc" id="L1396">				return values[0];</span>
+			}
+
+<span class="nc" id="L1399">			return interpolation.getValue(strike);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

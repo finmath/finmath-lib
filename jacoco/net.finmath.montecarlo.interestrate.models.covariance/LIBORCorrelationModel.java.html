@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCorrelationModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCorrelationModel.java</span></div><h1>LIBORCorrelationModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.io.Serializable;
+import java.util.Map;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.RandomVariableArrayImplementation;
+import net.finmath.time.TimeDiscretization;
+
+
+/**
+ * Abstract base class and interface description of a correlation model
+ * (as it is used in {@link LIBORCovarianceModelFromVolatilityAndCorrelation}).
+ *
+ * Derive from this class and implement the &lt;code&gt;getFactorLoading&lt;/code&gt; method.
+ * You have to call the constructor of this class to set the time
+ * discretizations.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class LIBORCorrelationModel implements Serializable {
+
+	private static final long serialVersionUID = -6780424108470638825L;
+
+	private final TimeDiscretization	timeDiscretization;
+	private final TimeDiscretization	liborPeriodDiscretization;
+
+	public LIBORCorrelationModel(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L37">		this.liborPeriodDiscretization = liborPeriodDiscretization;</span>
+<span class="fc" id="L38">	}</span>
+
+	public abstract RandomVariable[]			getParameter();
+	public abstract LIBORCorrelationModel		getCloneWithModifiedParameter(RandomVariable[] parameter);
+
+	public abstract	double	getFactorLoading(int timeIndex, int factor, int component);
+	public abstract	double	getCorrelation(int timeIndex, int component1, int component2);
+	public abstract int		getNumberOfFactors();
+
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L48">		return (double[])(RandomVariableArrayImplementation.of(getParameter())).toDoubleArray();</span>
+	}
+
+	/**
+	 * @return Returns the liborPeriodDiscretization.
+	 */
+	public TimeDiscretization getLiborPeriodDiscretization() {
+<span class="fc" id="L55">		return liborPeriodDiscretization;</span>
+	}
+
+	/**
+	 * @return Returns the timeDiscretizationFromArray.
+	 */
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L62">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public abstract Object clone();
+
+	/**
+	 * Returns a clone of this model where the specified properties have been modified.
+	 *
+	 * Note that there is no guarantee that a model reacts on a specification of a properties in the
+	 * parameter map &lt;code&gt;dataModified&lt;/code&gt;. If data is provided which is ignored by the model
+	 * no exception may be thrown.
+	 *
+	 * Furthermore the structure of the correlation model has to match changed data.
+	 * A change of the time discretizations may requires a change in the parameters
+	 * but this function will just insert the new time discretization without
+	 * changing the parameters. An exception may not be thrown.
+	 *
+	 * @param dataModified Key-value-map of parameters to modify.
+	 * @return A clone of this model (or a new instance of this model if no parameter was modified).
+	 */
+	public abstract LIBORCorrelationModel getCloneWithModifiedData(Map&lt;String, Object&gt; dataModified);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

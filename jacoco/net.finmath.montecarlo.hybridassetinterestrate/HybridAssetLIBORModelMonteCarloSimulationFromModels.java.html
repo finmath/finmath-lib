@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HybridAssetLIBORModelMonteCarloSimulationFromModels.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.hybridassetinterestrate</a> &gt; <span class="el_source">HybridAssetLIBORModelMonteCarloSimulationFromModels.java</span></div><h1>HybridAssetLIBORModelMonteCarloSimulationFromModels.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 03.04.2015
+ */
+
+package net.finmath.montecarlo.hybridassetinterestrate;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * An Equity Hybrid LIBOR Market Model composed of an object implementing
+ * &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt; providing the interest
+ * rate simulation and the numeraire and an object implementing
+ * &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt; providing the
+ * asset simulation.
+ *
+ * &lt;b&gt;The interest rate model needs to be in spot measure.&lt;/b&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class HybridAssetLIBORModelMonteCarloSimulationFromModels implements HybridAssetLIBORModelMonteCarloSimulation {
+
+	private final LIBORModelMonteCarloSimulationModel	liborSimulation;
+	private final AssetModelMonteCarloSimulationModel	assetSimulation;
+	private final DiscountCurve					discountCurve;
+
+	/**
+	 * Create an Equity Hybrid LIBOR Market Model composed of an object implementing
+	 * &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt; providing the interest
+	 * rate simulation and the numeraire and an object implementing
+	 * &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt; providing the
+	 * asset simulation.
+	 *
+	 * The interest rate model needs to be in spot measure.
+	 *
+	 * @param liborSimulation An object implementing &lt;code&gt;LIBORModelMonteCarloSimulationModel&lt;/code&gt; providing the interest rate simulation and the numeraire.
+	 * @param assetSimulation An object implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt; providing the asset simulation.
+	 * @param discountCurve An optional object implementing &lt;code&gt;DiscountCurveInterface&lt;/code&gt; to adjust the numeraire for a deterministic discounting spread.
+	 */
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels(
+			final LIBORModelMonteCarloSimulationModel liborSimulation,
+			final AssetModelMonteCarloSimulationModel assetSimulation,
+			final DiscountCurve discountCurve) {
+<span class="fc" id="L57">		super();</span>
+<span class="fc" id="L58">		this.liborSimulation = liborSimulation;</span>
+<span class="fc" id="L59">		this.assetSimulation = assetSimulation;</span>
+<span class="fc" id="L60">		this.discountCurve = discountCurve;</span>
+
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		if(!liborSimulation.getTimeDiscretization().equals(assetSimulation.getTimeDiscretization())) {</span>
+<span class="nc" id="L63">			throw new IllegalArgumentException(&quot;The interest rate simulation and the asset simulation need to share the same simulation time discretization.&quot;);</span>
+		}
+<span class="fc" id="L65">	}</span>
+
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels(
+			final LIBORModelMonteCarloSimulationModel liborSimulation,
+			final AssetModelMonteCarloSimulationModel assetSimulation) {
+<span class="fc" id="L70">		this(liborSimulation, assetSimulation, null);</span>
+<span class="fc" id="L71">	}</span>
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L75">		return liborSimulation.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L80">		return liborSimulation.getReferenceDate();</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L85">		return liborSimulation.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L90">		return liborSimulation.getNumberOfFactors();</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L95">		return liborSimulation.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public TimeDiscretization getLiborPeriodDiscretization() {
+<span class="nc" id="L100">		return liborSimulation.getLiborPeriodDiscretization();</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L105">		return liborSimulation.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public int getNumberOfLibors() {
+<span class="nc" id="L110">		return liborSimulation.getNumberOfLibors();</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L115">		return liborSimulation.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public double getLiborPeriod(final int timeIndex) {
+<span class="nc" id="L120">		return liborSimulation.getLiborPeriod(timeIndex);</span>
+	}
+
+	@Override
+	public int getLiborPeriodIndex(final double time) {
+<span class="nc" id="L125">		return liborSimulation.getLiborPeriodIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="nc" id="L130">		return liborSimulation.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getLIBOR(final int timeIndex, final int liborIndex) throws CalculationException {
+<span class="nc" id="L135">		return liborSimulation.getLIBOR(timeIndex, liborIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L140">		return liborSimulation.getMonteCarloWeights(time);</span>
+	}
+
+	@Override
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException {
+<span class="nc" id="L145">		return liborSimulation.getForwardRate(time, periodStart, periodEnd);</span>
+	}
+
+	@Override
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedData( final Map&lt;String, Object&gt; dataModified) {
+<span class="nc" id="L150">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable[] getLIBORs(final int timeIndex) throws CalculationException {
+<span class="nc" id="L155">		return liborSimulation.getLIBORs(timeIndex);</span>
+	}
+
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+
+<span class="fc" id="L162">		RandomVariable numeraire = liborSimulation.getNumeraire(time);</span>
+
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">		if(discountCurve != null) {</span>
+			// This includes a control for zero bonds
+<span class="nc" id="L166">			final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(time);</span>
+<span class="nc" id="L167">			numeraire = numeraire.mult(deterministicNumeraireAdjustment);</span>
+		}
+
+<span class="fc" id="L170">		return numeraire;</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+<span class="nc" id="L175">		return getNumeraire(getTime(timeIndex));</span>
+	}
+
+
+	@Override
+	public BrownianMotion getBrownianMotion() {
+<span class="nc" id="L181">		return liborSimulation.getBrownianMotion();</span>
+	}
+
+	@Override
+	public TermStructureModel getModel() {
+<span class="nc" id="L186">		return liborSimulation.getModel();</span>
+	}
+
+	@Override
+	public MonteCarloProcess getProcess() {
+<span class="nc" id="L191">		return liborSimulation.getProcess();</span>
+	}
+
+	/**
+	 * @deprecated
+	 * @see net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel#getCloneWithModifiedSeed(int)
+	 */
+	@Override
+	@Deprecated
+	public HybridAssetLIBORModelMonteCarloSimulationFromModels getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L201">		return null;</span>
+	}
+
+	@Override
+	public int getNumberOfAssets() {
+<span class="nc" id="L206">		return assetSimulation.getNumberOfAssets();</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
+<span class="fc" id="L211">		final RandomVariable asset = assetSimulation.getAssetValue(timeIndex, assetIndex);</span>
+<span class="fc" id="L212">		final RandomVariable changeOfMeasure = liborSimulation.getNumeraire(timeIndex).div(assetSimulation.getNumeraire(timeIndex));</span>
+<span class="fc" id="L213">		return asset.mult(changeOfMeasure);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
+<span class="fc" id="L218">		int timeIndex = getTimeIndex(time);</span>
+
+		// We round to the previous stock vaue (may generate loss of volatility and inconsistent forwards).
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L222">			timeIndex = -timeIndex-2;</span>
+		}
+
+<span class="fc" id="L225">		return getAssetValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public Map&lt;String, RandomVariable&gt; getModelParameters() {
+		// TODO Add implementation
+<span class="nc" id="L231">		throw new UnsupportedOperationException();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

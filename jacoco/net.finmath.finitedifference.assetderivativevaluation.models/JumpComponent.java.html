@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JumpComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">JumpComponent.java</span></div><h1>JumpComponent.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import java.io.Serializable;
+
+/**
+ * Describes the jump part of the infinitesimal generator used by a finite-
+ * difference
+ * equity model.
+ *
+ * &lt;p&gt;
+ * This interface is intentionally narrow: it does not attempt to expose a fully
+ * generic non-local operator, but only the ingredients needed to assemble the
+ * jump
+ * term in the pricing PIDE.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The current convention is that jumps act on one selected state variable
+ * through a
+ * log-relative jump size {@code y}. In the standard stock-coordinate case, this
+ * means
+ * the affected state variable {@code x} is mapped to {@code x * exp(y)}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For an affected state variable {@code x}, the jump contribution is
+ * interpreted as
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * integral [ u(..., x exp(y), ...) - u(..., x, ...)
+ *          - x (exp(y) - 1) partial_x u(..., x, ...) ] nu(dy),
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where the compensation term is part of the integral definition.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This interface therefore complements, but does not modify, the meaning of
+ * {@link FiniteDifferenceEquityModel#getDrift(double, double...)}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public interface JumpComponent extends Serializable {
+
+	/**
+	 * Returns the index of the state variable affected by the jump operator.
+	 *
+	 * &lt;p&gt;
+	 * The default is {@code 0}, corresponding to the first PDE state variable.
+	 * &lt;/p&gt;
+	 *
+	 * @return The index of the affected state variable.
+	 */
+	default int getStateVariableIndex() {
+<span class="nc" id="L58">		return 0;</span>
+	}
+
+	/**
+	 * Returns the lower integration bound for the jump variable.
+	 *
+	 * &lt;p&gt;
+	 * The jump variable is interpreted as a log-relative jump size {@code y}.
+	 * For infinite-support models this bound will typically be a numerical
+	 * truncation
+	 * chosen by the implementation.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The evaluation time.
+	 * @param stateVariables The current PDE state variables.
+	 * @return The lower integration bound.
+	 */
+	double getLowerIntegrationBound(double time, double... stateVariables);
+
+	/**
+	 * Returns the upper integration bound for the jump variable.
+	 *
+	 * &lt;p&gt;
+	 * The jump variable is interpreted as a log-relative jump size {@code y}.
+	 * For infinite-support models this bound will typically be a numerical
+	 * truncation
+	 * chosen by the implementation.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The evaluation time.
+	 * @param stateVariables The current PDE state variables.
+	 * @return The upper integration bound.
+	 */
+	double getUpperIntegrationBound(double time, double... stateVariables);
+
+	/**
+	 * Returns the Levy density evaluated at the given jump size.
+	 *
+	 * &lt;p&gt;
+	 * The argument {@code jumpSize} is interpreted as the log-relative jump
+	 * {@code y}. In the standard stock-coordinate convention, the affected
+	 * state
+	 * variable {@code x} jumps to {@code x * exp(y)}.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The evaluation time.
+	 * @param jumpSize The log-relative jump size.
+	 * @param stateVariables The current PDE state variables.
+	 * @return The Levy density {@code nu(y)}.
+	 */
+	double getLevyDensity(double time, double jumpSize, double... stateVariables);
+
+	/**
+	 * Returns whether the jump density depends explicitly on the current state.
+	 *
+	 * &lt;p&gt;
+	 * Bates and Variance Gamma in their standard forms are typically state-
+	 * independent
+	 * in the jump part, so the default is {@code false}.
+	 * &lt;/p&gt;
+	 *
+	 * @return {@code true} if the jump density depends on the current state
+	 *     variables.
+	 */
+	default boolean isStateDependent() {
+<span class="nc" id="L123">		return false;</span>
+	}
+
+	/**
+	 * Returns whether the jump component has finite activity.
+	 *
+	 * &lt;p&gt;
+	 * This is metadata only and may be useful for later numerical choices.
+	 * &lt;/p&gt;
+	 *
+	 * @return {@code true} if the jump measure has finite total mass.
+	 */
+	default boolean isFiniteActivity() {
+<span class="nc" id="L136">		return false;</span>
+	}
+
+	/**
+	 * Returns whether the jump component has finite variation.
+	 *
+	 * &lt;p&gt;
+	 * This is metadata only and may be useful for later numerical choices.
+	 * &lt;/p&gt;
+	 *
+	 * @return {@code true} if the jump part has finite variation.
+	 */
+	default boolean isFiniteVariation() {
+<span class="nc" id="L149">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

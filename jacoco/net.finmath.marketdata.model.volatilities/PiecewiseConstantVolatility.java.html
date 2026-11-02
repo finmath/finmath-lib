@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PiecewiseConstantVolatility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">PiecewiseConstantVolatility.java</span></div><h1>PiecewiseConstantVolatility.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.util.Arrays;
+import java.util.Objects;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Piecewise constant local volatility function.
+ *
+ * &lt;p&gt;
+ * The volatility is a deterministic function of running time only. It does not
+ * depend on the asset value. Hence it represents a time-dependent
+ * Black-Scholes-type volatility as a {@link LocalVolatility}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The time discretization represents running times {@code t}, not time to
+ * maturity. The convention is:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *     &lt;li&gt;{@code volatilities[i]} applies from
+ *     {@code timeDiscretization.getTime(i)} inclusive to
+ *     {@code timeDiscretization.getTime(i+1)} exclusive;&lt;/li&gt;
+ *     &lt;li&gt;the last volatility applies from the last discretization time
+ *     onward;&lt;/li&gt;
+ * &lt;li&gt;before the first discretization time, the first volatility is used.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The number of volatility values must equal
+ * {@code timeDiscretization.getNumberOfTimes()}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class PiecewiseConstantVolatility implements LocalVolatility {
+
+	/**
+	 * The time discretization.
+	 */
+	private final TimeDiscretization timeDiscretization;
+	/**
+	 * The volatilities.
+	 */
+	private final double[] volatilities;
+
+	/**
+	 * Creates a piecewise constant volatility from a time discretization and an
+	 * array of volatility values.
+	 *
+	 * @param timeDiscretization The running-time discretization at which the
+	 *        volatility values become active.
+	 * @param volatilities The volatility values.
+	 */
+	public PiecewiseConstantVolatility(
+			final TimeDiscretization timeDiscretization,
+<span class="nc" id="L58">			final double[] volatilities) {</span>
+
+<span class="nc" id="L60">		this.timeDiscretization = Objects.requireNonNull(</span>
+				timeDiscretization,
+				&quot;timeDiscretization&quot;
+				);
+
+<span class="nc bnc" id="L65" title="All 4 branches missed.">		if (volatilities == null || volatilities.length == 0) {</span>
+<span class="nc" id="L66">			throw new IllegalArgumentException(&quot;The volatility array must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (volatilities.length != timeDiscretization.getNumberOfTimes()) {</span>
+<span class="nc" id="L70">			throw new IllegalArgumentException(</span>
+					&quot;The number of volatility values must equal the number of &quot;
+							+ &quot;time discretization points. Received &quot;
+							+ volatilities.length
+							+ &quot; volatility values and &quot;
+<span class="nc" id="L75">							+ timeDiscretization.getNumberOfTimes()</span>
+							+ &quot; time points.&quot;
+					);
+		}
+
+<span class="nc" id="L80">		this.volatilities = volatilities.clone();</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		for (final double volatility : this.volatilities) {</span>
+<span class="nc" id="L83">			checkVolatility(volatility);</span>
+		}
+<span class="nc" id="L85">	}</span>
+
+	/**
+	 * Returns the local volatility {@code sigma(t,S)}.
+	 *
+	 * &lt;p&gt;
+	 * Since this implementation is piecewise constant in time and independent
+	 * of
+	 * the asset value, the argument {@code assetValue} is ignored.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The running time.
+	 * @param assetValue The asset value.
+	 * @return The piecewise constant volatility at the given time.
+	 */
+	@Override
+	public double getValue(final double time, final double assetValue) {
+
+<span class="nc bnc" id="L103" title="All 4 branches missed.">		if (Double.isNaN(time) || Double.isInfinite(time)) {</span>
+<span class="nc" id="L104">			throw new IllegalArgumentException(&quot;The time must be finite.&quot;);</span>
+		}
+
+<span class="nc" id="L107">		int timeIndex = timeDiscretization.getTimeIndexNearestLessOrEqual(time);</span>
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L110">			timeIndex = 0;</span>
+		}
+
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (timeIndex &gt;= volatilities.length) {</span>
+<span class="nc" id="L114">			timeIndex = volatilities.length - 1;</span>
+		}
+
+<span class="nc" id="L117">		return volatilities[timeIndex];</span>
+	}
+
+	/**
+	 * Returns the volatility value associated with a time index.
+	 *
+	 * @param timeIndex The time index.
+	 * @return The volatility value.
+	 */
+	public double getVolatility(final int timeIndex) {
+
+<span class="nc bnc" id="L128" title="All 4 branches missed.">		if (timeIndex &lt; 0 || timeIndex &gt;= volatilities.length) {</span>
+<span class="nc" id="L129">			throw new IllegalArgumentException(</span>
+					&quot;Time index out of bounds: &quot; + timeIndex
+					);
+		}
+
+<span class="nc" id="L134">		return volatilities[timeIndex];</span>
+	}
+
+	/**
+	 * Returns the volatility value active at the given running time.
+	 *
+	 * @param time The running time.
+	 * @return The volatility value.
+	 */
+	public double getVolatility(final double time) {
+<span class="nc" id="L144">		return getValue(time, 0.0);</span>
+	}
+
+	/**
+	 * Returns the running-time discretization.
+	 *
+	 * @return The running-time discretization.
+	 */
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L153">		return timeDiscretization;</span>
+	}
+
+	/**
+	 * Returns a defensive copy of the volatility array.
+	 *
+	 * @return The volatility array.
+	 */
+	public double[] getVolatilities() {
+<span class="nc" id="L162">		return volatilities.clone();</span>
+	}
+
+	/**
+	 * Returns the number of volatility values.
+	 *
+	 * @return The number of volatility values.
+	 */
+	public int getNumberOfVolatilities() {
+<span class="nc" id="L171">		return volatilities.length;</span>
+	}
+
+	/**
+	 * Creates a clone with modified volatility values and the same time
+	 * discretization.
+	 *
+	 * @param newVolatilities The new volatility values.
+	 * @return The modified volatility function.
+	 */
+	public PiecewiseConstantVolatility getCloneForModifiedVolatilities(
+			final double[] newVolatilities) {
+
+<span class="nc" id="L184">		return new PiecewiseConstantVolatility(</span>
+				timeDiscretization,
+				newVolatilities
+				);
+	}
+
+	/**
+	 * Creates a clone with a modified time discretization and the same
+	 * volatility
+	 * values.
+	 *
+	 * @param newTimeDiscretization The new time discretization.
+	 * @return The modified volatility function.
+	 */
+	public PiecewiseConstantVolatility getCloneForModifiedTimeDiscretization(
+			final TimeDiscretization newTimeDiscretization) {
+
+<span class="nc" id="L201">		return new PiecewiseConstantVolatility(</span>
+				newTimeDiscretization,
+				volatilities
+				);
+	}
+
+	private static void checkVolatility(final double volatility) {
+
+<span class="nc bnc" id="L209" title="All 4 branches missed.">		if (Double.isNaN(volatility) || Double.isInfinite(volatility)) {</span>
+<span class="nc" id="L210">			throw new IllegalArgumentException(&quot;Volatility must be finite.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		if (volatility &lt; 0.0) {</span>
+<span class="nc" id="L214">			throw new IllegalArgumentException(&quot;Volatility must be non-negative.&quot;);</span>
+		}
+<span class="nc" id="L216">	}</span>
+
+	@Override
+	public String toString() {
+<span class="nc" id="L220">		return &quot;PiecewiseConstantVolatility [timeDiscretization=&quot;</span>
+				+ timeDiscretization
+				+ &quot;, volatilities=&quot;
+<span class="nc" id="L223">				+ Arrays.toString(volatilities)</span>
+				+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

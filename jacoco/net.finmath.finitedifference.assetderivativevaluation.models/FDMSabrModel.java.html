@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMSabrModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMSabrModel.java</span></div><h1>FDMSabrModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite difference model for option pricing under the SABR stochastic
+ * volatility model.
+ *
+ * &lt;p&gt;
+ * The state variables are {@code (S, alpha)} where
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@code S} is the spot,&lt;/li&gt;
+ *   &lt;li&gt;{@code alpha} is the stochastic volatility factor.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Under the risk-neutral dynamics with dividend yield, the model is given by
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ *   dS = (r - q) S dt + alpha S^beta dW_1
+ *   d alpha = nu alpha ( rho dW_1 + sqrt(1-rho^2) dW_2 ).
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * The methods {@link #getDrift(double, double...)} and
+ * {@link #getFactorLoading(double, double...)} follow the conventions used in
+ * {@link FiniteDifferenceEquityModel}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Although one may formulate the PDE in transformed coordinates such as
+ * {@code log(S)}, this class deliberately works in the variables {@code (S,
+ * alpha)}
+ * so that payoff functions can continue to use the spot directly.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Boundary conditions are delegated through {@link FDBoundaryFactory}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMSabrModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial spot.
+	 */
+	private final double initialSpot;
+	/**
+	 * The initial alpha.
+	 */
+	private final double initialAlpha;
+
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+
+	// SABR parameters (risk-neutral)
+	/**
+	 * The beta.
+	 */
+	private final double beta;
+	/**
+	 * The nu.
+	 */
+	private final double nu;
+	/**
+	 * The rho.
+	 */
+	private final double rho;
+
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Constructs a SABR finite difference model from discount curves.
+	 *
+	 * @param initialSpot Initial spot price.
+	 * @param initialAlpha Initial volatility factor.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param dividendYieldCurve Dividend yield discount curve.
+	 * @param beta SABR elasticity parameter.
+	 * @param nu SABR volatility-of-volatility parameter.
+	 * @param rho Correlation between spot and volatility Brownian motions.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMSabrModel(
+			final double initialSpot,
+			final double initialAlpha,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double beta,
+			final double nu,
+			final double rho,
+<span class="nc" id="L112">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L114">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L115">		this.initialAlpha = initialAlpha;</span>
+<span class="nc" id="L116">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L117">		this.dividendYieldCurve = dividendYieldCurve;</span>
+
+<span class="nc" id="L119">		this.beta = beta;</span>
+<span class="nc" id="L120">		this.nu = nu;</span>
+<span class="nc" id="L121">		this.rho = rho;</span>
+
+<span class="nc" id="L123">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L124">	}</span>
+
+	/**
+	 * Constructs a SABR finite difference model with zero dividend yield.
+	 *
+	 * @param initialSpot Initial spot price.
+	 * @param initialAlpha Initial volatility factor.
+	 * @param riskFreeCurve Risk-free discount curve.
+	 * @param beta SABR elasticity parameter.
+	 * @param nu SABR volatility-of-volatility parameter.
+	 * @param rho Correlation between spot and volatility Brownian motions.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMSabrModel(
+			final double initialSpot,
+			final double initialAlpha,
+			final DiscountCurve riskFreeCurve,
+			final double beta,
+			final double nu,
+			final double rho,
+<span class="nc" id="L144">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L146">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L147">		this.initialAlpha = initialAlpha;</span>
+<span class="nc" id="L148">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="nc" id="L150">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L151">		final double[] givenAnnualizedZeroRates = new double[] {0.0, 0.0};</span>
+<span class="nc" id="L152">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L153">		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;</span>
+<span class="nc" id="L154">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L156">		this.dividendYieldCurve =</span>
+<span class="nc" id="L157">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L166">		this.beta = beta;</span>
+<span class="nc" id="L167">		this.nu = nu;</span>
+<span class="nc" id="L168">		this.rho = rho;</span>
+
+<span class="nc" id="L170">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L171">	}</span>
+
+	/**
+	 * Constructs a SABR finite difference model from constant rates.
+	 *
+	 * @param initialSpot Initial spot price.
+	 * @param initialAlpha Initial volatility factor.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param dividendYieldRate Constant dividend yield rate.
+	 * @param beta SABR elasticity parameter.
+	 * @param nu SABR volatility-of-volatility parameter.
+	 * @param rho Correlation between spot and volatility Brownian motions.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMSabrModel(
+			final double initialSpot,
+			final double initialAlpha,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double beta,
+			final double nu,
+			final double rho,
+<span class="nc" id="L193">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L195">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L196">		this.initialAlpha = initialAlpha;</span>
+
+<span class="nc" id="L198">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L199">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L200">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L201">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L203">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="nc" id="L204">		this.riskFreeCurve =</span>
+<span class="nc" id="L205">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;riskFreeCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L214">		final double[] givenAnnualizedZeroRates1 = new double[] {dividendYieldRate, dividendYieldRate};</span>
+<span class="nc" id="L215">		this.dividendYieldCurve =</span>
+<span class="nc" id="L216">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates1,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L225">		this.beta = beta;</span>
+<span class="nc" id="L226">		this.nu = nu;</span>
+<span class="nc" id="L227">		this.rho = rho;</span>
+
+<span class="nc" id="L229">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L230">	}</span>
+
+	/**
+	 * Constructs a SABR finite difference model from a constant risk-free rate
+	 * and zero dividend yield.
+	 *
+	 * @param initialSpot Initial spot price.
+	 * @param initialAlpha Initial volatility factor.
+	 * @param riskFreeRate Constant risk-free rate.
+	 * @param beta SABR elasticity parameter.
+	 * @param nu SABR volatility-of-volatility parameter.
+	 * @param rho Correlation between spot and volatility Brownian motions.
+	 * @param spaceTimeDiscretization Space-time discretization.
+	 */
+	public FDMSabrModel(
+			final double initialSpot,
+			final double initialAlpha,
+			final double riskFreeRate,
+			final double beta,
+			final double nu,
+			final double rho,
+<span class="nc" id="L251">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L253">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L254">		this.initialAlpha = initialAlpha;</span>
+
+<span class="nc" id="L256">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L257">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L258">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L259">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L261">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="nc" id="L262">		this.riskFreeCurve =</span>
+<span class="nc" id="L263">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;riskFreeCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L272">		final double[] givenAnnualizedZeroRates1 = new double[] {0.0, 0.0};</span>
+<span class="nc" id="L273">		this.dividendYieldCurve =</span>
+<span class="nc" id="L274">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates1,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L283">		this.beta = beta;</span>
+<span class="nc" id="L284">		this.nu = nu;</span>
+<span class="nc" id="L285">		this.rho = rho;</span>
+
+<span class="nc" id="L287">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L288">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="nc" id="L292">		return riskFreeCurve;</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="nc" id="L297">		return dividendYieldCurve;</span>
+	}
+
+	/**
+	 * Returns the initial value of the state vector {@code (S, alpha)}.
+	 *
+	 * @return The initial state vector.
+	 */
+	@Override
+	public double[] getInitialValue() {
+<span class="nc" id="L307">		return new double[] {initialSpot, initialAlpha};</span>
+	}
+
+	/**
+	 * Returns the initial spot.
+	 *
+	 * @return The initial spot.
+	 */
+	public double getInitialSpot() {
+<span class="nc" id="L316">		return initialSpot;</span>
+	}
+
+	/**
+	 * Returns the initial volatility factor.
+	 *
+	 * @return The initial volatility factor.
+	 */
+	public double getInitialAlpha() {
+<span class="nc" id="L325">		return initialAlpha;</span>
+	}
+
+	/**
+	 * Returns the SABR elasticity parameter.
+	 *
+	 * @return The parameter {@code beta}.
+	 */
+	public double getBeta() {
+<span class="nc" id="L334">		return beta;</span>
+	}
+
+	/**
+	 * Returns the SABR volatility-of-volatility parameter.
+	 *
+	 * @return The parameter {@code nu}.
+	 */
+	public double getNu() {
+<span class="nc" id="L343">		return nu;</span>
+	}
+
+	/**
+	 * Returns the correlation between spot and volatility Brownian motions.
+	 *
+	 * @return The parameter {@code rho}.
+	 */
+	public double getRho() {
+<span class="nc" id="L352">		return rho;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="nc" id="L357">		return spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+		// stateVariables[0] = S, stateVariables[1] = alpha
+<span class="nc bnc" id="L363" title="All 2 branches missed.">		final double s = stateVariables.length &gt; 0 ? stateVariables[0] : initialSpot;</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">		final double alpha = stateVariables.length &gt; 1 ? Math.max(0.0, stateVariables[1]) : initialAlpha;</span>
+
+<span class="nc" id="L366">		double t = time;</span>
+<span class="nc bnc" id="L367" title="All 2 branches missed.">		if (t == 0.0) {</span>
+<span class="nc" id="L368">			t = 0.000001;</span>
+		}
+
+<span class="nc" id="L371">		final double riskFreeDiscountFactor = getRiskFreeCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L372">		final double r = -Math.log(riskFreeDiscountFactor) / t;</span>
+
+<span class="nc" id="L374">		final double dividendDiscountFactor = getDividendYieldCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L375">		final double q = -Math.log(dividendDiscountFactor) / t;</span>
+
+<span class="nc" id="L377">		final double muS = (r - q) * s;</span>
+<span class="nc" id="L378">		final double muAlpha = 0.0;</span>
+
+<span class="nc" id="L380">		return new double[] {muS, muAlpha};</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+		// Factors are independent. Correlation rho is embedded in the second
+		// row.
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		final double s = stateVariables.length &gt; 0 ? Math.max(0.0, stateVariables[0]) : initialSpot;</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">		final double alpha = stateVariables.length &gt; 1 ? Math.max(0.0, stateVariables[1]) : initialAlpha;</span>
+
+<span class="nc" id="L390">		final double sToBeta = Math.pow(s, beta);</span>
+<span class="nc" id="L391">		final double sqrtOneMinusRho2 = Math.sqrt(Math.max(0.0, 1.0 - rho * rho));</span>
+
+<span class="nc" id="L393">		final double[][] b = new double[2][2];</span>
+
+		// dS = ... + alpha * S^beta dW1
+<span class="nc" id="L396">		b[0][0] = alpha * sToBeta;</span>
+<span class="nc" id="L397">		b[0][1] = 0.0;</span>
+
+		// d alpha = ... + nu alpha ( rho dW1 + sqrt(1-rho^2) dW2 )
+<span class="nc" id="L400">		b[1][0] = nu * alpha * rho;</span>
+<span class="nc" id="L401">		b[1][1] = nu * alpha * sqrtOneMinusRho2;</span>
+
+<span class="nc" id="L403">		return b;</span>
+	}
+
+	/**
+	 * Convenience method returning the covariance matrix {@code a = B B^T},
+	 * derived from {@link #getFactorLoading(double, double...)}.
+	 *
+	 * @param time Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return The covariance matrix.
+	 */
+	public double[][] getCovariance(final double time, final double... stateVariables) {
+<span class="nc" id="L415">		final double[][] b = getFactorLoading(time, stateVariables);</span>
+
+<span class="nc" id="L417">		final double a00 = b[0][0] * b[0][0] + b[0][1] * b[0][1];</span>
+<span class="nc" id="L418">		final double a01 = b[0][0] * b[1][0] + b[0][1] * b[1][1];</span>
+<span class="nc" id="L419">		final double a11 = b[1][0] * b[1][0] + b[1][1] * b[1][1];</span>
+
+<span class="nc" id="L421">		return new double[][] {</span>
+			{a00, a01},
+			{a01, a11}
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L433">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="nc" id="L434">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="nc" id="L443">		final FiniteDifferenceBoundary boundary = FDBoundaryFactory.createBoundary(this, product);</span>
+<span class="nc" id="L444">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L450">		return new FDMSabrModel(</span>
+				initialSpot,
+				initialAlpha,
+				riskFreeCurve,
+				dividendYieldCurve,
+				beta,
+				nu,
+				rho,
+				newSpaceTimeDiscretization
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

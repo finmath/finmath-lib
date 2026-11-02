@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductCollection.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">ProductCollection.java</span></div><h1>ProductCollection.java</h1><pre class="source lang-java linenums">/*
+ * Created on 06.12.2009
+ */
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+
+import net.finmath.concurrency.FutureWrapper;
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.MonteCarloProduct;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A collection of product components (like periods, options, etc.) paying the sum of their payouts.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class ProductCollection extends AbstractProductComponent {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -3058874897795789705L;
+	private final Collection&lt;AbstractProductComponent&gt; products;
+
+	/**
+	 * Creates a collection of product components paying the sum of their payouts.
+	 *
+	 * @param products Array of AbstractProductComponent objects
+	 */
+	public ProductCollection(final AbstractProductComponent... products) {
+<span class="nc" id="L42">		this(Arrays.asList(products));</span>
+<span class="nc" id="L43">	}</span>
+
+	/**
+	 * Creates a collection of product components paying the sum of their payouts.
+	 *
+	 * @param products Collection of AbstractProductComponent objects
+	 */
+	public ProductCollection(final Collection&lt;AbstractProductComponent&gt; products) {
+<span class="fc" id="L51">		super();</span>
+<span class="fc" id="L52">		this.products = products;</span>
+<span class="fc" id="L53">	}</span>
+
+	@Override
+	public String getCurrency() {
+		// @TODO We report only the currency of the first item.
+<span class="nc" id="L58">		return products.iterator().next().getCurrency();</span>
+	}
+
+	/**
+	 * Returns the collection containing all products as an unmodifiable collection.
+	 *
+	 * @return the collection containing all products.
+	 */
+	public Collection&lt;AbstractProductComponent&gt; getProducts() {
+<span class="nc" id="L67">		return Collections.unmodifiableCollection(products);</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L72">		Set&lt;String&gt; underlyingNames = null;</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		for(final AbstractProductComponent product : products) {</span>
+<span class="nc" id="L74">			final Set&lt;String&gt; productUnderlyingNames = product.queryUnderlyings();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">			if(productUnderlyingNames != null) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">				if(underlyingNames == null) {</span>
+<span class="nc" id="L77">					underlyingNames = productUnderlyingNames;</span>
+				} else {
+<span class="nc" id="L79">					underlyingNames.addAll(productUnderlyingNames);</span>
+				}
+			}
+<span class="nc" id="L82">		}</span>
+<span class="nc" id="L83">		return underlyingNames;</span>
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 * @see net.finmath.montecarlo.AbstractMonteCarloProduct#getValue(double, net.finmath.montecarlo.MonteCarloSimulationModel)
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// Ignite asynchronous calculation if possible
+<span class="fc" id="L101">		final ArrayList&lt; Future&lt;RandomVariable&gt; &gt; results = new ArrayList&lt; &gt;();</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		for(final MonteCarloProduct product : products) {</span>
+			Future&lt;RandomVariable&gt; valueFuture;
+			try {
+<span class="fc" id="L105">				valueFuture = getExecutor().submit(</span>
+<span class="fc" id="L106">						new Callable&lt;RandomVariable&gt;() {</span>
+							@Override
+							public RandomVariable call() throws CalculationException {
+<span class="fc" id="L109">								return product.getValue(evaluationTime, model);</span>
+							}
+						}
+						);
+			}
+<span class="fc" id="L114">			catch(final RejectedExecutionException e) {</span>
+<span class="fc" id="L115">				valueFuture = new FutureWrapper&lt;&gt;(product.getValue(evaluationTime, model));</span>
+<span class="fc" id="L116">			}</span>
+
+<span class="fc" id="L118">			results.add(valueFuture);</span>
+<span class="fc" id="L119">		}</span>
+
+		// Collect results
+<span class="fc" id="L122">		RandomVariable values = model.getRandomVariableForConstant(0.0);</span>
+		try {
+<span class="fc bfc" id="L124" title="All 2 branches covered.">			for(final Future&lt;RandomVariable&gt; valueFuture : results) {</span>
+<span class="fc" id="L125">				values = values.add(valueFuture.get());</span>
+<span class="fc" id="L126">			}</span>
+<span class="nc" id="L127">		} catch (final InterruptedException e) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">			throw e.getCause() instanceof CalculationException ? (CalculationException)(e.getCause()) : new CalculationException(e.getCause());</span>
+<span class="nc" id="L129">		} catch (final ExecutionException e) {</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">			if(CalculationException.class.isInstance(e.getCause())) {</span>
+<span class="nc" id="L131">				throw (CalculationException)(e.getCause());</span>
+			}
+<span class="nc bnc" id="L133" title="All 2 branches missed.">			else if(RuntimeException.class.isInstance(e.getCause())) {</span>
+<span class="nc" id="L134">				throw (RuntimeException)(e.getCause());</span>
+			}
+			else {
+<span class="nc" id="L137">				throw new CalculationException(e.getCause());</span>
+			}
+<span class="fc" id="L139">		}</span>
+
+		// Return values
+<span class="fc" id="L142">		return values;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L147">		return &quot;ProductCollection [products=&quot; + products + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

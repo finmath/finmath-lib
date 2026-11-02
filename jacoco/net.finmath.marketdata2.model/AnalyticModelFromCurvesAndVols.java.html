@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticModelFromCurvesAndVols.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.model</a> &gt; <span class="el_source">AnalyticModelFromCurvesAndVols.java</span></div><h1>AnalyticModelFromCurvesAndVols.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28.11.2012
+ */
+package net.finmath.marketdata2.model;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import net.finmath.marketdata2.calibration.ParameterObject;
+import net.finmath.marketdata2.model.curves.Curve;
+import net.finmath.marketdata2.model.curves.DiscountCurveInterface;
+import net.finmath.marketdata2.model.curves.ForwardCurveInterface;
+import net.finmath.marketdata2.model.volatilities.VolatilitySurface;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements a collection of market data objects (e.g., discount curves, forward curve)
+ * which provide interpolation of market data or other derived quantities
+ * (&quot;calibrated curves&quot;). This can be seen as a model to be used in analytic pricing
+ * formulas - hence this class is termed &lt;code&gt;AnalyticModelFromCuvesAndVols&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializable, Cloneable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -1551367852009541732L;
+	private final RandomVariableFactory			randomVariableFactory;
+<span class="fc" id="L41">	private final Map&lt;String, Curve&gt;			curvesMap					= new HashMap&lt;&gt;();</span>
+<span class="fc" id="L42">	private final Map&lt;String, VolatilitySurface&gt;	volatilitySurfaceMap	= new HashMap&lt;&gt;();</span>
+
+	/**
+	 * Create an empty analytic model.
+	 */
+<span class="fc" id="L47">	public AnalyticModelFromCurvesAndVols() {</span>
+<span class="fc" id="L48">		randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+<span class="fc" id="L49">	}</span>
+
+	/**
+	 * Create an empty analytic model using a given AbstractRandomVariableFactory for construction of result types.
+	 *
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 */
+<span class="fc" id="L56">	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory randomVariableFactory) {</span>
+<span class="fc" id="L57">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L58">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves.
+	 *
+	 * @param curves The vector of curves.
+	 */
+	public AnalyticModelFromCurvesAndVols(final Curve[] curves) {
+<span class="fc" id="L66">		this();</span>
+<span class="fc bfc" id="L67" title="All 2 branches covered.">		for (final Curve curve : curves) {</span>
+<span class="fc" id="L68">			curvesMap.put(curve.getName(), curve);</span>
+		}
+<span class="fc" id="L70">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves  using a given AbstractRandomVariableFactory for construction of result types.
+	 *
+	 * @param randomVariableFactory given AbstractRandomVariableFactory for construction of result types.
+	 * @param curves The vector of curves.
+	 */
+	public AnalyticModelFromCurvesAndVols(final RandomVariableFactory randomVariableFactory, final Curve[] curves) {
+<span class="fc" id="L79">		this(randomVariableFactory);</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">		for (final Curve curve : curves) {</span>
+<span class="fc" id="L81">			curvesMap.put(curve.getName(), curve);</span>
+		}
+<span class="fc" id="L83">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves.
+	 *
+	 * @param curves A collection of curves.
+	 */
+	public AnalyticModelFromCurvesAndVols(final Collection&lt;Curve&gt; curves) {
+<span class="nc" id="L91">		this();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		for(final Curve curve : curves) {</span>
+<span class="nc" id="L93">			curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L94">		}</span>
+<span class="nc" id="L95">	}</span>
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L99">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public Curve getCurve(final String name)
+	{
+<span class="fc" id="L105">		return curvesMap.get(name);</span>
+	}
+
+	@Override
+	public  Map&lt;String, Curve&gt; getCurves()
+	{
+<span class="nc" id="L111">		return Collections.unmodifiableMap(curvesMap);</span>
+	}
+
+	@Override
+	public AnalyticModel addCurve(final String name, final Curve curve) {
+<span class="nc" id="L116">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L117">		newModel.curvesMap.put(name, curve);</span>
+<span class="nc" id="L118">		return newModel;</span>
+	}
+
+	public AnalyticModel addCurve(final Curve curve) {
+<span class="nc" id="L122">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L123">		newModel.curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L124">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addCurves(final Curve... curves) {
+<span class="nc" id="L129">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		for(final Curve curve : curves) {</span>
+<span class="nc" id="L131">			newModel.curvesMap.put(curve.getName(), curve);</span>
+		}
+<span class="nc" id="L133">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addCurves(final Set&lt;Curve&gt; curves) {
+<span class="nc" id="L138">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">		for(final Curve curve : curves) {</span>
+<span class="nc" id="L140">			newModel.curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L141">		}</span>
+<span class="nc" id="L142">		return newModel;</span>
+	}
+
+	/**
+	 * @deprecated This class will become immutable. Use addCurve instead.
+	 */
+	@Override
+	@Deprecated
+	public void setCurve(final Curve curve)
+	{
+<span class="fc" id="L152">		curvesMap.put(curve.getName(), curve);</span>
+<span class="fc" id="L153">	}</span>
+
+	/**
+	 * Set some curves.
+	 *
+	 * @param curves Array of curves to set.
+	 * @deprecated This class will become immutable. Use addCurve instead.
+	 */
+	@Deprecated
+	public void setCurves(final Curve[] curves) {
+<span class="nc bnc" id="L163" title="All 2 branches missed.">		for(final Curve curve : curves) {</span>
+<span class="nc" id="L164">			setCurve(curve);</span>
+		}
+<span class="nc" id="L166">	}</span>
+
+	@Override
+	public DiscountCurveInterface getDiscountCurve(final String discountCurveName) {
+<span class="fc" id="L170">		DiscountCurveInterface discountCurve = null;</span>
+<span class="fc" id="L171">		final Curve curve = getCurve(discountCurveName);</span>
+<span class="pc bpc" id="L172" title="1 of 2 branches missed.">		if(DiscountCurveInterface.class.isInstance(curve)) {</span>
+<span class="fc" id="L173">			discountCurve = (DiscountCurveInterface)curve;</span>
+		}
+
+<span class="fc" id="L176">		return discountCurve;</span>
+	}
+
+	@Override
+	public ForwardCurveInterface getForwardCurve(final String forwardCurveName) {
+<span class="fc" id="L181">		ForwardCurveInterface forwardCurve = null;</span>
+<span class="fc" id="L182">		final Curve curve = getCurve(forwardCurveName);</span>
+<span class="fc bfc" id="L183" title="All 2 branches covered.">		if(ForwardCurveInterface.class.isInstance(curve)) {</span>
+<span class="fc" id="L184">			forwardCurve = (ForwardCurveInterface)curve;</span>
+		}
+
+<span class="fc" id="L187">		return forwardCurve;</span>
+	}
+
+	@Override
+	public VolatilitySurface getVolatilitySurface(final String name) {
+<span class="nc" id="L192">		return volatilitySurfaceMap.get(name);</span>
+	}
+
+	@Override
+	public Map&lt;String, VolatilitySurface&gt; getVolatilitySurfaces() {
+<span class="nc" id="L197">		return Collections.unmodifiableMap(volatilitySurfaceMap);</span>
+	}
+
+	public AnalyticModel addVolatilitySurface(final VolatilitySurface volatilitySurface)
+	{
+<span class="nc" id="L202">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L203">		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+<span class="nc" id="L204">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addVolatilitySurfaces(final VolatilitySurface... volatilitySurfaces)
+	{
+<span class="nc" id="L210">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {</span>
+<span class="nc" id="L212">			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+		}
+<span class="nc" id="L214">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addVolatilitySurfaces(final Set&lt;VolatilitySurface&gt; volatilitySurfaces) {
+<span class="nc" id="L219">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc bnc" id="L220" title="All 2 branches missed.">		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {</span>
+<span class="nc" id="L221">			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+<span class="nc" id="L222">		}</span>
+<span class="nc" id="L223">		return newModel;</span>
+	}
+
+	private void setVolatilitySurface(final VolatilitySurface volatilitySurface)
+	{
+<span class="nc" id="L228">		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+<span class="nc" id="L229">	}</span>
+
+	private void set(final Object marketDataObject) {
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">		if(marketDataObject instanceof Curve) {</span>
+<span class="fc" id="L233">			setCurve((Curve)marketDataObject);</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		} else if(marketDataObject instanceof VolatilitySurface) {</span>
+<span class="nc" id="L235">			setVolatilitySurface((VolatilitySurface)marketDataObject);</span>
+		} else {
+<span class="nc" id="L237">			throw new IllegalArgumentException(&quot;Provided object is not of supported type.&quot;);</span>
+		}
+<span class="fc" id="L239">	}</span>
+
+	@Override
+	public AnalyticModelFromCurvesAndVols clone()
+	{
+<span class="fc" id="L244">		final AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols();</span>
+<span class="fc" id="L245">		newModel.curvesMap.putAll(curvesMap);</span>
+<span class="fc" id="L246">		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);</span>
+<span class="fc" id="L247">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel getCloneForParameter(final Map&lt;ParameterObject, RandomVariable[]&gt; curveParameterPairs) throws CloneNotSupportedException {
+
+		// Build the modified clone of this model
+<span class="fc" id="L254">		final AnalyticModelFromCurvesAndVols modelClone = clone();</span>
+
+		// Add modified clones of curves to model clone
+<span class="pc bpc" id="L257" title="1 of 2 branches missed.">		if(curveParameterPairs != null) {</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">			for(final Entry&lt;ParameterObject, RandomVariable[]&gt; curveParameterPair : curveParameterPairs.entrySet()) {</span>
+<span class="fc" id="L259">				final ParameterObject newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());</span>
+<span class="fc" id="L260">				modelClone.set(newCurve);</span>
+<span class="fc" id="L261">			}</span>
+		}
+
+<span class="fc" id="L264">		return modelClone;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L269">		return &quot;AnalyticModelFromCuvesAndVols: curves=&quot; + curvesMap.keySet();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

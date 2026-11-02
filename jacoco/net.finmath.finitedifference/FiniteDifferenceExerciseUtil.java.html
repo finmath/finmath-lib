@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceExerciseUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference</a> &gt; <span class="el_source">FiniteDifferenceExerciseUtil.java</span></div><h1>FiniteDifferenceExerciseUtil.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference;
+
+import java.util.Set;
+import java.util.TreeSet;
+
+import net.finmath.modelling.AmericanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Utility methods adapting a general {@link Exercise} specification to
+ * finite-difference solvers working in time-to-maturity coordinates.
+ *
+ * &lt;p&gt;
+ * Finite-difference solvers in this project use time-to-maturity
+ * {@code tau = maturity - t}. Exercise specifications are given in running time
+ * {@code t}. This class performs the required conversion and can refine the
+ * time discretization so that all Bermudan exercise dates are represented
+ * exactly.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FiniteDifferenceExerciseUtil {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	private FiniteDifferenceExerciseUtil() {
+	}
+
+	/**
+	 * Returns the exercise times in time-to-maturity coordinates.
+	 *
+	 * @param exercise The exercise specification.
+	 * @return The exercise times in tau = maturity - t.
+	 */
+	public static double[] getExerciseTimesToMaturity(final Exercise exercise) {
+<span class="nc" id="L42">		final double maturity = exercise.getMaturity();</span>
+<span class="nc" id="L43">		final double[] exerciseTimes = exercise.getExerciseTimes();</span>
+<span class="nc" id="L44">		final double[] tauTimes = new double[exerciseTimes.length];</span>
+
+<span class="nc bnc" id="L46" title="All 2 branches missed.">		for (int i = 0; i &lt; exerciseTimes.length; i++) {</span>
+<span class="nc" id="L47">			tauTimes[i] = maturity - exerciseTimes[i];</span>
+		}
+
+<span class="nc" id="L50">		java.util.Arrays.sort(tauTimes);</span>
+<span class="nc" id="L51">		return tauTimes;</span>
+	}
+
+	/**
+	 * Returns a refined time discretization that includes all Bermudan exercise
+	 * dates
+	 * in time-to-maturity coordinates.
+	 *
+	 * &lt;p&gt;
+	 * European and American exercise return the base discretization unchanged.
+	 * &lt;/p&gt;
+	 *
+	 * @param baseTimeDiscretization The original time discretization in tau.
+	 * @param exercise The exercise specification.
+	 * @return A refined time discretization in tau.
+	 */
+	public static TimeDiscretization refineTimeDiscretization(
+			final TimeDiscretization baseTimeDiscretization,
+			final Exercise exercise) {
+
+<span class="nc bnc" id="L71" title="All 4 branches missed.">		if (exercise.isEuropean() || exercise.isAmerican()) {</span>
+<span class="nc" id="L72">			return baseTimeDiscretization;</span>
+		}
+
+<span class="nc" id="L75">		final Set&lt;Double&gt; mergedTimes = new TreeSet&lt;&gt;();</span>
+
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		for (int i = 0; i &lt; baseTimeDiscretization.getNumberOfTimes(); i++) {</span>
+<span class="nc" id="L78">			mergedTimes.add(baseTimeDiscretization.getTime(i));</span>
+		}
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		for (final double tau : getExerciseTimesToMaturity(exercise)) {</span>
+<span class="nc" id="L82">			mergedTimes.add(tau);</span>
+		}
+
+<span class="nc" id="L85">		final double[] refinedTimes = new double[mergedTimes.size()];</span>
+<span class="nc" id="L86">		int index = 0;</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		for (final Double time : mergedTimes) {</span>
+<span class="nc" id="L88">			refinedTimes[index++] = time;</span>
+<span class="nc" id="L89">		}</span>
+
+<span class="nc" id="L91">		return new TimeDiscretizationFromArray(refinedTimes);</span>
+	}
+
+	/**
+	 * Returns true if exercise is allowed at the given time-to-maturity.
+	 *
+	 * @param tau The time-to-maturity.
+	 * @param exercise The exercise specification.
+	 * @return True if exercise is allowed.
+	 */
+	public static boolean isExerciseAllowedAtTimeToMaturity(final double tau, final Exercise exercise) {
+<span class="fc" id="L102">		final double runningTime = exercise.getMaturity() - tau;</span>
+<span class="fc" id="L103">		return exercise.isExerciseAllowed(runningTime);</span>
+	}
+
+	/**
+	 * Returns true if the exercise policy should be treated as continuous on
+	 * the FD grid.
+	 *
+	 * @param exercise The exercise specification.
+	 * @return True if the policy is continuous.
+	 */
+	public static boolean isContinuousExercise(final Exercise exercise) {
+<span class="nc" id="L114">		return exercise.isContinuousExercise();</span>
+	}
+
+	/**
+	 * Returns true if the given tau-grid time is an actual Bermudan exercise
+	 * time.
+	 *
+	 * @param tau The time-to-maturity.
+	 * @param exercise The exercise specification.
+	 * @return True if tau corresponds to a Bermudan exercise date.
+	 */
+	public static boolean isDiscreteExerciseTime(final double tau, final Exercise exercise) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (exercise.isAmerican()) {</span>
+<span class="nc" id="L127">			return false;</span>
+		}
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		for (final double exerciseTau : getExerciseTimesToMaturity(exercise)) {</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">			if (Math.abs(exerciseTau - tau) &lt; TIME_TOLERANCE) {</span>
+<span class="nc" id="L132">				return true;</span>
+			}
+		}
+
+<span class="nc" id="L136">		return false;</span>
+	}
+
+	/**
+	 * Convenience method returning the exercise start time in tau-coordinates
+	 * for American exercise.
+	 *
+	 * @param exercise The exercise specification.
+	 * @return The corresponding tau value, or 0.0 if not applicable.
+	 */
+	public static double getAmericanExerciseStartTimeToMaturity(final Exercise exercise) {
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if (!(exercise instanceof AmericanExercise)) {</span>
+<span class="nc" id="L148">			return 0.0;</span>
+		}
+
+<span class="nc" id="L151">		final AmericanExercise americanExercise = (AmericanExercise) exercise;</span>
+<span class="nc" id="L152">		return exercise.getMaturity() - americanExercise.getExerciseStartTime();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

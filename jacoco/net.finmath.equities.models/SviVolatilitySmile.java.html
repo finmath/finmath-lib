@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SviVolatilitySmile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.models</a> &gt; <span class="el_source">SviVolatilitySmile.java</span></div><h1>SviVolatilitySmile.java</h1><pre class="source lang-java linenums">package net.finmath.equities.models;
+
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * Class that implements the smile-specific parts of the SVI volatility parametrization
+ * from Gatheral's 2013 paper.
+ *
+ * @author Andreas Grotz
+ */
+
+<span class="fc" id="L15">public class SviVolatilitySmile {</span>
+
+	private final double a;
+	private final double b;
+	private final double rho;
+	private final double m;
+	private final double sigma;
+	private final LocalDate smileDate;
+
+<span class="fc" id="L24">	public SviVolatilitySmile(LocalDate date, double a, double b, double rho, double m, double sigma) {</span>
+<span class="fc" id="L25">		this.a = a;</span>
+<span class="fc" id="L26">		this.b = b;</span>
+<span class="fc" id="L27">		this.rho = rho;</span>
+<span class="fc" id="L28">		this.m = m;</span>
+<span class="fc" id="L29">		this.sigma = sigma;</span>
+<span class="fc" id="L30">		smileDate = date;</span>
+<span class="fc" id="L31">		validate();</span>
+<span class="fc" id="L32">	}</span>
+
+	public static double sviTotalVariance(
+			double logStrike, double a, double b, double rho, double m, double sigma)
+	{
+<span class="fc" id="L37">		final double kShifted = logStrike - m;</span>
+<span class="fc" id="L38">		return a + b * (rho * kShifted + Math.sqrt(kShifted * kShifted + sigma * sigma));</span>
+	}
+
+	public static double sviVolatility(
+			double logStrike, double a, double b, double rho, double m, double sigma, double ttm)
+	{
+<span class="nc" id="L44">		return Math.sqrt(sviTotalVariance(logStrike, a, b, rho, m, sigma) / ttm);</span>
+	}
+
+	public static double[] sviInitialGuess(List&lt;Double&gt; logStrikes, List&lt;Double&gt; totalVariances)
+	{
+		// Use the Jump Wing parametrization from Gatheral's 2013 paper to derive an initial guess
+<span class="fc" id="L50">		final int nPoints = logStrikes.size();</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		assert nPoints &gt;= 5 : &quot;An initial guess for SVI is not sensible with less than 5 points.&quot;;</span>
+<span class="fc" id="L52">		final int minIndex = totalVariances.indexOf(Collections.min(totalVariances));</span>
+<span class="fc" id="L53">		final double k0 = logStrikes.get(minIndex);</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(k0 == 0.0)</span>
+		{
+<span class="nc" id="L56">			final int atmIndex = logStrikes.indexOf(0.0);</span>
+<span class="nc" id="L57">			final double w = totalVariances.get(atmIndex);</span>
+<span class="nc" id="L58">			final double d2wdk2 = 2 * (totalVariances.get(atmIndex + 1) * totalVariances.get(atmIndex - 1) - 2 * w)</span>
+<span class="nc" id="L59">					/ (Math.pow(logStrikes.get(atmIndex + 1), 2) + Math.pow(logStrikes.get(atmIndex - 1), 2));</span>
+<span class="nc" id="L60">			final double c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))</span>
+<span class="nc" id="L61">					/ (logStrikes.get(nPoints - 1) - logStrikes.get(nPoints - 2));</span>
+<span class="nc" id="L62">			final double p = (totalVariances.get(0) - totalVariances.get(1))</span>
+<span class="nc" id="L63">					/ (logStrikes.get(1) - logStrikes.get(0));</span>
+<span class="nc" id="L64">			final double b = 0.5 * (c + p);</span>
+<span class="nc" id="L65">			final double rho = 1 - 2 * p / (c + p);</span>
+<span class="nc" id="L66">			final double m = b * (1 - rho * rho) * Math.abs(rho) / d2wdk2;</span>
+<span class="nc" id="L67">			final double sigma = m * Math.sqrt(1 - rho * rho) / rho;</span>
+<span class="nc" id="L68">			final double a = w - b * sigma * Math.sqrt(1 - rho * rho);</span>
+<span class="nc" id="L69">			return new double[] {a, b, rho, m, sigma};</span>
+		}
+		else
+		{
+<span class="fc" id="L73">			final double wMin = totalVariances.get(minIndex);</span>
+			double w, dwdk;
+<span class="fc bfc" id="L75" title="All 2 branches covered.">			if (logStrikes.contains(0.0))</span>
+			{
+<span class="fc" id="L77">				final int atmIndex = logStrikes.indexOf(0.0);</span>
+<span class="fc" id="L78">				w = totalVariances.get(atmIndex);</span>
+<span class="fc" id="L79">				dwdk = 0.5 * ((totalVariances.get(atmIndex + 1) - w) / (logStrikes.get(atmIndex + 1))</span>
+<span class="fc" id="L80">						+ (totalVariances.get(atmIndex - 1) - w) / (logStrikes.get(atmIndex - 1)));</span>
+<span class="fc" id="L81">			}</span>
+			else
+			{
+<span class="fc" id="L84">				final int maxNegIndex = logStrikes.indexOf(</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">						Collections.max(logStrikes.stream().filter(s -&gt; s &lt; 0.0).collect(Collectors.toList())));</span>
+<span class="fc" id="L86">				dwdk = (totalVariances.get(maxNegIndex + 1) - totalVariances.get(maxNegIndex))</span>
+<span class="fc" id="L87">						/ (logStrikes.get(maxNegIndex + 1) - logStrikes.get(maxNegIndex));</span>
+<span class="fc" id="L88">				w = totalVariances.get(maxNegIndex) - dwdk * logStrikes.get(maxNegIndex);</span>
+			}
+<span class="fc" id="L90">			final double c = (totalVariances.get(nPoints - 1) - totalVariances.get(nPoints - 2))</span>
+<span class="fc" id="L91">					/ (logStrikes.get(nPoints - 1) - logStrikes.get(nPoints - 2));</span>
+<span class="fc" id="L92">			final double p = (totalVariances.get(0) - totalVariances.get(1))</span>
+<span class="fc" id="L93">					/ (logStrikes.get(1) - logStrikes.get(0));</span>
+
+<span class="fc" id="L95">			final double b = 0.5 * (c + p);</span>
+<span class="fc" id="L96">			final double rho = 1 - 2 * p / (c + p);</span>
+<span class="fc" id="L97">			final double beta = rho - dwdk / b;</span>
+<span class="fc" id="L98">			final double alpha = Math.signum(beta) * Math.sqrt(1 / beta / beta - 1);</span>
+<span class="fc" id="L99">			final double m = (w - wMin) / b / (Math.signum(alpha) * Math.sqrt(1 + alpha * alpha)</span>
+<span class="fc" id="L100">					- alpha * Math.sqrt(1 - rho * rho) - rho);</span>
+<span class="fc" id="L101">			final double sigma = alpha * m;</span>
+<span class="fc" id="L102">			final double a = wMin - b * sigma * Math.sqrt(1 - rho * rho);</span>
+<span class="fc" id="L103">			return new double[] {a, b, rho, m, sigma};</span>
+		}
+	}
+
+	public void validate()
+	{
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		assert getB() &gt;= 0.0;</span>
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		assert Math.abs(getRho()) &lt; 1.0;</span>
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		assert getSigma() &gt; 0.0;</span>
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">		assert getA() + getB() * getSigma() * Math.sqrt(1.0 - getRho() * getRho()) &gt;= 0.0;</span>
+
+<span class="fc" id="L114">	}</span>
+
+	public double getTotalVariance(double logStrike)
+	{
+<span class="fc" id="L118">		return sviTotalVariance(logStrike, getA(), getB(), getRho(), getM(), getSigma());</span>
+	}
+
+	public double getTotalVariance(double strike, double forward)
+	{
+<span class="nc" id="L123">		return sviTotalVariance(Math.log(strike/forward), getA(), getB(), getRho(), getM(), getSigma());</span>
+	}
+
+	public double getVolatility(double strike, double forward, double timeToExpiry)
+	{
+<span class="nc" id="L128">		return sviVolatility(Math.log(strike/forward), getA(), getB(), getRho(), getM(), getSigma(), timeToExpiry);</span>
+	}
+
+	public LocalDate getSmileDate() {
+<span class="fc" id="L132">		return smileDate;</span>
+	}
+
+	public double getSigma() {
+<span class="fc" id="L136">		return sigma;</span>
+	}
+
+	public double getM() {
+<span class="fc" id="L140">		return m;</span>
+	}
+
+	public double getRho() {
+<span class="fc" id="L144">		return rho;</span>
+	}
+
+	public double getB() {
+<span class="fc" id="L148">		return b;</span>
+	}
+
+	public double getA() {
+<span class="fc" id="L152">		return a;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

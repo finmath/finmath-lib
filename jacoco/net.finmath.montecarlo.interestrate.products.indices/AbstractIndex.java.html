@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">AbstractIndex.java</span></div><h1>AbstractIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 03.09.2006
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Base class for indices.
+ *
+ * Indices are small functions mapping time and a vector of
+ * random variables to a random variable, where the time
+ * is the fixing time of the index.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractIndex extends AbstractProductComponent {
+
+	private static final long serialVersionUID = 7992943924779922710L;
+
+	private final String name;
+
+	/**
+	 * Initialize name and currency of an index.
+	 *
+	 * @param name The name of an index. Used to map an index on a curve.
+	 * @param currency The natural currency of an index. This more for compatibility purposes, since the information sould be contained in the name.
+	 */
+	public AbstractIndex(final String name, final String currency) {
+<span class="fc" id="L36">		super(currency);</span>
+<span class="fc" id="L37">		this.name = name;</span>
+<span class="fc" id="L38">	}</span>
+
+	/**
+	 * Initialize the name of an index.
+	 *
+	 * @param name The name of an index. Used to map an index on a curve.
+	 */
+	public AbstractIndex(final String name) {
+<span class="nc" id="L46">		this(name, null);</span>
+<span class="nc" id="L47">	}</span>
+
+	/**
+	 * Initialize an abstract index which does not have a dedicated name or currency,
+	 * e.g. a function of other indicies.
+	 */
+	public AbstractIndex() {
+<span class="fc" id="L54">		this(null, null);</span>
+<span class="fc" id="L55">	}</span>
+
+	@Override
+	public abstract RandomVariable getValue(double fixingTime, TermStructureMonteCarloSimulationModel model) throws CalculationException;
+
+	/**
+	 * Returns the name of the index.
+	 *
+	 * @return The name of the index.
+	 */
+	public String getName() {
+<span class="fc" id="L66">		return name;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

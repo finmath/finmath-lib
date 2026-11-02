@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccruingNotional.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">AccruingNotional.java</span></div><h1>AccruingNotional.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 21.01.2016
+ */
+
+package net.finmath.montecarlo.interestrate.products.components;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class AccruingNotional implements Notional {
+
+	private final Notional	previousPeriodNotional;
+	private final AbstractPeriod		previousPeriod;
+
+	/**
+	 * Creates a notion where the notional of the period start is calculated as
+	 * the notional of the previous period's period end and the notional at period end
+	 * is calculated as being accrued via getCoupon on the current period.
+	 *
+	 * @param previousPeriodNotional The notional of the previous period.
+	 * @param previousPeriod The previous period.
+	 */
+<span class="nc" id="L32">	public AccruingNotional(final Notional previousPeriodNotional, final AbstractPeriod previousPeriod) {</span>
+<span class="nc" id="L33">		this.previousPeriodNotional = previousPeriodNotional;</span>
+<span class="nc" id="L34">		this.previousPeriod = previousPeriod;</span>
+<span class="nc" id="L35">	}</span>
+
+	@Override
+	public String getCurrency() {
+<span class="nc" id="L39">		return previousPeriodNotional.getCurrency();</span>
+	}
+
+	@Override
+	public RandomVariable getNotionalAtPeriodStart(final AbstractPeriod period, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L44">		double productToModelTimeOffset = 0;</span>
+		try {
+<span class="nc bnc" id="L46" title="All 2 branches missed.">			if(previousPeriod.getReferenceDate() != null) {</span>
+<span class="nc" id="L47">				productToModelTimeOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate(), previousPeriod.getReferenceDate());</span>
+			}
+		}
+<span class="nc" id="L50">		catch(final UnsupportedOperationException e) {}</span>
+
+<span class="nc" id="L52">		final RandomVariable previousPeriodCoupon = previousPeriod.getCoupon(productToModelTimeOffset + previousPeriod.getFixingDate(), model);</span>
+
+<span class="nc" id="L54">		return previousPeriodNotional.getNotionalAtPeriodEnd(previousPeriod, model).mult(previousPeriodCoupon.add(1.0));</span>
+	}
+
+	@Override
+	public RandomVariable getNotionalAtPeriodEnd(final AbstractPeriod period, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L59">		return getNotionalAtPeriodStart(period, model);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptimizerFactoryLevenbergMarquardt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">OptimizerFactoryLevenbergMarquardt.java</span></div><h1>OptimizerFactoryLevenbergMarquardt.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 29.05.2015
+ */
+
+package net.finmath.optimizer;
+
+import net.finmath.optimizer.Optimizer.ObjectiveFunction;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class OptimizerFactoryLevenbergMarquardt implements OptimizerFactory {
+
+	private final LevenbergMarquardt.RegularizationMethod regularizationMethod;
+	private final double	lambda;
+	private final int		maxIterations;
+	private final double	errorTolerance;
+	private final int		maxThreads;
+
+	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final double lambda, final int maxIterations, final double errorTolerance, final int maxThreads) {
+<span class="fc" id="L24">		super();</span>
+<span class="fc" id="L25">		this.regularizationMethod = regularizationMethod;</span>
+<span class="fc" id="L26">		this.lambda = lambda;</span>
+<span class="fc" id="L27">		this.maxIterations = maxIterations;</span>
+<span class="fc" id="L28">		this.errorTolerance = errorTolerance;</span>
+<span class="fc" id="L29">		this.maxThreads = maxThreads;</span>
+<span class="fc" id="L30">	}</span>
+
+	public OptimizerFactoryLevenbergMarquardt(final LevenbergMarquardt.RegularizationMethod regularizationMethod, final int maxIterations, final double errorTolerance, final int maxThreads) {
+<span class="fc" id="L33">		this(regularizationMethod, 0.001, maxIterations, errorTolerance, maxThreads);</span>
+<span class="fc" id="L34">	}</span>
+
+	public OptimizerFactoryLevenbergMarquardt(final int maxIterations, final double errorTolerance, final int maxThreads) {
+<span class="fc" id="L37">		this(LevenbergMarquardt.RegularizationMethod.LEVENBERG_MARQUARDT, maxIterations, errorTolerance, maxThreads);</span>
+<span class="fc" id="L38">	}</span>
+
+	public OptimizerFactoryLevenbergMarquardt(final int maxIterations, final int maxThreads) {
+<span class="fc" id="L41">		this(maxIterations, 0.0, maxThreads);</span>
+<span class="fc" id="L42">	}</span>
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] targetValues) {
+<span class="nc" id="L46">		return getOptimizer(objectiveFunction, initialParameters, null, null, null, targetValues);</span>
+	}
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] targetValues) {
+<span class="fc" id="L51">		return getOptimizer(objectiveFunction, initialParameters, lowerBound, upperBound, null, targetValues);</span>
+	}
+
+	@Override
+	public Optimizer getOptimizer(final ObjectiveFunction objectiveFunction, final double[] initialParameters, final double[] lowerBound,final double[]  upperBound, final double[] parameterSteps, final double[] targetValues) {
+<span class="fc" id="L56">		return (new LevenbergMarquardt(</span>
+				regularizationMethod,
+				initialParameters,
+				targetValues,
+				maxIterations,
+				maxThreads)
+<span class="fc" id="L62">		{</span>
+			private static final long serialVersionUID = -1628631567190057495L;
+
+			@Override
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
+<span class="fc" id="L67">				objectiveFunction.setValues(parameters, values);</span>
+<span class="fc" id="L68">			}</span>
+		})
+<span class="fc" id="L70">				.setLambda(lambda)</span>
+<span class="fc" id="L71">				.setErrorTolerance(errorTolerance)</span>
+<span class="fc" id="L72">				.setParameterSteps(parameterSteps);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

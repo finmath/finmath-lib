@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractNonPathDependentProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.products</a> &gt; <span class="el_source">AbstractNonPathDependentProduct.java</span></div><h1>AbstractNonPathDependentProduct.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.products;
+
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.AbstractTreeProduct;
+import net.finmath.tree.TreeModel;
+
+
+/**
+ * Base class for non–path-dependent options priced on a TreeModel.
+ * Early–exercise features(if any) and the backward induction logic are delegated to subclasses via
+ * getValues(double, TreeModel).
+ *
+ * The payoff function is protected so that we can define specialized subclasses
+ * for the most important products. This is the approach followed in the class
+ * EuropeanOption
+ *
+ * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
+ */
+public abstract class AbstractNonPathDependentProduct extends AbstractTreeProduct {
+
+	/**
+	 * Creates a non–path-dependent option with a given maturity and payoff.
+	 *
+	 * @param maturity
+	 *        Contract maturity (model time units), typically T.
+	 */
+	public AbstractNonPathDependentProduct(double maturity){
+<span class="fc" id="L31">		super(maturity);</span>
+<span class="fc" id="L32">	}</span>
+
+	/**
+	 * Returns the payoff function f(S).
+	 *
+	 * @return The payoff function.
+	 */
+	public abstract DoubleUnaryOperator getPayOffFunction();
+
+	/**
+	 * Converts a model time to the corresponding lattice time index by rounding
+	 * to the nearest step: index = round(time / model.getTimeStep()).
+	 * This helper is useful to map maturity (or any evaluation time aligned to the
+	 * model discretization) to an integer level of the tree.
+	 * @param maturity A model time (e.g. T) to map to a lattice index.
+	 * @param model The tree model providing the time step.
+	 * @return The nearest lattice index for the given time.
+	 */
+	protected final int timeToIndex(double maturity, TreeModel model){
+<span class="fc" id="L51">		return (int)Math.round(maturity/model.getTimeStep());</span>
+	}
+
+	/**
+	 * Computes the vector of option values on the lattice (via backward induction).
+	 * @param evaluationTime The time at which valuation is performed (e.g. 0.0).
+	 * @param model The tree model to use; must not be null.
+	 * @return The array of value random variables per time level.
+	 */
+	@Override
+	public abstract RandomVariable[] getValues(double evaluationTime, TreeModel model);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

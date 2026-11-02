@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaptionHullWhiteModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.boundaries</a> &gt; <span class="el_source">SwaptionHullWhiteModelBoundary.java</span></div><h1>SwaptionHullWhiteModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.boundaries;
+
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.interestrate.models.FDMHullWhiteModel;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+import net.finmath.finitedifference.interestrate.products.Swaption;
+import net.finmath.finitedifference.interestrate.products.Swaption.ResolvedExerciseData;
+
+/**
+ * Boundary conditions for {@link Swaption} under {@link FDMHullWhiteModel}.
+ *
+ * &lt;p&gt;
+ * This implementation provides asymptotic Dirichlet boundary values compatible
+ * with European, Bermudan, and American swaption exercise.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The guiding asymptotics are:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;on the deep out-of-the-money side, the swaption value tends to zero,&lt;/li&gt;
+ *   &lt;li&gt;on the deep in-the-money side, the swaption value approaches the
+ *       intrinsic value envelope over the remaining admissible exercise
+ *       opportunities.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Concretely:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;for a {@code RECEIVER} swaption, the lower boundary is treated as the
+ *       deep in-the-money side and the upper boundary as the deep
+ *       out-of-the-money side,&lt;/li&gt;
+ *   &lt;li&gt;for a {@code PAYER} swaption, the upper boundary is treated as the deep
+ *       in-the-money side and the lower boundary as the deep out-of-the-money
+ *       side.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * On the deep in-the-money side, the boundary value is chosen as
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \max_{j \in \mathcal{E}(t)} \bigl( V_{\mathrm{swap},j}(t,x), 0 \bigr),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code \mathcal{E}(t)} denotes the set of remaining admissible exercise
+ * opportunities and {@code V_swap,j(t,x)} is the value of the corresponding
+ * underlying swap.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This is a pragmatic boundary choice for the unified PDE swaption class.
+ * A European-only Jamshidian-exact boundary can be added later as a refinement.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class SwaptionHullWhiteModelBoundary implements FiniteDifferenceInterestRateBoundary {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The model.
+	 */
+	private final FDMHullWhiteModel model;
+
+	/**
+	 * Creates the Hull-White boundary for {@link Swaption}.
+	 *
+	 * @param model The Hull-White model.
+	 */
+<span class="nc" id="L80">	public SwaptionHullWhiteModelBoundary(final FDMHullWhiteModel model) {</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L82">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L84" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 1) {</span>
+<span class="nc" id="L85">			throw new IllegalArgumentException(</span>
+					&quot;SwaptionHullWhiteModelBoundary requires a one-dimensional Hull-White model.&quot;
+					);
+		}
+
+<span class="nc" id="L90">		this.model = model;</span>
+<span class="nc" id="L91">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L99">		final Swaption swaption = validateAndCastProduct(product);</span>
+<span class="nc" id="L100">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L102">		final double boundaryValue = getLowerBoundaryValue(swaption, time, stateVariables[0]);</span>
+
+<span class="nc" id="L104">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L105">				StandardBoundaryCondition.dirichlet(boundaryValue)</span>
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L115">		final Swaption swaption = validateAndCastProduct(product);</span>
+<span class="nc" id="L116">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L118">		final double boundaryValue = getUpperBoundaryValue(swaption, time, stateVariables[0]);</span>
+
+<span class="nc" id="L120">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L121">				StandardBoundaryCondition.dirichlet(boundaryValue)</span>
+		};
+	}
+
+	private Swaption validateAndCastProduct(final FiniteDifferenceInterestRateProduct product) {
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (!(product instanceof Swaption)) {</span>
+<span class="nc" id="L127">			throw new IllegalArgumentException(</span>
+					&quot;SwaptionHullWhiteModelBoundary requires a Swaption product.&quot;
+					);
+		}
+
+<span class="nc" id="L132">		return (Swaption) product;</span>
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L136" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 1) {</span>
+<span class="nc" id="L137">			throw new IllegalArgumentException(&quot;Exactly one state variable is required.&quot;);</span>
+		}
+<span class="nc" id="L139">	}</span>
+
+	private double getLowerBoundaryValue(
+			final Swaption swaption,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc bnc" id="L146" title="All 3 branches missed.">		switch (swaption.getSwaptionType()) {</span>
+		case RECEIVER:
+<span class="nc" id="L148">			return getDeepInTheMoneyBoundaryValue(swaption, time, stateVariable);</span>
+		case PAYER:
+<span class="nc" id="L150">			return 0.0;</span>
+		default:
+<span class="nc" id="L152">			throw new IllegalArgumentException(&quot;Unsupported swaption type: &quot; + swaption.getSwaptionType());</span>
+		}
+	}
+
+	private double getUpperBoundaryValue(
+			final Swaption swaption,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc bnc" id="L161" title="All 3 branches missed.">		switch (swaption.getSwaptionType()) {</span>
+		case RECEIVER:
+<span class="nc" id="L163">			return 0.0;</span>
+		case PAYER:
+<span class="nc" id="L165">			return getDeepInTheMoneyBoundaryValue(swaption, time, stateVariable);</span>
+		default:
+<span class="nc" id="L167">			throw new IllegalArgumentException(&quot;Unsupported swaption type: &quot; + swaption.getSwaptionType());</span>
+		}
+	}
+
+	private double getDeepInTheMoneyBoundaryValue(
+			final Swaption swaption,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc" id="L176">		final ResolvedExerciseData resolvedExerciseData = swaption.getResolvedExerciseData(model);</span>
+
+<span class="nc" id="L178">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		for (int i = 0; i &lt; resolvedExerciseData.getNumberOfExerciseTimes(); i++) {</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">			if (resolvedExerciseData.getExerciseTime(i) &lt; time - TIME_TOLERANCE) {</span>
+<span class="nc" id="L182">				continue;</span>
+			}
+
+<span class="nc" id="L185">			final int scheduleIndex = resolvedExerciseData.getScheduleIndex(i);</span>
+
+<span class="nc" id="L187">			value = Math.max(</span>
+					value,
+<span class="nc" id="L189">					swaption.getIntrinsicValue(</span>
+							time,
+							scheduleIndex,
+							stateVariable,
+							model
+							)
+					);
+		}
+
+<span class="nc" id="L198">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

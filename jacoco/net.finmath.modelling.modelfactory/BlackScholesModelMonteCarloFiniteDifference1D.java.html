@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlackScholesModelMonteCarloFiniteDifference1D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.modelfactory</a> &gt; <span class="el_source">BlackScholesModelMonteCarloFiniteDifference1D.java</span></div><h1>BlackScholesModelMonteCarloFiniteDifference1D.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2018
+ */
+package net.finmath.modelling.modelfactory;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.grids.UniformGrid;
+import net.finmath.finitedifference.utilities.FiniteDifferenceValueInterpolator;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class BlackScholesModelMonteCarloFiniteDifference1D implements ModelFactory&lt;BlackScholesModelDescriptor&gt; {
+
+	private final double theta;
+
+	public BlackScholesModelMonteCarloFiniteDifference1D(final double theta) {
+<span class="fc" id="L40">		super();</span>
+<span class="fc" id="L41">		this.theta = theta;</span>
+<span class="fc" id="L42">	}</span>
+
+	@Override
+	public DescribedModel&lt;BlackScholesModelDescriptor&gt; getModelFromDescriptor(
+			final BlackScholesModelDescriptor modelDescriptor) {
+
+<span class="fc" id="L48">		final double initialValue = modelDescriptor.getInitialValue();</span>
+
+		// @TODO The model does not support a curve for the forward.
+<span class="fc" id="L51">		final double riskFreeRate =</span>
+<span class="fc" id="L52">				-Math.log(modelDescriptor.getDiscountCurveForForwardRate().getDiscountFactor(1.0));</span>
+
+<span class="fc" id="L54">		final double volatility = modelDescriptor.getVolatility();</span>
+
+<span class="fc" id="L56">		final int numTimesteps = 100;</span>
+<span class="fc" id="L57">		final int numSpacesteps = 200;</span>
+<span class="fc" id="L58">		final int numStandardDeviations = 5;</span>
+
+		/*
+		 * The old implementation used theta in the old FDMBlackScholesModel
+		 * constructor. Keep the same theta here.
+		 *
+		 * If theta already exists as a field of this class, remove this local
+		 * declaration and use the field instead.
+		 */
+<span class="fc" id="L67">		final double theta = 0.5;</span>
+
+		class BlackScholesFDModel extends FDMBlackScholesModel
+		implements DescribedModel&lt;BlackScholesModelDescriptor&gt; {
+
+<span class="fc" id="L72">			BlackScholesFDModel() {</span>
+<span class="fc" id="L73">				super(</span>
+						initialValue,
+						riskFreeRate,
+						volatility,
+<span class="fc" id="L77">						createSpaceTimeDiscretization(</span>
+								initialValue,
+								riskFreeRate,
+								volatility,
+								1.0,
+								numTimesteps,
+								numSpacesteps,
+								numStandardDeviations,
+								theta
+								)
+						);
+<span class="fc" id="L88">			}</span>
+
+			@Override
+			public BlackScholesModelDescriptor getDescriptor() {
+<span class="nc" id="L92">				return modelDescriptor;</span>
+			}
+
+			@Override
+			public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+					final ProductDescriptor productDescriptor) {
+
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">				if(productDescriptor instanceof SingleAssetEuropeanOptionProductDescriptor) {</span>
+
+<span class="fc" id="L101">					final SingleAssetEuropeanOptionProductDescriptor europeanOptionDescriptor =</span>
+							(SingleAssetEuropeanOptionProductDescriptor) productDescriptor;
+
+<span class="fc" id="L104">					final double maturity = FloatingpointDate.getFloatingPointDateFromDate(</span>
+<span class="fc" id="L105">							modelDescriptor.getReferenceDate(),</span>
+<span class="fc" id="L106">							europeanOptionDescriptor.getMaturity()</span>
+							);
+
+<span class="fc" id="L109">					final double strike = europeanOptionDescriptor.getStrike();</span>
+
+					class FDCallOptionProduct extends EuropeanOption
+					implements DescribedProduct&lt;SingleAssetProductDescriptor&gt; {
+
+<span class="fc" id="L114">						FDCallOptionProduct() {</span>
+<span class="fc" id="L115">							super(maturity, strike, CallOrPut.CALL);</span>
+<span class="fc" id="L116">						}</span>
+
+						@Override
+						public Object getValue(final double evaluationTime, final Model model) {
+<span class="nc" id="L120">							return getValues(evaluationTime, model).get(&quot;value&quot;);</span>
+						}
+
+						@Override
+						public Map&lt;String, Object&gt; getValues(
+								final double evaluationTime,
+								final Model model) {
+
+<span class="pc bpc" id="L128" title="1 of 2 branches missed.">							if(!(model instanceof FiniteDifferenceEquityModel)) {</span>
+<span class="nc" id="L129">								throw new IllegalArgumentException(</span>
+										&quot;Model must be a FiniteDifferenceEquityModel.&quot;);
+							}
+
+<span class="fc" id="L133">							final SpaceTimeDiscretization valuationDiscretization =</span>
+<span class="fc" id="L134">									createSpaceTimeDiscretization(</span>
+											initialValue,
+											riskFreeRate,
+											volatility,
+											maturity,
+											numTimesteps,
+											numSpacesteps,
+											numStandardDeviations,
+											theta
+											);
+
+<span class="fc" id="L145">							final FDMBlackScholesModel valuationModel =</span>
+									new FDMBlackScholesModel(
+											initialValue,
+											riskFreeRate,
+											volatility,
+											valuationDiscretization
+											);
+
+<span class="fc" id="L153">							final double[] optionValues =</span>
+<span class="fc" id="L154">									super.getValue(evaluationTime, valuationModel);</span>
+
+<span class="fc" id="L156">							final double value =</span>
+<span class="fc" id="L157">									FiniteDifferenceValueInterpolator.interpolateValue(</span>
+											optionValues,
+											valuationDiscretization,
+											initialValue
+											);
+
+<span class="fc" id="L163">							final Map&lt;String, Object&gt; results = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L164">							results.put(&quot;value&quot;, value);</span>
+<span class="fc" id="L165">							return results;</span>
+						}
+
+						@Override
+						public SingleAssetProductDescriptor getDescriptor() {
+<span class="nc" id="L170">							return europeanOptionDescriptor;</span>
+						}
+					}
+
+<span class="fc" id="L174">					return new FDCallOptionProduct();</span>
+				}
+
+<span class="nc" id="L177">				final String name = modelDescriptor.name();</span>
+<span class="nc" id="L178">				throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+			}
+		}
+
+<span class="fc" id="L182">		return new BlackScholesFDModel();</span>
+	}
+
+	private static SpaceTimeDiscretization createSpaceTimeDiscretization(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double maturity,
+			final int numTimesteps,
+			final int numSpacesteps,
+			final int numStandardDeviations,
+			final double theta) {
+
+<span class="fc" id="L195">		final double timeHorizon = Math.max(maturity, 1.0E-8);</span>
+
+<span class="fc" id="L197">		final double forwardValue = initialValue * Math.exp(riskFreeRate * timeHorizon);</span>
+
+<span class="fc" id="L199">		final double varianceStock =</span>
+				initialValue
+				* initialValue
+<span class="fc" id="L202">				* Math.exp(2.0 * riskFreeRate * timeHorizon)</span>
+<span class="fc" id="L203">				* (Math.exp(volatility * volatility * timeHorizon) - 1.0);</span>
+
+<span class="fc" id="L205">		final double standardDeviationStock =</span>
+<span class="fc" id="L206">				Math.sqrt(Math.max(varianceStock, 0.0));</span>
+
+<span class="fc" id="L208">		final double minimumStockPrice =</span>
+<span class="fc" id="L209">				Math.max(</span>
+						forwardValue - numStandardDeviations * standardDeviationStock,
+						0.0
+						);
+
+<span class="fc" id="L214">		final double maximumStockPrice =</span>
+				forwardValue + numStandardDeviations * standardDeviationStock;
+
+<span class="fc" id="L217">		final Grid spaceGrid =</span>
+				new UniformGrid(numSpacesteps, minimumStockPrice, maximumStockPrice);
+
+<span class="fc" id="L220">		final TimeDiscretization timeDiscretization =</span>
+				new TimeDiscretizationFromArray(
+						0.0,
+						numTimesteps,
+						timeHorizon / numTimesteps
+						);
+
+<span class="fc" id="L227">		return new SpaceTimeDiscretization(</span>
+				spaceGrid,
+				timeDiscretization,
+				theta,
+				new double[] {initialValue}
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

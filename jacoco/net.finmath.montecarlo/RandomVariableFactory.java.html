@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">RandomVariableFactory.java</span></div><h1>RandomVariableFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2016
+ */
+package net.finmath.montecarlo;
+
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A factory for creating objects implementing &lt;code&gt;net.finmath.stochastic.RandomVariable&lt;/code&gt;.
+ *
+ * Use this interface in your implementations to allow &lt;i&gt;dependency injection&lt;/i&gt;, i.e. to allow the use
+ * of different implementations of &lt;code&gt;net.finmath.stochastic.RandomVariable&lt;/code&gt; whenever random variables
+ * need to be constructed.
+ *
+ * @see net.finmath.stochastic.RandomVariable
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public interface RandomVariableFactory {
+
+	/**
+	 * Static method for creating random variables from Objects.
+	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to construct the random variable, if needed.
+	 * @param value The value used to construct the random variable, if needed.
+	 * @param defaultValue The default value to be used if value is null.
+	 * @return A RandomVariable with the given value (or the defaultValue).
+	 */
+	static 	RandomVariable getRandomVariableOrDefault(RandomVariableFactory randomVariableFactory, Object value, RandomVariable defaultValue) {
+<span class="fc bfc" id="L33" title="All 2 branches covered.">		if(value == null) {</span>
+<span class="fc" id="L34">			return defaultValue;</span>
+		}
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">		else if(value instanceof RandomVariable) {</span>
+<span class="nc" id="L37">			return (RandomVariable)value;</span>
+		}
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">		else if(value instanceof Number) {</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">			if(randomVariableFactory == null) {</span>
+<span class="nc" id="L41">				throw new NullPointerException(&quot;Object value of type Number but nor randomVariableFactory given.&quot;);</span>
+			}
+<span class="fc" id="L43">			return randomVariableFactory.createRandomVariable(((Number)value).doubleValue());</span>
+		}
+		else {
+<span class="nc" id="L46">			throw new IllegalArgumentException(&quot;Object value must be of type Number or RandomVariable.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Create a (deterministic) random variable from a constant.
+	 *
+	 * @param value A constant value.
+	 * @return The &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	RandomVariable createRandomVariable(double value);
+
+	/**
+	 * Create a (deterministic) random variable from a constant using a specific filtration time.
+	 *
+	 * @param time The filtration time of the random variable.
+	 * @param value A constant value.
+	 * @return The &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	RandomVariable createRandomVariable(double time, double value);
+
+	/**
+	 * Create a random variable from an array using a specific filtration time.
+	 *
+	 * @param time The filtration time of the random variable.
+	 * @param values Array representing values of the random variable at the sample paths.
+	 * @return The &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	RandomVariable createRandomVariable(double time, double[] values);
+
+	default RandomVariable createRandomVariable(double[] values) {
+<span class="nc" id="L77">		return createRandomVariable(0.0, values);</span>
+	}
+
+	/**
+	 * Create an array of (deterministic) random variables from an array of constants.
+	 *
+	 * @param values Array representing constants.
+	 * @return The &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	RandomVariable[] createRandomVariableArray(double[] values);
+
+	/**
+	 * Create a matrix of (deterministic) random variables from an matrix of constants.
+	 *
+	 * @param values Matrix representing constants.
+	 * @return The &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	RandomVariable[][] createRandomVariableMatrix(double[][] values);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

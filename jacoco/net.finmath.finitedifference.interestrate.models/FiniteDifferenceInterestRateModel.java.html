@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceInterestRateModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.models</a> &gt; <span class="el_source">FiniteDifferenceInterestRateModel.java</span></div><h1>FiniteDifferenceInterestRateModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.models;
+
+import net.finmath.finitedifference.FiniteDifferenceModel;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * Base interface for finite-difference interest-rate models.
+ *
+ * &lt;p&gt;
+ * The interface is designed to remain close to the philosophy of the Monte
+ * Carlo
+ * interest-rate framework of finmath while exposing the additional ingredients
+ * required by a partial-differential-equation discretization.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * A model implementing this interface is assumed to satisfy the following two
+ * principles:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;it fits the initially observed term structure automatically through an
+ *       underlying bootstrapped {@link AnalyticModel},&lt;/li&gt;
+ *   &lt;li&gt;it admits a finite-dimensional Markovian state representation, so that
+ *       the PDE is solved on a grid of state variables rather than on a full
+ *       curve of maturities.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * More precisely, the model is described by a state vector
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * X_t = (X_t^{(1)}, \ldots, X_t^{(d)})
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * evolving under dynamics of the form
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * dX_t = \mu(t,X_t)\,dt + \lambda(t,X_t)\,dW_t,
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where the drift vector {@code \mu} and factor-loading matrix
+ * {@code \lambda} are returned by {@link #getDrift(double, double...)} and
+ * {@link #getFactorLoading(double, double...)}. Observable term-structure
+ * quantities are reconstructed from the state. In particular, forward rates are
+ * obtained through
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * F(t;T_1,T_2) = \Phi(t,T_1,T_2,X_t),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where the forwarding curve is identified explicitly in the multi-curve
+ * setting.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The interface does &lt;b&gt;not&lt;/b&gt; encode a short-rate-only point of view. In
+ * particular, no method like {@code getShortRate(...)} is required at this
+ * level. This keeps the contract suitable for short-rate models, Gaussian HJM /
+ * Cheyette models, and other Markovian term-structure specifications.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The default boundary implementation returns
+ * {@link StandardBoundaryCondition#none()} in every spatial direction.
+ * Model-specific classes may override this when Dirichlet or Neumann boundary
+ * information is available analytically.
+ * &lt;/p&gt;
+ *s
+ * @author Alessandro Gnoatto
+ */
+public interface FiniteDifferenceInterestRateModel extends FiniteDifferenceModel {
+
+	/**
+	 * Returns the analytic multi-curve model used as the initial condition of
+	 * the
+	 * stochastic term-structure model.
+	 *
+	 * &lt;p&gt;
+	 * The returned {@link AnalyticModel} is assumed to contain the bootstrapped
+	 * market curves used to anchor the model to the observed initial term
+	 * structure.
+	 * &lt;/p&gt;
+	 *
+	 * @return The initial analytic multi-curve model.
+	 */
+	AnalyticModel getAnalyticModel();
+
+	/**
+	 * Returns the initial value of the Markovian state variables.
+	 *
+	 * @return The initial state vector.
+	 */
+	double[] getInitialValue();
+
+	/**
+	 * Returns the drift vector of the Markovian state process.
+	 *
+	 * &lt;p&gt;
+	 * This method provides the deterministic part of the state dynamics
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;
+	 * dX_t = \mu(t,X_t)\,dt + \lambda(t,X_t)\,dW_t.
+	 * &lt;/i&gt;
+	 * &lt;/p&gt;
+	 *
+	 * @param time The current time.
+	 * @param stateVariables The current state vector.
+	 * @return The drift vector at the given state.
+	 */
+	double[] getDrift(double time, double... stateVariables);
+
+	/**
+	 * Returns the factor-loading matrix of the Markovian state process.
+	 *
+	 * &lt;p&gt;
+	 * If {@code d} denotes the state dimension and {@code m} the Brownian
+	 * dimension, then the returned array has shape {@code d x m}.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The current time.
+	 * @param stateVariables The current state vector.
+	 * @return The factor-loading matrix at the given state.
+	 */
+	double[][] getFactorLoading(double time, double... stateVariables);
+
+	/**
+	 * Returns the value at time {@code time} of the discount bond maturing at
+	 * {@code maturity}, conditional on the current model state.
+	 *
+	 * &lt;p&gt;
+	 * In a multi-curve setting this method refers to the discounting curve.
+	 * &lt;/p&gt;
+	 *
+	 * @param time The evaluation time.
+	 * @param maturity The maturity of the discount bond.
+	 * @param stateVariables The current state vector.
+	 * @return The discount bond value.
+	 */
+	double getDiscountBond(double time, double maturity, double... stateVariables);
+
+	/**
+	 * Returns the simply compounded forward rate associated with a given
+	 * forwarding curve and accrual period.
+	 *
+	 * &lt;p&gt;
+	 * This is the finite-difference analogue of the Monte Carlo
+	 * {@code getLibor(...)} philosophy. The forwarding curve is identified
+	 * explicitly because, in a multi-curve framework, it is in general distinct
+	 * from the discount curve.
+	 * &lt;/p&gt;
+	 *
+	 * @param forwardCurveName The name of the forwarding curve.
+	 * @param time The evaluation time.
+	 * @param periodStart The start of the accrual period.
+	 * @param periodEnd The end of the accrual period.
+	 * @param stateVariables The current state vector.
+	 * @return The forward rate for the specified accrual period.
+	 */
+	double getForwardRate(
+			String forwardCurveName,
+			double time,
+			double periodStart,
+			double periodEnd,
+			double... stateVariables);
+
+	/**
+	 * Alias for {@link #getForwardRate(String, double, double, double,
+	 * double...)}
+	 * using the Monte Carlo terminology.
+	 *
+	 * @param forwardCurveName The name of the forwarding curve.
+	 * @param time The evaluation time.
+	 * @param periodStart The start of the accrual period.
+	 * @param periodEnd The end of the accrual period.
+	 * @param stateVariables The current state vector.
+	 * @return The forward rate for the specified accrual period.
+	 */
+	default double getLibor(
+			final String forwardCurveName,
+			final double time,
+			final double periodStart,
+			final double periodEnd,
+			final double... stateVariables) {
+<span class="nc" id="L202">		return getForwardRate(forwardCurveName, time, periodStart, periodEnd, stateVariables);</span>
+	}
+
+	/**
+	 * Returns a clone of the model using a modified space-time discretization.
+	 *
+	 * @param spaceTimeDiscretization The new space-time discretization.
+	 * @return A clone with the modified discretization.
+	 */
+	FiniteDifferenceInterestRateModel getCloneWithModifiedSpaceTimeDiscretization(
+			SpaceTimeDiscretization spaceTimeDiscretization);
+
+	/**
+	 * Returns the lower-boundary conditions for the current product and state.
+	 *
+	 * &lt;p&gt;
+	 * The default implementation returns
+	 * {@link StandardBoundaryCondition#none()} in every spatial direction.
+	 * &lt;/p&gt;
+	 *
+	 * @param product The product being priced.
+	 * @param time The current time.
+	 * @param stateVariables The current boundary state.
+	 * @return Boundary conditions at the lower boundary.
+	 */
+	default BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L232">		final int numberOfSpaceGrids = getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+<span class="nc" id="L233">		final BoundaryCondition[] boundaryConditions = new BoundaryCondition[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L236">			boundaryConditions[i] = StandardBoundaryCondition.none();</span>
+		}
+
+<span class="nc" id="L239">		return boundaryConditions;</span>
+	}
+
+	/**
+	 * Returns the upper-boundary conditions for the current product and state.
+	 *
+	 * &lt;p&gt;
+	 * The default implementation returns
+	 * {@link StandardBoundaryCondition#none()} in every spatial direction.
+	 * &lt;/p&gt;
+	 *
+	 * @param product The product being priced.
+	 * @param time The current time.
+	 * @param stateVariables The current boundary state.
+	 * @return Boundary conditions at the upper boundary.
+	 */
+	default BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L260">		final int numberOfSpaceGrids = getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+<span class="nc" id="L261">		final BoundaryCondition[] boundaryConditions = new BoundaryCondition[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L264">			boundaryConditions[i] = StandardBoundaryCondition.none();</span>
+		}
+
+<span class="nc" id="L267">		return boundaryConditions;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

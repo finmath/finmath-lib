@@ -1,0 +1,327 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BermudanOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">BermudanOption.java</span></div><h1>BermudanOption.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
+import org.apache.commons.lang3.Validate;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.optimizer.GoldenSectionSearch;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * This class implements the valuation of a Bermudan option paying
+ * &lt;br&gt;
+ * &lt;i&gt;	N(i) * (S(T(i)) - K(i))	&lt;/i&gt; 	at &lt;i&gt;T(i)&lt;/i&gt;,
+ * &lt;br&gt;
+ * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+ * and T(i) the exercise date.
+ *
+ * The code &quot;demos&quot; the two prominent methods for the valuation of Bermudan (American) products:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		The valuation may be performed using an estimation of the conditional expectation to determine the
+ * 		exercise criteria. Apart from a possible foresight bias induced by the Monte-Carlo errors, this give a lower bound
+ *		for the Bermudan value.
+ * 	&lt;li&gt;
+ * 		The valuation may be performed using the dual method based on a minimization problem, which gives an upper bound.
+ * &lt;/ul&gt;
+ *
+ *
+ * @author Christian Fries
+ * @version 1.5
+ */
+public class BermudanOption extends AbstractAssetMonteCarloProduct {
+
+<span class="fc" id="L46">	public enum ExerciseMethod {</span>
+<span class="fc" id="L47">		ESTIMATE_COND_EXPECTATION,</span>
+<span class="fc" id="L48">		UPPER_BOUND_METHOD</span>
+	}
+
+	private final double[]	exerciseDates;
+	private final double[]	notionals;
+	private final double[]	strikes;
+
+	private final int			numberOfBasisFunctions;
+	private final boolean		intrinsicValueAsBasisFunction;
+
+	private final boolean		useBinning;
+
+	private final ExerciseMethod exerciseMethod;
+
+	/*
+	 * For analysis only
+	 */
+	private RandomVariable		lastValuationExerciseTime;
+	private RandomVariable[]	lastValuationExerciseValueAtExerciseTime;
+	private RandomVariable[]	lastValuationContinuationValueAtExerciseTime;
+	private RandomVariable[]	lastValuationContinuationValueEstimatedAtExerciseTime;
+
+	/**
+	 * Create a Bermudan option paying
+	 * 		N(i) * (S(T(i)) - K(i)) at T(i),
+	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+	 * and T(i) the exercise date.
+	 *
+	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
+	 * @param notionals The notionals (N(i)) for each exercise date.
+	 * @param strikes The strikes (K(i)) for each exercise date.
+	 * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
+	 * @param numberOfBasisFunctions The number of basis functions (if exerciseMethod == ESTIMATE_COND_EXPECTATION, otherwise ignored)
+	 * @param intrinsicValueAsBasisFunction If true max(S-K,0) is used to build the basis function, otherwise S is used to build the basis function.
+	 * @param useBinning If false, the basis functions are polynomials of increasing order (1, S S^2, ...). If true, the basis functions are bins.
+	 */
+	public BermudanOption(
+			final double[]			exerciseDates,
+			final double[]			notionals,
+			final double[]			strikes,
+			final ExerciseMethod	exerciseMethod,
+			final int				numberOfBasisFunctions,
+			final boolean			intrinsicValueAsBasisFunction,
+			final boolean			useBinning) {
+<span class="fc" id="L92">		super();</span>
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		Validate.isTrue(numberOfBasisFunctions &gt; 0, &quot;The vaue of numberOfBasisFunctions must be larger or equal 1. %s&quot; , numberOfBasisFunctions);</span>
+
+<span class="fc" id="L95">		this.exerciseDates = exerciseDates;</span>
+<span class="fc" id="L96">		this.notionals = notionals;</span>
+<span class="fc" id="L97">		this.strikes = strikes;</span>
+<span class="fc" id="L98">		this.exerciseMethod = exerciseMethod;</span>
+<span class="fc" id="L99">		this.numberOfBasisFunctions = numberOfBasisFunctions;</span>
+<span class="fc" id="L100">		this.intrinsicValueAsBasisFunction = intrinsicValueAsBasisFunction;</span>
+<span class="fc" id="L101">		this.useBinning = useBinning;</span>
+<span class="fc" id="L102">	}</span>
+
+	/**
+	 * Create a Bermudan option paying
+	 * N(i) * (S(T(i)) - K(i)) at T(i),
+	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+	 * and T(i) the exercise date.
+	 *
+	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
+	 * @param notionals The notionals (N(i)) for each exercise date.
+	 * @param strikes The strikes (K(i)) for each exercise date.
+	 * @param exerciseMethod The exercise method to be used for the estimation of the exercise boundary.
+	 */
+	public BermudanOption(
+			final double[] exerciseDates,
+			final double[] notionals,
+			final double[] strikes,
+			final ExerciseMethod exerciseMethod) {
+<span class="fc" id="L120">		this(exerciseDates, notionals, strikes, exerciseMethod, 5, false, false);</span>
+<span class="fc" id="L121">	}</span>
+
+	/**
+	 * Create a Bermudan option paying
+	 * N(i) * (S(T(i)) - K(i)) at T(i),
+	 * when exercised in T(i), where N(i) is the notional, S is the underlying, K(i) is the strike
+	 * and T(i) the exercise date.
+	 *
+	 * The product will use ExerciseMethod.ESTIMATE_COND_EXPECTATION.
+	 *
+	 * @param exerciseDates The exercise dates (T(i)), given as doubles.
+	 * @param notionals The notionals (N(i)) for each exercise date.
+	 * @param strikes The strikes (K(i)) for each exercise date.
+	 */
+	public BermudanOption(
+			final double[] exerciseDates,
+			final double[] notionals,
+			final double[] strikes) {
+<span class="fc" id="L139">		this(exerciseDates, notionals, strikes, ExerciseMethod.ESTIMATE_COND_EXPECTATION);</span>
+<span class="fc" id="L140">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model,
+	 * evaluated at a given evalutationTime.
+	 * Cash-flows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 *
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">		if(exerciseMethod == ExerciseMethod.UPPER_BOUND_METHOD) {</span>
+			// Find optimal lambda
+<span class="fc" id="L157">			final GoldenSectionSearch optimizer = new GoldenSectionSearch(-1.0, 1.0);</span>
+<span class="fc bfc" id="L158" title="All 2 branches covered.">			while(!optimizer.isDone()) {</span>
+<span class="fc" id="L159">				final double lambda = optimizer.getNextPoint();</span>
+<span class="fc" id="L160">				final double value = this.getValue(evaluationTime, model, lambda).getAverage();</span>
+<span class="fc" id="L161">				optimizer.setValue(value);</span>
+<span class="fc" id="L162">			}</span>
+<span class="fc" id="L163">			return getValue(evaluationTime, model, optimizer.getBestPoint());</span>
+		}
+		else {
+<span class="fc" id="L166">			return getValue(evaluationTime, model, 0.0);</span>
+		}
+	}
+
+	/**
+	 * Valuation where the parameter lambda is used as a factor to the martingale used to remove foresight in the upper bond method.
+	 * Used to optimize the value of lambda.
+	 *
+	 * For {@link ExerciseMethod} being ESTIMATE_COND_EXPECTATION the lambda has no effect.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @param lambda The parameter lambda used as a factor to the martingale used to remove foresight in the upper bond method.
+	 * @return The random variable representing the value of the product discounted to evaluation time.
+	 * @throws CalculationException
+	 */
+	private RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model, final double lambda) throws CalculationException {
+		/*
+		 * We are going backward in time (note that this bears the risk of an foresight bias).
+		 * We store the value of the option, if not exercised in a vector. Is is not allowed to used the specific entry in this vector
+		 * in the exercise decision (perfect foresight). Instead some exercise strategy / estimate has to be used.
+		 */
+
+		// Initialize our value random variable: the value of the option if we never exercise is zero
+<span class="fc" id="L190">		RandomVariable	value			= model.getRandomVariableForConstant(0.0);</span>
+
+<span class="fc" id="L192">		RandomVariable	exerciseTime	= model.getRandomVariableForConstant(exerciseDates[exerciseDates.length-1]+1);</span>
+<span class="fc" id="L193">		lastValuationExerciseValueAtExerciseTime = new RandomVariable[exerciseDates.length];</span>
+<span class="fc" id="L194">		lastValuationContinuationValueAtExerciseTime = new RandomVariable[exerciseDates.length];</span>
+<span class="fc" id="L195">		lastValuationContinuationValueEstimatedAtExerciseTime = new RandomVariable[exerciseDates.length];</span>
+
+<span class="fc bfc" id="L197" title="All 2 branches covered.">		for(int exerciseDateIndex=exerciseDates.length-1; exerciseDateIndex&gt;=0; exerciseDateIndex--)</span>
+		{
+<span class="fc" id="L199">			final double exerciseDate = exerciseDates[exerciseDateIndex];</span>
+<span class="fc" id="L200">			final double notional     = notionals[exerciseDateIndex];</span>
+<span class="fc" id="L201">			final double strike       = strikes[exerciseDateIndex];</span>
+
+			// Get some model values upon exercise date
+<span class="fc" id="L204">			final RandomVariable underlyingAtExercise	= model.getAssetValue(exerciseDate,0);</span>
+<span class="fc" id="L205">			final RandomVariable numeraireAtPayment		= model.getNumeraire(exerciseDate);</span>
+<span class="fc" id="L206">			final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(exerciseDate);</span>
+
+			// Value received if exercised at current time
+<span class="fc" id="L209">			final RandomVariable valueOfPaymentsIfExercised = underlyingAtExercise.sub(strike).mult(notional).div(numeraireAtPayment).mult(monteCarloWeights);</span>
+
+			/*
+			 * Calculate the exercise criteria (exercise if the following exerciseCriteria is negative)
+			 */
+<span class="fc" id="L214">			RandomVariable exerciseValue = null;</span>
+<span class="fc" id="L215">			RandomVariable exerciseCriteria = null;</span>
+<span class="pc bpc" id="L216" title="1 of 3 branches missed.">			switch(exerciseMethod) {</span>
+			case ESTIMATE_COND_EXPECTATION:
+				// Create a conditional expectation estimator with some basis functions (predictor variables) for conditional expectation estimation.
+				ArrayList&lt;RandomVariable&gt; basisFunctions;
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">				final RandomVariable basisFunctionUnderlying = intrinsicValueAsBasisFunction ? underlyingAtExercise.sub(strike).floor(0.0) : underlyingAtExercise;</span>
+<span class="pc bpc" id="L221" title="1 of 2 branches missed.">				basisFunctions = useBinning ? getRegressionBasisFunctionsBinning(basisFunctionUnderlying) : getRegressionBasisFunctions(basisFunctionUnderlying);</span>
+
+<span class="fc" id="L223">				final ConditionalExpectationEstimator condExpEstimator = new MonteCarloConditionalExpectationRegression(basisFunctions.toArray(new RandomVariable[0]));</span>
+
+				// Calculate conditional expectation on numeraire relative quantity.
+<span class="fc" id="L226">				final RandomVariable valueIfNotExcercisedEstimated = value.getConditionalExpectation(condExpEstimator);</span>
+
+<span class="fc" id="L228">				exerciseValue		= valueOfPaymentsIfExercised;</span>
+<span class="fc" id="L229">				exerciseCriteria	= valueIfNotExcercisedEstimated.sub(exerciseValue);</span>
+<span class="fc" id="L230">				break;</span>
+			case UPPER_BOUND_METHOD:
+<span class="fc" id="L232">				RandomVariable martingale		= model.getAssetValue(exerciseDates[exerciseDateIndex], 0).div(model.getNumeraire(exerciseDates[exerciseDateIndex]));</span>
+				// Construct a martingale with initial value being zero.
+<span class="fc" id="L234">				martingale = martingale.sub(martingale.getAverage()).mult(lambda);</span>
+
+				// Initialize value as 0-M, if we are on the last exercise date.
+<span class="fc bfc" id="L237" title="All 2 branches covered.">				if(exerciseDateIndex==exerciseDates.length-1) {</span>
+<span class="fc" id="L238">					value = value.sub(martingale);</span>
+				}
+
+<span class="fc" id="L241">				exerciseValue		= valueOfPaymentsIfExercised.sub(martingale);</span>
+<span class="fc" id="L242">				exerciseCriteria	= value.sub(exerciseValue);</span>
+<span class="fc" id="L243">				break;</span>
+			default:
+<span class="nc" id="L245">				throw new IllegalArgumentException(&quot;Unknown exerciseMethod &quot; + exerciseMethod + &quot;.&quot;);</span>
+			}
+<span class="fc" id="L247">			lastValuationExerciseValueAtExerciseTime[exerciseDateIndex]					= exerciseValue.mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));</span>
+<span class="fc" id="L248">			lastValuationContinuationValueAtExerciseTime[exerciseDateIndex]				= value.mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));</span>
+<span class="fc" id="L249">			lastValuationContinuationValueEstimatedAtExerciseTime[exerciseDateIndex]	= exerciseCriteria.add(exerciseValue).mult(model.getNumeraire(exerciseDates[exerciseDateIndex])).div(model.getMonteCarloWeights(exerciseDates[exerciseDateIndex]));</span>
+
+			// If trigger is positive keep value, otherwise take underlying
+<span class="fc" id="L252">			value			= exerciseCriteria.choose(value, exerciseValue);</span>
+<span class="fc" id="L253">			exerciseTime	= exerciseCriteria.choose(exerciseTime, Scalar.of(exerciseDate));</span>
+
+		}
+<span class="fc" id="L256">		lastValuationExerciseTime = exerciseTime;</span>
+
+		// Note that values is a relative price - no numeraire division is required
+<span class="fc" id="L259">		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L260">		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L261">		value = value.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);</span>
+
+<span class="fc" id="L263">		return value;</span>
+	}
+
+	public double[] getExerciseDates() {
+<span class="fc" id="L267">		return exerciseDates;</span>
+	}
+
+	public double[] getNotionals() {
+<span class="nc" id="L271">		return notionals;</span>
+	}
+
+	public double[] getStrikes() {
+<span class="nc" id="L275">		return strikes;</span>
+	}
+
+	public RandomVariable getLastValuationExerciseTime() {
+<span class="fc" id="L279">		return lastValuationExerciseTime;</span>
+	}
+
+	public RandomVariable[] getLastValuationExerciseValueAtExerciseTime() {
+<span class="nc" id="L283">		return lastValuationExerciseValueAtExerciseTime;</span>
+	}
+
+	public RandomVariable[] getLastValuationContinuationValueAtExerciseTime() {
+<span class="nc" id="L287">		return lastValuationContinuationValueAtExerciseTime;</span>
+	}
+
+	public RandomVariable[] getLastValuationContinuationValueEstimatedAtExerciseTime() {
+<span class="nc" id="L291">		return lastValuationContinuationValueEstimatedAtExerciseTime;</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getRegressionBasisFunctions(RandomVariable underlying) {
+
+<span class="fc" id="L296">		final int orderOfRegressionPolynomial = numberOfBasisFunctions-1;		// Choose maybe something like 4 (numberOfBasisFunctions = 5)</span>
+
+<span class="fc" id="L298">		underlying = new RandomVariableFromDoubleArray(0.0, underlying.getRealizations());</span>
+
+		// Create basis functions - here: 1, S, S^2, S^3, S^4
+<span class="fc" id="L301">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L302" title="All 2 branches covered.">		for(int powerOfRegressionMonomial=0; powerOfRegressionMonomial&lt;=orderOfRegressionPolynomial; powerOfRegressionMonomial++) {</span>
+<span class="fc" id="L303">			basisFunctions.add(underlying.pow(powerOfRegressionMonomial));</span>
+		}
+
+<span class="fc" id="L306">		return basisFunctions;</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getRegressionBasisFunctionsBinning(RandomVariable underlying) {
+
+<span class="nc" id="L311">		final int numberOfBins = numberOfBasisFunctions;		// Choose maybe something like 20 (numberOfBasisFunctions = 20)</span>
+
+<span class="nc" id="L313">		underlying = new RandomVariableFromDoubleArray(0.0, underlying.getRealizations());</span>
+<span class="nc" id="L314">		final double[] values = underlying.getRealizations();</span>
+<span class="nc" id="L315">		Arrays.sort(values);</span>
+
+<span class="nc" id="L317">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L318" title="All 2 branches missed.">		for(int i = 0; i&lt;numberOfBins; i++) {</span>
+<span class="nc" id="L319">			final double binLeft = values[(int)((double)i/(double)numberOfBins*values.length)];</span>
+<span class="nc" id="L320">			final RandomVariable basisFunction = underlying.sub(binLeft).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+<span class="nc" id="L321">			basisFunctions.add(basisFunction);</span>
+		}
+
+<span class="nc" id="L324">		return basisFunctions;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

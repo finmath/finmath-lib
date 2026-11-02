@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DateIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">DateIndex.java</span></div><h1>DateIndex.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 14.06.2015
+ */
+
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * An index whose value is a function of the fixing date, for example the DAY, MONTH or NUMBER_OF_DAYS_IN_MONTH.
+ * This index is useful in building date based interpolation formulas using other indices.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DateIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 7457336500162149869L;
+
+<span class="nc" id="L27">	public enum DateIndexType {</span>
+<span class="nc" id="L28">		DAY,</span>
+<span class="nc" id="L29">		MONTH,</span>
+<span class="nc" id="L30">		YEAR,</span>
+<span class="nc" id="L31">		NUMBER_OF_DAYS_IN_MONTH</span>
+	}
+
+	private final DateIndexType dateIndexType;
+
+	/**
+	 * Construct a date index.
+	 *
+	 * @param name Name of this index.
+	 * @param currency Currency (if any - in natural situations this index is a scalar).
+	 * @param dateIndexType The date index type.
+	 */
+	public DateIndex(final String name, final String currency, final DateIndexType dateIndexType) {
+<span class="nc" id="L44">		super(name, currency);</span>
+<span class="nc" id="L45">		this.dateIndexType = dateIndexType;</span>
+<span class="nc" id="L46">	}</span>
+
+	/**
+	 * Construct a date index.
+	 *
+	 * @param name Name of this index.
+	 * @param dateIndexType The date index type.
+	 */
+	public DateIndex(final String name, final DateIndexType dateIndexType) {
+<span class="nc" id="L55">		super(name);</span>
+<span class="nc" id="L56">		this.dateIndexType = dateIndexType;</span>
+<span class="nc" id="L57">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double fixingTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L61">		final LocalDate referenceDate = model.getModel().getForwardRateCurve().getReferenceDate()</span>
+<span class="nc" id="L62">				.plusDays((int)Math.round(fixingTime*365));</span>
+
+<span class="nc" id="L64">		double value = 0;</span>
+<span class="nc bnc" id="L65" title="All 5 branches missed.">		switch(dateIndexType) {</span>
+		case DAY:
+<span class="nc" id="L67">			value = referenceDate.getDayOfMonth();</span>
+<span class="nc" id="L68">			break;</span>
+		case MONTH:
+<span class="nc" id="L70">			value = referenceDate.getMonthValue();</span>
+<span class="nc" id="L71">			break;</span>
+		case YEAR:
+<span class="nc" id="L73">			value = referenceDate.getYear();</span>
+<span class="nc" id="L74">			break;</span>
+		case NUMBER_OF_DAYS_IN_MONTH:
+<span class="nc" id="L76">			value = referenceDate.lengthOfMonth();</span>
+<span class="nc" id="L77">			break;</span>
+		default:
+<span class="nc" id="L79">			throw new IllegalArgumentException(&quot;Unknown dateIndexType &quot; + dateIndexType + &quot;.&quot;);</span>
+		}
+
+<span class="nc" id="L82">		return model.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L87">		return null;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

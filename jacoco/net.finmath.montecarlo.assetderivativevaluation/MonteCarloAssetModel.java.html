@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloAssetModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation</a> &gt; <span class="el_source">MonteCarloAssetModel.java</span></div><h1>MonteCarloAssetModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class glues together an &lt;code&gt;AbstractProcessModel&lt;/code&gt; and a Monte-Carlo implementation of a &lt;code&gt;MonteCarloProcessFromProcessModel&lt;/code&gt;
+ * and implements &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;.
+ *
+ * The model is specified via the object implementing &lt;code&gt;ProcessModel&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
+ */
+public class MonteCarloAssetModel implements AssetModelMonteCarloSimulationModel {
+
+	private final ProcessModel model;
+	private final MonteCarloProcess process;
+
+	/**
+	 * Create a Monte-Carlo simulation using given process discretization scheme.
+	 *
+	 * @param process The numerical scheme to be used.
+	 */
+	public MonteCarloAssetModel(final MonteCarloProcess process) {
+<span class="fc" id="L42">		super();</span>
+
+<span class="fc" id="L44">		this.model = process.getModel();</span>
+<span class="fc" id="L45">		this.process = process;</span>
+<span class="fc" id="L46">	}</span>
+
+	/**
+	 * Convenient constructor being the same as this(new EulerSchemeFromProcessModel(model, stochasticDriver))
+	 *
+	 * @param model The model to use for the EulerSchemeFromProcessModel.
+	 * @param stochasticDriver The stochatic driver to use.
+	 */
+	public MonteCarloAssetModel(ProcessModel model, IndependentIncrements stochasticDriver) {
+<span class="fc" id="L55">		this(new EulerSchemeFromProcessModel(model, stochasticDriver));</span>
+<span class="fc" id="L56">	}</span>
+
+	/**
+	 * Create a Monte-Carlo simulation using given process discretization scheme.
+	 *
+	 * @param model The model to be used.
+	 * @param process The numerical scheme to be used.
+	 * @deprecated May be made private in future releases.
+	 */
+	@Deprecated
+	public MonteCarloAssetModel(
+			final ProcessModel model,
+			final MonteCarloProcess process) {
+<span class="fc" id="L69">		super();</span>
+
+<span class="fc" id="L71">		this.model = model;</span>
+<span class="fc" id="L72">		this.process = process;</span>
+<span class="fc" id="L73">	}</span>
+
+	@Override
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
+<span class="fc" id="L77">		final int timeIndex = getTimeIndex(time);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L79">			throw new IllegalArgumentException(&quot;The model does not provide an interpolation of simulation time (time given was &quot; + time + &quot;).&quot;);</span>
+		}
+
+<span class="fc" id="L82">		return getAssetValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
+<span class="fc" id="L87">		return process.getProcessValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+<span class="fc" id="L92">		final double time = getTime(timeIndex);</span>
+
+		// TODO Consider adding caching of the numerare here!
+<span class="fc" id="L95">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+
+		// TODO Consider adding of the numerare here!
+<span class="fc" id="L102">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L107">		return getMonteCarloWeights(getTimeIndex(time));</span>
+	}
+
+	@Override
+	public int getNumberOfAssets() {
+<span class="nc" id="L112">		return 1;</span>
+	}
+
+	@Override
+	public MonteCarloAssetModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) throws CalculationException {
+<span class="fc" id="L117">		final ProcessModel	newModel = model.getCloneWithModifiedData(dataModified);</span>
+
+		MonteCarloProcess	newProcess;
+		try {
+<span class="fc" id="L121">			final Map&lt;String, Object&gt; dataModifiedForProcess = new HashMap&lt;String, Object&gt;();</span>
+<span class="fc" id="L122">			dataModifiedForProcess.putAll(dataModified);</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">			if(!dataModifiedForProcess.containsKey(&quot;model&quot;)) {</span>
+<span class="fc" id="L124">				dataModifiedForProcess.put(&quot;model&quot;, newModel);</span>
+			}
+<span class="fc" id="L126">			newProcess = process.getCloneWithModifiedData(dataModifiedForProcess);</span>
+		}
+<span class="nc" id="L128">		catch(final UnsupportedOperationException e) {</span>
+<span class="nc" id="L129">			newProcess = process;</span>
+<span class="fc" id="L130">		}</span>
+
+		// In the case where the model has changed we need a new process anyway
+<span class="pc bpc" id="L133" title="2 of 4 branches missed.">		if(newModel != model &amp;&amp; newProcess == process) {</span>
+<span class="nc" id="L134">			newProcess = process.getCloneWithModifiedModel(newModel);</span>
+		}
+
+<span class="fc" id="L137">		return new MonteCarloAssetModel(newProcess);</span>
+	}
+
+	/**
+	 * The method is not implemented. Instead call getCloneWithModifiedData on the model
+	 * an create a new process from it.
+	 *
+	 * @param seed The new seed.
+	 */
+	@Override
+	@Deprecated
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L149">		throw new UnsupportedOperationException(&quot;Method not implemented&quot;);</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="fc" id="L154">		return process.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L159">		return model.getReferenceDate();</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L164">		return process.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="fc" id="L169">		return process.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L174">		return process.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L179">		return model.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="fc" id="L184">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	/**
+	 * Returns the {@link ProcessModel} used for this Monte-Carlo simulation.
+	 *
+	 * @return the model
+	 */
+	public ProcessModel getModel() {
+<span class="fc" id="L193">		return model;</span>
+	}
+
+	/**
+	 * Returns the {@link MonteCarloProcess} used for this Monte-Carlo simulation.
+	 *
+	 * @return the process
+	 */
+	public MonteCarloProcess getProcess() {
+<span class="fc" id="L202">		return process;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L207">		return this.getClass().getSimpleName() + &quot; [model=&quot; + model + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

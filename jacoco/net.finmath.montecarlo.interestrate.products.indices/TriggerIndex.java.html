@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TriggerIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">TriggerIndex.java</span></div><h1>TriggerIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 22.11.2009
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A trigger index.
+ *
+ * Provides the function trigger(t) &amp;ge; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t).
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class TriggerIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 2329303879116802448L;
+
+	private final AbstractProductComponent trigger;
+	private final AbstractProductComponent indexIfTriggerIsPositive;
+	private final AbstractProductComponent indexIfTriggerIsNegative;
+
+
+	/**
+	 * Creates the function trigger(t) &amp;ge; 0.0 ? indexIfTriggerIsPositive(t) : indexIfTriggerIsNegative(t)
+	 *
+	 * @param trigger An index whose value determines which of the following indices is taken.
+	 * @param indexIfTriggerIsPositive An index representing the result if trigger is non-negative (&amp;ge; 0).
+	 * @param indexIfTriggerIsNegative An index representing the result if trigger is negative (&amp;lt; 0)
+	 */
+	public TriggerIndex(final AbstractProductComponent trigger, final AbstractProductComponent indexIfTriggerIsPositive, final AbstractProductComponent indexIfTriggerIsNegative) {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">		this.trigger = trigger;</span>
+<span class="nc" id="L40">		this.indexIfTriggerIsPositive = indexIfTriggerIsPositive;</span>
+<span class="nc" id="L41">		this.indexIfTriggerIsNegative = indexIfTriggerIsNegative;</span>
+<span class="nc" id="L42">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L46">		final RandomVariable valueTrigger				= trigger.getValue(evaluationTime, model);</span>
+<span class="nc" id="L47">		final RandomVariable valueIfTriggerNonNegative	= indexIfTriggerIsPositive.getValue(evaluationTime, model);</span>
+<span class="nc" id="L48">		final RandomVariable valueIfTriggerIsNegative	= indexIfTriggerIsNegative.getValue(evaluationTime, model);</span>
+<span class="nc" id="L49">		return valueTrigger.choose(valueIfTriggerNonNegative, valueIfTriggerIsNegative);</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L54">		Set&lt;String&gt; underlyingNames			= trigger.queryUnderlyings();</span>
+<span class="nc" id="L55">		final Set&lt;String&gt;	underlyingNamesPositive	= indexIfTriggerIsPositive.queryUnderlyings();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if(underlyingNamesPositive != null) {</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			if(underlyingNames != null) {</span>
+<span class="nc" id="L58">				underlyingNames.addAll(underlyingNamesPositive);</span>
+			} else {
+<span class="nc" id="L60">				underlyingNames = underlyingNamesPositive;</span>
+			}
+		}
+<span class="nc" id="L63">		final Set&lt;String&gt;	underlyingNamesNegative	= indexIfTriggerIsNegative.queryUnderlyings();</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if(underlyingNamesNegative != null) {</span>
+<span class="nc bnc" id="L65" title="All 2 branches missed.">			if(underlyingNames != null) {</span>
+<span class="nc" id="L66">				underlyingNames.addAll(underlyingNamesNegative);</span>
+			} else {
+<span class="nc" id="L68">				underlyingNames = underlyingNamesNegative;</span>
+			}
+		}
+<span class="nc" id="L71">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L76">		return &quot;TriggerIndex [trigger=&quot; + trigger</span>
+				+ &quot;, indexIfTriggerIsPositive=&quot; + indexIfTriggerIsPositive
+				+ &quot;, indexIfTriggerIsNegative=&quot; + indexIfTriggerIsNegative
+<span class="nc" id="L79">				+ &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

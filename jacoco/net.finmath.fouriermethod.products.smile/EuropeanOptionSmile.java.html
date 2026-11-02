@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOptionSmile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.products.smile</a> &gt; <span class="el_source">EuropeanOptionSmile.java</span></div><h1>EuropeanOptionSmile.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.products.smile;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.modelling.descriptor.SingleAssetEuropeanOptionProductDescriptor;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * This is an abstract base class for Fourier-based methodologies for the valuation of a smile of options.
+ *
+ * Concrete different Fourier methodologies should provide different implementations of the getValue method, which is left
+ * here as abstract.
+ *
+ * @author Alessandro Gnoatto
+ *
+ */
+public abstract class EuropeanOptionSmile implements SmileByIntegralTransform {
+
+	private final String underlyingName;
+	private final double maturity;
+	private final double[] strikes;
+
+	public EuropeanOptionSmile(final String underlyingName, final double maturity, final double[] strikes) {
+<span class="fc" id="L31">		super();</span>
+<span class="fc" id="L32">		this.underlyingName = underlyingName;</span>
+<span class="fc" id="L33">		this.maturity = maturity;</span>
+<span class="fc" id="L34">		this.strikes = strikes;</span>
+<span class="fc" id="L35">	}</span>
+
+	public EuropeanOptionSmile(final double maturity, final double[] strikes) {
+<span class="fc" id="L38">		this(null,maturity,strikes);</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+	public double getMaturity() {
+<span class="fc" id="L43">		return maturity;</span>
+	}
+
+	public double[] getStrikes() {
+<span class="nc" id="L47">		return strikes;</span>
+	}
+
+	public String getUnderlyingName() {
+<span class="nc" id="L51">		return underlyingName;</span>
+	}
+
+	@Override
+	public double getIntegrationDomainImagLowerBound() {
+<span class="fc" id="L56">		return 0;</span>
+	}
+
+	@Override
+	public double getIntegrationDomainImagUpperBound() {
+<span class="fc" id="L61">		return -1;</span>
+	}
+
+	@Override
+	public abstract Map&lt;String, Function&lt;Double,Double&gt;&gt; getValue(double evaluationTime, CharacteristicFunctionModel model) throws CalculationException;
+
+	/**
+	 * Returns the same valuation method for different parameters (maturity and strikes).
+	 *
+	 * @param maturity The new maturity.
+	 * @param strikes The new strikes.
+	 * @return the same valuation method now referring to a different maturity and strike grid.
+	 */
+	public abstract EuropeanOptionSmile getCloneWithModifiedParameters(double maturity, double[] strikes);
+
+
+	@Override
+	public Complex apply(final Complex z) {
+<span class="fc" id="L79">		return ((z.subtract(Complex.I)).multiply(z)).negate();</span>
+	}
+
+	/**
+	 * Return a collection of product descriptors for each option in the smile.
+	 *
+	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
+	 * @return a collection of product descriptors for each option in the smile.
+	 */
+	public Map&lt;Double, SingleAssetEuropeanOptionProductDescriptor&gt; getDescriptors(final LocalDate referenceDate){
+
+<span class="nc" id="L90">		final int numberOfStrikes = strikes.length;</span>
+<span class="nc" id="L91">		final HashMap&lt;Double, SingleAssetEuropeanOptionProductDescriptor&gt; descriptors = new HashMap&lt;&gt;();</span>
+
+<span class="nc" id="L93">		final LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">		for(int i = 0; i&lt; numberOfStrikes; i++) {</span>
+<span class="nc" id="L95">			descriptors.put(strikes[i], new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strikes[i]));</span>
+		}
+
+<span class="nc" id="L98">		return descriptors;</span>
+	}
+
+	/**
+	 * Return a product descriptor for a specific strike.
+	 *
+	 * @param referenceDate The reference date (translating the maturity floating point date to dates.
+	 * @param index The index corresponding to the strike grid.
+	 * @return a product descriptor for a specific strike.
+	 * @throws ArrayIndexOutOfBoundsException Thrown if index is out of bound.
+	 */
+	public SingleAssetEuropeanOptionProductDescriptor getDescriptor(final LocalDate referenceDate, final int index) throws ArrayIndexOutOfBoundsException{
+<span class="nc" id="L110">		final LocalDate maturityDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, maturity);</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		if(index &gt;= strikes.length) {</span>
+<span class="nc" id="L112">			throw new ArrayIndexOutOfBoundsException(&quot;Strike index out of bounds&quot;);</span>
+		}else {
+<span class="nc" id="L114">			return new SingleAssetEuropeanOptionProductDescriptor(underlyingName, maturityDate, strikes[index]);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

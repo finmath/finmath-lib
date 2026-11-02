@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ScheduleMetaData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">ScheduleMetaData.java</span></div><h1>ScheduleMetaData.java</h1><pre class="source lang-java linenums">package net.finmath.time;
+
+import net.finmath.time.ScheduleGenerator.DaycountConvention;
+import net.finmath.time.ScheduleGenerator.Frequency;
+import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+
+/**
+ * Class to store any relevant information to generate schedules, which have different period structure but otherwise follow the same conventions.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ * @deprecated
+ */
+@Deprecated
+public class ScheduleMetaData extends SchedulePrototype {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 2208562942537781355L;
+
+	/**
+	 * Construct the ScheduleMetaData.
+	 *
+	 * @param frequency The default frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
+	 */
+	@Deprecated
+	public ScheduleMetaData(final Frequency frequency, final DaycountConvention daycountConvention,
+			final ShortPeriodConvention shortPeriodConvention, final DateRollConvention dateRollConvention,
+			final BusinessdayCalendar businessdayCalendar, final int fixingOffsetDays, final int paymentOffsetDays,
+			final boolean isUseEndOfMonth) {
+<span class="nc" id="L41">		super(frequency, daycountConvention, shortPeriodConvention, dateRollConvention, businessdayCalendar, fixingOffsetDays,</span>
+				paymentOffsetDays, isUseEndOfMonth);
+		// TODO Auto-generated constructor stub
+<span class="nc" id="L44">	}</span>
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

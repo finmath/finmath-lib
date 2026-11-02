@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HestonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.models</a> &gt; <span class="el_source">HestonModel.java</span></div><h1>HestonModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+
+package net.finmath.fouriermethod.models;
+
+import java.time.LocalDate;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * Implements the characteristic function of a Heston model.
+ *
+ * The model is
+ * \[
+ * 	dS(t) = r^{\text{c}}(t) S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t), \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * \]
+ * \[
+ * 	dW_{1} dW_{2} = \rho dt
+ * \]
+ * \[
+ * 	dN(t) = r^{\text{d}}(t) N(t) dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is a Brownian motion.
+ *
+ * The model allows to specify two independent rate for forwarding (\( r^{\text{c}} \)) and discounting (\( r^{\text{d}} \)).
+ * It thus allow for a simple modelling of a funding / collateral curve (via (\( r^{\text{d}} \)) and/or the specification of
+ * a dividend yield.
+ *
+ * The free parameters of this model are:
+ * &lt;dl&gt;
+ * 	&lt;dt&gt;\( S_{0} \)&lt;/dt&gt; &lt;dd&gt;spot - initial value of S&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{c}} \)&lt;/dt&gt; &lt;dd&gt;the risk free rate (may be provided as a curve or a constant)&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \sigma \)&lt;/dt&gt; &lt;dd&gt;the initial volatility level&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r^{\text{d}} \)&lt;/dt&gt; &lt;dd&gt;the discount rate (may be provided as a curve or a constant)&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \xi \)&lt;/dt&gt; &lt;dd&gt;the volatility of volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \theta \)&lt;/dt&gt; &lt;dd&gt;the mean reversion level of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \kappa \)&lt;/dt&gt; &lt;dd&gt;the mean reversion speed of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \rho \)&lt;/dt&gt; &lt;dd&gt;the correlation of the Brownian drivers&lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * @author Christian Fries
+ * @author Andy Graf
+ * @author Lorenzo Toricelli
+ * @version 1.0
+ */
+public class HestonModel implements CharacteristicFunctionModel {
+
+	private final LocalDate referenceDate;
+
+	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final double volatility;
+
+	private final double theta;
+	private final double kappa;
+	private final double xi;
+	private final double rho;
+
+	/**
+	 * Create a Heston model (characteristic function)
+	 *
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
+	public HestonModel(final LocalDate referenceDate, final double initialValue, final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility, final double theta, final double kappa, final double xi, final double rho) {
+<span class="fc" id="L88">		super();</span>
+<span class="fc" id="L89">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L90">		this.initialValue = initialValue;</span>
+<span class="fc" id="L91">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L92">		riskFreeRate = Double.NaN; // For safety</span>
+<span class="fc" id="L93">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L94">		discountRate = Double.NaN; // For safety</span>
+<span class="fc" id="L95">		this.volatility = volatility;</span>
+<span class="fc" id="L96">		this.theta = theta;</span>
+<span class="fc" id="L97">		this.kappa = kappa;</span>
+<span class="fc" id="L98">		this.xi = xi;</span>
+<span class="fc" id="L99">		this.rho = rho;</span>
+<span class="fc" id="L100">	}</span>
+
+	/**
+	 * Create a Heston model (characteristic function)
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
+	public HestonModel(final double initialValue, final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility, final double theta, final double kappa, final double xi, final double rho) {
+<span class="fc" id="L115">		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate, volatility, theta, kappa, xi, rho);</span>
+<span class="fc" id="L116">	}</span>
+
+	/**
+	 * Create a Heston model (characteristic function)
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param theta \( \theta \) - the mean reversion level of the stochastic volatility
+	 * @param kappa \( \kappa \) - the mean reversion speed of the stochastic volatility
+	 * @param xi \( \xi \) - the volatility of volatility
+	 * @param rho \( \rho \) - the correlation of the Brownian drivers
+	 */
+	public HestonModel(final double initialValue, final double riskFreeRate, final double volatility, final double discountRate, final double theta, final double kappa,
+			final double xi, final double rho) {
+<span class="fc" id="L132">		super();</span>
+<span class="fc" id="L133">		referenceDate = null;</span>
+<span class="fc" id="L134">		this.initialValue = initialValue;</span>
+<span class="fc" id="L135">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L136">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L137">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L138">		this.discountRate = discountRate;</span>
+<span class="fc" id="L139">		this.volatility = volatility;</span>
+<span class="fc" id="L140">		this.theta = theta;</span>
+<span class="fc" id="L141">		this.kappa = kappa;</span>
+<span class="fc" id="L142">		this.xi = xi;</span>
+<span class="fc" id="L143">		this.rho = rho;</span>
+<span class="fc" id="L144">	}</span>
+
+	public HestonModel(final double initialValue, final double riskFreeRate, final double volatility, final double theta, final double kappa,
+			final double xi, final double rho) {
+<span class="fc" id="L148">		this(initialValue, riskFreeRate, volatility, riskFreeRate, theta, kappa, xi, rho);</span>
+<span class="fc" id="L149">	}</span>
+
+	@Override
+	public CharacteristicFunction apply(final double time) {
+
+<span class="fc" id="L154">		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);</span>
+<span class="fc" id="L155">		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);</span>
+
+<span class="fc" id="L157">		return new CharacteristicFunction() {</span>
+			@Override
+			public Complex apply(final Complex argument) {
+
+<span class="fc" id="L161">				final Complex iargument = argument.multiply(Complex.I);</span>
+
+<span class="fc" id="L163">				final Complex gamma = iargument.multiply(rho * xi).subtract(kappa).pow(2)</span>
+<span class="fc" id="L164">						.subtract(</span>
+<span class="fc" id="L165">								iargument.multiply(iargument)</span>
+<span class="fc" id="L166">								.add(iargument.multiply(-1)).multiply(0.5)</span>
+<span class="fc" id="L167">								.multiply(2 * xi * xi))</span>
+<span class="fc" id="L168">						.sqrt();</span>
+
+<span class="fc" id="L170">				final Complex a = iargument</span>
+<span class="fc" id="L171">						.multiply(rho * xi)</span>
+<span class="fc" id="L172">						.subtract(kappa)</span>
+<span class="fc" id="L173">						.subtract(gamma).multiply((-theta*kappa * time) / (xi * xi))</span>
+<span class="fc" id="L174">						.subtract(iargument.multiply(rho * xi).subtract(kappa).subtract(gamma)</span>
+<span class="fc" id="L175">								.multiply(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1).divide(gamma))</span>
+<span class="fc" id="L176">								.multiply(0.5).add(new Complex(1).divide(gamma.multiply(time).exp())).log()</span>
+<span class="fc" id="L177">								.add(gamma.multiply(time)).multiply((2 * theta*kappa) / (xi * xi)));</span>
+
+<span class="fc" id="L179">				final Complex b = iargument.multiply(iargument).add(iargument.multiply(-1)).multiply(-1)</span>
+<span class="fc" id="L180">						.divide(iargument.multiply(rho * xi).subtract(kappa)</span>
+<span class="fc" id="L181">								.add(gamma.multiply(new Complex(1).divide(gamma.multiply(time).exp()).add(1)</span>
+<span class="fc" id="L182">										.divide(new Complex(1).divide(gamma.multiply(time).exp()).subtract(1)))));</span>
+
+<span class="fc" id="L184">				return a.add(b.multiply(volatility*volatility)).add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward)).add(logDiscountFactorForDiscounting).exp();</span>
+			}
+		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(final double time) {
+<span class="fc bfc" id="L196" title="All 2 branches covered.">		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(final double time) {
+<span class="fc bfc" id="L206" title="All 2 branches covered.">		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L214">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	@Override
+	public double getInitialValue() {
+<span class="nc" id="L222">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L230">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	@Override
+	public double getRiskFreeRate() {
+<span class="nc" id="L238">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L246">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	@Override
+	public double getDiscountRate() {
+<span class="nc" id="L254">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+<span class="nc" id="L261">		return volatility;</span>
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+<span class="nc" id="L268">		return theta;</span>
+	}
+
+	/**
+	 * @return the kappa
+	 */
+	public double getKappa() {
+<span class="nc" id="L275">		return kappa;</span>
+	}
+
+	/**
+	 * @return the xi
+	 */
+	public double getXi() {
+<span class="nc" id="L282">		return xi;</span>
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double getRho() {
+<span class="nc" id="L289">		return rho;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L297">		return &quot;HestonModel [referenceDate=&quot; + referenceDate + &quot;, initialValue=&quot; + initialValue</span>
+				+ &quot;, discountCurveForForwardRate=&quot; + discountCurveForForwardRate + &quot;, riskFreeRate=&quot; + riskFreeRate
+				+ &quot;, discountCurveForDiscountRate=&quot; + discountCurveForDiscountRate + &quot;, discountRate=&quot; + discountRate
+				+ &quot;, volatility=&quot; + volatility + &quot;, theta=&quot; + theta + &quot;, kappa=&quot; + kappa + &quot;, xi=&quot; + xi + &quot;, rho=&quot; + rho
+				+ &quot;]&quot;;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConfigTree.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.util.config</a> &gt; <span class="el_source">ConfigTree.java</span></div><h1>ConfigTree.java</h1><pre class="source lang-java linenums">package net.finmath.util.config;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import net.finmath.util.config.nodes.ConfigNode;
+import net.finmath.util.config.nodes.Node;
+import net.finmath.util.config.nodes.SpecialNodes;
+import net.finmath.util.config.nodes.ValueNode;
+
+/**
+ * Config Tree: A tree based representation of configurations that can be selected with a key-value map describing the selector.
+ *
+ * &lt;h2&gt;Selector &amp;mapsto; Configuration&lt;/h2&gt;
+ *
+ * &lt;dl&gt;
+ * &lt;dt&gt;configuration&lt;/dt&gt;
+ * &lt;dd&gt;
+ * A configuration is a value (Object) assigned to a selector (Map&amp;lt;String, Object&amp;gt;).
+ * &lt;/dd&gt;
+ *
+ * &lt;dt&gt;selector&lt;/dt&gt;
+ * &lt;dd&gt;
+ * A selector is a key-value map where certain properties (String) have certain values (Object).
+ * Properties of the selector are checked in a fixed order,
+ * such that a tree is formed, where each property corresponds to a level (depth) in the tree.
+ * &lt;/dd&gt;
+ *
+ * &lt;dt&gt;default values&lt;/dt&gt;
+ * &lt;dd&gt;
+ * Each level has a special branch for DEFAULT VALUES, if the given selector value does not match any value of other nodes.
+ * &lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * &lt;h2&gt;Selector Key Order&lt;/h2&gt;
+ *
+ * The selector is matched against the configurtion list by checking the keys in a certain order. This oder does not matter if there is a unique value
+ * for the given selector, but it may matter if default values have to be assign. See the following example.
+ *
+ * &lt;h2&gt;Example&lt;/h2&gt;
+ *
+ * The configuration is determied by the value of two properties (&quot;prop1&quot; and &quot;prop2&quot;) (the keys). The correspondig configuration value is
+ *
+ * &lt;p&gt;&lt;/p&gt;
+
+ * &lt;table border=&quot;1&quot;&gt;
+ * &lt;tr&gt;&lt;th style=&quot;text-align: center;&quot;&gt;prop1&lt;/th&gt;&lt;th style=&quot;text-align: center;&quot;&gt;prop2&lt;/th&gt;&lt;th style=&quot;text-align: center;&quot;&gt;value&lt;/th&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;A&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;1&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;42.0&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;A&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;3141&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;B&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;1&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;1&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;B&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;2&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;A&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;DEFAULT_VALUE&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;12&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;DEFAULT_VALUE&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;2&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;13&lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td style=&quot;text-align: center;&quot;&gt;DEFAULT_VALUE&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;DEFAULT_VALUE&lt;/td&gt;&lt;td style=&quot;text-align: center;&quot;&gt;66&lt;/td&gt;&lt;/tr&gt;
+ * &lt;caption&gt;The list of maps that defines all configurations.&lt;/caption&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;p&gt;&lt;/p&gt;
+ *
+ * Initialising the class with this configuration we have:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		If the class is initialized with keyOder = { &quot;prop1&quot; , &quot;prop2&quot; }
+ * 		&lt;ul&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;A&quot;, &quot;prop2&quot; = 2 } results in the value 3141.&lt;/li&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;C&quot;, &quot;prop2&quot; = 2 } results in the value 13 (the default branch for prop1 is selected first, under that branch value 2 for &quot;prop2&quot; exists).&lt;/li&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;C&quot;, &quot;prop2&quot; = 1 } results in the value 66 (the default branch for prop1 is selected first, under that branch no value 1 for &quot;prop2&quot; exists).&lt;/li&gt;
+ * 		&lt;/ul&gt;
+ * 	&lt;/li&gt;
+ * 	&lt;li&gt;
+ * 		If the class is initialized with keyOder = { &quot;prop2&quot; , &quot;prop1&quot; }
+ * 		&lt;ul&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;A&quot;, &quot;prop2&quot; = 2 } results in the value 3141.&lt;/li&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;C&quot;, &quot;prop2&quot; = 2 } results in the value 13 (the branch &quot;2&quot; for prop2 is selected first, under that branch no value C for &quot;prop1&quot; exists).&lt;/li&gt;
+ * 			&lt;li&gt;The &lt;i&gt;selector&lt;/i&gt; { &quot;prop1&quot; = &quot;C&quot;, &quot;prop2&quot; = 1 } results in an exception that no configuration is found (the branch 1 for prop2 is selected first, under that branch no value C for &quot;prop1&quot; exists).&lt;/li&gt;
+ * 		&lt;/ul&gt;
+ * 	&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ */
+public class ConfigTree {
+
+	private final Node root;
+
+	/**
+	 * Construct the tree.
+	 *
+	 * @param keyOrder Order in which the string keys of a selector define the levels of the tree.
+	 * @param configs A list, where each element is map of keys to object. The key &quot;value&quot; is interpreted as the configuration value. All other keys are interpreted as configuration properties.
+	 */
+<span class="fc" id="L95">	public ConfigTree(List&lt;String&gt; keyOrder, List&lt;Map&lt;String, Object&gt;&gt; configs) {</span>
+<span class="fc" id="L96">		this.root = group(keyOrder, configs);</span>
+<span class="fc" id="L97">	}</span>
+
+	/**
+	 * Get the configuration for a given specification of the properties (selector).
+	 *
+	 * The configutation tree is traversed by selecting each route though the value of a specific key in the selector,
+	 * until the lead node is reached.
+	 * If keys are missing in the selector of if values do not match a predefined route, a default route is used.
+	 *
+	 * @param selector Maps the name (String) of a property to its value (Object).
+	 * @return The configuration value for the given selector.
+	 */
+	public Object getConfig(Map&lt;String, Object&gt; selector) {
+<span class="fc" id="L110">		Node node = this.root;</span>
+
+		// Traverse the tree where each route is selected though the value of a specific key in the selector.
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		while(node instanceof ConfigNode) {</span>
+<span class="fc" id="L114">			final ConfigNode configNode = (ConfigNode)node;</span>
+<span class="pc bpc" id="L115" title="1 of 4 branches missed.">			if(selector.containsKey(configNode.getKey()) &amp;&amp; configNode.getValueToConfig().keySet().contains(selector.get(configNode.getKey()))) {</span>
+<span class="fc" id="L116">				node = configNode.getValueToConfig().get(selector.get(configNode.getKey()));</span>
+			}
+			else {
+<span class="fc" id="L119">				node = configNode.getValueToConfig().get(SpecialNodes.DEFAULT_VALUE);</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">				if(Objects.isNull(node)) {</span>
+<span class="nc" id="L121">					throw new IllegalArgumentException(&quot;Neither a value nor a default branch exists in the config tree for &quot; + configNode.getKey() + &quot; at the current location. &quot; + selector);</span>
+				}
+			}
+<span class="fc" id="L124">		}</span>
+
+		// Having reached the value node, return it.
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">		if(node instanceof ValueNode) {</span>
+<span class="fc" id="L128">			final ValueNode valueNode = (ValueNode)node;</span>
+<span class="fc" id="L129">			return valueNode.getValue();</span>
+		}
+		else {
+<span class="nc" id="L132">			throw new IllegalArgumentException(&quot;Unable to resolve configuration from the given properties. &quot; + selector);</span>
+		}
+	}
+
+	/**
+	 * Helper for the constructor. Recursive contruction of the tree.
+	 *
+	 * @param keyOrder Given key order.
+	 * @param configs List of configs.
+	 * @return Node of the (sub-)tree for the given config key.
+	 */
+	private Node group(List&lt;String&gt; keyOrder, List&lt;Map&lt;String, Object&gt;&gt; configs) {
+<span class="fc bfc" id="L144" title="All 2 branches covered.">		if(keyOrder.size() &gt; 0) {</span>
+			// Group all elements by the first key in keyOrder....
+<span class="fc" id="L146">			final String key = keyOrder.get(0);</span>
+<span class="fc" id="L147">			final Map&lt;Object, List&lt;Map&lt;String, Object&gt;&gt;&gt; grouped = configs.stream().collect(Collectors.groupingBy(map -&gt; map.get(key)));</span>
+
+			// ...call group (recursive) for all values below this key taking the remainder of keyOrder...
+<span class="fc" id="L150">			final List&lt;String&gt; keyOrderRemain = keyOrder.subList(1, keyOrder.size());</span>
+<span class="fc" id="L151">			final Map&lt;Object, Node&gt; valueToConfig = grouped.entrySet().stream().collect(Collectors.toMap(</span>
+<span class="fc" id="L152">					Map.Entry::getKey, entry -&gt; group(keyOrderRemain, entry.getValue())));</span>
+
+			// ...create a ConfigNode for this key.
+<span class="fc" id="L155">			return new ConfigNode(key, valueToConfig);</span>
+		}
+		else {
+			// If no keys are left in key order, create the leaf node
+<span class="pc bpc" id="L159" title="1 of 2 branches missed.">			if(configs.size() == 1) {</span>
+<span class="fc" id="L160">				final Map&lt;String, Object&gt; config = configs.get(0);</span>
+<span class="fc" id="L161">				final Object value = config.get(&quot;value&quot;);</span>
+<span class="fc" id="L162">				return new ValueNode( value);</span>
+			}
+			else {
+<span class="nc" id="L165">				throw new IllegalArgumentException(&quot;Multiple configs for the same selector values. &quot; + Arrays.deepToString(configs.toArray()));</span>
+			}
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

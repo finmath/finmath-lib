@@ -1,0 +1,1140 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableAAD.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward.alternative</a> &gt; <span class="el_source">RandomVariableAAD.java</span></div><h1>RandomVariableAAD.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implementation of &lt;code&gt;RandomVariable&lt;/code&gt; having the additional feature to calculate the backward algorithmic differentiation.
+ *
+ * For construction use the factory method &lt;code&gt;constructNewAADRandomVariable&lt;/code&gt;.
+ *
+ * @author Stefan Sedlmair
+ * @version 1.0
+ */
+public class RandomVariableAAD implements RandomVariable {
+
+	private static final long serialVersionUID = 2459373647785530657L;
+
+	/* static elements of the class are shared between all members */
+<span class="nc" id="L30">	private static ArrayList&lt;RandomVariableAAD&gt; arrayListOfAllAADRandomVariables = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L31">	private static AtomicInteger indexOfNextRandomVariable = new AtomicInteger(0);</span>
+<span class="nc" id="L32">	private enum OperatorType {</span>
+<span class="nc" id="L33">		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,</span>
+<span class="nc" id="L34">		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, AVERAGE, VARIANCE,</span>
+<span class="nc" id="L35">		STDEV, MIN, MAX, STDERROR, SVARIANCE</span>
+	}
+
+	/* index of corresponding random variable in the static array list*/
+	private final RandomVariable ownRandomVariable;
+	private final int ownIndexInList;
+
+	/* this could maybe be outsourced to own class ParentElement */
+	private final int[] parentIndices;
+	private final OperatorType parentOperator;
+	private ArrayList&lt;Integer&gt; childrenIndices;
+	private boolean isConstant;
+
+	private RandomVariableAAD(final int ownIndexInList, final RandomVariable ownRandomVariable,
+			final int[] parentIndices, final OperatorType parentOperator, final ArrayList&lt;Integer&gt; childrenIndices ,final boolean isConstant) {
+<span class="nc" id="L50">		super();</span>
+<span class="nc" id="L51">		this.ownIndexInList = ownIndexInList;</span>
+<span class="nc" id="L52">		this.ownRandomVariable = ownRandomVariable;</span>
+<span class="nc" id="L53">		this.parentIndices = parentIndices;</span>
+<span class="nc" id="L54">		this.parentOperator = parentOperator;</span>
+<span class="nc" id="L55">		this.childrenIndices = childrenIndices;</span>
+<span class="nc" id="L56">		this.isConstant = isConstant;</span>
+<span class="nc" id="L57">	}</span>
+
+	public static RandomVariableAAD constructNewAADRandomVariable(final RandomVariable randomVariable, final int[] parentIndices,
+			final OperatorType parentOperator, final ArrayList&lt;Integer&gt; childrenIndices, final boolean isConstant){
+
+		/* TODO how to handle cases with different realization lengths? */
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if(!arrayListOfAllAADRandomVariables.isEmpty()){</span>
+<span class="nc bnc" id="L64" title="All 4 branches missed.">			if(arrayListOfAllAADRandomVariables.get(0).size() != randomVariable.size() &amp;&amp; !randomVariable.isDeterministic()) {</span>
+<span class="nc" id="L65">				throw new IllegalArgumentException(&quot;RandomVariables with different sizes are not supported at the moment!&quot;);</span>
+			}
+		}
+
+		/* get index of this random variable */
+<span class="nc" id="L70">		final int indexOfThisAADRandomVariable = indexOfNextRandomVariable.getAndIncrement();</span>
+
+<span class="nc" id="L72">		final RandomVariableAAD newAADRandomVariable = new RandomVariableAAD(indexOfThisAADRandomVariable, randomVariable,</span>
+				parentIndices, parentOperator, childrenIndices, isConstant);
+
+		/* add random variable to static list for book keeping */
+<span class="nc" id="L76">		arrayListOfAllAADRandomVariables.add(indexOfThisAADRandomVariable, newAADRandomVariable);</span>
+
+		/* return a new random variable */
+<span class="nc" id="L79">		return newAADRandomVariable;</span>
+	}
+
+	public static RandomVariableAAD constructNewAADRandomVariable(final double value){
+<span class="nc" id="L83">		return constructNewAADRandomVariable(new RandomVariableFromDoubleArray(value), /*parentRandomVariables*/ null, /*parentOperator*/ null, /*childrenIndices*/ null ,/*isConstant*/ true);</span>
+	}
+
+
+	public static RandomVariableAAD constructNewAADRandomVariable(final RandomVariable randomVariable) {
+<span class="nc" id="L88">		return constructNewAADRandomVariable(randomVariable, /* no parents*/ null,</span>
+				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
+	}
+
+	public static RandomVariableAAD constructNewAADRandomVariable(final double time, final double[] realisations) {
+<span class="nc" id="L93">		return constructNewAADRandomVariable(new RandomVariableFromDoubleArray(time, realisations), /* no parents*/ null,</span>
+				/*no parent operator*/ null, /*no childrenIndices*/ null, /*not constant*/ false);
+	}
+
+	private RandomVariableAAD[] getParentAADRandomVariables(){
+
+<span class="nc bnc" id="L99" title="All 2 branches missed.">		if(getParentIDs() == null) {</span>
+<span class="nc" id="L100">			return null;</span>
+		}
+
+<span class="nc" id="L103">		final int[] parentIndices = getParentIDs();</span>
+<span class="nc" id="L104">		final RandomVariableAAD[] parentAADRandomVariables = new RandomVariableAAD[getNumberOfParentVariables()];</span>
+
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		for(int i=0; i &lt; parentAADRandomVariables.length; i++){</span>
+<span class="nc" id="L107">			parentAADRandomVariables[i] = getAADRandomVariableFromList(parentIndices[i]);</span>
+		}
+
+<span class="nc" id="L110">		return parentAADRandomVariables;</span>
+	}
+
+	/**
+	 * @return
+	 */
+	private RandomVariable[] getParentRandomVariableInderfaces(){
+
+<span class="nc" id="L118">		final RandomVariableAAD[] parentAADRandomVariables = getParentAADRandomVariables();</span>
+<span class="nc" id="L119">		final RandomVariable[] parentRandomVariableInderfaces = new RandomVariable[parentAADRandomVariables.length];</span>
+
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		for(int i=0;i&lt;parentAADRandomVariables.length;i++){</span>
+<span class="nc" id="L122">			parentRandomVariableInderfaces[i] = parentAADRandomVariables[i].getRandomVariableInterface();</span>
+		}
+
+<span class="nc" id="L125">		return parentRandomVariableInderfaces;</span>
+	}
+
+	private RandomVariable apply(final OperatorType operator, final RandomVariable[] randomVariableInterfaces){
+
+<span class="nc" id="L130">		final RandomVariableAAD[] aadRandomVariables = new RandomVariableAAD[randomVariableInterfaces.length];</span>
+<span class="nc" id="L131">		final int[] futureParentIndices = new int[aadRandomVariables.length];</span>
+
+<span class="nc bnc" id="L133" title="All 2 branches missed.">		for(int randomVariableIndex = 0; randomVariableIndex &lt; randomVariableInterfaces.length; randomVariableIndex++){</span>
+
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			aadRandomVariables[randomVariableIndex] = (randomVariableInterfaces[randomVariableIndex] instanceof RandomVariableAAD) ?</span>
+<span class="nc" id="L136">					(RandomVariableAAD)randomVariableInterfaces[randomVariableIndex] : constructNewAADRandomVariable(randomVariableInterfaces[randomVariableIndex]);</span>
+
+<span class="nc" id="L138">			futureParentIndices[randomVariableIndex] = aadRandomVariables[randomVariableIndex].getFunctionIndex();</span>
+		}
+
+		RandomVariable resultrandomvariable;
+		RandomVariable X,Y,Z;
+
+<span class="nc bnc" id="L144" title="All 2 branches missed.">		if(randomVariableInterfaces.length == 1){</span>
+
+<span class="nc" id="L146">			X = aadRandomVariables[0].getRandomVariableInterface();</span>
+
+<span class="nc bnc" id="L148" title="All 14 branches missed.">			switch(operator){</span>
+			case SQUARED:
+<span class="nc" id="L150">				resultrandomvariable = X.squared();</span>
+<span class="nc" id="L151">				break;</span>
+			case SQRT:
+<span class="nc" id="L153">				resultrandomvariable = X.sqrt();</span>
+<span class="nc" id="L154">				break;</span>
+			case EXP:
+<span class="nc" id="L156">				resultrandomvariable = X.exp();</span>
+<span class="nc" id="L157">				break;</span>
+			case LOG:
+<span class="nc" id="L159">				resultrandomvariable = X.log();</span>
+<span class="nc" id="L160">				break;</span>
+			case SIN:
+<span class="nc" id="L162">				resultrandomvariable = X.sin();</span>
+<span class="nc" id="L163">				break;</span>
+			case COS:
+<span class="nc" id="L165">				resultrandomvariable = X.cos();</span>
+<span class="nc" id="L166">				break;</span>
+			case ABS:
+<span class="nc" id="L168">				resultrandomvariable = X.abs();</span>
+<span class="nc" id="L169">				break;</span>
+			case INVERT:
+<span class="nc" id="L171">				resultrandomvariable = X.invert();</span>
+<span class="nc" id="L172">				break;</span>
+			case AVERAGE:
+<span class="nc" id="L174">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getAverage());</span>
+<span class="nc" id="L175">				break;</span>
+			case STDERROR:
+<span class="nc" id="L177">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getStandardError());</span>
+<span class="nc" id="L178">				break;</span>
+			case STDEV:
+<span class="nc" id="L180">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getStandardDeviation());</span>
+<span class="nc" id="L181">				break;</span>
+			case VARIANCE:
+<span class="nc" id="L183">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getVariance());</span>
+<span class="nc" id="L184">				break;</span>
+			case SVARIANCE:
+<span class="nc" id="L186">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getSampleVariance());</span>
+<span class="nc" id="L187">				break;</span>
+			default:
+<span class="nc" id="L189">				throw new IllegalArgumentException();</span>
+			}
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		} else if (randomVariableInterfaces.length == 2){</span>
+
+<span class="nc" id="L193">			X = aadRandomVariables[0].getRandomVariableInterface();</span>
+<span class="nc" id="L194">			Y = aadRandomVariables[1].getRandomVariableInterface();</span>
+
+<span class="nc bnc" id="L196" title="All 12 branches missed.">			switch(operator){</span>
+			case ADD:
+<span class="nc" id="L198">				resultrandomvariable = X.add(Y);</span>
+<span class="nc" id="L199">				break;</span>
+			case SUB:
+<span class="nc" id="L201">				resultrandomvariable = X.sub(Y);</span>
+<span class="nc" id="L202">				break;</span>
+			case MULT:
+<span class="nc" id="L204">				resultrandomvariable = X.mult(Y);</span>
+<span class="nc" id="L205">				break;</span>
+			case DIV:
+<span class="nc" id="L207">				resultrandomvariable = X.div(Y);</span>
+<span class="nc" id="L208">				break;</span>
+			case CAP:
+<span class="nc" id="L210">				resultrandomvariable = X.cap( /* argument is deterministic random variable */ Y.getAverage());</span>
+<span class="nc" id="L211">				break;</span>
+			case FLOOR:
+<span class="nc" id="L213">				resultrandomvariable = X.floor( /* argument is deterministic random variable */ Y.getAverage());</span>
+<span class="nc" id="L214">				break;</span>
+			case POW:
+<span class="nc" id="L216">				resultrandomvariable = X.pow( /* argument is deterministic random variable */ Y.getAverage());</span>
+<span class="nc" id="L217">				break;</span>
+			case AVERAGE:
+<span class="nc" id="L219">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getAverage(Y));</span>
+<span class="nc" id="L220">				break;</span>
+			case STDERROR:
+<span class="nc" id="L222">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getStandardError(Y));</span>
+<span class="nc" id="L223">				break;</span>
+			case STDEV:
+<span class="nc" id="L225">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getStandardDeviation(Y));</span>
+<span class="nc" id="L226">				break;</span>
+			case VARIANCE:
+<span class="nc" id="L228">				resultrandomvariable = new RandomVariableFromDoubleArray(X.getVariance(Y));</span>
+<span class="nc" id="L229">				break;</span>
+			default:
+<span class="nc" id="L231">				throw new IllegalArgumentException();</span>
+			}
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		} else if(randomVariableInterfaces.length == 3){</span>
+
+<span class="nc" id="L235">			X = aadRandomVariables[0].getRandomVariableInterface();</span>
+<span class="nc" id="L236">			Y = aadRandomVariables[1].getRandomVariableInterface();</span>
+<span class="nc" id="L237">			Z = aadRandomVariables[2].getRandomVariableInterface();</span>
+
+<span class="nc bnc" id="L239" title="All 6 branches missed.">			switch(operator){</span>
+			case ADDPRODUCT:
+<span class="nc" id="L241">				resultrandomvariable = X.addProduct(Y,Z);</span>
+<span class="nc" id="L242">				break;</span>
+			case ADDRATIO:
+<span class="nc" id="L244">				resultrandomvariable = X.addRatio(Y, Z);</span>
+<span class="nc" id="L245">				break;</span>
+			case SUBRATIO:
+<span class="nc" id="L247">				resultrandomvariable = X.subRatio(Y, Z);</span>
+<span class="nc" id="L248">				break;</span>
+			case ACCRUE:
+<span class="nc" id="L250">				resultrandomvariable = X.accrue(Y, /* second argument is deterministic anyway */ Z.getAverage());</span>
+<span class="nc" id="L251">				break;</span>
+			case DISCOUNT:
+<span class="nc" id="L253">				resultrandomvariable = X.discount(Y, /* second argument is deterministic anyway */ Z.getAverage());</span>
+<span class="nc" id="L254">				break;</span>
+			default:
+<span class="nc" id="L256">				throw new IllegalArgumentException();</span>
+			}
+		} else {
+			/* if non of the above throw exception */
+<span class="nc" id="L260">			throw new IllegalArgumentException(&quot;Operation not supported!\n&quot;);</span>
+		}
+
+		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
+<span class="nc" id="L264">		final RandomVariableAAD newRandomVariableAAD =  constructNewAADRandomVariable(resultrandomvariable, futureParentIndices, operator, /*no children*/ null ,/*not constant*/ false);</span>
+
+		/* add new variable (or at least its index) as child to its parents */
+<span class="nc bnc" id="L267" title="All 2 branches missed.">		for(final RandomVariableAAD parentRandomVariable:aadRandomVariables) {</span>
+<span class="nc" id="L268">			parentRandomVariable.addToChildrenIndices(newRandomVariableAAD.getFunctionIndex());</span>
+		}
+
+		/* return new RandomVariableFromDoubleArray */
+<span class="nc" id="L272">		return newRandomVariableAAD;</span>
+	}
+
+	@Override
+	public String toString(){
+<span class="nc" id="L277">		return  super.toString() + &quot;\n&quot; +</span>
+<span class="nc" id="L278">				&quot;time: &quot; + getFiltrationTime() + &quot;\n&quot; +</span>
+<span class="nc" id="L279">				&quot;realizations: &quot; + Arrays.toString(getRealizations()) + &quot;\n&quot; +</span>
+<span class="nc" id="L280">				&quot;variableID: &quot; + getFunctionIndex() + &quot;\n&quot; +</span>
+<span class="nc bnc" id="L281" title="All 2 branches missed.">				&quot;parentIDs: &quot; + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? &quot;&quot; : (&quot; type: &quot; + parentOperator.name())) + &quot;\n&quot; +</span>
+<span class="nc" id="L282">				&quot;isTrueVariable: &quot; + isVariable() + &quot;\n&quot;;</span>
+	}
+
+	private RandomVariable getPartialDerivative(final int functionIndex, final int variableIndex){
+<span class="nc" id="L286">		return getFunctionList().get(functionIndex).partialDerivativeWithRespectTo(variableIndex);</span>
+	}
+
+	private RandomVariable partialDerivativeWithRespectTo(final int variableIndex){
+
+		/* parentIDsSorted needs to be sorted for binarySearch! */
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		final int[] parentIDsSorted = (getParentIDs() == null) ? new int[]{} : getParentIDs().clone();</span>
+<span class="nc" id="L293">		Arrays.sort(parentIDsSorted);</span>
+
+		/* if random variable not dependent on variable or it is constant anyway return 0.0 */
+<span class="nc bnc" id="L296" title="All 4 branches missed.">		if((Arrays.binarySearch(parentIDsSorted, variableIndex) &lt; 0) || isConstant) {</span>
+<span class="nc" id="L297">			return new RandomVariableFromDoubleArray(0.0);</span>
+		}
+
+<span class="nc" id="L300">		RandomVariable resultrandomvariable = null;</span>
+		RandomVariable X,Y,Z;
+		final double[] resultRandomVariableRealizations;
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">		if(getParentIDs().length == 1){</span>
+
+<span class="nc" id="L306">			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);</span>
+
+<span class="nc bnc" id="L308" title="All 15 branches missed.">			switch(parentOperator){</span>
+			/* functions with one argument  */
+			case SQUARED:
+<span class="nc" id="L311">				resultrandomvariable = X.mult(2.0);</span>
+<span class="nc" id="L312">				break;</span>
+			case SQRT:
+<span class="nc" id="L314">				resultrandomvariable = X.sqrt().invert().mult(0.5);</span>
+<span class="nc" id="L315">				break;</span>
+			case EXP:
+<span class="nc" id="L317">				resultrandomvariable = X.exp();</span>
+<span class="nc" id="L318">				break;</span>
+			case LOG:
+<span class="nc" id="L320">				resultrandomvariable = X.invert();</span>
+<span class="nc" id="L321">				break;</span>
+			case SIN:
+<span class="nc" id="L323">				resultrandomvariable = X.cos();</span>
+<span class="nc" id="L324">				break;</span>
+			case COS:
+<span class="nc" id="L326">				resultrandomvariable = X.sin().mult(-1.0);</span>
+<span class="nc" id="L327">				break;</span>
+			case AVERAGE:
+<span class="nc" id="L329">				resultrandomvariable = new RandomVariableFromDoubleArray(X.size()).invert();</span>
+<span class="nc" id="L330">				break;</span>
+			case VARIANCE:
+<span class="nc" id="L332">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());</span>
+<span class="nc" id="L333">				break;</span>
+			case STDEV:
+<span class="nc" id="L335">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));</span>
+<span class="nc" id="L336">				break;</span>
+			case MIN:
+<span class="nc" id="L338">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L341" title="All 2 branches missed.">						return (x == X.getMin()) ? 1.0 : 0.0;</span>
+					}
+				});
+				//				resultRandomVariableRealizations = new double[X.size()];
+				//				for(int i = 0; i &lt; X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMin()) ? 1.0 : 0.0;
+				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
+<span class="nc" id="L347">				break;</span>
+			case MAX:
+<span class="nc" id="L349">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">						return (x == X.getMax()) ? 1.0 : 0.0;</span>
+					}
+				});
+				//				resultRandomVariableRealizations = new double[X.size()];
+				//				for(int i = 0; i &lt; X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] == X.getMax()) ? 1.0 : 0.0;
+				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
+<span class="nc" id="L358">				break;</span>
+			case ABS:
+<span class="nc" id="L360">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L363" title="All 4 branches missed.">						return (x &gt; 0.0) ? 1.0 : (x &lt; 0) ? -1.0 : 0.0;</span>
+					}
+				});
+				//				resultRandomVariableRealizations = new double[X.size()];
+				//				for(int i = 0; i &lt; X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] &gt; 0) ? 1.0 : (X.getRealizations()[i] &lt; 0) ? -1.0 : 0.0;
+				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
+<span class="nc" id="L369">				break;</span>
+			case STDERROR:
+<span class="nc" id="L371">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));</span>
+<span class="nc" id="L372">				break;</span>
+			case SVARIANCE:
+<span class="nc" id="L374">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));</span>
+<span class="nc" id="L375">				break;</span>
+			default:
+<span class="nc" id="L377">				break;</span>
+			}
+<span class="nc bnc" id="L379" title="All 2 branches missed.">		} else if(getParentIDs().length == 2){</span>
+
+<span class="nc" id="L381">			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);</span>
+<span class="nc" id="L382">			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]);</span>
+
+<span class="nc bnc" id="L384" title="All 12 branches missed.">			switch(parentOperator){</span>
+			case ADD:
+<span class="nc" id="L386">				resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc" id="L387">				break;</span>
+			case SUB:
+<span class="nc bnc" id="L389" title="All 2 branches missed.">				resultrandomvariable = new RandomVariableFromDoubleArray((variableIndex == getParentIDs()[0]) ? 1.0 : -1.0);</span>
+<span class="nc" id="L390">				break;</span>
+			case MULT:
+<span class="nc bnc" id="L392" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;</span>
+<span class="nc" id="L393">				break;</span>
+			case DIV:
+<span class="nc bnc" id="L395" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.invert() : X.div(Y.squared()).mult(-1);</span>
+<span class="nc" id="L396">				break;</span>
+			case CAP:
+<span class="nc" id="L398">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L401" title="All 2 branches missed.">						return (x &gt; Y.getAverage()) ? 0.0 : 1.0;</span>
+					}
+				});
+				//				resultRandomVariableRealizations = new double[X.size()];
+				//				for(int i = 0; i &lt; X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] &gt; Y.getAverage()) ? 0.0 : 1.0;
+				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
+<span class="nc" id="L407">				break;</span>
+			case FLOOR:
+<span class="nc" id="L409">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L412" title="All 2 branches missed.">						return (x &gt; Y.getAverage()) ? 1.0 : 0.0;</span>
+					}
+				});
+				//				resultRandomVariableRealizations = new double[X.size()];
+				//				for(int i = 0; i &lt; X.size(); i++) resultRandomVariableRealizations[i] = (X.getRealizations()[i] &gt; Y.getAverage()) ? 1.0 : 0.0;
+				//				resultrandomvariable = new RandomVariableFromDoubleArray(X.getFiltrationTime(), resultRandomVariableRealizations);
+<span class="nc" id="L418">				break;</span>
+			case AVERAGE:
+<span class="nc bnc" id="L420" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y : X;</span>
+<span class="nc" id="L421">				break;</span>
+			case VARIANCE:
+<span class="nc bnc" id="L423" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :</span>
+<span class="nc" id="L424">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));</span>
+<span class="nc" id="L425">				break;</span>
+			case STDEV:
+<span class="nc bnc" id="L427" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :</span>
+<span class="nc" id="L428">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));</span>
+<span class="nc" id="L429">				break;</span>
+			case STDERROR:
+<span class="nc bnc" id="L431" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :</span>
+<span class="nc" id="L432">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));</span>
+<span class="nc" id="L433">				break;</span>
+			case POW:
+				/* second argument will always be deterministic and constant! */
+<span class="nc bnc" id="L436" title="All 2 branches missed.">				resultrandomvariable = (variableIndex == getParentIDs()[0]) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariableFromDoubleArray(0.0);</span>
+<span class="nc" id="L437">				break;</span>
+			default:
+<span class="nc" id="L439">				break;</span>
+			}
+<span class="nc bnc" id="L441" title="All 2 branches missed.">		} else if(getParentIDs().length == 3){</span>
+<span class="nc" id="L442">			X = getRandomVariableInterfaceOfIndex(getParentIDs()[0]);</span>
+<span class="nc" id="L443">			Y = getRandomVariableInterfaceOfIndex(getParentIDs()[1]);</span>
+<span class="nc" id="L444">			Z = getRandomVariableInterfaceOfIndex(getParentIDs()[2]);</span>
+
+<span class="nc bnc" id="L446" title="All 7 branches missed.">			switch(parentOperator){</span>
+			case ADDPRODUCT:
+<span class="nc bnc" id="L448" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L449">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L450" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[1]){</span>
+<span class="nc" id="L451">					resultrandomvariable = Z;</span>
+				} else {
+<span class="nc" id="L453">					resultrandomvariable = Y;</span>
+				}
+<span class="nc" id="L455">				break;</span>
+			case ADDRATIO:
+<span class="nc bnc" id="L457" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L458">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L460">					resultrandomvariable = Z.invert();</span>
+				} else {
+<span class="nc" id="L462">					resultrandomvariable = Y.div(Z.squared());</span>
+				}
+<span class="nc" id="L464">				break;</span>
+			case SUBRATIO:
+<span class="nc bnc" id="L466" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L467">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L468" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[1]){</span>
+<span class="nc" id="L469">					resultrandomvariable = Z.invert().mult(-1.0);</span>
+				} else {
+<span class="nc" id="L471">					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);</span>
+				}
+<span class="nc" id="L473">				break;</span>
+			case ACCRUE:
+<span class="nc bnc" id="L475" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L476">					resultrandomvariable = Y.mult(Z).add(1.0);</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[1]){</span>
+<span class="nc" id="L478">					resultrandomvariable = X.mult(Z);</span>
+				} else {
+<span class="nc" id="L480">					resultrandomvariable = X.mult(Y);</span>
+				}
+<span class="nc" id="L482">				break;</span>
+			case DISCOUNT:
+<span class="nc bnc" id="L484" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L485">					resultrandomvariable = Y.mult(Z).add(1.0).invert();</span>
+<span class="nc bnc" id="L486" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[1]){</span>
+<span class="nc" id="L487">					resultrandomvariable = X.mult(Z).div(Y.mult(Z).add(1.0).squared());</span>
+				} else {
+<span class="nc" id="L489">					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared());</span>
+				}
+<span class="nc" id="L491">				break;</span>
+			case BARRIER:
+<span class="nc bnc" id="L493" title="All 2 branches missed.">				if(variableIndex == getParentIDs()[0]){</span>
+<span class="nc" id="L494">					resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+						@Override
+						public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L497" title="All 2 branches missed.">							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;</span>
+						}
+					});
+<span class="nc bnc" id="L500" title="All 2 branches missed.">				} else if(variableIndex == getParentIDs()[1]){</span>
+<span class="nc" id="L501">					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+				} else {
+<span class="nc" id="L503">					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0));</span>
+				}
+			default:
+<span class="nc" id="L506">				break;</span>
+			}
+		} else {
+			/* if non of the above throw exception */
+<span class="nc" id="L510">			throw new IllegalArgumentException(&quot;Operation not supported!\n&quot;);</span>
+		}
+
+<span class="nc" id="L513">		return resultrandomvariable;</span>
+	}
+
+	/**
+	 * Implements the AAD Algorithm
+	 * @return HashMap where the key is the internal index of the random variable with respect to which the partial derivative was computed. This key then gives access to the actual derivative.
+	 * */
+	public Map&lt;Integer, RandomVariable&gt; getGradient(){
+
+<span class="nc" id="L522">		final int numberOfCalculationSteps = getFunctionList().size();</span>
+
+<span class="nc" id="L524">		final RandomVariable[] omegaHat = new RandomVariable[numberOfCalculationSteps];</span>
+
+<span class="nc" id="L526">		omegaHat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);</span>
+
+<span class="nc bnc" id="L528" title="All 2 branches missed.">		for(int variableIndex = numberOfCalculationSteps-2; variableIndex &gt;= 0; variableIndex--){</span>
+
+<span class="nc" id="L530">			omegaHat[variableIndex] = new RandomVariableFromDoubleArray(0.0);</span>
+
+<span class="nc" id="L532">			final ArrayList&lt;Integer&gt; childrenList = getAADRandomVariableFromList(variableIndex).getChildrenIndices();</span>
+
+<span class="nc bnc" id="L534" title="All 2 branches missed.">			for(final int functionIndex:childrenList){</span>
+<span class="nc" id="L535">				final RandomVariable D_i_j = getPartialDerivative(functionIndex, variableIndex);</span>
+<span class="nc" id="L536">				omegaHat[variableIndex] = omegaHat[variableIndex].addProduct(D_i_j, omegaHat[functionIndex]);</span>
+<span class="nc" id="L537">			}</span>
+		}
+
+<span class="nc" id="L540">		final ArrayList&lt;Integer&gt; arrayListOfAllIndicesOfDependentRandomVariables = getArrayListOfAllIndicesOfDependentRandomVariables();</span>
+
+<span class="nc" id="L542">		final Map&lt;Integer, RandomVariable&gt; gradient = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L544" title="All 2 branches missed.">		for(final Integer indexOfDependentRandomVariable: arrayListOfAllIndicesOfDependentRandomVariables){</span>
+<span class="nc" id="L545">			gradient.put(indexOfDependentRandomVariable, omegaHat[arrayListOfAllIndicesOfDependentRandomVariables.get(indexOfDependentRandomVariable)]);</span>
+<span class="nc" id="L546">		}</span>
+
+<span class="nc" id="L548">		return gradient;</span>
+	}
+
+	private ArrayList&lt;Integer&gt; getArrayListOfAllIndicesOfDependentRandomVariables(){
+
+<span class="nc" id="L553">		final ArrayList&lt;Integer&gt; arrayListOfAllIndicesOfDependentRandomVariables = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L555" title="All 2 branches missed.">		for(int index = 0; index &lt; getNumberOfParentVariables(); index++){</span>
+
+<span class="nc" id="L557">			final int currentParentIndex = getParentIDs()[index];</span>
+
+			/* if current index belongs to a true variable and is not yet in the list: add it*/
+<span class="nc bnc" id="L560" title="All 2 branches missed.">			if(getAADRandomVariableFromList(currentParentIndex).isVariable() &amp;&amp;</span>
+<span class="nc bnc" id="L561" title="All 2 branches missed.">					!arrayListOfAllIndicesOfDependentRandomVariables.contains(currentParentIndex)){</span>
+<span class="nc" id="L562">				arrayListOfAllIndicesOfDependentRandomVariables.add(currentParentIndex);</span>
+			} else {
+<span class="nc" id="L564">				arrayListOfAllIndicesOfDependentRandomVariables.addAll(</span>
+<span class="nc" id="L565">						getAADRandomVariableFromList(currentParentIndex).getArrayListOfAllIndicesOfDependentRandomVariables());</span>
+			}
+		}
+
+<span class="nc" id="L569">		return arrayListOfAllIndicesOfDependentRandomVariables;</span>
+	}
+
+	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD
+	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
+
+	public RandomVariable getAverageAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L577">		return apply(OperatorType.AVERAGE, new RandomVariable[]{this, probabilities});</span>
+	}
+
+	public RandomVariable getVarianceAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L582">		return apply(OperatorType.VARIANCE, new RandomVariable[]{this, probabilities});</span>
+	}
+
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L587">		return apply(OperatorType.STDEV, new RandomVariable[]{this, probabilities});</span>
+	}
+
+	public RandomVariable 	getStandardErrorAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L592">		return apply(OperatorType.STDERROR, new RandomVariable[]{this, probabilities});</span>
+	}
+
+	public RandomVariable getAverageAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L597">		return apply(OperatorType.AVERAGE, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable getVarianceAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L602">		return apply(OperatorType.VARIANCE, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable getSampleVarianceAsRandomVariableAAD() {
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L607">		return apply(OperatorType.SVARIANCE, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L612">		return apply(OperatorType.STDEV, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable getStandardErrorAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L617">		return apply(OperatorType.STDERROR, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable 	getMinAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L622">		return apply(OperatorType.MIN, new RandomVariable[]{this});</span>
+	}
+
+	public RandomVariable 	getMaxAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L627">		return apply(OperatorType.MAX, new RandomVariable[]{this});</span>
+	}
+
+	/* setter and getter */
+
+	private OperatorType getParentOperator(){
+<span class="nc" id="L633">		return parentOperator;</span>
+	}
+
+	private boolean isConstant(){
+<span class="nc" id="L637">		return isConstant;</span>
+	}
+
+	private boolean isVariable() {
+<span class="nc bnc" id="L641" title="All 4 branches missed.">		return (!isConstant() &amp;&amp; getParentIDs() == null);</span>
+	}
+
+	private ArrayList&lt;RandomVariableAAD&gt; getFunctionList(){
+<span class="nc" id="L645">		return arrayListOfAllAADRandomVariables;</span>
+	}
+
+	public static void resetArrayListOfAllAADRandomVariables(){
+<span class="nc" id="L649">		synchronized (arrayListOfAllAADRandomVariables) {</span>
+<span class="nc" id="L650">			arrayListOfAllAADRandomVariables = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L651">			indexOfNextRandomVariable = new AtomicInteger(0);</span>
+<span class="nc" id="L652">		}</span>
+<span class="nc" id="L653">	}</span>
+
+	public void setIsConstantTo(final boolean isConstant){
+<span class="nc" id="L656">		this.isConstant = isConstant;</span>
+<span class="nc" id="L657">	}</span>
+
+	private RandomVariable getRandomVariableInterface(){
+<span class="nc" id="L660">		return ownRandomVariable;</span>
+	}
+
+	private RandomVariable getRandomVariableInterfaceOfIndex(final int index){
+<span class="nc" id="L664">		return getFunctionList().get(index).getRandomVariableInterface();</span>
+	}
+
+	private int getFunctionIndex(){
+<span class="nc" id="L668">		return ownIndexInList;</span>
+	}
+
+	private int[] getParentIDs(){
+<span class="nc" id="L672">		return parentIndices;</span>
+	}
+
+	private ArrayList&lt;Integer&gt; getChildrenIndices(){
+<span class="nc bnc" id="L676" title="All 2 branches missed.">		if(childrenIndices == null) {</span>
+<span class="nc" id="L677">			childrenIndices = new ArrayList&lt;&gt;();</span>
+		}
+<span class="nc" id="L679">		return childrenIndices;</span>
+	}
+
+	private int getNumberOfParentVariables(){
+<span class="nc bnc" id="L683" title="All 2 branches missed.">		if(getParentIDs() == null) {</span>
+<span class="nc" id="L684">			return 0;</span>
+		}
+<span class="nc" id="L686">		return getParentIDs().length;</span>
+	}
+
+	private RandomVariableAAD getAADRandomVariableFromList(final int index){
+<span class="nc" id="L690">		return getFunctionList().get(index);</span>
+	}
+
+	private void addToChildrenIndices(final int index){
+<span class="nc" id="L694">		getChildrenIndices().add(index);</span>
+<span class="nc" id="L695">	}</span>
+
+	/*--------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="nc" id="L706">		return getRandomVariableInterface().equals(randomVariable);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getFiltrationTime()
+	 */
+	@Override
+	public double getFiltrationTime() {
+<span class="nc" id="L714">		return getRandomVariableInterface().getFiltrationTime();</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="nc" id="L719">		return 3;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#get(int)
+	 */
+	@Override
+	public double get(final int pathOrState) {
+<span class="nc" id="L727">		return getRandomVariableInterface().get(pathOrState);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#size()
+	 */
+	@Override
+	public int size() {
+<span class="nc" id="L735">		return getRandomVariableInterface().size();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
+	 */
+	@Override
+	public boolean isDeterministic() {
+<span class="nc" id="L743">		return getRandomVariableInterface().isDeterministic();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
+	 */
+	@Override
+	public double[] getRealizations() {
+<span class="nc" id="L751">		return getRandomVariableInterface().getRealizations();</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="nc" id="L756">		return getRandomVariableInterface().doubleValue();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
+	 */
+	@Override
+	public double getMin() {
+<span class="nc" id="L764">		return ((RandomVariableAAD) getMinAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
+	 */
+	@Override
+	public double getMax() {
+<span class="nc" id="L772">		return ((RandomVariableAAD) getMaxAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
+	 */
+	@Override
+	public double getAverage() {
+<span class="nc" id="L780">		return ((RandomVariableAAD) getAverageAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc" id="L788">		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
+	 */
+	@Override
+	public double getVariance() {
+<span class="nc" id="L796">		return ((RandomVariableAAD) getVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc" id="L804">		return ((RandomVariableAAD) getAverageAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getSampleVariance()
+	 */
+	@Override
+	public double getSampleVariance() {
+<span class="nc" id="L812">		return ((RandomVariableAAD) getSampleVarianceAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation()
+	 */
+	@Override
+	public double getStandardDeviation() {
+<span class="nc" id="L820">		return ((RandomVariableAAD) getStandardDeviationAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc" id="L828">		return ((RandomVariableAAD) getStandardDeviationAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
+	 */
+	@Override
+	public double getStandardError() {
+<span class="nc" id="L836">		return ((RandomVariableAAD) getStandardErrorAsRandomVariableAAD()).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc" id="L844">		return ((RandomVariableAAD) getStandardErrorAsRandomVariableAAD(probabilities)).getRandomVariableInterface().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
+	 */
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="nc" id="L852">		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc" id="L860">		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantile(quantile, probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
+	 */
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc" id="L868">		return ((RandomVariableAAD) getRandomVariableInterface()).getRandomVariableInterface().getQuantileExpectation(quantileStart, quantileEnd);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
+	 */
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="nc" id="L876">		return getRandomVariableInterface().getHistogram(intervalPoints);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
+	 */
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L884">		return getRandomVariableInterface().getHistogram(numberOfPoints, standardDeviations);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cache()
+	 */
+	@Override
+	public RandomVariable cache() {
+<span class="nc" id="L892">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="nc" id="L897">		return apply(OperatorType.CAP, new RandomVariable[]{this, constructNewAADRandomVariable(cap)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#floor(double)
+	 */
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="nc" id="L905">		return apply(OperatorType.FLOOR, new RandomVariable[]{this, constructNewAADRandomVariable(floor)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(double)
+	 */
+	@Override
+	public RandomVariable add(final double value) {
+<span class="nc" id="L913">		return apply(OperatorType.ADD, new RandomVariable[]{this, constructNewAADRandomVariable(value)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(double)
+	 */
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="nc" id="L921">		return apply(OperatorType.SUB, new RandomVariable[]{this, constructNewAADRandomVariable(value)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(double)
+	 */
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="nc" id="L929">		return apply(OperatorType.MULT, new RandomVariable[]{this, constructNewAADRandomVariable(value)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#div(double)
+	 */
+	@Override
+	public RandomVariable div(final double value) {
+<span class="nc" id="L937">		return apply(OperatorType.DIV, new RandomVariable[]{this, constructNewAADRandomVariable(value)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#pow(double)
+	 */
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="nc" id="L945">		return apply(OperatorType.POW, new RandomVariable[]{this, constructNewAADRandomVariable(exponent)});</span>
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="nc" id="L950">		return apply(OperatorType.AVERAGE, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#squared()
+	 */
+	@Override
+	public RandomVariable squared() {
+<span class="nc" id="L958">		return apply(OperatorType.SQUARED, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sqrt()
+	 */
+	@Override
+	public RandomVariable sqrt() {
+<span class="nc" id="L966">		return apply(OperatorType.SQRT, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#exp()
+	 */
+	@Override
+	public RandomVariable exp() {
+<span class="nc" id="L974">		return apply(OperatorType.EXP, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#log()
+	 */
+	@Override
+	public RandomVariable log() {
+<span class="nc" id="L982">		return apply(OperatorType.LOG, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sin()
+	 */
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L990">		return apply(OperatorType.SIN, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cos()
+	 */
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L998">		return apply(OperatorType.COS, new RandomVariable[]{this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="nc" id="L1006">		return apply(OperatorType.ADD, new RandomVariable[]{this, randomVariable});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="nc" id="L1014">		return apply(OperatorType.SUB, new RandomVariable[]{this, randomVariable});</span>
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L1019">		return apply(OperatorType.SUB, new RandomVariable[]{randomVariable,this});	// SUB with swapped arguments</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="nc" id="L1027">		return apply(OperatorType.MULT, new RandomVariable[]{this, randomVariable});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#div(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="nc" id="L1035">		return apply(OperatorType.DIV, new RandomVariable[]{this, randomVariable});</span>
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L1040">		return apply(OperatorType.DIV, new RandomVariable[]{randomVariable, this}); // DIV with swapped arguments</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cap(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+<span class="nc" id="L1048">		return apply(OperatorType.CAP, new RandomVariable[]{this, cap});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#floor(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="nc" id="L1056">		return apply(OperatorType.FLOOR, new RandomVariable[]{this, floor});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L1064">		return apply(OperatorType.ACCRUE, new RandomVariable[]{this, rate, constructNewAADRandomVariable(periodLength)});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#discount(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L1072">		return apply(OperatorType.DISCOUNT, new RandomVariable[]{this, rate, constructNewAADRandomVariable(periodLength)});</span>
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="nc" id="L1077">		return apply(OperatorType.BARRIER, new RandomVariable[]{this, valueIfTriggerNonNegative, valueIfTriggerNegative});</span>
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="nc" id="L1082">		return apply(OperatorType.INVERT, new RandomVariable[]{this});</span>
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="nc" id="L1087">		return apply(OperatorType.ABS, new RandomVariable[]{this});</span>
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="nc" id="L1092">		return apply(OperatorType.ADDPRODUCT, new RandomVariable[]{this, factor1, constructNewAADRandomVariable(factor2)});</span>
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="nc" id="L1097">		return apply(OperatorType.ADDPRODUCT, new RandomVariable[]{this, factor1, factor2});</span>
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L1102">		return apply(OperatorType.ADDRATIO, new RandomVariable[]{this, numerator, denominator});</span>
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L1107">		return apply(OperatorType.SUBRATIO, new RandomVariable[]{this, numerator, denominator});</span>
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="nc" id="L1112">		return getRandomVariableInterface().isNaN();</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L1117">		throw new UnsupportedOperationException(&quot;Not supported.&quot;);</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L1122">		throw new UnsupportedOperationException(&quot;Not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="nc" id="L1127">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="nc" id="L1132">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L1137">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

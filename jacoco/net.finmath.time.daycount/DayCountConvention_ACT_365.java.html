@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_ACT_365.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_ACT_365.java</span></div><h1>DayCountConvention_ACT_365.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+/**
+ * Implementation of ACT/365.
+ *
+ * Calculates the day count by calculating the actual number of days between startDate and endDate.
+ *
+ * A fractional day is rounded to the approximately nearest day.
+ *
+ * The day count fraction is calculated using ACT/365 convention, that is, the
+ * day count is divided by 365.
+ *
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the &quot;ACT/365 method&quot; of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,3).
+ * 	&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_ACT_365 extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = 6805037680877652658L;
+
+	/**
+	 * Create an ACT/365 day count convention.
+	 */
+<span class="fc" id="L38">	public DayCountConvention_ACT_365() {</span>
+<span class="fc" id="L39">	}</span>
+
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="fc bfc" id="L43" title="All 2 branches covered.">		if(startDate.isAfter(endDate)) {</span>
+<span class="fc" id="L44">			return -getDaycountFraction(endDate,startDate);</span>
+		}
+
+<span class="fc" id="L47">		final double daycountFraction = getDaycount(startDate, endDate) / 365.0;</span>
+
+<span class="fc" id="L49">		return daycountFraction;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDInterestRateBoundaryFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.boundaries</a> &gt; <span class="el_source">FDInterestRateBoundaryFactory.java</span></div><h1>FDInterestRateBoundaryFactory.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.boundaries;
+
+import java.lang.reflect.Constructor;
+
+import net.finmath.finitedifference.FiniteDifferenceModel;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+
+/**
+ * Factory for creating finite-difference interest-rate boundary instances.
+ *
+ * &lt;p&gt;
+ * The factory creates a boundary class based on naming conventions.
+ * Given a product and a model, it constructs the boundary class name as
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ *     &amp;lt;ProductSimpleName&amp;gt;&amp;lt;ModelCoreName&amp;gt;Boundary
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where {@code ModelCoreName} is obtained by removing the prefix {@code &quot;FDM&quot;}
+ * from the model class name.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The boundary class must:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;be located in the same package as this factory,&lt;/li&gt;
+ *   &lt;li&gt;provide a constructor accepting the concrete model type.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FDInterestRateBoundaryFactory {
+
+	private FDInterestRateBoundaryFactory() {
+		// Utility class
+	}
+
+	/**
+	 * Creates a boundary corresponding to the given model and product.
+	 *
+	 * @param model The finite-difference model.
+	 * @param product The finite-difference interest-rate product.
+	 * @return The corresponding boundary implementation.
+	 */
+	public static FiniteDifferenceInterestRateBoundary createBoundary(
+			final FiniteDifferenceModel model,
+			final FiniteDifferenceInterestRateProduct product) {
+
+		try {
+<span class="nc" id="L53">			final String productSimpleName = product.getClass().getSimpleName();</span>
+<span class="nc" id="L54">			final String modelSimpleName = model.getClass().getSimpleName();</span>
+
+<span class="nc" id="L56">			final String modelCoreName = modelSimpleName.replace(&quot;FDM&quot;, &quot;&quot;);</span>
+<span class="nc" id="L57">			final String boundarySimpleName = productSimpleName + modelCoreName + &quot;Boundary&quot;;</span>
+
+<span class="nc" id="L59">			final String packageName = FDInterestRateBoundaryFactory.class.getPackage().getName();</span>
+<span class="nc" id="L60">			final String boundaryClassName = packageName + &quot;.&quot; + boundarySimpleName;</span>
+
+<span class="nc" id="L62">			final Class&lt;?&gt; boundaryClass = Class.forName(boundaryClassName);</span>
+<span class="nc" id="L63">			final Constructor&lt;?&gt; constructor = boundaryClass.getConstructor(model.getClass());</span>
+
+<span class="nc" id="L65">			return (FiniteDifferenceInterestRateBoundary) constructor.newInstance(model);</span>
+<span class="nc" id="L66">		} catch (final ReflectiveOperationException exception) {</span>
+<span class="nc" id="L67">			throw new IllegalArgumentException(</span>
+					&quot;Cannot create interest-rate boundary for model type &quot;
+<span class="nc" id="L69">							+ model.getClass()</span>
+							+ &quot; and product type &quot;
+<span class="nc" id="L71">							+ product.getClass(),</span>
+							exception
+					);
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

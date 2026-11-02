@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ImmediateCashActivationPolicy.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">ImmediateCashActivationPolicy.java</span></div><h1>ImmediateCashActivationPolicy.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+/**
+ * Activation policy for two-state finite-difference products with immediate
+ * cash settlement
+ * upon barrier activation.
+ *
+ * &lt;p&gt;
+ * In a two-state barrier formulation, the contract value is decomposed into an
+ * inactive
+ * no-hit regime and an already-hit regime. Under an immediate-cash activation
+ * rule, once
+ * the barrier event occurs, the contract is replaced by a deterministic cash
+ * amount
+ * &lt;i&gt;P&lt;/i&gt;, independently of the current state variable and independently of
+ * any active
+ * continuation value.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Hence the already-hit value is constant and given by
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V^{\mathrm{hit}}(t,x) = P&lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * for all times &lt;i&gt;t&lt;/i&gt; after activation and all states &lt;i&gt;x&lt;/i&gt;. In
+ * particular, at
+ * maturity, at intermediate times, and at the activation interface, the value
+ * is always
+ * the same cash amount.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This policy is appropriate for products such as one-touch options with at-hit
+ * settlement,
+ * where the contract terminates immediately upon barrier contact and pays a
+ * fixed cash
+ * amount at that moment.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class ImmediateCashActivationPolicy implements TwoStateActivationPolicy {
+
+	/**
+	 * The payoff amount.
+	 */
+	private final double payoffAmount;
+
+	/**
+	 * Creates an immediate-cash activation policy.
+	 *
+	 * @param payoffAmount Cash amount paid immediately upon activation.
+	 */
+<span class="nc" id="L58">	public ImmediateCashActivationPolicy(final double payoffAmount) {</span>
+<span class="nc" id="L59">		this.payoffAmount = payoffAmount;</span>
+<span class="nc" id="L60">	}</span>
+
+	/**
+	 * Returns the already-hit value at maturity.
+	 *
+	 * @param stateVariable State variable.
+	 * @param activePayoffValue Active-regime payoff value at maturity.
+	 * @param inactiveNoHitValue Inactive no-hit value at maturity.
+	 * @return The immediate cash payoff amount.
+	 */
+	@Override
+	public double getAlreadyHitValueAtMaturity(
+			final double stateVariable,
+			final double activePayoffValue,
+			final double inactiveNoHitValue) {
+<span class="nc" id="L75">		return payoffAmount;</span>
+	}
+
+	/**
+	 * Returns the already-hit value before maturity.
+	 *
+	 * @param currentTime Current running time.
+	 * @param stateVariable State variable.
+	 * @param activeValue Active-regime continuation value.
+	 * @return The immediate cash payoff amount.
+	 */
+	@Override
+	public double getAlreadyHitValue(
+			final double currentTime,
+			final double stateVariable,
+			final double activeValue) {
+<span class="nc" id="L91">		return payoffAmount;</span>
+	}
+
+	/**
+	 * Returns the interface value at the activation boundary.
+	 *
+	 * @param currentTime Current running time.
+	 * @param barrierStateVariable State variable at the barrier.
+	 * @param activeValueAtBarrier Active-regime value at the barrier.
+	 * @return The immediate cash payoff amount.
+	 */
+	@Override
+	public double getInterfaceValue(
+			final double currentTime,
+			final double barrierStateVariable,
+			final double activeValueAtBarrier) {
+<span class="nc" id="L107">		return payoffAmount;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

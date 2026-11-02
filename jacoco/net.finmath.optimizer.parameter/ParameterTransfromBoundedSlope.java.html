@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ParameterTransfromBoundedSlope.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer.parameter</a> &gt; <span class="el_source">ParameterTransfromBoundedSlope.java</span></div><h1>ParameterTransfromBoundedSlope.java</h1><pre class="source lang-java linenums">package net.finmath.optimizer.parameter;
+
+import net.finmath.stochastic.RandomVariable;
+
+public class ParameterTransfromBoundedSlope implements ParameterTransfrom {
+
+	private final RandomVariable[] parameterLowerBound;
+	private final RandomVariable[] parameterUpperBound;
+
+	private final RandomVariable[] parameterSlopeLowerBound;
+	private final RandomVariable[] parameterSlopeUpperBound;
+
+	public ParameterTransfromBoundedSlope(RandomVariable[] parameterLowerBound, RandomVariable[] parameterUpperBound,
+			RandomVariable[] parameterSlopeLowerBound, RandomVariable[] parameterSlopeUpperBound) {
+<span class="nc" id="L15">		super();</span>
+<span class="nc" id="L16">		this.parameterLowerBound = parameterLowerBound;</span>
+<span class="nc" id="L17">		this.parameterUpperBound = parameterUpperBound;</span>
+<span class="nc" id="L18">		this.parameterSlopeLowerBound = parameterSlopeLowerBound;</span>
+<span class="nc" id="L19">		this.parameterSlopeUpperBound = parameterSlopeUpperBound;</span>
+<span class="nc" id="L20">	}</span>
+
+	@Override
+	public RandomVariable[] getModelParametersFrom(RandomVariable[] optimizerParameters) {
+<span class="nc" id="L24">		final RandomVariable[] modelParameters = new RandomVariable[optimizerParameters.length];</span>
+		// From (-infty, infty) to (0,infty)
+<span class="nc bnc" id="L26" title="All 2 branches missed.">		for(int i=0; i&lt;optimizerParameters.length; i++) {</span>
+<span class="nc" id="L27">			modelParameters[i] = optimizerParameters[i].mult(-1).exp();</span>
+		}
+		// From (0,infty) to (a,b)
+<span class="nc bnc" id="L30" title="All 2 branches missed.">		for(int i=0; i&lt;optimizerParameters.length; i++) {</span>
+<span class="nc" id="L31">			RandomVariable lowerBound = parameterLowerBound[i];</span>
+<span class="nc" id="L32">			RandomVariable upperBound = parameterUpperBound[i];</span>
+<span class="nc bnc" id="L33" title="All 2 branches missed.">			if(i &gt; 0) {</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">				if(parameterSlopeLowerBound != null) {</span>
+<span class="nc" id="L35">					lowerBound = lowerBound.floor(modelParameters[i-1].add(parameterSlopeLowerBound[i]));</span>
+				}
+<span class="nc bnc" id="L37" title="All 2 branches missed.">				if(parameterSlopeUpperBound != null) {</span>
+<span class="nc" id="L38">					upperBound = upperBound.cap(modelParameters[i-1].add(parameterSlopeUpperBound[i]));</span>
+				}
+			}
+<span class="nc" id="L41">			modelParameters[i] = modelParameters[i].mult(-1).exp().mult(upperBound.sub(lowerBound)).add(lowerBound);</span>
+		}
+<span class="nc" id="L43">		return modelParameters;</span>
+	}
+
+	@Override
+	public RandomVariable[] getOptimizerParametersFrom(RandomVariable[] modelParameters) {
+<span class="nc" id="L48">		final RandomVariable[] optimizerParameters = new RandomVariable[modelParameters.length];</span>
+		// From (a,b) to (0,infty)
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		for(int i=0; i&lt;modelParameters.length; i++) {</span>
+<span class="nc" id="L51">			RandomVariable lowerBound = parameterLowerBound[i];</span>
+<span class="nc" id="L52">			RandomVariable upperBound = parameterUpperBound[i];</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">			if(i &gt; 0) {</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">				if(parameterSlopeLowerBound != null) {</span>
+<span class="nc" id="L55">					lowerBound = lowerBound.floor(modelParameters[i-1].add(parameterSlopeLowerBound[i]));</span>
+				}
+<span class="nc bnc" id="L57" title="All 2 branches missed.">				if(parameterSlopeUpperBound != null) {</span>
+<span class="nc" id="L58">					upperBound = upperBound.cap(modelParameters[i-1].add(parameterSlopeUpperBound[i]));</span>
+				}
+			}
+
+<span class="nc" id="L62">			optimizerParameters[i] = modelParameters[i].sub(lowerBound).div(upperBound.sub(lowerBound)).log().mult(-1);</span>
+		}
+		// From (0,infty) to (-infty, infty)
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		for(int i=0; i&lt;optimizerParameters.length; i++) {</span>
+<span class="nc" id="L66">			optimizerParameters[i] = optimizerParameters[i].log().mult(-1);</span>
+		}
+<span class="nc" id="L68">		return optimizerParameters;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

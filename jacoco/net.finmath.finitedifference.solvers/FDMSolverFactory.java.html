@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMSolverFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">FDMSolverFactory.java</span></div><h1>FDMSolverFactory.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBatesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMHestonModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMMultiAssetBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMSabrModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.adi.BarrierPDEMode;
+import net.finmath.finitedifference.solvers.adi.BarrierPreHitSpecification;
+import net.finmath.finitedifference.solvers.adi.FDMBarrierHestonADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMBarrierSabrADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMBatesADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMHestonADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMMultiAssetBlackScholesADI2D;
+import net.finmath.finitedifference.solvers.adi.FDMSabrADI2D;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Centralized factory for selecting the finite-difference solver associated
+ * with a given
+ * model, product, discretization, and exercise specification.
+ *
+ * &lt;p&gt;
+ * The purpose of this class is to map a model class to the solver
+ * implementation capable
+ * of handling the corresponding PDE or PIDE. In abstract terms, if the model
+ * leads to a
+ * pricing equation of the form
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \frac{\partial V}{\partial t} + \mathcal{L}V = 0
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * with generator &lt;i&gt;\mathcal{L}&lt;/i&gt;, then this factory selects the
+ * discretization engine
+ * used to approximate the operator &lt;i&gt;\mathcal{L}&lt;/i&gt; on the supplied
+ * {@link SpaceTimeDiscretization}. For one-dimensional diffusion models this is
+ * typically
+ * a theta-method solver, while for two-dimensional stochastic-volatility or
+ * multi-asset
+ * diffusion models this is typically an ADI-based solver.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The current selection logic is:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;one-dimensional jump models &amp;rarr; {@link FDMThetaMethod1DJump},&lt;/li&gt;
+ * &lt;li&gt;Black-Scholes, CEV, and Bachelier models &amp;rarr; {@link
+ * FDMThetaMethod1D},&lt;/li&gt;
+ *   &lt;li&gt;multi-asset Black-Scholes models:
+ *       1D &amp;rarr; {@link FDMThetaMethod1D},
+ *       2D &amp;rarr; {@link FDMMultiAssetBlackScholesADI2D},&lt;/li&gt;
+ *   &lt;li&gt;Bates models &amp;rarr; {@link FDMBatesADI2D},&lt;/li&gt;
+ *   &lt;li&gt;Heston models &amp;rarr; {@link FDMHestonADI2D} or
+ *       {@link FDMBarrierHestonADI2D},&lt;/li&gt;
+ *   &lt;li&gt;SABR models &amp;rarr; {@link FDMSabrADI2D} or
+ *       {@link FDMBarrierSabrADI2D}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * For barrier-aware two-dimensional Heston and SABR problems, the factory may
+ * select a
+ * specialized pre-hit / barrier solver depending on the supplied
+ * {@link BarrierPDEMode} and {@link BarrierPreHitSpecification}. If no barrier
+ * mode is
+ * provided, the corresponding vanilla solver is returned.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The class is a pure utility holder and cannot be instantiated.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FDMSolverFactory {
+
+	private FDMSolverFactory() {
+		// Utility class
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param product The value.
+	 * @param spaceTimeDiscretization The value.
+	 * @param exercise The value.
+	 * @return The value.
+	 */
+	public static FDMSolver createSolver(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">		if (isOneDimensionalJumpModel(model)) {</span>
+<span class="fc" id="L107">			return new FDMThetaMethod1DJump(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="pc bpc" id="L113" title="1 of 2 branches missed.">		} else if (model instanceof FDMMultiAssetBlackScholesModel) {</span>
+<span class="nc" id="L114">			return createMultiAssetBlackScholesSolver(</span>
+					(FDMMultiAssetBlackScholesModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="pc bpc" id="L120" title="2 of 6 branches missed.">		} else if (model instanceof FDMBlackScholesModel</span>
+				|| model instanceof FDMCevModel
+				|| model instanceof FDMBachelierModel) {
+<span class="fc" id="L123">			return new FDMThetaMethod1D(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		} else if (model instanceof FDMBatesModel) {</span>
+<span class="nc" id="L130">			return new FDMBatesADI2D(</span>
+					(FDMBatesModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="pc bpc" id="L136" title="1 of 2 branches missed.">		} else if (model instanceof FDMHestonModel) {</span>
+<span class="fc" id="L137">			return new FDMHestonADI2D(</span>
+					(FDMHestonModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L143" title="All 2 branches missed.">		} else if (model instanceof FDMSabrModel) {</span>
+<span class="nc" id="L144">			return new FDMSabrADI2D(</span>
+					(FDMSabrModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+		} else {
+<span class="nc" id="L151">			throw new IllegalArgumentException(</span>
+<span class="nc" id="L152">					&quot;Unsupported model type: &quot; + model.getClass().getName());</span>
+		}
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param product The value.
+	 * @param spaceTimeDiscretization The value.
+	 * @param exercise The value.
+	 * @param barrierMode The value.
+	 * @param preHitSpecification The value.
+	 * @return The value.
+	 */
+	public static FDMSolver createSolver(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise,
+			final BarrierPDEMode barrierMode,
+			final BarrierPreHitSpecification preHitSpecification) {
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		if (isOneDimensionalJumpModel(model)) {</span>
+<span class="nc" id="L176">			return new FDMThetaMethod1DJump(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		} else if (model instanceof FDMMultiAssetBlackScholesModel) {</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if (barrierMode != null) {</span>
+<span class="nc" id="L184">				throw new IllegalArgumentException(</span>
+						&quot;Barrier-specific solver modes are not implemented for MultiAssetBlackScholesModel.&quot;);
+			}
+
+<span class="nc" id="L188">			return createMultiAssetBlackScholesSolver(</span>
+					(FDMMultiAssetBlackScholesModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L194" title="All 6 branches missed.">		} else if (model instanceof FDMBlackScholesModel</span>
+				|| model instanceof FDMCevModel
+				|| model instanceof FDMBachelierModel) {
+<span class="nc" id="L197">			return new FDMThetaMethod1D(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L203" title="All 2 branches missed.">		} else if (model instanceof FDMBatesModel) {</span>
+			/*
+			 * Barrier-specific Bates handling is not implemented yet.
+			 * For the time being, ignore barrierMode and return the vanilla
+			 * Bates solver.
+			 */
+<span class="nc" id="L209">			return new FDMBatesADI2D(</span>
+					(FDMBatesModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L215" title="All 2 branches missed.">		} else if (model instanceof FDMHestonModel) {</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">			if (barrierMode == null) {</span>
+<span class="nc" id="L217">				return new FDMHestonADI2D(</span>
+						(FDMHestonModel) model,
+						product,
+						spaceTimeDiscretization,
+						exercise
+						);
+			}
+
+<span class="nc" id="L225">			return new FDMBarrierHestonADI2D(</span>
+					(FDMHestonModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise,
+					barrierMode,
+					preHitSpecification
+					);
+<span class="nc bnc" id="L233" title="All 2 branches missed.">		} else if (model instanceof FDMSabrModel) {</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			if (barrierMode == null) {</span>
+<span class="nc" id="L235">				return new FDMSabrADI2D(</span>
+						(FDMSabrModel) model,
+						product,
+						spaceTimeDiscretization,
+						exercise
+						);
+			}
+
+<span class="nc" id="L243">			return new FDMBarrierSabrADI2D(</span>
+					(FDMSabrModel) model,
+					product,
+					spaceTimeDiscretization,
+					exercise,
+					barrierMode,
+					preHitSpecification
+					);
+		} else {
+<span class="nc" id="L252">			throw new IllegalArgumentException(</span>
+<span class="nc" id="L253">					&quot;Unsupported model type: &quot; + model.getClass().getName());</span>
+		}
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param product The value.
+	 * @param exercise The value.
+	 * @return The value.
+	 */
+	public static FDMSolver createSolver(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final Exercise exercise) {
+<span class="fc" id="L269">		return createSolver(model, product, model.getSpaceTimeDiscretization(), exercise);</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param product The value.
+	 * @param exercise The value.
+	 * @param barrierMode The value.
+	 * @param preHitSpecification The value.
+	 * @return The value.
+	 */
+	public static FDMSolver createSolver(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final Exercise exercise,
+			final BarrierPDEMode barrierMode,
+			final BarrierPreHitSpecification preHitSpecification) {
+<span class="nc" id="L288">		return createSolver(</span>
+				model,
+				product,
+<span class="nc" id="L291">				model.getSpaceTimeDiscretization(),</span>
+				exercise,
+				barrierMode,
+				preHitSpecification
+				);
+	}
+
+	private static FDMSolver createMultiAssetBlackScholesSolver(
+			final FDMMultiAssetBlackScholesModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+
+<span class="nc" id="L304">		final int dimension = spaceTimeDiscretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L306" title="All 2 branches missed.">		if (dimension == 1) {</span>
+<span class="nc" id="L307">			return new FDMThetaMethod1D(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		} else if (dimension == 2) {</span>
+<span class="nc" id="L314">			return new FDMMultiAssetBlackScholesADI2D(</span>
+					model,
+					product,
+					spaceTimeDiscretization,
+					exercise
+					);
+		} else {
+<span class="nc" id="L321">			throw new IllegalArgumentException(</span>
+					&quot;MultiAssetBlackScholesModel is currently supported only in dimensions 1 and 2.&quot;);
+		}
+	}
+
+	private static boolean isOneDimensionalJumpModel(final FiniteDifferenceEquityModel model) {
+<span class="fc bfc" id="L327" title="All 2 branches covered.">		return model.getJumpComponent().isPresent()</span>
+<span class="pc bpc" id="L328" title="1 of 2 branches missed.">				&amp;&amp; model.getInitialValue() != null</span>
+<span class="pc bpc" id="L329" title="1 of 2 branches missed.">				&amp;&amp; model.getInitialValue().length == 1;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

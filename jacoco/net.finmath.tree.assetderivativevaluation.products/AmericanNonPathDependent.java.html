@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AmericanNonPathDependent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.products</a> &gt; <span class="el_source">AmericanNonPathDependent.java</span></div><h1>AmericanNonPathDependent.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.products;
+
+
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.TreeModel;
+
+/**
+ * American (non–path-dependent) option priced on a recombining TreeModel.
+ * The product allows early exercise at every lattice time prior to maturity.
+ * At each step k it compares:
+ * Continuation value: discounted conditional expectation
+ *         E^Q[V_{k+1} | F_k] provided by the model, and
+ *         Immediate exercise value: f(S_k).
+ * The option value is the pointwise maximum of the two (early exercise rule).
+ */
+public class AmericanNonPathDependent extends AbstractNonPathDependentProduct {
+
+	private final DoubleUnaryOperator payOffFunction;
+
+	/**
+	 * Creates an American option with given maturity and payoff.
+	 *
+	 * @param maturity        Contract maturity (model time units).
+	 * @param payOffFunction  Payoff function f(S) (e.g.,s -&gt; Math.max(K - s, 0.0) for a put).
+	 */
+	public AmericanNonPathDependent(double maturity, DoubleUnaryOperator payOffFunction) {
+<span class="fc" id="L29">		super(maturity);</span>
+<span class="fc" id="L30">		this.payOffFunction = payOffFunction;</span>
+<span class="fc" id="L31">	}</span>
+
+	/**
+	 * Performs backward induction with early exercise:
+	 * Set terminal values at maturity: levels[n-k0] = f(S_T).
+	 *   For k = n-1,...,k0:
+	 *      Continuation: continuation = DF * E^Q[ levels[k+1-k0] | F_k ] via getConditionalExpectationRV(RandomVariable, int)
+	 *      Exercise: exercise = f(S_k) via getSpotAtGivenTimeIndexRV(int).
+	 *      American rule: levels[k-k0] = max(continuation, exercise).
+	 *
+	 * @param evaluationTime The time at which the value is requested (typically 0.0).
+	 * @param model          The tree model (spot lattice, discounting, conditional expectations).
+	 * @return Array of value random variables from index k0 to n;
+	 */
+	@Override
+	public RandomVariable[] getValues(double evaluationTime, TreeModel model) {
+<span class="fc" id="L47">		final int k0 = timeToIndex(evaluationTime, model);</span>
+<span class="fc" id="L48">		final int n  = model.getNumberOfTimes() - 1;</span>
+<span class="fc" id="L49">		final RandomVariable[] levels = new RandomVariable[n - k0 + 1];</span>
+<span class="fc" id="L50">		levels[n - k0] = model.getTransformedValuesAtGivenTimeRV(model.getLastTime(), getPayOffFunction());</span>
+
+<span class="fc bfc" id="L52" title="All 2 branches covered.">		for (int k = n - 1; k &gt;= k0; --k) {</span>
+
+<span class="fc" id="L54">			final RandomVariable continuation = model.getConditionalExpectationRV(levels[(k + 1) - k0], k);</span>
+
+<span class="fc" id="L56">			final RandomVariable spotK   = model.getSpotAtGivenTimeIndexRV(k);</span>
+<span class="fc" id="L57">			final RandomVariable exercise = spotK.apply(getPayOffFunction());</span>
+
+<span class="fc" id="L59">			levels[k -k0] = continuation.floor(exercise);</span>
+
+		}
+
+<span class="fc" id="L63">		return levels;</span>
+
+	}
+
+	@Override
+	public DoubleUnaryOperator getPayOffFunction() {
+<span class="fc" id="L69">		return this.payOffFunction;</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

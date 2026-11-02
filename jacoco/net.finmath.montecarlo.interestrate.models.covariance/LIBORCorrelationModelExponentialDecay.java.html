@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCorrelationModelExponentialDecay.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCorrelationModelExponentialDecay.java</span></div><h1>LIBORCorrelationModelExponentialDecay.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Map;
+
+import net.finmath.functions.LinearAlgebra;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Simple 1-parametric correlation model given by R, where R is a factor reduced matrix
+ * (see {@link net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)}) created from the
+ * \( n \) Eigenvectors of \( \tilde{R} \) belonging to the \( n \) largest non-negative Eigenvalues,
+ * where \( \tilde{R} = \tilde{\rho}_{i,j} \) and \[ \tilde{\rho}_{i,j} = \exp( -\max(a,0) | T_{i}-T_{j} | ) \]
+ *
+ * For a more general model featuring three parameters see {@link LIBORCorrelationModelThreeParameterExponentialDecay}.
+ *
+ * @see net.finmath.functions.LinearAlgebra#factorReduction(double[][], int)
+ * @see LIBORCorrelationModelThreeParameterExponentialDecay
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LIBORCorrelationModelExponentialDecay extends LIBORCorrelationModel {
+
+	private static final long serialVersionUID = -8218022418731667531L;
+
+	private final	int			numberOfFactors;
+	private final 	double		a;
+	private final	boolean		isCalibrateable;
+
+	private double[][]	correlationMatrix;
+	private double[][]	factorMatrix;
+
+	/**
+	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
+	 *
+	 * @param timeDiscretization Simulation time discretization. Not used in this model.
+	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param numberOfFactors Number \( m \) of factors to be used.
+	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
+	 * @param isCalibrateable If true, the parameter will become a free parameter in a calibration (i.e., the parameter is available via {@code getParameter()}.
+	 */
+	public LIBORCorrelationModelExponentialDecay(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double a, final boolean isCalibrateable) {
+<span class="fc" id="L50">		super(timeDiscretization, liborPeriodDiscretization);</span>
+
+<span class="fc" id="L52">		this.numberOfFactors	= numberOfFactors;</span>
+<span class="fc" id="L53">		this.a					= a;</span>
+<span class="fc" id="L54">		this.isCalibrateable	= isCalibrateable;</span>
+
+<span class="fc" id="L56">		initialize(numberOfFactors, a);</span>
+<span class="fc" id="L57">	}</span>
+
+	/**
+	 * Create a correlation model with an exponentially decaying correlation structure and the given number of factors.
+	 *
+	 * The parameter is fixed (not calibrateable).
+	 *
+	 * @param timeDiscretization Simulation time discretization. Not used in this model.
+	 * @param liborPeriodDiscretization Tenor time discretization, i.e., the \( T_{i} \)'s.
+	 * @param numberOfFactors Number \( m \) of factors to be used.
+	 * @param a Decay parameter. Should be positive. Negative values will be floored to 0.
+	 */
+	public LIBORCorrelationModelExponentialDecay(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double a) {
+<span class="fc" id="L70">		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, false);</span>
+<span class="fc" id="L71">	}</span>
+
+	@Override
+	public LIBORCorrelationModelExponentialDecay getCloneWithModifiedParameter(final RandomVariable[] parameter) {
+<span class="nc bnc" id="L75" title="All 4 branches missed.">		if(!isCalibrateable || this.a == parameter[0].doubleValue()) {</span>
+<span class="nc" id="L76">			return this;</span>
+		}
+
+<span class="nc" id="L79">		return new LIBORCorrelationModelExponentialDecay(getTimeDiscretization(), getLiborPeriodDiscretization(), numberOfFactors, parameter[0].doubleValue());</span>
+	}
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L84">		return new LIBORCorrelationModelExponentialDecay(getTimeDiscretization(), getLiborPeriodDiscretization(), numberOfFactors, a, isCalibrateable);</span>
+	}
+
+	@Override
+	public double	getFactorLoading(final int timeIndex, final int factor, final int component) {
+<span class="fc" id="L89">		return factorMatrix[component][factor];</span>
+	}
+
+	@Override
+	public double	getCorrelation(final int timeIndex, final int component1, final int component2) {
+<span class="fc" id="L94">		return correlationMatrix[component1][component2];</span>
+	}
+
+	@Override
+	public int		getNumberOfFactors() {
+<span class="fc" id="L99">		return factorMatrix[0].length;</span>
+	}
+
+	private void initialize(final int numberOfFactors, double a) {
+		/*
+		 * Create instantaneous correlation matrix
+		 */
+
+		// Negative values of a do not make sense.
+<span class="fc" id="L108">		a = Math.max(a, 0);</span>
+
+<span class="fc" id="L110">		correlationMatrix = new double[getLiborPeriodDiscretization().getNumberOfTimeSteps()][getLiborPeriodDiscretization().getNumberOfTimeSteps()];</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">		for(int row=0; row&lt;correlationMatrix.length; row++) {</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">			for(int col=0; col&lt;correlationMatrix[row].length; col++) {</span>
+				// Exponentially decreasing instantaneous correlation
+<span class="fc" id="L114">				correlationMatrix[row][col] = Math.exp(-a * Math.abs(getLiborPeriodDiscretization().getTime(row)-getLiborPeriodDiscretization().getTime(col)));</span>
+			}
+		}
+
+		/*
+		 * Perform a factor decomposition (and reduction if numberOfFactors &lt; correlationMatrix.columns())
+		 */
+<span class="fc" id="L121">		factorMatrix = LinearAlgebra.factorReduction(correlationMatrix, numberOfFactors);</span>
+
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		for(int component1=0; component1&lt;factorMatrix.length; component1++) {</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">			for(int component2=0; component2&lt;component1; component2++) {</span>
+<span class="fc" id="L125">				double correlation = 0.0;</span>
+<span class="fc bfc" id="L126" title="All 2 branches covered.">				for(int factor=0; factor&lt;factorMatrix[component1].length; factor++) {</span>
+<span class="fc" id="L127">					correlation += factorMatrix[component1][factor] * factorMatrix[component2][factor];</span>
+				}
+<span class="fc" id="L129">				correlationMatrix[component1][component2] = correlation;</span>
+<span class="fc" id="L130">				correlationMatrix[component2][component1] = correlation;</span>
+			}
+<span class="fc" id="L132">			correlationMatrix[component1][component1] = 1.0;</span>
+		}
+<span class="fc" id="L134">	}</span>
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="fc" id="L139">			return null;</span>
+		}
+
+<span class="nc" id="L142">		final RandomVariable[] parameter = new RandomVariable[1];</span>
+
+<span class="nc" id="L144">		parameter[0] = new Scalar(a);</span>
+
+<span class="nc" id="L146">		return parameter;</span>
+	}
+
+	@Override
+	public LIBORCorrelationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="nc" id="L151">		TimeDiscretization timeDiscretization = this.getTimeDiscretization();</span>
+<span class="nc" id="L152">		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();</span>
+<span class="nc" id="L153">		int numberOfFactors = this.getNumberOfFactors();</span>
+<span class="nc" id="L154">		double a = this.a;</span>
+<span class="nc" id="L155">		boolean isCalibrateable = this.isCalibrateable;</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc" id="L158">			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;timeDiscretization&quot;, timeDiscretization);</span>
+<span class="nc" id="L159">			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;liborPeriodDiscretization&quot;, liborPeriodDiscretization);</span>
+<span class="nc" id="L160">			numberOfFactors = (int)dataModified.getOrDefault(&quot;numberOfFactors&quot;, numberOfFactors);</span>
+<span class="nc" id="L161">			a = (double)dataModified.getOrDefault(&quot;a&quot;, a);</span>
+<span class="nc" id="L162">			isCalibrateable = (boolean)dataModified.getOrDefault(&quot;isCalibrateable&quot;, isCalibrateable);</span>
+		}
+
+<span class="nc" id="L165">		final LIBORCorrelationModel newModel = new LIBORCorrelationModelExponentialDecay(timeDiscretization, liborPeriodDiscretization, numberOfFactors, a, isCalibrateable);</span>
+<span class="nc" id="L166">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

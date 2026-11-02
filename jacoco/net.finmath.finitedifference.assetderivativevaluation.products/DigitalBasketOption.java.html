@@ -1,0 +1,449 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalBasketOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">DigitalBasketOption.java</span></div><h1>DigitalBasketOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.Arrays;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Finite-difference valuation of a European cash-or-nothing digital option on
+ * two assets.
+ *
+ * &lt;p&gt;
+ * The class unifies three practically relevant two-asset digital payoffs:
+ * &lt;/p&gt;
+ *
+ * &lt;ul&gt;
+ *   &lt;li&gt;linear-combination digital,&lt;/li&gt;
+ *   &lt;li&gt;best-of digital,&lt;/li&gt;
+ *   &lt;li&gt;worst-of digital.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Let {@code S1} and {@code S2} denote the two asset values at maturity
+ * {@code T}, let {@code K} be the strike, let {@code C &amp;gt;= 0} be the cash
+ * payoff, and let {@code \omega \in \{+1,-1\}} denote the call/put sign.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In {@link BasketDigitalType#LINEAR_COMBINATION} mode, with signed quantities
+ * {@code q1} and {@code q2}, the payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * C \mathbf{1}_{\{\omega (q_1 S_1(T) + q_2 S_2(T) - K) &amp;gt; 0\}}.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In {@link BasketDigitalType#BEST_OF} mode, the payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * C \mathbf{1}_{\{\omega (\max(S_1(T),S_2(T)) - K) &amp;gt; 0\}}.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In {@link BasketDigitalType#WORST_OF} mode, the payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * C \mathbf{1}_{\{\omega (\min(S_1(T),S_2(T)) - K) &amp;gt; 0\}}.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The current implementation supports only European exercise and requires a
+ * two-dimensional model state.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalBasketOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * Type of two-asset digital payoff.
+	 */
+<span class="nc" id="L75">	public enum BasketDigitalType {</span>
+		/**
+		 * The linear combination.
+		 */
+<span class="nc" id="L79">		LINEAR_COMBINATION,</span>
+		/**
+		 * The best of.
+		 */
+<span class="nc" id="L83">		BEST_OF,</span>
+		/**
+		 * The worst of.
+		 */
+<span class="nc" id="L87">		WORST_OF</span>
+	}
+
+	/**
+	 * The underlying names.
+	 */
+	private final String[] underlyingNames;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The basket digital type.
+	 */
+	private final BasketDigitalType basketDigitalType;
+	/**
+	 * The quantities.
+	 */
+	private final double[] quantities;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The cash payoff.
+	 */
+	private final double cashPayoff;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Creates a digital basket option.
+	 *
+	 * @param underlyingNames Names of the underlyings. May be {@code null}. If
+	 *        provided, the array length must be 2.
+	 * @param maturity Maturity.
+	 * @param basketDigitalType Payoff type.
+	 * @param quantities Signed quantities for
+	 * {@link BasketDigitalType#LINEAR_COMBINATION}. Ignored otherwise and
+	 *        may be {@code null}.
+	 * @param strike Strike.
+	 * @param cashPayoff Cash payoff.
+	 * @param callOrPut Option type.
+	 */
+	public DigitalBasketOption(
+			final String[] underlyingNames,
+			final double maturity,
+			final BasketDigitalType basketDigitalType,
+			final double[] quantities,
+			final double strike,
+			final double cashPayoff,
+<span class="nc" id="L144">			final CallOrPut callOrPut) {</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (basketDigitalType == null) {</span>
+<span class="nc" id="L147">			throw new IllegalArgumentException(&quot;basketDigitalType must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		if (callOrPut == null) {</span>
+<span class="nc" id="L150">			throw new IllegalArgumentException(&quot;callOrPut must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L153">			throw new IllegalArgumentException(&quot;maturity must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (cashPayoff &lt; 0.0) {</span>
+<span class="nc" id="L156">			throw new IllegalArgumentException(&quot;cashPayoff must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L158" title="All 4 branches missed.">		if (underlyingNames != null &amp;&amp; underlyingNames.length != 2) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;underlyingNames must have length 2.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		if (basketDigitalType == BasketDigitalType.LINEAR_COMBINATION) {</span>
+<span class="nc bnc" id="L163" title="All 4 branches missed.">			if (quantities == null || quantities.length != 2) {</span>
+<span class="nc" id="L164">				throw new IllegalArgumentException(</span>
+						&quot;quantities must have length 2 for LINEAR_COMBINATION mode.&quot;);
+			}
+
+<span class="nc" id="L168">			boolean allZero = true;</span>
+<span class="nc bnc" id="L169" title="All 2 branches missed.">			for (final double quantity : quantities) {</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">				if (Math.abs(quantity) &gt; 0.0) {</span>
+<span class="nc" id="L171">					allZero = false;</span>
+<span class="nc" id="L172">					break;</span>
+				}
+			}
+<span class="nc bnc" id="L175" title="All 2 branches missed.">			if (allZero) {</span>
+<span class="nc" id="L176">				throw new IllegalArgumentException(&quot;At least one quantity must be non-zero.&quot;);</span>
+			}
+		}
+
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		this.underlyingNames = underlyingNames != null ? underlyingNames.clone() : null;</span>
+<span class="nc" id="L181">		this.maturity = maturity;</span>
+<span class="nc" id="L182">		this.basketDigitalType = basketDigitalType;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		this.quantities = quantities != null ? quantities.clone() : null;</span>
+<span class="nc" id="L184">		this.strike = strike;</span>
+<span class="nc" id="L185">		this.cashPayoff = cashPayoff;</span>
+<span class="nc" id="L186">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L187">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="nc" id="L188">	}</span>
+
+	/**
+	 * Creates a digital basket option.
+	 *
+	 * @param maturity Maturity.
+	 * @param basketDigitalType Payoff type.
+	 * @param quantities Signed quantities for
+	 * {@link BasketDigitalType#LINEAR_COMBINATION}. Ignored otherwise and
+	 *        may be {@code null}.
+	 * @param strike Strike.
+	 * @param cashPayoff Cash payoff.
+	 * @param callOrPut Option type.
+	 */
+	public DigitalBasketOption(
+			final double maturity,
+			final BasketDigitalType basketDigitalType,
+			final double[] quantities,
+			final double strike,
+			final double cashPayoff,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L209">		this(null, maturity, basketDigitalType, quantities, strike, cashPayoff, callOrPut);</span>
+<span class="nc" id="L210">	}</span>
+
+	/**
+	 * Creates a linear-combination digital option.
+	 *
+	 * @param underlyingNames Names of the underlyings.
+	 * @param maturity Maturity.
+	 * @param quantities Signed quantities.
+	 * @param strike Strike.
+	 * @param cashPayoff Cash payoff.
+	 * @param callOrPut Option type.
+	 * @return The product.
+	 */
+	public static DigitalBasketOption linearCombination(
+			final String[] underlyingNames,
+			final double maturity,
+			final double[] quantities,
+			final double strike,
+			final double cashPayoff,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L230">		return new DigitalBasketOption(</span>
+				underlyingNames,
+				maturity,
+				BasketDigitalType.LINEAR_COMBINATION,
+				quantities,
+				strike,
+				cashPayoff,
+				callOrPut
+				);
+	}
+
+	/**
+	 * Creates a best-of digital option.
+	 *
+	 * @param underlyingNames Names of the underlyings.
+	 * @param maturity Maturity.
+	 * @param strike Strike.
+	 * @param cashPayoff Cash payoff.
+	 * @param callOrPut Option type.
+	 * @return The product.
+	 */
+	public static DigitalBasketOption bestOf(
+			final String[] underlyingNames,
+			final double maturity,
+			final double strike,
+			final double cashPayoff,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L257">		return new DigitalBasketOption(</span>
+				underlyingNames,
+				maturity,
+				BasketDigitalType.BEST_OF,
+				null,
+				strike,
+				cashPayoff,
+				callOrPut
+				);
+	}
+
+	/**
+	 * Creates a worst-of digital option.
+	 *
+	 * @param underlyingNames Names of the underlyings.
+	 * @param maturity Maturity.
+	 * @param strike Strike.
+	 * @param cashPayoff Cash payoff.
+	 * @param callOrPut Option type.
+	 * @return The product.
+	 */
+	public static DigitalBasketOption worstOf(
+			final String[] underlyingNames,
+			final double maturity,
+			final double strike,
+			final double cashPayoff,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L284">		return new DigitalBasketOption(</span>
+				underlyingNames,
+				maturity,
+				BasketDigitalType.WORST_OF,
+				null,
+				strike,
+				cashPayoff,
+				callOrPut
+				);
+	}
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L297">		validateModel(model);</span>
+
+<span class="nc" id="L299">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+<span class="nc" id="L300">		return solver.getValue(</span>
+				evaluationTime,
+				maturity,
+				this::terminalPayoff
+				);
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L309">		validateModel(model);</span>
+
+<span class="nc" id="L311">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+<span class="nc" id="L312">		return solver.getValues(</span>
+				maturity,
+				this::terminalPayoff
+				);
+	}
+
+	/**
+	 * Returns the terminal payoff.
+	 *
+	 * @param firstAssetValue Value of the first asset.
+	 * @param secondAssetValue Value of the second asset.
+	 * @return The terminal payoff.
+	 */
+	private double terminalPayoff(final double firstAssetValue, final double secondAssetValue) {
+		final double underlyingValue;
+
+<span class="nc bnc" id="L328" title="All 4 branches missed.">		switch (basketDigitalType) {</span>
+		case LINEAR_COMBINATION:
+<span class="nc" id="L330">			underlyingValue = quantities[0] * firstAssetValue + quantities[1] * secondAssetValue;</span>
+<span class="nc" id="L331">			break;</span>
+		case BEST_OF:
+<span class="nc" id="L333">			underlyingValue = Math.max(firstAssetValue, secondAssetValue);</span>
+<span class="nc" id="L334">			break;</span>
+		case WORST_OF:
+<span class="nc" id="L336">			underlyingValue = Math.min(firstAssetValue, secondAssetValue);</span>
+<span class="nc" id="L337">			break;</span>
+		default:
+<span class="nc" id="L339">			throw new IllegalStateException(&quot;Unsupported basket digital type.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L342" title="All 2 branches missed.">		return callOrPut.toInteger() * (underlyingValue - strike) &gt; 0.0 ? cashPayoff : 0.0;</span>
+	}
+
+	/**
+	 * Validates model compatibility.
+	 *
+	 * @param model The finite-difference model.
+	 */
+	private void validateModel(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L351" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L352">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L355" title="All 2 branches missed.">		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 2) {</span>
+<span class="nc" id="L356">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOption currently requires a two-dimensional space discretization.&quot;);
+		}
+
+<span class="nc bnc" id="L360" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 2) {</span>
+<span class="nc" id="L361">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOption currently requires a two-dimensional model state.&quot;);
+		}
+<span class="nc" id="L364">	}</span>
+
+	/**
+	 * Returns the names of the underlyings.
+	 *
+	 * @return The names of the underlyings, or {@code null} if unspecified.
+	 */
+	public String[] getUnderlyingNames() {
+<span class="nc bnc" id="L372" title="All 2 branches missed.">		return underlyingNames != null ? underlyingNames.clone() : null;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L381">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the payoff type.
+	 *
+	 * @return The payoff type.
+	 */
+	public BasketDigitalType getBasketDigitalType() {
+<span class="nc" id="L390">		return basketDigitalType;</span>
+	}
+
+	/**
+	 * Returns the signed quantities.
+	 *
+	 * @return The signed quantities, or {@code null} if not applicable.
+	 */
+	public double[] getQuantities() {
+<span class="nc bnc" id="L399" title="All 2 branches missed.">		return quantities != null ? quantities.clone() : null;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L408">		return strike;</span>
+	}
+
+	/**
+	 * Returns the cash payoff.
+	 *
+	 * @return The cash payoff.
+	 */
+	public double getCashPayoff() {
+<span class="nc" id="L417">		return cashPayoff;</span>
+	}
+
+	/**
+	 * Returns the option type.
+	 *
+	 * @return The option type.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L426">		return callOrPut;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L435">		return exercise;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L440">		return &quot;DigitalBasketOption [maturity=&quot; + maturity</span>
+				+ &quot;, basketDigitalType=&quot; + basketDigitalType
+<span class="nc" id="L442">				+ &quot;, quantities=&quot; + Arrays.toString(quantities)</span>
+				+ &quot;, strike=&quot; + strike
+				+ &quot;, cashPayoff=&quot; + cashPayoff
+				+ &quot;, callOrPut=&quot; + callOrPut
+				+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

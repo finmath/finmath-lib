@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractProductComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">AbstractProductComponent.java</span></div><h1>AbstractProductComponent.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 03.09.2006
+ */
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Base class for product components.
+ *
+ * Product components are small functions mapping a vector of
+ * random variables to a random variable.
+ *
+ * Components are numeraire adjusted and can be valued on its own.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractProductComponent extends AbstractTermStructureMonteCarloProduct  implements Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -916286619811716575L;
+
+<span class="fc" id="L41">	private static ThreadPoolExecutor executor = new ThreadPoolExecutor(</span>
+<span class="fc" id="L42">			Runtime.getRuntime().availableProcessors(),</span>
+<span class="fc" id="L43">			Runtime.getRuntime().availableProcessors(),</span>
+<span class="fc" id="L44">			10L, TimeUnit.SECONDS, new SynchronousQueue&lt;Runnable&gt;(), new ThreadFactory() {</span>
+				@Override
+				public Thread newThread(final Runnable runnable) {
+<span class="fc" id="L47">					final Thread thread = Executors.defaultThreadFactory().newThread(runnable);</span>
+<span class="fc" id="L48">					thread.setDaemon(true);</span>
+<span class="fc" id="L49">					return thread;</span>
+				}
+			});
+
+	public AbstractProductComponent(final String currency) {
+<span class="fc" id="L54">		super(currency);</span>
+<span class="fc" id="L55">	}</span>
+
+	public AbstractProductComponent() {
+<span class="fc" id="L58">		this(null);</span>
+<span class="fc" id="L59">	}</span>
+
+	/**
+	 * Returns a set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
+	 *
+	 * @return A set of underlying names referenced by this product component (i.e., required for valuation) or null if none.
+	 */
+	public abstract Set&lt;String&gt; queryUnderlyings();
+
+	@Override
+	public Map&lt;String, Object&gt; getValues(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L70">		final RandomVariable value = this.getValue(evaluationTime, model);</span>
+<span class="nc" id="L71">		final Map&lt;String, Object&gt; result = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L72">		result.put(&quot;value&quot;, value);</span>
+<span class="nc" id="L73">		return result;</span>
+	}
+
+	protected static ThreadPoolExecutor getExecutor() {
+<span class="fc" id="L77">		return executor;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

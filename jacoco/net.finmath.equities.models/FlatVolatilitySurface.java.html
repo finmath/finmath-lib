@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FlatVolatilitySurface.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.models</a> &gt; <span class="el_source">FlatVolatilitySurface.java</span></div><h1>FlatVolatilitySurface.java</h1><pre class="source lang-java linenums">package net.finmath.equities.models;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import net.finmath.equities.marketdata.VolatilityPoint;
+
+/**
+ * This class implements the volatility interfaces for a flat volatility surface.
+ *
+ * @author Andreas Grotz
+ */
+
+<span class="fc" id="L14">public class FlatVolatilitySurface  implements VolatilitySurface, ShiftedVolatilitySurface {</span>
+
+	private final double volatility;
+	private final double volShift;
+
+	public FlatVolatilitySurface(double volatility) {
+<span class="fc" id="L20">		this(volatility, 0.0);</span>
+<span class="fc" id="L21">	}</span>
+
+<span class="fc" id="L23">	public FlatVolatilitySurface(double volatility, double volShift) {</span>
+<span class="fc" id="L24">		this.volatility = volatility;</span>
+<span class="fc" id="L25">		this.volShift = volShift;</span>
+<span class="fc" id="L26">	}</span>
+
+	@Override
+	public ShiftedVolatilitySurface getShiftedSurface(double shift) {
+<span class="pc bpc" id="L30" title="1 of 2 branches missed.">		assert volShift == 0.0 : &quot;Surface is already shifted&quot;;</span>
+<span class="fc" id="L31">		return new FlatVolatilitySurface(this.volatility, shift);</span>
+	}
+
+	@Override
+	public double getShift() {
+<span class="nc" id="L36">		return volShift;</span>
+	}
+
+	@Override
+	public double getVolatility(
+			double strike,
+			LocalDate expiryDate,
+			EquityForwardStructure currentForwardStructure)
+	{
+<span class="fc" id="L45">		return volatility + volShift;</span>
+	}
+
+	@Override
+	public double getVolatility(double strike, double timeToMaturity, EquityForwardStructure currentForwardStructure) {
+<span class="nc" id="L50">		return volatility + volShift;</span>
+	}
+
+	@Override
+	public double getLocalVolatility(
+			double strike,
+			LocalDate expiryDate,
+			EquityForwardStructure currentForwardStructure,
+			double strikeShift,
+			double timeShift)
+	{
+<span class="nc" id="L61">		return volatility + volShift;</span>
+	}
+
+	@Override
+	public double getLocalVolatility(
+			double logStrike,
+			double timeToMaturity,
+			EquityForwardStructure currentForwardStructure,
+			double strikeShift,
+			double timeShift)
+	{
+<span class="nc" id="L72">		return volatility + volShift;</span>
+	}
+
+	@Override
+	public void calibrate(
+			EquityForwardStructure forwardStructure,
+			List&lt;VolatilityPoint&gt; volaPoints)
+	{
+<span class="nc" id="L80">		assert false : &quot;A flat surface cannot be calibrated&quot;;</span>
+<span class="nc" id="L81">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

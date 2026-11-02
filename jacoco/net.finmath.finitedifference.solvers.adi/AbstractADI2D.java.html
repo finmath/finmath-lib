@@ -1,0 +1,963 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractADI2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">AbstractADI2D.java</span></div><h1>AbstractADI2D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityEventProduct;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceInternalStateConstraint;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.ThomasSolver;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Generic two-dimensional alternating direction implicit finite-difference
+ * solver.
+ *
+ * &lt;p&gt;
+ * The solver acts on a two-dimensional state vector
+ * &lt;i&gt;(x_0,x_1)&lt;/i&gt; and computes an approximation of the value function
+ * &lt;i&gt;V(t,x_0,x_1)&lt;/i&gt; associated with a parabolic pricing equation of the form
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \frac{\partial V}{\partial t}
+ * + \mathcal{A}_0 V
+ * + \mathcal{A}_1 V
+ * + \mathcal{A}_2 V
+ * = 0,
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where the operator is split into:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;&lt;i&gt;\mathcal{A}_0&lt;/i&gt;: mixed derivative term together with discounting,
+ * treated explicitly,&lt;/li&gt;
+ * &lt;li&gt;&lt;i&gt;\mathcal{A}_1&lt;/i&gt;: first-direction drift and diffusion terms, treated
+ * implicitly,&lt;/li&gt;
+ * &lt;li&gt;&lt;i&gt;\mathcal{A}_2&lt;/i&gt;: second-direction drift and diffusion terms, treated
+ * implicitly.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The time stepping uses a stabilized Douglas-type ADI splitting. For a time
+ * step
+ * &lt;i&gt;\Delta t&lt;/i&gt;, the algorithm first forms an explicit predictor and then
+ * performs
+ * successive implicit solves along the two spatial directions. To improve
+ * numerical
+ * stability, the implementation applies two half Douglas steps. This yields a
+ * scheme
+ * which is efficient for two-dimensional problems since each implicit stage
+ * reduces to
+ * a collection of tridiagonal linear systems along grid lines.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The flattening convention for a grid function is
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * k = i0 + i1 * n0
+ * &lt;/pre&gt;
+ * &lt;p&gt;
+ * where &lt;i&gt;i0&lt;/i&gt; is the index in the first spatial direction and &lt;i&gt;i1&lt;/i&gt; is
+ * the
+ * index in the second spatial direction. Hence the first state direction is
+ * stored as
+ * the fastest varying index.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The solver supports:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;terminal conditions depending on one or two state variables,&lt;/li&gt;
+ * &lt;li&gt;discrete exercise obstacles for Bermudan or American-style problems,&lt;/li&gt;
+ *   &lt;li&gt;continuous obstacles applied after each backward step,&lt;/li&gt;
+ *   &lt;li&gt;internal state constraints supplied by the product,&lt;/li&gt;
+ *   &lt;li&gt;vector-level equity event conditions at prescribed event times,&lt;/li&gt;
+ *   &lt;li&gt;Dirichlet boundary extraction from the model boundary conditions.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public abstract class AbstractADI2D implements FDMSolver {
+
+	/**
+	 * The event time tolerance.
+	 */
+	private static final double EVENT_TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * Functional interface for payoffs or obstacles depending on time and two
+	 * state variables.
+	 *
+	 * &lt;p&gt;
+	 * The three arguments are interpreted as running time and the two spatial
+	 * coordinates.
+	 * This is useful for early-exercise values depending explicitly on time.
+	 * &lt;/p&gt;
+	 */
+	@FunctionalInterface
+	public interface DoubleTernaryOperator {
+
+		/**
+		 * Evaluates the function.
+		 *
+		 * @param x0 First argument.
+		 * @param x1 Second argument.
+		 * @param x2 Third argument.
+		 * @return Function value.
+		 */
+		double applyAsDouble(double x0, double x1, double x2);
+	}
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceEquityModel model;
+	/**
+	 * The product.
+	 */
+	private final FiniteDifferenceEquityProduct product;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * The theta.
+	 */
+	private final double theta;
+
+	/**
+	 * The x0 grid.
+	 */
+	private final double[] x0Grid;
+	/**
+	 * The x1 grid.
+	 */
+	private final double[] x1Grid;
+
+	/**
+	 * The n0.
+	 */
+	private final int n0;
+	/**
+	 * The n1.
+	 */
+	private final int n1;
+	/**
+	 * The n.
+	 */
+	private final int n;
+
+	/**
+	 * The stencil builder.
+	 */
+	private final ADI2DStencilBuilder stencilBuilder;
+
+	/**
+	 * Creates the ADI solver.
+	 *
+	 * @param model The finite-difference model.
+	 * @param product The product to be valued.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @param exercise The exercise specification.
+	 */
+	protected AbstractADI2D(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+<span class="fc" id="L188">			final Exercise exercise) {</span>
+
+<span class="fc" id="L190">		this.model = model;</span>
+<span class="fc" id="L191">		this.product = product;</span>
+<span class="fc" id="L192">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L193">		this.exercise = exercise;</span>
+
+<span class="fc" id="L195">		final Grid x0GridObj = spaceTimeDiscretization.getSpaceGrid(0);</span>
+<span class="fc" id="L196">		final Grid x1GridObj = spaceTimeDiscretization.getSpaceGrid(1);</span>
+<span class="pc bpc" id="L197" title="2 of 4 branches missed.">		if (x0GridObj == null || x1GridObj == null) {</span>
+<span class="nc" id="L198">			throw new IllegalArgumentException(&quot;AbstractADI2D requires a 2D discretization.&quot;);</span>
+		}
+
+<span class="fc" id="L201">		this.x0Grid = x0GridObj.getGrid();</span>
+<span class="fc" id="L202">		this.x1Grid = x1GridObj.getGrid();</span>
+
+<span class="fc" id="L204">		this.n0 = getX0Grid().length;</span>
+<span class="fc" id="L205">		this.n1 = getX1Grid().length;</span>
+<span class="fc" id="L206">		this.n = getN0() * getN1();</span>
+
+<span class="fc" id="L208">		this.theta = Math.max(0.5, spaceTimeDiscretization.getTheta());</span>
+<span class="fc" id="L209">		this.stencilBuilder = new ADI2DStencilBuilder(model, getX0Grid(), getX1Grid());</span>
+
+<span class="fc" id="L211">		validateProductEventTimesInGrid();</span>
+<span class="fc" id="L212">	}</span>
+
+	/**
+	 * Returns the full value surface for a terminal payoff depending on the
+	 * first state variable.
+	 *
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @return Value surface indexed by flattened space index and time index.
+	 */
+	@Override
+	public double[][] getValues(final double time, final DoubleUnaryOperator valueAtMaturity) {
+<span class="fc" id="L224">		return getValues(</span>
+				time,
+<span class="fc" id="L226">				(x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0),</span>
+<span class="nc" id="L227">				(runningTime, x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0));</span>
+	}
+
+	/**
+	 * Returns the full value surface for a two-dimensional terminal payoff.
+	 *
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @return Value surface indexed by flattened space index and time index.
+	 */
+	@Override
+	public double[][] getValues(final double time, final DoubleBinaryOperator valueAtMaturity) {
+<span class="nc" id="L239">		return getValues(</span>
+				time,
+				valueAtMaturity,
+<span class="nc" id="L242">				(runningTime, x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0, x1));</span>
+	}
+
+	/**
+	 * Returns the full value surface under a continuous obstacle.
+	 *
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @param continuousObstacleValue Continuous obstacle value.
+	 * @return Value surface indexed by flattened space index and time index.
+	 */
+	public double[][] getValuesWithContinuousObstacle(
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator continuousObstacleValue) {
+<span class="nc" id="L257">		return getValuesInternal(time, valueAtMaturity, null, continuousObstacleValue);</span>
+	}
+
+	/**
+	 * Returns the values at a given evaluation time under a continuous
+	 * obstacle.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @param continuousObstacleValue Continuous obstacle value.
+	 * @return Value vector on the flattened space grid.
+	 */
+	public double[] getValueWithContinuousObstacle(
+			final double evaluationTime,
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator continuousObstacleValue) {
+
+<span class="nc" id="L276">		final RealMatrix values = new Array2DRowRealMatrix(</span>
+<span class="nc" id="L277">				getValuesWithContinuousObstacle(time, valueAtMaturity, continuousObstacleValue)</span>
+				);
+<span class="nc" id="L279">		final double tau = time - evaluationTime;</span>
+<span class="nc" id="L280">		final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+<span class="nc" id="L281">		return values.getColumn(timeIndex);</span>
+	}
+
+	/**
+	 * Returns the full value surface under a discrete exercise obstacle.
+	 *
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @param exerciseValue Exercise payoff.
+	 * @return Value surface indexed by flattened space index and time index.
+	 */
+	public double[][] getValues(
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator exerciseValue) {
+<span class="fc" id="L296">		return getValuesInternal(time, valueAtMaturity, exerciseValue, null);</span>
+	}
+
+	private double[][] getValuesInternal(
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator exerciseValue,
+			final DoubleTernaryOperator continuousObstacleValue) {
+
+<span class="pc bpc" id="L305" title="2 of 4 branches missed.">		if (exerciseValue != null &amp;&amp; continuousObstacleValue != null) {</span>
+<span class="nc" id="L306">			throw new IllegalArgumentException(</span>
+					&quot;Provide either a discrete exercise obstacle or a continuous obstacle, not both.&quot;);
+		}
+
+<span class="fc" id="L310">		final int timeLength = getSpaceTimeDiscretization().getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="fc" id="L311">		final int numberOfTimeSteps = getSpaceTimeDiscretization().getTimeDiscretization().getNumberOfTimeSteps();</span>
+
+<span class="fc" id="L313">		double[] u = new double[getN()];</span>
+<span class="fc bfc" id="L314" title="All 2 branches covered.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc bfc" id="L315" title="All 2 branches covered.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L316">				u[flatten(i, j)] = valueAtMaturity.applyAsDouble(getX0Grid()[i], getX1Grid()[j]);</span>
+			}
+		}
+
+<span class="fc" id="L320">		applyOuterBoundaries(time, u);</span>
+<span class="fc" id="L321">		applyInternalConstraints(time, u);</span>
+<span class="fc" id="L322">		u = applyProductEventConditionIfNeeded(time, u);</span>
+<span class="fc" id="L323">		applyInternalConstraints(time, u);</span>
+<span class="fc" id="L324">		applyOuterBoundaries(time, u);</span>
+<span class="fc" id="L325">		u = sanitize(u);</span>
+
+<span class="fc" id="L327">		final RealMatrix solutionSurface = new Array2DRowRealMatrix(getN(), timeLength);</span>
+<span class="fc" id="L328">		solutionSurface.setColumn(0, u.clone());</span>
+
+<span class="fc bfc" id="L330" title="All 2 branches covered.">		for (int m = 0; m &lt; numberOfTimeSteps; m++) {</span>
+<span class="fc" id="L331">			final double dt = getSpaceTimeDiscretization().getTimeDiscretization().getTimeStep(m);</span>
+
+<span class="fc" id="L333">			final double tauNext = getSpaceTimeDiscretization().getTimeDiscretization().getTime(m + 1);</span>
+<span class="fc" id="L334">			final double runningTimeNext =</span>
+<span class="fc" id="L335">					getSpaceTimeDiscretization().getTimeDiscretization().getLastTime() - tauNext;</span>
+
+<span class="fc" id="L337">			u = performStableDouglasStep(u, runningTimeNext, dt);</span>
+
+<span class="fc" id="L339">			applyInternalConstraints(runningTimeNext, u);</span>
+<span class="fc" id="L340">			applyOuterBoundaries(runningTimeNext, u);</span>
+
+<span class="pc bpc" id="L342" title="1 of 2 branches missed.">			if (continuousObstacleValue != null) {</span>
+<span class="nc" id="L343">				applyContinuousObstacleIfNeeded(runningTimeNext, u, continuousObstacleValue);</span>
+			} else {
+<span class="fc" id="L345">				applyExerciseObstacleIfNeeded(runningTimeNext, tauNext, u, exerciseValue);</span>
+			}
+
+<span class="fc" id="L348">			u = applyProductEventConditionIfNeeded(runningTimeNext, u);</span>
+
+<span class="fc" id="L350">			applyInternalConstraints(runningTimeNext, u);</span>
+<span class="fc" id="L351">			applyOuterBoundaries(runningTimeNext, u);</span>
+
+<span class="fc" id="L353">			u = sanitize(u);</span>
+
+<span class="fc" id="L355">			solutionSurface.setColumn(m + 1, u.clone());</span>
+		}
+
+<span class="fc" id="L358">		return solutionSurface.getData();</span>
+	}
+
+	/**
+	 * Returns the values at the specified evaluation time for a one-dimensional
+	 * terminal payoff.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @return Value vector on the flattened space grid.
+	 */
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleUnaryOperator valueAtMaturity) {
+
+<span class="fc" id="L376">		final RealMatrix values = new Array2DRowRealMatrix(getValues(time, valueAtMaturity));</span>
+<span class="fc" id="L377">		final double tau = time - evaluationTime;</span>
+<span class="fc" id="L378">		final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+<span class="fc" id="L379">		return values.getColumn(timeIndex);</span>
+	}
+
+	/**
+	 * Returns the values at the specified evaluation time for a two-dimensional
+	 * terminal payoff.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @return Value vector on the flattened space grid.
+	 */
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity) {
+
+<span class="nc" id="L397">		final RealMatrix values = new Array2DRowRealMatrix(getValues(time, valueAtMaturity));</span>
+<span class="nc" id="L398">		final double tau = time - evaluationTime;</span>
+<span class="nc" id="L399">		final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+<span class="nc" id="L400">		return values.getColumn(timeIndex);</span>
+	}
+
+	/**
+	 * Returns the values at the specified evaluation time under a discrete
+	 * exercise obstacle.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param time Maturity time.
+	 * @param valueAtMaturity Terminal payoff.
+	 * @param exerciseValue Exercise payoff.
+	 * @return Value vector on the flattened space grid.
+	 */
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator exerciseValue) {
+
+<span class="nc" id="L419">		final RealMatrix values = new Array2DRowRealMatrix(getValues(time, valueAtMaturity, exerciseValue));</span>
+<span class="nc" id="L420">		final double tau = time - evaluationTime;</span>
+<span class="nc" id="L421">		final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+<span class="nc" id="L422">		return values.getColumn(timeIndex);</span>
+	}
+
+	/**
+	 * Performs one stabilized Douglas time step by splitting it into two half
+	 * steps.
+	 *
+	 * @param u Current solution vector.
+	 * @param currentTime Current running time.
+	 * @param dt Time-step size.
+	 * @return Updated solution vector.
+	 */
+	protected double[] performStableDouglasStep(
+			final double[] u,
+			final double currentTime,
+			final double dt) {
+
+<span class="fc" id="L439">		final double halfDt = 0.5 * dt;</span>
+
+<span class="fc" id="L441">		double[] uMid = performDouglasHalfStep(u, currentTime + halfDt, halfDt);</span>
+<span class="fc" id="L442">		uMid = sanitize(uMid);</span>
+
+<span class="fc" id="L444">		double[] uNext = performDouglasHalfStep(uMid, currentTime, halfDt);</span>
+<span class="fc" id="L445">		uNext = sanitize(uNext);</span>
+
+<span class="fc" id="L447">		return uNext;</span>
+	}
+
+	/**
+	 * Performs one half Douglas step.
+	 *
+	 * @param u Current solution vector.
+	 * @param currentTime Current running time.
+	 * @param dt Time-step size.
+	 * @return Updated solution vector.
+	 */
+	protected double[] performDouglasHalfStep(
+			final double[] u,
+			final double currentTime,
+			final double dt) {
+
+<span class="fc" id="L463">		final double[] explicit = applyFullExplicitOperator(u, currentTime);</span>
+<span class="fc" id="L464">		final double[] y0 = add(u, scale(explicit, dt));</span>
+
+<span class="fc" id="L466">		applyOuterBoundaries(currentTime, y0);</span>
+
+<span class="fc" id="L468">		final double[] a1u = applyA1Explicit(u, currentTime);</span>
+<span class="fc" id="L469">		final double[] rhs1 = subtract(y0, scale(a1u, getTheta() * dt));</span>
+<span class="fc" id="L470">		double[] y1 = solveFirstDirectionLines(rhs1, currentTime, dt);</span>
+<span class="fc" id="L471">		y1 = sanitize(y1);</span>
+
+<span class="fc" id="L473">		applyOuterBoundaries(currentTime, y1);</span>
+
+<span class="fc" id="L475">		final double[] a2u = applyA2Explicit(u, currentTime);</span>
+<span class="fc" id="L476">		final double[] rhs2 = subtract(y1, scale(a2u, getTheta() * dt));</span>
+<span class="fc" id="L477">		double[] y2 = solveSecondDirectionLines(rhs2, currentTime, dt);</span>
+<span class="fc" id="L478">		y2 = sanitize(y2);</span>
+
+<span class="fc" id="L480">		applyInternalConstraints(currentTime, y2);</span>
+<span class="fc" id="L481">		applyOuterBoundaries(currentTime, y2);</span>
+
+<span class="fc" id="L483">		return y2;</span>
+	}
+
+	protected double[] applyFullExplicitOperator(final double[] u, final double time) {
+<span class="fc" id="L487">		return add(add(applyA0Explicit(u, time), applyA1Explicit(u, time)), applyA2Explicit(u, time));</span>
+	}
+
+	protected double[] applyA0Explicit(final double[] u, final double time) {
+
+<span class="fc" id="L492">		final double[] out = new double[getN()];</span>
+
+<span class="fc" id="L494">		final double tSafe = Math.max(time, 1E-10);</span>
+<span class="fc" id="L495">		final double discountFactor = getModel().getRiskFreeCurve().getDiscountFactor(tSafe);</span>
+<span class="fc" id="L496">		final double r = -Math.log(discountFactor) / tSafe;</span>
+
+<span class="fc bfc" id="L498" title="All 2 branches covered.">		for (int j = 1; j &lt; getN1() - 1; j++) {</span>
+<span class="fc bfc" id="L499" title="All 2 branches covered.">			for (int i = 1; i &lt; getN0() - 1; i++) {</span>
+<span class="fc" id="L500">				final int k = flatten(i, j);</span>
+
+<span class="fc" id="L502">				final double x0 = getX0Grid()[i];</span>
+<span class="fc" id="L503">				final double x1 = getX1Grid()[j];</span>
+
+<span class="fc" id="L505">				final double[][] b = getModel().getFactorLoading(time, x0, x1);</span>
+
+<span class="fc" id="L507">				double a01 = 0.0;</span>
+<span class="fc bfc" id="L508" title="All 2 branches covered.">				for (int f = 0; f &lt; b[0].length; f++) {</span>
+<span class="fc" id="L509">					a01 += b[0][f] * b[1][f];</span>
+				}
+
+<span class="fc" id="L512">				final double dx0Down = getX0Grid()[i] - getX0Grid()[i - 1];</span>
+<span class="fc" id="L513">				final double dx0Up = getX0Grid()[i + 1] - getX0Grid()[i];</span>
+<span class="fc" id="L514">				final double dx1Down = getX1Grid()[j] - getX1Grid()[j - 1];</span>
+<span class="fc" id="L515">				final double dx1Up = getX1Grid()[j + 1] - getX1Grid()[j];</span>
+
+<span class="fc" id="L517">				final double d0d1 =</span>
+						(
+<span class="fc" id="L519">								u[flatten(i + 1, j + 1)]</span>
+<span class="fc" id="L520">										- u[flatten(i + 1, j - 1)]</span>
+<span class="fc" id="L521">												- u[flatten(i - 1, j + 1)]</span>
+<span class="fc" id="L522">														+ u[flatten(i - 1, j - 1)]</span>
+								)
+						/ ((dx0Down + dx0Up) * (dx1Down + dx1Up));
+
+<span class="fc" id="L526">				out[k] = a01 * d0d1 - r * u[k];</span>
+			}
+		}
+
+<span class="fc" id="L530">		return out;</span>
+	}
+
+	protected double[] applyA1Explicit(final double[] u, final double time) {
+
+<span class="fc" id="L535">		final double[] out = new double[getN()];</span>
+
+<span class="fc bfc" id="L537" title="All 2 branches covered.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc bfc" id="L538" title="All 2 branches covered.">			for (int i = 1; i &lt; getN0() - 1; i++) {</span>
+<span class="fc" id="L539">				final int k = flatten(i, j);</span>
+
+<span class="fc" id="L541">				final double x0 = getX0Grid()[i];</span>
+<span class="fc" id="L542">				final double x1 = getX1Grid()[j];</span>
+
+<span class="fc" id="L544">				final double[] drift = getModel().getDrift(time, x0, x1);</span>
+<span class="fc" id="L545">				final double[][] b = getModel().getFactorLoading(time, x0, x1);</span>
+
+<span class="fc" id="L547">				final double mu0 = drift[0];</span>
+
+<span class="fc" id="L549">				double a00 = 0.0;</span>
+<span class="fc bfc" id="L550" title="All 2 branches covered.">				for (int f = 0; f &lt; b[0].length; f++) {</span>
+<span class="fc" id="L551">					a00 += b[0][f] * b[0][f];</span>
+				}
+
+<span class="fc" id="L554">				final double dxDown = getX0Grid()[i] - getX0Grid()[i - 1];</span>
+<span class="fc" id="L555">				final double dxUp = getX0Grid()[i + 1] - getX0Grid()[i];</span>
+
+<span class="fc" id="L557">				final double d1 =</span>
+<span class="fc" id="L558">						(u[flatten(i + 1, j)] - u[flatten(i - 1, j)])</span>
+						/ (dxDown + dxUp);
+
+<span class="fc" id="L561">				final double d2 =</span>
+						2.0 * (
+<span class="fc" id="L563">								(u[flatten(i + 1, j)] - u[k]) / dxUp</span>
+<span class="fc" id="L564">								- (u[k] - u[flatten(i - 1, j)]) / dxDown</span>
+								)
+						/ (dxDown + dxUp);
+
+<span class="fc" id="L568">				out[k] = mu0 * d1 + 0.5 * a00 * d2;</span>
+			}
+		}
+
+<span class="fc" id="L572">		return out;</span>
+	}
+
+	protected double[] applyA2Explicit(final double[] u, final double time) {
+
+<span class="fc" id="L577">		final double[] out = new double[getN()];</span>
+
+<span class="fc bfc" id="L579" title="All 2 branches covered.">		for (int j = 1; j &lt; getN1() - 1; j++) {</span>
+<span class="fc bfc" id="L580" title="All 2 branches covered.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L581">				final int k = flatten(i, j);</span>
+
+<span class="fc" id="L583">				final double x0 = getX0Grid()[i];</span>
+<span class="fc" id="L584">				final double x1 = getX1Grid()[j];</span>
+
+<span class="fc" id="L586">				final double[] drift = getModel().getDrift(time, x0, x1);</span>
+<span class="fc" id="L587">				final double[][] b = getModel().getFactorLoading(time, x0, x1);</span>
+
+<span class="fc" id="L589">				final double mu1 = drift[1];</span>
+
+<span class="fc" id="L591">				double a11 = 0.0;</span>
+<span class="fc bfc" id="L592" title="All 2 branches covered.">				for (int f = 0; f &lt; b[1].length; f++) {</span>
+<span class="fc" id="L593">					a11 += b[1][f] * b[1][f];</span>
+				}
+
+<span class="fc" id="L596">				final double dxDown = getX1Grid()[j] - getX1Grid()[j - 1];</span>
+<span class="fc" id="L597">				final double dxUp = getX1Grid()[j + 1] - getX1Grid()[j];</span>
+
+<span class="fc" id="L599">				final double d1 =</span>
+<span class="fc" id="L600">						(u[flatten(i, j + 1)] - u[flatten(i, j - 1)])</span>
+						/ (dxDown + dxUp);
+
+<span class="fc" id="L603">				final double d2 =</span>
+						2.0 * (
+<span class="fc" id="L605">								(u[flatten(i, j + 1)] - u[k]) / dxUp</span>
+<span class="fc" id="L606">								- (u[k] - u[flatten(i, j - 1)]) / dxDown</span>
+								)
+						/ (dxDown + dxUp);
+
+<span class="fc" id="L610">				out[k] = mu1 * d1 + 0.5 * a11 * d2;</span>
+			}
+		}
+
+<span class="fc" id="L614">		return out;</span>
+	}
+
+	protected double[] solveFirstDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="fc" id="L622">		final double[] out = rhs.clone();</span>
+
+<span class="fc bfc" id="L624" title="All 2 branches covered.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc" id="L625">			final TridiagonalMatrix m = getStencilBuilder().buildFirstDirectionLineMatrix(time, dt, getTheta(), j);</span>
+
+<span class="fc" id="L627">			final double[] lineRhs = new double[getN0()];</span>
+<span class="fc bfc" id="L628" title="All 2 branches covered.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L629">				lineRhs[i] = rhs[flatten(i, j)];</span>
+			}
+
+<span class="fc" id="L632">			final double lowerBoundaryValue = getLowerBoundaryValueForFirstDirection(time, j, lineRhs[0]);</span>
+<span class="fc" id="L633">			final double upperBoundaryValue = getUpperBoundaryValueForFirstDirection(time, j, lineRhs[getN0() - 1]);</span>
+
+<span class="fc" id="L635">			overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);</span>
+<span class="fc" id="L636">			overwriteBoundaryRow(m, lineRhs, getN0() - 1, upperBoundaryValue);</span>
+
+<span class="fc" id="L638">			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="fc bfc" id="L640" title="All 2 branches covered.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L641">				out[flatten(i, j)] = solved[i];</span>
+			}
+		}
+
+<span class="fc" id="L645">		return out;</span>
+	}
+
+	protected double[] solveSecondDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="fc" id="L653">		final double[] out = rhs.clone();</span>
+
+<span class="fc bfc" id="L655" title="All 2 branches covered.">		for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L656">			final TridiagonalMatrix m = getStencilBuilder().buildSecondDirectionLineMatrix(time, dt, getTheta(), i);</span>
+
+<span class="fc" id="L658">			final double[] lineRhs = new double[getN1()];</span>
+<span class="fc bfc" id="L659" title="All 2 branches covered.">			for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc" id="L660">				lineRhs[j] = rhs[flatten(i, j)];</span>
+			}
+
+<span class="fc" id="L663">			final double lowerBoundaryValue = getLowerBoundaryValueForSecondDirection(time, i, lineRhs[0]);</span>
+<span class="fc" id="L664">			final double upperBoundaryValue = getUpperBoundaryValueForSecondDirection(time, i, lineRhs[getN1() - 1]);</span>
+
+<span class="fc" id="L666">			overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);</span>
+<span class="fc" id="L667">			overwriteBoundaryRow(m, lineRhs, getN1() - 1, upperBoundaryValue);</span>
+
+<span class="fc" id="L669">			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="fc bfc" id="L671" title="All 2 branches covered.">			for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc" id="L672">				out[flatten(i, j)] = solved[j];</span>
+			}
+		}
+
+<span class="fc" id="L676">		return out;</span>
+	}
+
+	protected void applyOuterBoundaries(final double time, final double[] u) {
+
+<span class="fc bfc" id="L681" title="All 2 branches covered.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="fc" id="L682">			u[flatten(0, j)] = getLowerBoundaryValueForFirstDirection(time, j, u[flatten(0, j)]);</span>
+<span class="fc" id="L683">			u[flatten(getN0() - 1, j)] = getUpperBoundaryValueForFirstDirection(time, j, u[flatten(getN0() - 1, j)]);</span>
+		}
+
+<span class="fc bfc" id="L686" title="All 2 branches covered.">		for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="fc" id="L687">			u[flatten(i, 0)] = getLowerBoundaryValueForSecondDirection(time, i, u[flatten(i, 0)]);</span>
+<span class="fc" id="L688">			u[flatten(i, getN1() - 1)] = getUpperBoundaryValueForSecondDirection(time, i, u[flatten(i, getN1() - 1)]);</span>
+		}
+<span class="fc" id="L690">	}</span>
+
+	protected void applyInternalConstraints(final double time, final double[] u) {
+<span class="pc bpc" id="L693" title="1 of 2 branches missed.">		if (!(getProduct() instanceof FiniteDifferenceInternalStateConstraint)) {</span>
+<span class="fc" id="L694">			return;</span>
+		}
+
+<span class="nc" id="L697">		final FiniteDifferenceInternalStateConstraint constraint =</span>
+<span class="nc" id="L698">				(FiniteDifferenceInternalStateConstraint) getProduct();</span>
+
+<span class="nc bnc" id="L700" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc bnc" id="L701" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L702">				final int k = flatten(i, j);</span>
+<span class="nc bnc" id="L703" title="All 2 branches missed.">				if (constraint.isConstraintActive(time, getX0Grid()[i], getX1Grid()[j])) {</span>
+<span class="nc" id="L704">					u[k] = constraint.getConstrainedValue(time, getX0Grid()[i], getX1Grid()[j]);</span>
+				}
+			}
+		}
+<span class="nc" id="L708">	}</span>
+
+	protected void applyExerciseObstacleIfNeeded(
+			final double runningTime,
+			final double tau,
+			final double[] u,
+			final DoubleTernaryOperator exerciseValue) {
+
+<span class="fc" id="L716">		final boolean isExerciseAllowed =</span>
+<span class="fc" id="L717">				FiniteDifferenceExerciseUtil.isExerciseAllowedAtTimeToMaturity(tau, getExercise());</span>
+
+<span class="pc bpc" id="L719" title="3 of 4 branches missed.">		if (!isExerciseAllowed || exerciseValue == null) {</span>
+<span class="fc" id="L720">			return;</span>
+		}
+
+<span class="nc bnc" id="L723" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc bnc" id="L724" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc bnc" id="L725" title="All 2 branches missed.">				if (isInternalConstraintActive(runningTime, getX0Grid()[i], getX1Grid()[j])) {</span>
+<span class="nc" id="L726">					continue;</span>
+				}
+
+<span class="nc" id="L729">				final int k = flatten(i, j);</span>
+<span class="nc" id="L730">				final double payoff = exerciseValue.applyAsDouble(runningTime, getX0Grid()[i], getX1Grid()[j]);</span>
+<span class="nc" id="L731">				u[k] = Math.max(u[k], payoff);</span>
+			}
+		}
+<span class="nc" id="L734">	}</span>
+
+	protected void applyContinuousObstacleIfNeeded(
+			final double runningTime,
+			final double[] u,
+			final DoubleTernaryOperator continuousObstacleValue) {
+
+<span class="nc bnc" id="L741" title="All 2 branches missed.">		if (continuousObstacleValue == null) {</span>
+<span class="nc" id="L742">			return;</span>
+		}
+
+<span class="nc bnc" id="L745" title="All 2 branches missed.">		for (int j = 1; j &lt; getN1() - 1; j++) {</span>
+<span class="nc bnc" id="L746" title="All 2 branches missed.">			for (int i = 1; i &lt; getN0() - 1; i++) {</span>
+<span class="nc bnc" id="L747" title="All 2 branches missed.">				if (isInternalConstraintActive(runningTime, getX0Grid()[i], getX1Grid()[j])) {</span>
+<span class="nc" id="L748">					continue;</span>
+				}
+
+<span class="nc" id="L751">				final int k = flatten(i, j);</span>
+<span class="nc" id="L752">				final double obstacle = continuousObstacleValue.applyAsDouble(</span>
+						runningTime,
+<span class="nc" id="L754">						getX0Grid()[i],</span>
+<span class="nc" id="L755">						getX1Grid()[j]</span>
+						);
+
+<span class="nc" id="L758">				u[k] = Math.max(u[k], obstacle);</span>
+			}
+		}
+<span class="nc" id="L761">	}</span>
+
+	protected boolean isInternalConstraintActive(final double time, final double x0, final double x1) {
+<span class="nc bnc" id="L764" title="All 2 branches missed.">		if (getProduct() instanceof FiniteDifferenceInternalStateConstraint) {</span>
+<span class="nc" id="L765">			return ((FiniteDifferenceInternalStateConstraint) getProduct()).isConstraintActive(time, x0, x1);</span>
+		}
+<span class="nc" id="L767">		return false;</span>
+	}
+
+	protected double getLowerBoundaryValueForFirstDirection(final double time, final int secondIndex, final double fallback) {
+<span class="fc" id="L771">		final BoundaryCondition[] conditions =</span>
+<span class="fc" id="L772">				getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[0], getX1Grid()[secondIndex]);</span>
+<span class="fc" id="L773">		return extractBoundaryValue(conditions[0], fallback);</span>
+	}
+
+	protected double getUpperBoundaryValueForFirstDirection(final double time, final int secondIndex, final double fallback) {
+<span class="fc" id="L777">		final BoundaryCondition[] conditions =</span>
+<span class="fc" id="L778">				getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[getN0() - 1], getX1Grid()[secondIndex]);</span>
+<span class="fc" id="L779">		return extractBoundaryValue(conditions[0], fallback);</span>
+	}
+
+	protected double getLowerBoundaryValueForSecondDirection(final double time, final int firstIndex, final double fallback) {
+<span class="fc" id="L783">		final BoundaryCondition[] conditions =</span>
+<span class="fc" id="L784">				getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[firstIndex], getX1Grid()[0]);</span>
+<span class="fc" id="L785">		return extractBoundaryValue(conditions[1], fallback);</span>
+	}
+
+	protected double getUpperBoundaryValueForSecondDirection(final double time, final int firstIndex, final double fallback) {
+<span class="fc" id="L789">		final BoundaryCondition[] conditions =</span>
+<span class="fc" id="L790">				getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[firstIndex], getX1Grid()[getN1() - 1]);</span>
+<span class="fc" id="L791">		return extractBoundaryValue(conditions[1], fallback);</span>
+	}
+
+	protected double extractBoundaryValue(final BoundaryCondition condition, final double fallback) {
+<span class="pc bpc" id="L795" title="1 of 4 branches missed.">		if (condition != null &amp;&amp; condition.isDirichlet()) {</span>
+<span class="fc" id="L796">			return condition.getValue();</span>
+		}
+<span class="fc" id="L798">		return fallback;</span>
+	}
+
+	protected void overwriteBoundaryRow(
+			final TridiagonalMatrix m,
+			final double[] rhs,
+			final int row,
+			final double value) {
+
+<span class="fc" id="L807">		m.getLowerDiagonal()[row] = 0.0;</span>
+<span class="fc" id="L808">		m.getMainDiagonal()[row] = 1.0;</span>
+<span class="fc" id="L809">		m.getUpperDiagonal()[row] = 0.0;</span>
+<span class="fc" id="L810">		rhs[row] = value;</span>
+<span class="fc" id="L811">	}</span>
+
+	protected int flatten(final int i0, final int i1) {
+<span class="fc" id="L814">		return i0 + i1 * getN0();</span>
+	}
+
+	protected double[] sanitize(final double[] values) {
+<span class="fc" id="L818">		final double[] out = values.clone();</span>
+<span class="fc bfc" id="L819" title="All 2 branches covered.">		for (int i = 0; i &lt; out.length; i++) {</span>
+<span class="pc bpc" id="L820" title="1 of 2 branches missed.">			if (!Double.isFinite(out[i])) {</span>
+<span class="nc" id="L821">				throw new ArithmeticException(&quot;ADI solver produced a non-finite value.&quot;);</span>
+			}
+		}
+<span class="fc" id="L824">		return out;</span>
+	}
+
+	protected double[] add(final double[] a, final double[] b) {
+<span class="pc bpc" id="L828" title="1 of 2 branches missed.">		if (a.length != b.length) {</span>
+<span class="nc" id="L829">			throw new IllegalArgumentException(&quot;Vector length mismatch.&quot;);</span>
+		}
+
+<span class="fc" id="L832">		final double[] out = new double[a.length];</span>
+<span class="fc bfc" id="L833" title="All 2 branches covered.">		for (int i = 0; i &lt; a.length; i++) {</span>
+<span class="fc" id="L834">			out[i] = a[i] + b[i];</span>
+		}
+<span class="fc" id="L836">		return out;</span>
+	}
+
+	protected double[] subtract(final double[] a, final double[] b) {
+<span class="pc bpc" id="L840" title="1 of 2 branches missed.">		if (a.length != b.length) {</span>
+<span class="nc" id="L841">			throw new IllegalArgumentException(&quot;Vector length mismatch.&quot;);</span>
+		}
+
+<span class="fc" id="L844">		final double[] out = new double[a.length];</span>
+<span class="fc bfc" id="L845" title="All 2 branches covered.">		for (int i = 0; i &lt; a.length; i++) {</span>
+<span class="fc" id="L846">			out[i] = a[i] - b[i];</span>
+		}
+<span class="fc" id="L848">		return out;</span>
+	}
+
+	protected double[] scale(final double[] a, final double scalar) {
+<span class="fc" id="L852">		final double[] out = new double[a.length];</span>
+<span class="fc bfc" id="L853" title="All 2 branches covered.">		for (int i = 0; i &lt; a.length; i++) {</span>
+<span class="fc" id="L854">			out[i] = scalar * a[i];</span>
+		}
+<span class="fc" id="L856">		return out;</span>
+	}
+
+	private void validateProductEventTimesInGrid() {
+
+<span class="pc bpc" id="L861" title="1 of 2 branches missed.">		if (!(getProduct() instanceof FiniteDifferenceEquityEventProduct)) {</span>
+<span class="fc" id="L862">			return;</span>
+		}
+
+<span class="nc" id="L865">		final double[] eventTimes = ((FiniteDifferenceEquityEventProduct) getProduct()).getEventTimes();</span>
+<span class="nc" id="L866">		final double horizon = getSpaceTimeDiscretization().getTimeDiscretization().getLastTime();</span>
+
+<span class="nc bnc" id="L868" title="All 2 branches missed.">		for (final double eventTime : eventTimes) {</span>
+<span class="nc bnc" id="L869" title="All 4 branches missed.">			if (eventTime &lt; -EVENT_TIME_TOLERANCE || eventTime &gt; horizon + EVENT_TIME_TOLERANCE) {</span>
+<span class="nc" id="L870">				throw new IllegalArgumentException(</span>
+						&quot;Event time &quot; + eventTime
+						+ &quot; lies outside the solver time horizon [0,&quot; + horizon + &quot;].&quot;);
+			}
+
+<span class="nc" id="L875">			final double tau = horizon - eventTime;</span>
+<span class="nc" id="L876">			final int timeIndex = getSpaceTimeDiscretization().getTimeDiscretization().getTimeIndex(tau);</span>
+
+<span class="nc bnc" id="L878" title="All 2 branches missed.">			if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L879">				throw new IllegalArgumentException(</span>
+						&quot;Event time &quot; + eventTime
+						+ &quot; is not contained in the solver time discretization. &quot;
+						+ &quot;Please refine the time grid so that all event times are grid points.&quot;);
+			}
+		}
+<span class="nc" id="L885">	}</span>
+
+	private boolean isProductEventTime(final double time) {
+
+<span class="pc bpc" id="L889" title="1 of 2 branches missed.">		if (!(getProduct() instanceof FiniteDifferenceEquityEventProduct)) {</span>
+<span class="fc" id="L890">			return false;</span>
+		}
+
+<span class="nc" id="L893">		final double[] eventTimes = ((FiniteDifferenceEquityEventProduct) getProduct()).getEventTimes();</span>
+
+<span class="nc bnc" id="L895" title="All 2 branches missed.">		for (final double eventTime : eventTimes) {</span>
+<span class="nc bnc" id="L896" title="All 2 branches missed.">			if (Math.abs(eventTime - time) &lt;= EVENT_TIME_TOLERANCE) {</span>
+<span class="nc" id="L897">				return true;</span>
+			}
+		}
+
+<span class="nc" id="L901">		return false;</span>
+	}
+
+	protected double[] applyProductEventConditionIfNeeded(
+			final double time,
+			final double[] valuesAfterEvent) {
+
+<span class="pc bpc" id="L908" title="1 of 2 branches missed.">		if (!isProductEventTime(time)) {</span>
+<span class="fc" id="L909">			return valuesAfterEvent;</span>
+		}
+
+<span class="nc" id="L912">		return ((FiniteDifferenceEquityEventProduct) getProduct()).applyEventCondition(</span>
+				time,
+				valuesAfterEvent,
+<span class="nc" id="L915">				getModel()</span>
+				);
+	}
+
+	protected ADI2DStencilBuilder getStencilBuilder() {
+<span class="fc" id="L920">		return stencilBuilder;</span>
+	}
+
+	protected int getN() {
+<span class="fc" id="L924">		return n;</span>
+	}
+
+	protected int getN1() {
+<span class="fc" id="L928">		return n1;</span>
+	}
+
+	protected int getN0() {
+<span class="fc" id="L932">		return n0;</span>
+	}
+
+	protected double[] getX1Grid() {
+<span class="fc" id="L936">		return x1Grid;</span>
+	}
+
+	protected double[] getX0Grid() {
+<span class="fc" id="L940">		return x0Grid;</span>
+	}
+
+	protected double getTheta() {
+<span class="fc" id="L944">		return theta;</span>
+	}
+
+	protected Exercise getExercise() {
+<span class="fc" id="L948">		return exercise;</span>
+	}
+
+	protected SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="fc" id="L952">		return spaceTimeDiscretization;</span>
+	}
+
+	protected FiniteDifferenceEquityProduct getProduct() {
+<span class="fc" id="L956">		return product;</span>
+	}
+
+	protected FiniteDifferenceEquityModel getModel() {
+<span class="fc" id="L960">		return model;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

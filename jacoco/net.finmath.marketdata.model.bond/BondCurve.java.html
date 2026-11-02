@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BondCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.bond</a> &gt; <span class="el_source">BondCurve.java</span></div><h1>BondCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright finmath.net, Germany. Contact: info@finmath.net.
+ *
+ * Created on 01.06.2018
+ */
+package net.finmath.marketdata.model.bond;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.AbstractCurve;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveBuilder;
+
+/**
+ * Implements the bond curve as a curve object, see {@link net.finmath.marketdata.model.curves.Curve}.
+ *
+ * The bond curve is built as a product of a given reference discount curve and spread curve.
+ * Since it is not clear in general if the reference curve or the spread curve are given in terms of
+ * discount factors or zero rates, this class distinguishes between all possible cases of types.
+ *
+ * For the curve types provided see {@link net.finmath.marketdata.model.bond.BondCurve.Type}.
+ *
+ * @author Moritz Scherrmann
+ * @version 1.0
+ */
+public class BondCurve extends AbstractCurve  {
+
+	private static final long serialVersionUID = -7832169179168188306L;
+
+	/**
+	 * Possible curve types, where the first term stands for the reference discount curve and the
+	 * second term stands for the spread curve.
+	 *
+	 * Example:
+	 * &quot;DISCOUNTFACTOR_ZERORATE&quot; means that the &quot;getValue&quot; method of the reference discount curve returns a value expressed as
+	 * discount factor and the &quot;getValue&quot; method of the spread curve returns a value expressed as
+	 * zero rate.
+	 *
+	 * @author Moritz Scherrmann
+	 */
+<span class="nc" id="L42">	public enum Type {</span>
+<span class="nc" id="L43">		DISCOUNTFACTOR_DISCOUNTFACTOR,</span>
+<span class="nc" id="L44">		ZERORATE_DISCOUNTFACTOR,</span>
+<span class="nc" id="L45">		DISCOUNTFACTOR_ZERORATE,</span>
+<span class="nc" id="L46">		ZERORATE_ZERORATE,</span>
+	}
+
+	private String name;
+	private LocalDate referenceDate;
+	private final Curve referenceCurve;
+	private final Curve spreadCurve;
+	private final Type type;
+
+	/**
+	 * Creates a bond curve.
+	 *
+	 * @param name Name of the curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param referenceCurve The reference discount curve.
+	 * @param spreadCurve The given spread curve.
+	 * @param type The types of the given curves &quot;referenceCurve&quot; and &quot;spreadCurve&quot; (discount factor or zero rate)
+	 */
+	public BondCurve(
+			final String name,
+			final LocalDate referenceDate,
+			final Curve referenceCurve,
+			final Curve spreadCurve,
+			final Type type
+			) {
+<span class="nc" id="L71">		super(name,referenceDate);</span>
+<span class="nc" id="L72">		this.referenceCurve=referenceCurve;</span>
+<span class="nc" id="L73">		this.spreadCurve=spreadCurve;</span>
+<span class="nc" id="L74">		this.type=type;</span>
+<span class="nc" id="L75">	}</span>
+
+	@Override
+	public double getValue(final double time) {
+<span class="nc" id="L79">		return getValue(null,time);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc bnc" id="L84" title="All 4 branches missed.">		switch(type) {</span>
+		case DISCOUNTFACTOR_DISCOUNTFACTOR:
+<span class="nc" id="L86">			return referenceCurve.getValue(model, time)*spreadCurve.getValue(model, time);</span>
+		case ZERORATE_DISCOUNTFACTOR:
+<span class="nc" id="L88">			return Math.exp(-time*referenceCurve.getValue(time))*spreadCurve.getValue(model, time);</span>
+		case DISCOUNTFACTOR_ZERORATE:
+<span class="nc" id="L90">			return referenceCurve.getValue(model, time)*Math.exp(-time*spreadCurve.getValue(time));</span>
+		case ZERORATE_ZERORATE:
+		default:
+<span class="nc" id="L93">			return Math.exp(-time*referenceCurve.getValue(time))*Math.exp(-time*spreadCurve.getValue(time));</span>
+		}
+	}
+
+	public double getDiscountFactor(final double time) {
+<span class="nc" id="L98">		return getValue(time);</span>
+	}
+
+	public double getDiscountFactor(final AnalyticModel model, final double time) {
+<span class="nc" id="L102">		return getValue(model, time);</span>
+	}
+
+	/**
+	 * Returns the zero rate for a given maturity, i.e., -ln(df(T)) / T where T is the given maturity and df(T) is
+	 * the discount factor at time $T$.
+	 *
+	 * @param maturity The given maturity.
+	 * @return The zero rate.
+	 */
+	public double getZeroRate(final double maturity)
+	{
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		if(maturity == 0) {</span>
+<span class="nc" id="L115">			return this.getZeroRate(1.0E-14);</span>
+		}
+
+<span class="nc" id="L118">		return -Math.log(getDiscountFactor(null, maturity))/maturity;</span>
+	}
+
+	@Override
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+		// TODO Auto-generated method stub
+<span class="nc" id="L124">		return null;</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="nc" id="L129">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L134">		return referenceDate;</span>
+	}
+
+	public Curve getReferenceCurve() {
+<span class="nc" id="L138">		return referenceCurve;</span>
+	}
+
+	public Curve getSpreadCurve() {
+<span class="nc" id="L142">		return spreadCurve;</span>
+	}
+
+	public String getType() {
+<span class="nc" id="L146">		return type.toString();</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L152">		return null;</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+		// TODO Auto-generated method stub
+
+<span class="nc" id="L159">	}</span>
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

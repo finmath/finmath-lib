@@ -1,0 +1,1544 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableFromDoubleArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">RandomVariableFromDoubleArray.java</span></div><h1>RandomVariableFromDoubleArray.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2006
+ */
+package net.finmath.montecarlo;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntConsumer;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * The class RandomVariableFromDoubleArray represents a random variable being the evaluation of a stochastic process
+ * at a certain time within a Monte-Carlo simulation.
+ * It is thus essentially a vector of doubles - the realizations - together with a double - the time.
+ * The index of the vector represents path.
+ * The class may also be used for non-stochastic quantities which may potentially be stochastic
+ * (e.g. volatility). If only non-stochastic random variables are involved in an operation the class uses
+ * optimized code.
+ *
+ * Accesses performed exclusively through the interface
+ * &lt;code&gt;RandomVariable&lt;/code&gt; is thread safe (and does not mutate the class).
+ *
+ * The implementation requires Java 8 or better.
+ *
+ * @author Christian Fries
+ * @version 2.1
+ */
+public class RandomVariableFromDoubleArray implements RandomVariable {
+
+	private static final long serialVersionUID = -1352953450936857742L;
+
+	private static final int typePriorityDefault = 1;
+
+	private final int typePriority;
+
+	private final double      time;	                // Time (filtration)
+
+	// Data model for the stochastic case (otherwise null)
+	private final double[]    realizations;           // Realizations
+
+	// Data model for the non-stochastic case (if realizations==null)
+	private final double      valueIfNonStochastic;
+
+	/**
+	 * Create a random variable from a given other implementation of &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 *
+	 * @param value Object implementing &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	public RandomVariableFromDoubleArray(final RandomVariable value) {
+<span class="fc" id="L61">		super();</span>
+<span class="fc" id="L62">		time = value.getFiltrationTime();</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		realizations = value.isDeterministic() ? null : value.getRealizations();</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		valueIfNonStochastic = value.isDeterministic() ? value.doubleValue() : Double.NaN;</span>
+<span class="fc" id="L65">		typePriority = typePriorityDefault;</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param value the value, a constant.
+	 */
+	public RandomVariableFromDoubleArray(final double value) {
+<span class="fc" id="L74">		this(Double.NEGATIVE_INFINITY, value, typePriorityDefault);</span>
+<span class="fc" id="L75">	}</span>
+
+	/**
+	 * Create a random variable by applying a function to a given other implementation of &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 *
+	 * @param value Object implementing &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 * @param function A function mapping double to double.
+	 */
+	public RandomVariableFromDoubleArray(final RandomVariable value, final DoubleUnaryOperator function) {
+<span class="nc" id="L84">		super();</span>
+<span class="nc" id="L85">		time = value.getFiltrationTime();</span>
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		realizations = value.isDeterministic() ? null : value.getRealizationsStream().map(function).toArray();</span>
+<span class="nc bnc" id="L87" title="All 2 branches missed.">		valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.doubleValue()) : Double.NaN;</span>
+<span class="nc" id="L88">		typePriority = typePriorityDefault;</span>
+<span class="nc" id="L89">	}</span>
+
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param value the value, a constant.
+	 * @param typePriority The priority of this type in construction of result types. See &quot;operator type priority&quot; for details.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final double value, final int typePriority) {
+<span class="fc" id="L100">		super();</span>
+<span class="fc" id="L101">		this.time = time;</span>
+<span class="fc" id="L102">		realizations = null;</span>
+<span class="fc" id="L103">		valueIfNonStochastic = value;</span>
+<span class="fc" id="L104">		this.typePriority = typePriority;</span>
+<span class="fc" id="L105">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param value the value, a constant.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final double value) {
+<span class="fc" id="L114">		this(time, value, typePriorityDefault);</span>
+<span class="fc" id="L115">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param numberOfPath The number of paths.
+	 * @param value the value, a constant.
+	 */
+	@Deprecated
+	public RandomVariableFromDoubleArray(final double time, final int numberOfPath, final double value) {
+<span class="nc" id="L126">		super();</span>
+<span class="nc" id="L127">		this.time = time;</span>
+<span class="nc" id="L128">		realizations = new double[numberOfPath];</span>
+<span class="nc" id="L129">		java.util.Arrays.fill(realizations, value);</span>
+<span class="nc" id="L130">		valueIfNonStochastic = Double.NaN;</span>
+<span class="nc" id="L131">		typePriority = typePriorityDefault;</span>
+<span class="nc" id="L132">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * Important: The realizations array is not cloned (no defensive copy is made).
+	 *
+	 * @TODO A future version should perform a defensive copy.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realisations the vector of realizations.
+	 * @param typePriority The priority of this type in construction of result types. See &quot;operator type priority&quot; for details.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final double[] realisations, final int typePriority) {
+<span class="fc" id="L146">		super();</span>
+<span class="fc" id="L147">		this.time = time;</span>
+<span class="fc" id="L148">		realizations = realisations;</span>
+<span class="fc" id="L149">		valueIfNonStochastic = Double.NaN;</span>
+<span class="fc" id="L150">		this.typePriority = typePriority;</span>
+		//		for(double value : realisations) if(Double.isNaN(value)) {
+		//			throw new ArithmeticException(&quot;Not a Numbber&quot;);
+		//		}
+<span class="fc" id="L154">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * Important: The realizations array is not cloned (not defensive copy is made).
+	 *
+	 * @TODO A future version should perform a defensive copy.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realisations the vector of realizations.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final double[] realisations) {
+<span class="fc" id="L167">		this(time, realisations, typePriorityDefault);</span>
+<span class="fc" id="L168">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 * @param typePriority The priority of this type in construction of result types. See &quot;operator type priority&quot; for details.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final IntToDoubleFunction realizations, final int size, final int typePriority) {
+<span class="nc" id="L179">		super();</span>
+<span class="nc" id="L180">		this.time = time;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">		this.realizations = size == 1 ? null : new double[size];//IntStream.range(0,size).parallel().mapToDouble(realisations).toArray();</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		valueIfNonStochastic = size == 1 ? realizations.applyAsDouble(0) : Double.NaN;</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">		if(size &gt; 1) {</span>
+<span class="nc" id="L184">			IntStream.range(0,size).parallel().forEach(new IntConsumer() {</span>
+				@Override
+				public void accept(final int i) {
+<span class="nc" id="L187">					RandomVariableFromDoubleArray.this.realizations[i] = realizations.applyAsDouble(i);</span>
+<span class="nc" id="L188">				}</span>
+			}
+					);
+		}
+<span class="nc" id="L192">		this.typePriority = typePriority;</span>
+<span class="nc" id="L193">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realizations A map mapping integer (path or state) to double, representing this random variable.
+	 * @param size The size, i.e., number of paths.
+	 */
+	public RandomVariableFromDoubleArray(final double time, final IntToDoubleFunction realizations, final int size) {
+<span class="nc" id="L203">		this(time, realizations, size, typePriorityDefault);</span>
+<span class="nc" id="L204">	}</span>
+
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">		if(time != randomVariable.getFiltrationTime()) {</span>
+<span class="nc" id="L209">			return false;</span>
+		}
+<span class="pc bpc" id="L211" title="1 of 4 branches missed.">		if(this.isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="pc bpc" id="L212" title="1 of 2 branches missed.">			return valueIfNonStochastic == randomVariable.doubleValue();</span>
+		}
+
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		if(this.isDeterministic() != randomVariable.isDeterministic()) {</span>
+<span class="nc" id="L216">			return false;</span>
+		}
+
+<span class="fc bfc" id="L219" title="All 2 branches covered.">		for(int i=0; i&lt;realizations.length; i++) {</span>
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">			if(realizations[i] != randomVariable.get(i)) {</span>
+<span class="nc" id="L221">				return false;</span>
+			}
+		}
+
+<span class="fc" id="L225">		return true;</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="fc" id="L230">		return time;</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="fc" id="L235">		return typePriority;</span>
+	}
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="fc bfc" id="L240" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L241">			return valueIfNonStochastic;</span>
+		} else {
+<span class="fc" id="L243">			return realizations[pathOrState];</span>
+		}
+	}
+
+	@Override
+	public int size() {
+<span class="fc bfc" id="L249" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L250">			return 1;</span>
+		} else {
+<span class="fc" id="L252">			return realizations.length;</span>
+		}
+	}
+
+	@Override
+	public double getMin() {
+<span class="pc bpc" id="L258" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L259">			return valueIfNonStochastic;</span>
+		}
+<span class="fc" id="L261">		double min = Double.MAX_VALUE;</span>
+<span class="pc bpc" id="L262" title="1 of 2 branches missed.">		if(realizations.length != 0) {</span>
+<span class="fc" id="L263">			min = realizations[0];     /// @see getMax()</span>
+		}
+<span class="fc bfc" id="L265" title="All 2 branches covered.">		for(int i=0; i&lt;realizations.length; i++) {</span>
+<span class="fc" id="L266">			min = Math.min(realizations[i],min);</span>
+		}
+<span class="fc" id="L268">		return min;</span>
+	}
+
+	@Override
+	public double getMax() {
+<span class="fc bfc" id="L273" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L274">			return valueIfNonStochastic;</span>
+		}
+<span class="fc" id="L276">		double max = -Double.MAX_VALUE;</span>
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">		if(realizations.length != 0) {</span>
+<span class="fc" id="L278">			max = realizations[0];</span>
+		}
+<span class="fc bfc" id="L280" title="All 2 branches covered.">		for(int i=0; i&lt;realizations.length; i++) {</span>
+<span class="fc" id="L281">			max = Math.max(realizations[i],max);</span>
+		}
+<span class="fc" id="L283">		return max;</span>
+	}
+
+	@Override
+	public double getAverage() {
+<span class="fc bfc" id="L288" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L289">			return valueIfNonStochastic;</span>
+		}
+<span class="pc bpc" id="L291" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L292">			return Double.NaN;</span>
+		}
+
+		/*
+		 * Kahan summation on realizations[i]
+		 */
+<span class="fc" id="L298">		double sum = 0.0;								// Running sum</span>
+<span class="fc" id="L299">		double error = 0.0;								// Running error compensation</span>
+<span class="fc bfc" id="L300" title="All 2 branches covered.">		for(int i=0; i&lt;realizations.length; i++)  {</span>
+<span class="fc" id="L301">			final double value = realizations[i] - error;		// Error corrected value</span>
+<span class="fc" id="L302">			final double newSum = sum + value;				// New sum</span>
+<span class="fc" id="L303">			error = (newSum - sum) - value;				// New numerical error</span>
+<span class="fc" id="L304">			sum	= newSum;</span>
+		}
+<span class="fc" id="L306">		return sum/realizations.length;</span>
+	}
+
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc bnc" id="L311" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L312">			return valueIfNonStochastic * probabilities.getAverage();</span>
+		}
+<span class="nc bnc" id="L314" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L315">			return Double.NaN;</span>
+		}
+
+<span class="nc bnc" id="L318" title="All 2 branches missed.">		if(probabilities.isDeterministic()) {</span>
+<span class="nc" id="L319">			return getAverage() * probabilities.getAverage();</span>
+		}
+
+		/*
+		 * Kahan summation on (realizations[i] * probabilities.get(i))
+		 */
+<span class="nc" id="L325">		double sum = 0.0;</span>
+<span class="nc" id="L326">		double error = 0.0;														// Running error compensation</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">		for(int i=0; i&lt;realizations.length; i++)  {</span>
+<span class="nc" id="L328">			final double value = realizations[i] * probabilities.get(i) - error;		// Error corrected value</span>
+<span class="nc" id="L329">			final double newSum = sum + value;			// New sum</span>
+<span class="nc" id="L330">			error = (newSum - sum) - value;				// New numerical error</span>
+<span class="nc" id="L331">			sum	= newSum;</span>
+		}
+<span class="nc" id="L333">		return sum / realizations.length;</span>
+	}
+
+	@Override
+	public double getAverageFast(final RandomVariable probabilities) {
+<span class="fc bfc" id="L338" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L339">			return valueIfNonStochastic * probabilities.getAverage();</span>
+		}
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L342">			return Double.NaN;</span>
+		}
+
+<span class="fc bfc" id="L345" title="All 2 branches covered.">		if(probabilities.isDeterministic()) {</span>
+<span class="fc" id="L346">			return getAverage() * probabilities.getAverage();</span>
+		}
+
+<span class="fc" id="L349">		double sum = 0.0;</span>
+<span class="pc bpc" id="L350" title="1 of 2 branches missed.">		if(probabilities instanceof RandomVariableFromDoubleArray) {</span>
+<span class="fc" id="L351">			final double[] probabilitiesRealizations = ((RandomVariableFromDoubleArray)probabilities).realizations;</span>
+<span class="fc bfc" id="L352" title="All 2 branches covered.">			for(int i=0; i&lt;realizations.length; i++)  {</span>
+<span class="fc" id="L353">				sum += realizations[i] * probabilitiesRealizations[i];</span>
+			}
+<span class="fc" id="L355">		}</span>
+		else {
+			/*
+			 * Summation on (realizations[i] * probabilities.get(i))
+			 */
+<span class="nc bnc" id="L360" title="All 2 branches missed.">			for(int i=0; i&lt;realizations.length; i++)  {</span>
+<span class="nc" id="L361">				sum += realizations[i] * probabilities.get(i);</span>
+			}
+		}
+
+<span class="fc" id="L365">		return sum / realizations.length;</span>
+	}
+
+	@Override
+	public double getVariance() {
+<span class="pc bpc" id="L370" title="1 of 4 branches missed.">		if(isDeterministic() || size() == 1) {</span>
+<span class="fc" id="L371">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L373" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L374">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L377">		final double average = getAverage();</span>
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2
+		 */
+<span class="fc" id="L382">		double sum = 0.0;</span>
+<span class="fc" id="L383">		double errorOfSum	= 0.0;</span>
+<span class="fc bfc" id="L384" title="All 2 branches covered.">		for(int i=0; i&lt;realizations.length; i++) {</span>
+<span class="fc" id="L385">			final double value	= (realizations[i] - average)*(realizations[i] - average) - errorOfSum;</span>
+<span class="fc" id="L386">			final double newSum	= sum + value;</span>
+<span class="fc" id="L387">			errorOfSum		= (newSum - sum) - value;</span>
+<span class="fc" id="L388">			sum				= newSum;</span>
+		}
+<span class="fc" id="L390">		return sum/realizations.length;</span>
+	}
+
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc bnc" id="L395" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L396">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L398" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L399">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L402">		final double average = getAverage(probabilities);</span>
+
+		/*
+		 * Kahan summation on (realizations[i] - average)^2 * probabilities.get(i)
+		 */
+<span class="nc" id="L407">		double sum = 0.0;</span>
+<span class="nc" id="L408">		double errorOfSum	= 0.0;</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">		for(int i=0; i&lt;realizations.length; i++) {</span>
+<span class="nc" id="L410">			final double value	= (realizations[i] - average) * (realizations[i] - average) * probabilities.get(i) - errorOfSum;</span>
+<span class="nc" id="L411">			final double newSum	= sum + value;</span>
+<span class="nc" id="L412">			errorOfSum		= (newSum - sum) - value;</span>
+<span class="nc" id="L413">			sum				= newSum;</span>
+		}
+<span class="nc" id="L415">		return sum;</span>
+	}
+
+	@Override
+	public double getSampleVariance() {
+<span class="nc bnc" id="L420" title="All 4 branches missed.">		if(isDeterministic() || size() == 1) {</span>
+<span class="nc" id="L421">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L423" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L424">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L427">		return getVariance() * size()/(size()-1);</span>
+	}
+
+	@Override
+	public double getStandardDeviation() {
+<span class="fc bfc" id="L432" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L433">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L435" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L436">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L439">		return Math.sqrt(getVariance());</span>
+	}
+
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc bnc" id="L444" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L445">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L447" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L448">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L451">		return Math.sqrt(getVariance(probabilities));</span>
+	}
+
+	@Override
+	public double getStandardError() {
+<span class="fc bfc" id="L456" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L457">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L459" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L460">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L463">		return getStandardDeviation()/Math.sqrt(size());</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc bnc" id="L471" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L472">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L474" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L475">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L478">		return getStandardDeviation(probabilities)/Math.sqrt(size());</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="fc bfc" id="L483" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L484">			return valueIfNonStochastic;</span>
+		}
+<span class="pc bpc" id="L486" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L487">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L490">		final double[] realizationsSorted = realizations.clone();</span>
+<span class="fc" id="L491">		java.util.Arrays.sort(realizationsSorted);</span>
+
+<span class="fc" id="L493">		final int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);</span>
+
+<span class="fc" id="L495">		return realizationsSorted[indexOfQuantileValue];</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc bnc" id="L500" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L501">			return valueIfNonStochastic;</span>
+		}
+<span class="nc bnc" id="L503" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L504">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L507">		throw new RuntimeException(&quot;Method not implemented.&quot;);</span>
+	}
+
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc bnc" id="L512" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L513">			return valueIfNonStochastic;</span>
+		}
+<span class="nc bnc" id="L515" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L516">			return Double.NaN;</span>
+		}
+<span class="nc bnc" id="L518" title="All 2 branches missed.">		if(quantileStart &gt; quantileEnd) {</span>
+<span class="nc" id="L519">			return getQuantileExpectation(quantileEnd, quantileStart);</span>
+		}
+
+<span class="nc" id="L522">		final double[] realizationsSorted = realizations.clone();</span>
+<span class="nc" id="L523">		java.util.Arrays.sort(realizationsSorted);</span>
+
+<span class="nc" id="L525">		final int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);</span>
+<span class="nc" id="L526">		final int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);</span>
+
+<span class="nc" id="L528">		double quantileExpectation = 0.0;</span>
+<span class="nc bnc" id="L529" title="All 2 branches missed.">		for (int i=indexOfQuantileValueStart; i&lt;=indexOfQuantileValueEnd;i++) {</span>
+<span class="nc" id="L530">			quantileExpectation += realizationsSorted[i];</span>
+		}
+<span class="nc" id="L532">		quantileExpectation /= indexOfQuantileValueEnd-indexOfQuantileValueStart+1;</span>
+
+<span class="nc" id="L534">		return quantileExpectation;</span>
+	}
+
+	@Override
+	public double[] getHistogram(final double[] intervalPoints)
+	{
+<span class="fc" id="L540">		final double[] histogramValues = new double[intervalPoints.length+1];</span>
+
+<span class="pc bpc" id="L542" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * consisting of 0's and one and only one 1.
+			 */
+<span class="nc" id="L547">			java.util.Arrays.fill(histogramValues, 0.0);</span>
+<span class="nc bnc" id="L548" title="All 2 branches missed.">			for (int intervalIndex=0; intervalIndex&lt;intervalPoints.length; intervalIndex++)</span>
+			{
+<span class="nc bnc" id="L550" title="All 2 branches missed.">				if(valueIfNonStochastic &gt; intervalPoints[intervalIndex]) {</span>
+<span class="nc" id="L551">					histogramValues[intervalIndex] = 1.0;</span>
+<span class="nc" id="L552">					break;</span>
+				}
+			}
+<span class="nc" id="L555">			histogramValues[intervalPoints.length] = 1.0;</span>
+		}
+		else {
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * representing a density, where the sum of the entries is one.
+			 * There is one exception:
+			 * If the size of the random variable is 0, all entries will be zero.
+			 */
+<span class="fc" id="L564">			final double[] realizationsSorted = realizations.clone();</span>
+<span class="fc" id="L565">			java.util.Arrays.sort(realizationsSorted);</span>
+
+<span class="fc" id="L567">			int sampleIndex=0;</span>
+<span class="fc bfc" id="L568" title="All 2 branches covered.">			for (int intervalIndex=0; intervalIndex&lt;intervalPoints.length; intervalIndex++)</span>
+			{
+<span class="fc" id="L570">				int sampleCount = 0;</span>
+<span class="fc bfc" id="L571" title="All 4 branches covered.">				while (sampleIndex &lt; realizationsSorted.length &amp;&amp;</span>
+						realizationsSorted[sampleIndex] &lt;= intervalPoints[intervalIndex])
+				{
+<span class="fc" id="L574">					sampleIndex++;</span>
+<span class="fc" id="L575">					sampleCount++;</span>
+				}
+<span class="fc" id="L577">				histogramValues[intervalIndex] = sampleCount;</span>
+			}
+<span class="fc" id="L579">			histogramValues[intervalPoints.length] = realizationsSorted.length-sampleIndex;</span>
+
+			// Normalize histogramValues
+<span class="pc bpc" id="L582" title="1 of 2 branches missed.">			if(realizationsSorted.length &gt; 0) {</span>
+<span class="fc bfc" id="L583" title="All 2 branches covered.">				for(int i=0; i&lt;histogramValues.length; i++) {</span>
+<span class="fc" id="L584">					histogramValues[i] /= realizationsSorted.length;</span>
+				}
+			}
+		}
+
+<span class="fc" id="L589">		return histogramValues;</span>
+	}
+
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L594">		final double[] intervalPoints = new double[numberOfPoints];</span>
+<span class="nc" id="L595">		final double[] anchorPoints	= new double[numberOfPoints+1];</span>
+<span class="nc" id="L596">		final double center	= getAverage();</span>
+<span class="nc" id="L597">		final double radius	= standardDeviations * getStandardDeviation();</span>
+<span class="nc" id="L598">		final double stepSize	= (numberOfPoints-1) / 2.0;</span>
+<span class="nc bnc" id="L599" title="All 2 branches missed.">		for(int i=0; i&lt;numberOfPoints;i++) {</span>
+<span class="nc" id="L600">			final double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;</span>
+<span class="nc" id="L601">			intervalPoints[i]	= center + alpha * radius;</span>
+<span class="nc" id="L602">			anchorPoints[i]		= center + alpha * radius - radius / (2 * stepSize);</span>
+		}
+<span class="nc" id="L604">		anchorPoints[numberOfPoints] = center + 1 * radius + radius / (2 * stepSize);</span>
+
+<span class="nc" id="L606">		final double[][] result = new double[2][];</span>
+<span class="nc" id="L607">		result[0] = anchorPoints;</span>
+<span class="nc" id="L608">		result[1] = getHistogram(intervalPoints);</span>
+
+<span class="nc" id="L610">		return result;</span>
+	}
+
+	@Override
+	public boolean isDeterministic() {
+<span class="fc bfc" id="L615" title="All 2 branches covered.">		return realizations == null;</span>
+	}
+
+	@Override
+	public RandomVariable cache() {
+<span class="fc" id="L620">		return this;</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc bnc" id="L625" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L626">			return DoubleStream.generate(new DoubleSupplier() {</span>
+				@Override
+				public double getAsDouble() {
+<span class="nc" id="L629">					return valueIfNonStochastic;</span>
+				}
+			});
+		}
+		else {
+<span class="nc" id="L634">			return Arrays.stream(realizations);</span>
+		}
+	}
+
+	@Override
+	public double[] getRealizations() {
+<span class="fc bfc" id="L640" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L641">			final double[] result = new double[] { doubleValue() };</span>
+<span class="fc" id="L642">			return result;</span>
+		}
+		else {
+<span class="fc" id="L645">			return realizations.clone();</span>
+		}
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="fc bfc" id="L651" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L652">			return valueIfNonStochastic;</span>
+		}
+<span class="pc bpc" id="L654" title="1 of 2 branches missed.">		else if(size() == 1) {</span>
+<span class="fc" id="L655">			return getAverage();</span>
+		}
+		else {
+<span class="nc" id="L658">			throw new UnsupportedOperationException(&quot;The random variable is non-deterministic&quot;);</span>
+		}
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc bnc" id="L664" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L665">			return new IntToDoubleFunction() {</span>
+				@Override
+				public double applyAsDouble(final int i) {
+<span class="nc" id="L668">					return valueIfNonStochastic;</span>
+				}
+			};
+		}
+		else {
+<span class="nc" id="L673">			return new IntToDoubleFunction() {</span>
+				@Override
+				public double applyAsDouble(final int i) {
+<span class="nc" id="L676">					return realizations[i];</span>
+				}
+			};
+		}
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="fc bfc" id="L684" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L685">			return new RandomVariableFromDoubleArray(time, operator.applyAsDouble(valueIfNonStochastic));</span>
+		}
+		else
+		{
+			// Still faster than a parallel stream (2014.04)
+<span class="fc" id="L690">			final double[] result = new double[realizations.length];</span>
+<span class="fc bfc" id="L691" title="All 2 branches covered.">			for(int i=0; i&lt;result.length; i++) {</span>
+<span class="fc" id="L692">				result[i] = operator.applyAsDouble(realizations[i]);</span>
+			}
+<span class="fc" id="L694">			return new RandomVariableFromDoubleArray(time, result);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="fc" id="L700">		final double      newTime           = Math.max(time, argument.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L702" title="3 of 4 branches missed.">		if(isDeterministic() &amp;&amp; argument.isDeterministic()) {</span>
+<span class="nc" id="L703">			return new RandomVariableFromDoubleArray(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.doubleValue()));</span>
+		}
+<span class="pc bpc" id="L705" title="3 of 4 branches missed.">		else if(isDeterministic() &amp;&amp; !argument.isDeterministic()) {</span>
+			// Still faster than a parallel stream (2014.04)
+<span class="nc" id="L707">			final double[] result = new double[argument.size()];</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">			for(int i=0; i&lt;result.length; i++) {</span>
+<span class="nc" id="L709">				result[i] = operator.applyAsDouble(valueIfNonStochastic, argument.get(i));</span>
+			}
+<span class="nc" id="L711">			return new RandomVariableFromDoubleArray(newTime, result);</span>
+		}
+<span class="pc bpc" id="L713" title="2 of 4 branches missed.">		else if(!isDeterministic() &amp;&amp; argument.isDeterministic()) {</span>
+			// Still faster than a parallel stream (2014.04)
+<span class="nc" id="L715">			final double argumentValue = argument.doubleValue();</span>
+<span class="nc" id="L716">			final double[] result = new double[this.size()];</span>
+<span class="nc bnc" id="L717" title="All 2 branches missed.">			for(int i=0; i&lt;result.length; i++) {</span>
+<span class="nc" id="L718">				result[i] = operator.applyAsDouble(realizations[i], argumentValue);</span>
+			}
+<span class="nc" id="L720">			return new RandomVariableFromDoubleArray(newTime, result);</span>
+		}
+<span class="pc bpc" id="L722" title="2 of 4 branches missed.">		else if(!isDeterministic() &amp;&amp; !argument.isDeterministic()) {</span>
+			// Still faster than a parallel stream (2014.04)
+<span class="fc" id="L724">			final double[] result = new double[this.size()];</span>
+<span class="fc bfc" id="L725" title="All 2 branches covered.">			for(int i=0; i&lt;result.length; i++) {</span>
+<span class="fc" id="L726">				result[i] = operator.applyAsDouble(realizations[i], argument.get(i));</span>
+			}
+<span class="fc" id="L728">			return new RandomVariableFromDoubleArray(newTime, result);</span>
+		}
+
+		/*
+		 * Dead code: slower
+		 */
+<span class="nc" id="L734">		final int newSize = Math.max(this.size(), argument.size());</span>
+
+<span class="nc" id="L736">		final IntToDoubleFunction argument0Operator = this.getOperator();</span>
+<span class="nc" id="L737">		final IntToDoubleFunction argument1Operator = argument.getOperator();</span>
+<span class="nc" id="L738">		final IntToDoubleFunction result = new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L741">				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i));</span>
+			}
+		};
+
+<span class="nc" id="L745">		return new RandomVariableFromDoubleArray(newTime, result, newSize);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L750">		double newTime = Math.max(time, argument1.getFiltrationTime());</span>
+<span class="nc" id="L751">		newTime = Math.max(newTime, argument2.getFiltrationTime());</span>
+
+<span class="nc" id="L753">		final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());</span>
+
+<span class="nc" id="L755">		final IntToDoubleFunction argument0Operator = this.getOperator();</span>
+<span class="nc" id="L756">		final IntToDoubleFunction argument1Operator = argument1.getOperator();</span>
+<span class="nc" id="L757">		final IntToDoubleFunction argument2Operator = argument2.getOperator();</span>
+<span class="nc" id="L758">		final IntToDoubleFunction result = new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L761">				return operator.applyAsDouble(argument0Operator.applyAsDouble(i), argument1Operator.applyAsDouble(i), argument2Operator.applyAsDouble(i));</span>
+			}
+		};
+
+<span class="nc" id="L765">		return new RandomVariableFromDoubleArray(newTime, result, newSize);</span>
+	}
+
+	public RandomVariable apply(final DoubleBinaryOperator operatorOuter, final DoubleBinaryOperator operatorInner, final RandomVariable argument1, final RandomVariable argument2)
+	{
+<span class="nc" id="L770">		return apply(new DoubleTernaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y, final double z) {
+<span class="nc" id="L773">				return operatorOuter.applyAsDouble(x,operatorInner.applyAsDouble(y,z));</span>
+			}
+		}, argument1, argument2);
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="pc bpc" id="L780" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L781">			final double newValueIfNonStochastic = Math.min(valueIfNonStochastic,cap);</span>
+<span class="nc" id="L782">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L785">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L786" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L787">				newRealizations[i]		 = Math.min(realizations[i],cap);</span>
+			}
+<span class="fc" id="L789">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="fc bfc" id="L795" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L796">			final double newValueIfNonStochastic = Math.max(valueIfNonStochastic,floor);</span>
+<span class="fc" id="L797">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L800">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L801" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L802">				newRealizations[i]		 = Math.max(realizations[i],floor);</span>
+			}
+<span class="fc" id="L804">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable add(final double value) {
+<span class="fc bfc" id="L810" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L811">			final double newValueIfNonStochastic = valueIfNonStochastic + value;</span>
+<span class="fc" id="L812">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L815">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L816" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L817">				newRealizations[i]		 = realizations[i] + value;</span>
+			}
+<span class="fc" id="L819">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="fc bfc" id="L825" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L826">			final double newValueIfNonStochastic = valueIfNonStochastic - value;</span>
+<span class="fc" id="L827">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L830">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L831" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L832">				newRealizations[i]		 = realizations[i] - value;</span>
+			}
+<span class="fc" id="L834">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable bus(final double value) {
+<span class="nc bnc" id="L840" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L841">			final double newValueIfNonStochastic = value - valueIfNonStochastic;</span>
+<span class="nc" id="L842">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="nc" id="L845">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="nc bnc" id="L846" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L847">				newRealizations[i]		 = value - realizations[i];</span>
+			}
+<span class="nc" id="L849">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="fc bfc" id="L855" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L856">			final double newValueIfNonStochastic = valueIfNonStochastic * value;</span>
+<span class="fc" id="L857">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L860">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L861" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L862">				newRealizations[i]		 = realizations[i] * value;</span>
+			}
+<span class="fc" id="L864">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable div(final double value) {
+<span class="fc bfc" id="L870" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L871">			final double newValueIfNonStochastic = valueIfNonStochastic / value;</span>
+<span class="fc" id="L872">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L875">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L876" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L877">				newRealizations[i]		 = realizations[i] / value;</span>
+			}
+<span class="fc" id="L879">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable vid(final double value) {
+<span class="nc bnc" id="L885" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L886">			final double newValueIfNonStochastic = value / valueIfNonStochastic;</span>
+<span class="nc" id="L887">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="nc" id="L890">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="nc bnc" id="L891" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L892">				newRealizations[i]		 = value / realizations[i];</span>
+			}
+<span class="nc" id="L894">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="fc bfc" id="L900" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L901">			final double newValueIfNonStochastic = Math.pow(valueIfNonStochastic,exponent);</span>
+<span class="fc" id="L902">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L905">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L906" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L907">				newRealizations[i]		 = Math.pow(realizations[i],exponent);</span>
+			}
+<span class="fc" id="L909">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="fc" id="L915">		return new RandomVariableFromDoubleArray(getAverage());</span>
+	}
+
+	@Override
+	public RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
+	{
+<span class="fc" id="L921">		return conditionalExpectationOperator.getConditionalExpectation(this);</span>
+	}
+
+	@Override
+	public RandomVariable squared() {
+<span class="fc bfc" id="L926" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L927">			final double newValueIfNonStochastic = valueIfNonStochastic * valueIfNonStochastic;</span>
+<span class="fc" id="L928">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L931">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L932" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L933">				newRealizations[i]		 = realizations[i] * realizations[i];</span>
+			}
+<span class="fc" id="L935">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable sqrt() {
+<span class="fc bfc" id="L941" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L942">			final double newValueIfNonStochastic = Math.sqrt(valueIfNonStochastic);</span>
+<span class="fc" id="L943">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L946">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L947" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L948">				newRealizations[i]		 = Math.sqrt(realizations[i]);</span>
+			}
+<span class="fc" id="L950">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="fc bfc" id="L956" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L957">			final double newValueIfNonStochastic = 1.0/valueIfNonStochastic;</span>
+<span class="fc" id="L958">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L961">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L962" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L963">				newRealizations[i]		 = 1.0/realizations[i];</span>
+			}
+<span class="fc" id="L965">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="fc bfc" id="L971" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L972">			final double newValueIfNonStochastic = Math.abs(valueIfNonStochastic);</span>
+<span class="fc" id="L973">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L976">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L977" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L978">				newRealizations[i]		 = Math.abs(realizations[i]);</span>
+			}
+<span class="fc" id="L980">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariableFromDoubleArray exp() {
+<span class="fc bfc" id="L986" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L987">			final double newValueIfNonStochastic = Math.exp(valueIfNonStochastic);</span>
+<span class="fc" id="L988">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L991">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L992" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L993">				newRealizations[i]		 = Math.exp(realizations[i]);</span>
+			}
+<span class="fc" id="L995">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariableFromDoubleArray expm1() {
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L1002">			final double newValueIfNonStochastic = Math.expm1(valueIfNonStochastic);</span>
+<span class="nc" id="L1003">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="nc" id="L1006">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="nc bnc" id="L1007" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1008">				newRealizations[i]		 = Math.expm1(realizations[i]);</span>
+			}
+<span class="nc" id="L1010">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariableFromDoubleArray log() {
+<span class="fc bfc" id="L1016" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L1017">			final double newValueIfNonStochastic = Math.log(valueIfNonStochastic);</span>
+<span class="fc" id="L1018">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L1021">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="fc bfc" id="L1022" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1023">				newRealizations[i]		 = Math.log(realizations[i]);</span>
+			}
+<span class="fc" id="L1025">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable sin() {
+<span class="nc bnc" id="L1031" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L1032">			final double newValueIfNonStochastic = Math.sin(valueIfNonStochastic);</span>
+<span class="nc" id="L1033">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="nc" id="L1036">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="nc bnc" id="L1037" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1038">				newRealizations[i]		 = Math.sin(realizations[i]);</span>
+			}
+<span class="nc" id="L1040">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable cos() {
+<span class="nc bnc" id="L1046" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L1047">			final double newValueIfNonStochastic = Math.cos(valueIfNonStochastic);</span>
+<span class="nc" id="L1048">			return new RandomVariableFromDoubleArray(time, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="nc" id="L1051">			final double[] newRealizations = new double[realizations.length];</span>
+<span class="nc bnc" id="L1052" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1053">				newRealizations[i]		 = Math.cos(realizations[i]);</span>
+			}
+<span class="nc" id="L1055">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	/*
+	 * Binary operators: checking for return type priority.
+	 */
+
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1065" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1067">			return randomVariable.add(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1071">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1073" title="All 4 branches covered.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1074">			final double newValueIfNonStochastic = valueIfNonStochastic + randomVariable.doubleValue();</span>
+<span class="fc" id="L1075">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="fc bfc" id="L1077" title="All 2 branches covered.">		else if(isDeterministic()) {</span>
+<span class="fc" id="L1078">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1079" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1080">				newRealizations[i]		 = valueIfNonStochastic + randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1082">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+<span class="fc bfc" id="L1084" title="All 2 branches covered.">		else if(randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1085">			return this.add(randomVariable.doubleValue());</span>
+		}
+		else {
+<span class="fc" id="L1088">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1089" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1090">				newRealizations[i]		 = realizations[i] + randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1092">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="fc bfc" id="L1098" title="All 2 branches covered.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="fc" id="L1100">			return randomVariable.bus(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1104">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1106" title="All 4 branches covered.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1107">			final double newValueIfNonStochastic = valueIfNonStochastic - randomVariable.doubleValue();</span>
+<span class="fc" id="L1108">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="fc bfc" id="L1110" title="All 2 branches covered.">		else if(isDeterministic()) {</span>
+<span class="fc" id="L1111">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1112" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1113">				newRealizations[i]		 = valueIfNonStochastic - randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1115">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+<span class="fc bfc" id="L1117" title="All 2 branches covered.">		else if(randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1118">			return this.sub(randomVariable.doubleValue());</span>
+		}
+		else {
+<span class="fc" id="L1121">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1122" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1123">				newRealizations[i]		 = realizations[i] - randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1125">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1131" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1133">			return randomVariable.sub(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1137">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1139" title="1 of 4 branches missed.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1140">			final double newValueIfNonStochastic = randomVariable.doubleValue() - valueIfNonStochastic;</span>
+<span class="fc" id="L1141">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="pc bpc" id="L1143" title="1 of 2 branches missed.">		else if(isDeterministic()) {</span>
+<span class="nc" id="L1144">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="nc bnc" id="L1145" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1146">				newRealizations[i]		 =  randomVariable.get(i) - valueIfNonStochastic;</span>
+			}
+<span class="nc" id="L1148">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1151">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1152" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1153">				newRealizations[i]		 = randomVariable.get(i) - realizations[i];</span>
+			}
+<span class="fc" id="L1155">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="fc bfc" id="L1161" title="All 2 branches covered.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="fc" id="L1163">			return randomVariable.mult(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1167">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1169" title="All 4 branches covered.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1170">			final double newValueIfNonStochastic = valueIfNonStochastic * randomVariable.doubleValue();</span>
+<span class="fc" id="L1171">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="fc bfc" id="L1173" title="All 2 branches covered.">		else if(randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1174">			return this.mult(randomVariable.doubleValue());</span>
+		}
+<span class="fc bfc" id="L1176" title="All 2 branches covered.">		else if(isDeterministic()) {</span>
+<span class="fc" id="L1177">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1178" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1179">				newRealizations[i]		 = valueIfNonStochastic * randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1181">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1184">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1185" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1186">				newRealizations[i]		 = realizations[i] * randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1188">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1194" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1196">			return randomVariable.vid(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1200">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1202" title="All 4 branches covered.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1203">			final double newValueIfNonStochastic = valueIfNonStochastic / randomVariable.doubleValue();</span>
+<span class="fc" id="L1204">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="fc bfc" id="L1206" title="All 2 branches covered.">		else if(isDeterministic()) {</span>
+<span class="fc" id="L1207">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1208" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1209">				newRealizations[i]		 = valueIfNonStochastic / randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1211">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1214">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1215" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1216">				newRealizations[i]		 = realizations[i] / randomVariable.get(i);</span>
+			}
+<span class="fc" id="L1218">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc bnc" id="L1224" title="All 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1226">			return randomVariable.div(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="nc" id="L1230">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="nc bnc" id="L1232" title="All 4 branches missed.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="nc" id="L1233">			final double newValueIfNonStochastic = randomVariable.doubleValue() / valueIfNonStochastic;</span>
+<span class="nc" id="L1234">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="nc bnc" id="L1236" title="All 2 branches missed.">		else if(isDeterministic()) {</span>
+<span class="nc" id="L1237">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="nc bnc" id="L1238" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1239">				newRealizations[i]		 = randomVariable.get(i) / valueIfNonStochastic;</span>
+			}
+<span class="nc" id="L1241">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="nc" id="L1244">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="nc bnc" id="L1245" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1246">				newRealizations[i]		 = randomVariable.get(i) / realizations[i];</span>
+			}
+<span class="nc" id="L1248">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1254" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1256">			return randomVariable.cap(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1260">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1262" title="1 of 4 branches missed.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1263">			final double newValueIfNonStochastic = Math.min(valueIfNonStochastic, randomVariable.doubleValue());</span>
+<span class="fc" id="L1264">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="pc bpc" id="L1266" title="1 of 2 branches missed.">		else if(isDeterministic()) {</span>
+<span class="nc" id="L1267">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="nc bnc" id="L1268" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1269">				newRealizations[i]		 = Math.min(valueIfNonStochastic, randomVariable.get(i));</span>
+			}
+<span class="nc" id="L1271">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		} else {
+<span class="fc" id="L1273">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1274" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1275">				newRealizations[i]		 = Math.min(realizations[i], randomVariable.get(i));</span>
+			}
+<span class="fc" id="L1277">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1283" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1285">			return randomVariable.floor(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1289">		final double newTime = Math.max(time, randomVariable.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1291" title="3 of 4 branches missed.">		if(isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="nc" id="L1292">			final double newValueIfNonStochastic = Math.max(valueIfNonStochastic, randomVariable.doubleValue());</span>
+<span class="nc" id="L1293">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="pc bpc" id="L1295" title="1 of 2 branches missed.">		else if(isDeterministic()) {</span>
+<span class="nc" id="L1296">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="nc bnc" id="L1297" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1298">				newRealizations[i]		 = Math.max(valueIfNonStochastic, randomVariable.get(i));</span>
+			}
+<span class="nc" id="L1300">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+<span class="fc bfc" id="L1302" title="All 2 branches covered.">		else if(randomVariable.isDeterministic()) {</span>
+<span class="fc" id="L1303">			return this.floor(randomVariable.doubleValue());</span>
+		}
+		else {
+<span class="fc" id="L1306">			final double[] newRealizations = new double[Math.max(size(), randomVariable.size())];</span>
+<span class="fc bfc" id="L1307" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1308">				newRealizations[i]		 = Math.max(realizations[i], randomVariable.get(i));</span>
+			}
+<span class="fc" id="L1310">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="pc bpc" id="L1316" title="1 of 2 branches missed.">		if(rate.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1318">			return rate.mult(periodLength).add(1.0).mult(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1322">		final double newTime = Math.max(time, rate.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1324" title="1 of 2 branches missed.">		if(rate.isDeterministic()) {</span>
+<span class="nc" id="L1325">			return this.mult(1.0 + rate.doubleValue() * periodLength);</span>
+		}
+<span class="pc bpc" id="L1327" title="3 of 4 branches missed.">		else if(isDeterministic() &amp;&amp; !rate.isDeterministic()) {</span>
+<span class="nc" id="L1328">			final double[] newRealizations = new double[Math.max(size(), rate.size())];</span>
+<span class="nc bnc" id="L1329" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc" id="L1330">				newRealizations[i]		 = valueIfNonStochastic * (1 + rate.get(i) * periodLength);</span>
+			}
+<span class="nc" id="L1332">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1335">			final double[] newRealizations = new double[Math.max(size(), rate.size())];</span>
+<span class="fc bfc" id="L1336" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1337">				newRealizations[i]		 = realizations[i] * (1 + rate.get(i) * periodLength);</span>
+			}
+<span class="fc" id="L1339">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="pc bpc" id="L1345" title="1 of 2 branches missed.">		if(rate.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1347">			return rate.mult(periodLength).add(1.0).invert().mult(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1351">		final double newTime = Math.max(time, rate.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1353" title="All 2 branches covered.">		if(rate.isDeterministic()) {</span>
+<span class="fc" id="L1354">			return this.div(1.0 + rate.doubleValue() * periodLength);</span>
+		}
+<span class="pc bpc" id="L1356" title="1 of 4 branches missed.">		else if(isDeterministic() &amp;&amp; !rate.isDeterministic()) {</span>
+<span class="fc" id="L1357">			final double[] newRealizations = new double[Math.max(size(), rate.size())];</span>
+<span class="fc bfc" id="L1358" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1359">				newRealizations[i]		 = valueIfNonStochastic / (1.0 + rate.get(i) * periodLength);</span>
+			}
+<span class="fc" id="L1361">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1364">			final double[] newRealizations = new double[Math.max(size(), rate.size())];</span>
+<span class="fc bfc" id="L1365" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1366">				newRealizations[i]		 = realizations[i] / (1.0 + rate.get(i) * periodLength);</span>
+			}
+<span class="fc" id="L1368">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	/*
+	 * Ternary operators: checking for return type priority.
+	 * @TODO add checking for return type priority.
+	 */
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1380">		double newTime = time;</span>
+<span class="fc" id="L1381">		newTime = Math.max(newTime, valueIfTriggerNonNegative.getFiltrationTime());</span>
+<span class="fc" id="L1382">		newTime = Math.max(newTime, valueIfTriggerNegative.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1384" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc bfc" id="L1385" title="All 2 branches covered.">			if(valueIfNonStochastic &gt;= 0) {</span>
+<span class="fc" id="L1386">				return valueIfTriggerNonNegative;</span>
+			} else {
+<span class="fc" id="L1388">				return valueIfTriggerNegative;</span>
+			}
+		}
+		else {
+<span class="fc" id="L1392">			final int numberOfPaths = this.size();</span>
+<span class="fc" id="L1393">			final double[] newRealizations = new double[numberOfPaths];</span>
+<span class="fc bfc" id="L1394" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc bfc" id="L1395" title="All 2 branches covered.">				newRealizations[i] = realizations[i] &gt;= 0.0 ? valueIfTriggerNonNegative.get(i) : valueIfTriggerNegative.get(i);</span>
+			}
+<span class="fc" id="L1397">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="fc bfc" id="L1403" title="All 2 branches covered.">		if(factor1.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="fc" id="L1405">			return factor1.mult(factor2).add(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1409">		final double newTime = Math.max(time, factor1.getFiltrationTime());</span>
+
+<span class="fc bfc" id="L1411" title="All 2 branches covered.">		if(factor1.isDeterministic()) {</span>
+<span class="fc" id="L1412">			return this.add(factor1.doubleValue() * factor2);</span>
+		}
+<span class="pc bpc" id="L1414" title="1 of 4 branches missed.">		else if(isDeterministic() &amp;&amp; !factor1.isDeterministic()) {</span>
+<span class="fc" id="L1415">			final double[] newRealizations = new double[Math.max(size(), factor1.size())];</span>
+<span class="fc bfc" id="L1416" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1417">				newRealizations[i]		 = valueIfNonStochastic + factor1.get(i) * factor2;</span>
+			}
+<span class="fc" id="L1419">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1422">			final double[] newRealizations = new double[Math.max(size(), factor1.size())];</span>
+<span class="fc bfc" id="L1423" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1424">				newRealizations[i]		 = realizations[i] + factor1.get(i) * factor2;</span>
+			}
+<span class="fc" id="L1426">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="pc bpc" id="L1432" title="1 of 4 branches missed.">		if(factor1.getTypePriority() &gt; this.getTypePriority() || factor2.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="fc" id="L1434">			return factor1.mult(factor2).add(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1438">		final double newTime = Math.max(Math.max(time, factor1.getFiltrationTime()), factor2.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1440" title="1 of 6 branches missed.">		if(isDeterministic() &amp;&amp; factor1.isDeterministic() &amp;&amp; factor2.isDeterministic()) {</span>
+<span class="fc" id="L1441">			final double newValueIfNonStochastic = valueIfNonStochastic + (factor1.doubleValue() * factor2.doubleValue());</span>
+<span class="fc" id="L1442">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+<span class="fc bfc" id="L1444" title="All 4 branches covered.">		else if(factor1.isDeterministic() &amp;&amp; factor2.isDeterministic()) {</span>
+<span class="fc" id="L1445">			return add(factor1.doubleValue() * factor2.doubleValue());</span>
+		}
+<span class="fc bfc" id="L1447" title="All 2 branches covered.">		else if(factor2.isDeterministic()) {</span>
+<span class="fc" id="L1448">			return this.addProduct(factor1, factor2.doubleValue());</span>
+		}
+<span class="fc bfc" id="L1450" title="All 2 branches covered.">		else if(factor1.isDeterministic()) {</span>
+<span class="fc" id="L1451">			return this.addProduct(factor2, factor1.doubleValue());</span>
+		}
+<span class="pc bpc" id="L1453" title="2 of 6 branches missed.">		else if(!this.isDeterministic() &amp;&amp; !factor1.isDeterministic() &amp;&amp; !factor2.isDeterministic()) {</span>
+<span class="fc" id="L1454">			final double[] newRealizations = new double[Math.max(Math.max(size(), factor1.size()), factor2.size())];</span>
+<span class="fc bfc" id="L1455" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1456">				newRealizations[i]		 = realizations[i] + factor1.get(i) * factor2.get(i);</span>
+			}
+<span class="fc" id="L1458">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+		else {
+<span class="fc" id="L1461">			return this.add(factor1.mult(factor2));</span>
+		}
+	}
+
+	@Override
+	public RandomVariable addSumProduct(final List&lt;RandomVariable&gt; factor1, final List&lt;RandomVariable&gt; factor2)
+	{
+<span class="nc" id="L1468">		RandomVariable result = this;</span>
+<span class="nc bnc" id="L1469" title="All 2 branches missed.">		for(int i=0; i&lt;factor1.size(); i++) {</span>
+<span class="nc" id="L1470">			result = result.addProduct(factor1.get(i), factor2.get(i));</span>
+		}
+<span class="nc" id="L1472">		return result;</span>
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="pc bpc" id="L1477" title="2 of 4 branches missed.">		if(numerator.getTypePriority() &gt; this.getTypePriority() || denominator.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1479">			return numerator.div(denominator).add(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1483">		final double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1485" title="5 of 6 branches missed.">		if(isDeterministic() &amp;&amp; numerator.isDeterministic() &amp;&amp; denominator.isDeterministic()) {</span>
+<span class="nc" id="L1486">			final double newValueIfNonStochastic = valueIfNonStochastic + (numerator.doubleValue() / denominator.doubleValue());</span>
+<span class="nc" id="L1487">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L1490">			final double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];</span>
+<span class="fc bfc" id="L1491" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1492">				newRealizations[i]		 = get(i) + numerator.get(i) / denominator.get(i);</span>
+			}
+<span class="fc" id="L1494">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="pc bpc" id="L1500" title="2 of 4 branches missed.">		if(numerator.getTypePriority() &gt; this.getTypePriority() || denominator.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1502">			return numerator.div(denominator).mult(-1).add(this);</span>
+		}
+
+		// Set time of this random variable to maximum of time with respect to which measurability is known.
+<span class="fc" id="L1506">		final double newTime = Math.max(Math.max(time, numerator.getFiltrationTime()), denominator.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L1508" title="5 of 6 branches missed.">		if(isDeterministic() &amp;&amp; numerator.isDeterministic() &amp;&amp; denominator.isDeterministic()) {</span>
+<span class="nc" id="L1509">			final double newValueIfNonStochastic = valueIfNonStochastic - (numerator.doubleValue() / denominator.doubleValue());</span>
+<span class="nc" id="L1510">			return new RandomVariableFromDoubleArray(newTime, newValueIfNonStochastic);</span>
+		}
+		else {
+<span class="fc" id="L1513">			final double[] newRealizations = new double[Math.max(Math.max(size(), numerator.size()), denominator.size())];</span>
+<span class="fc bfc" id="L1514" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="fc" id="L1515">				newRealizations[i]		 = get(i) - numerator.get(i) / denominator.get(i);</span>
+			}
+<span class="fc" id="L1517">			return new RandomVariableFromDoubleArray(newTime, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="fc bfc" id="L1523" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="pc bpc" id="L1524" title="1 of 2 branches missed.">			return new RandomVariableFromDoubleArray(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);</span>
+		}
+		else {
+<span class="fc" id="L1527">			final double[] newRealizations = new double[size()];</span>
+<span class="fc bfc" id="L1528" title="All 2 branches covered.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="pc bpc" id="L1529" title="1 of 2 branches missed.">				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;</span>
+			}
+<span class="fc" id="L1531">			return new RandomVariableFromDoubleArray(time, newRealizations);</span>
+		}
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L1537">		return getClass().getSimpleName() +</span>
+<span class="pc bpc" id="L1538" title="1 of 2 branches missed.">				&quot;[ realizations=&quot; + (isDeterministic() ? valueIfNonStochastic : Arrays.toString(realizations)) +</span>
+<span class="fc" id="L1539">				&quot;, isDeterministic()=&quot; + isDeterministic() +</span>
+				&quot;, filtrationTime=&quot; + time +
+				&quot;, typePriority=&quot; + typePriority + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

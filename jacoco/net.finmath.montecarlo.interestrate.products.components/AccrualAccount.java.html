@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AccrualAccount.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">AccrualAccount.java</span></div><h1>AccrualAccount.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 08.11.2014
+ */
+
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
+import net.finmath.montecarlo.interestrate.products.indices.AnalyticModelIndex;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implementation of a general accrual account.
+ *
+ * This class is an improved version of the {@link net.finmath.montecarlo.interestrate.products.MoneyMarketAccount} except that it
+ * allow the use of a general index for accrual and also supports past fixings.
+ *
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class AccrualAccount extends AbstractProductComponent {
+
+	private static final long serialVersionUID = 188297603697240319L;
+
+<span class="nc" id="L31">	private AnalyticModelIndex	pastFixings		= null;</span>
+	private final AbstractIndex		accrualIndex;
+	private final double				accrualPeriod;
+
+	/**
+	 * Create an accrual account.
+	 *
+	 * @param currency The currency of this account.
+	 * @param pastFixings An analytic model index which is used for past fixings, i.e., all calls to getValue with evaluationTime &amp;lt; 0 are delegated to this index.
+	 * @param accrualIndex The accrual index.
+	 * @param accrualPeriod The accrual period.
+	 */
+	public AccrualAccount(final String currency, final AnalyticModelIndex pastFixings, final AbstractIndex accrualIndex, final double accrualPeriod) {
+<span class="nc" id="L44">		super(currency);</span>
+<span class="nc" id="L45">		this.pastFixings	= pastFixings;</span>
+<span class="nc" id="L46">		this.accrualIndex	= accrualIndex;</span>
+<span class="nc" id="L47">		this.accrualPeriod	= accrualPeriod;</span>
+<span class="nc" id="L48">	}</span>
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L52">		return accrualIndex.queryUnderlyings();</span>
+	}
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		if(evaluationTime &lt;= 0) {</span>
+<span class="nc" id="L58">			return pastFixings.getValue(evaluationTime, model);</span>
+		}
+
+<span class="nc" id="L61">		RandomVariable value = pastFixings.getValue(0.0, model);</span>
+
+		// Loop over accrual periods
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		for(double time=0.0; time&lt;evaluationTime; time += accrualPeriod) {</span>
+			// Get the forward fixed at the beginning of the period
+<span class="nc" id="L66">			final RandomVariable	forwardRate				= accrualIndex.getValue(time, model);</span>
+<span class="nc" id="L67">			final double					currentAccrualPeriod	= Math.min(accrualPeriod , evaluationTime-time);</span>
+
+			// Accrue the value using the current forward rate
+<span class="nc" id="L70">			value = value.accrue(forwardRate, currentAccrualPeriod);</span>
+		}
+
+<span class="nc" id="L73">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

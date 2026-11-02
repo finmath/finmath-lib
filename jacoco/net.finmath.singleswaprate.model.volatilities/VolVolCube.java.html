@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VolVolCube.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">VolVolCube.java</span></div><h1>VolVolCube.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.Map;
+
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.singleswaprate.model.curves.ExponentialCorrelationCurve;
+import net.finmath.time.Schedule;
+
+/**
+ * This cube provides the volatility of the stochastic driver for each sub-tenor of the swap rate's schedule in the Piterbarg model of the annuity mapping. They are linked to normal volatilities via
+ * \[ \frac{\tau_j}{1+\tau_j S_j(0)} \rho_{i,j} \sigma_j ]\,
+ * where \(\tau\) is the accrual fraction, \(S_j(0)\) is the swap rate of the j-th subtenor evaluated at time 0, \(\sigma_j\) the volatility of the j-th subtenor at the strike and \(\rho_{i,j}\) is the
+ * correlation between the swap rates of the two tenors. We assume a correlation according to
+ * \[ \rho_{i,j} = e^{d(T_j - T_i)} \],
+ * where d is some decay parameter, given by the underlying cube.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class VolVolCube implements VolatilityCube {
+
+	private final String		name;
+	private final LocalDate	referenceDate;
+	private final String referenceCubeName;
+	private final double baseTermination;
+
+	private final double periodLength;
+
+	private final RationalFunctionInterpolation rateInterpolator;
+
+	//	private final double iborOisDecorrelation;
+
+<span class="fc" id="L39">	private final QuotingConvention quotingConvention = QuotingConvention.VOLATILITYNORMAL;</span>
+
+	/**
+	 * Create the volvol cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The referenceDate of the cube.
+	 * @param referenceCubeName The name of the underlying cube.
+	 * @param schedule The schedule of the swap rate.
+	 * @param initialSwapRates Initial swap rates of all sub-tenors.
+	 */
+	public VolVolCube(final String name, final LocalDate referenceDate, final String referenceCubeName, final Schedule schedule, final double[] initialSwapRates) {
+<span class="fc" id="L51">		super();</span>
+<span class="fc" id="L52">		this.name = name;</span>
+<span class="fc" id="L53">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L54">		this.referenceCubeName = referenceCubeName;</span>
+<span class="fc" id="L55">		this.baseTermination = schedule.getPayment(schedule.getNumberOfPeriods()-1);</span>
+
+<span class="fc" id="L57">		double periodLength = 0;</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">		for(int index = 0; index &lt; schedule.getNumberOfPeriods(); index++) {</span>
+<span class="fc" id="L59">			periodLength += schedule.getPeriodLength(index);</span>
+		}
+<span class="fc" id="L61">		this.periodLength = periodLength /schedule.getNumberOfPeriods();</span>
+
+<span class="fc" id="L63">		final double[] tenors = new double[initialSwapRates.length];</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		for(int index = 0; index &lt; tenors.length; index++) {</span>
+<span class="fc" id="L65">			tenors[index] = schedule.getPeriodStart(index);</span>
+		}
+<span class="fc" id="L67">		tenors[tenors.length -1] = schedule.getPeriodEnd(schedule.getNumberOfPeriods()-1);</span>
+
+<span class="fc" id="L69">		rateInterpolator = new RationalFunctionInterpolation(tenors, initialSwapRates, InterpolationMethod.LINEAR, ExtrapolationMethod.DEFAULT);</span>
+<span class="fc" id="L70">	}</span>
+
+	@Override
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+
+<span class="fc" id="L75">		final VolatilityCube cube = model.getVolatilityCube(referenceCubeName);</span>
+<span class="fc" id="L76">		final ExponentialCorrelationCurve correlation = new ExponentialCorrelationCurve(name, referenceDate, baseTermination, cube.getCorrelationDecay());</span>
+
+<span class="fc" id="L78">		double value = cube.getValue(model, termination, maturity, strike, quotingConvention);</span>
+<span class="fc" id="L79">		value *= correlation.getValue(termination);</span>
+<span class="fc" id="L80">		value *= periodLength /(1.0 +periodLength *rateInterpolator.getValue(termination));</span>
+
+<span class="fc" id="L82">		return value;</span>
+	}
+
+	@Override
+	public String getName(){
+<span class="nc" id="L87">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L92">		return referenceDate;</span>
+	}
+
+	public String getReferenceCubeName() {
+<span class="nc" id="L96">		return referenceCubeName;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L101">		return super.toString() + &quot;\n\&quot;&quot; + this.getName() + &quot;\&quot;&quot;;</span>
+	}
+
+	@Override
+	public double getValue(final double tenorLength, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="nc" id="L106">		return getValue(null, tenorLength, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public double getCorrelationDecay() {
+<span class="nc" id="L111">		throw new UnsupportedOperationException(&quot;This VolVolCube does not support a further native correlated cube.&quot;);</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getParameters() {
+		//TODO
+<span class="nc" id="L117">		throw new UnsupportedOperationException(&quot;This VolVolCube's field cannot be converted to Map&lt;String, Double&gt;&quot;);</span>
+	}
+
+	@Override
+	public double getLowestStrike(final VolatilityCubeModel model) {
+<span class="nc" id="L122">		return model.getVolatilityCube(referenceCubeName).getLowestStrike(model);</span>
+	}
+
+	@Override
+	public double getIborOisDecorrelation() {
+<span class="nc" id="L127">		throw new UnsupportedOperationException(&quot;This VolVolCube does not support use of ibor ois decorrelation.&quot;);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

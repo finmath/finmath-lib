@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardCurveInterpolation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.model.curves</a> &gt; <span class="el_source">ForwardCurveInterpolation.java</span></div><h1>ForwardCurveInterpolation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata2.model.curves;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.function.DoubleFunction;
+import java.util.stream.DoubleStream;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
+
+/**
+ * A container for a forward (rate) curve. The forward curve is based on the {@link net.finmath.marketdata.model.curves.CurveInterpolation} class.
+ * It thus features all interpolation and extrapolation methods and interpolation entities as {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
+ *
+ * The forward F(t) of an index is such that  * F(t) * D(t+p) equals the market price of the corresponding
+ * index fixed in t and paid in t+d, where t is the fixing time of the index and t+p is the payment time of the index.
+ * F(t) is the corresponding forward and D is the associated discount curve.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ForwardCurveInterpolation extends AbstractForwardCurve implements Serializable {
+
+	private static final long serialVersionUID = -4126228588123963885L;
+
+	/**
+	 * Additional choice of interpolation entities for forward curves.
+	 */
+<span class="fc" id="L42">	public enum InterpolationEntityForward {</span>
+		/** Interpolation is performed on the forward **/
+<span class="fc" id="L44">		FORWARD,</span>
+		/** Interpolation is performed on the value = forward * discount factor **/
+<span class="fc" id="L46">		FORWARD_TIMES_DISCOUNTFACTOR,</span>
+		/** Interpolation is performed on the zero rate **/
+<span class="fc" id="L48">		ZERO,</span>
+		/** Interpolation is performed on the (synthetic) discount factor **/
+<span class="fc" id="L50">		DISCOUNTFACTOR</span>
+	}
+
+<span class="pc" id="L53">	private InterpolationEntityForward	interpolationEntityForward = InterpolationEntityForward.FORWARD;</span>
+
+	/**
+	 * Generate a forward curve using a given discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 */
+	public ForwardCurveInterpolation(final String name,
+			final LocalDate referenceDate,
+			final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward,
+			final String discountCurveName) {
+<span class="nc" id="L79">		super(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod,</span>
+				extrapolationMethod, interpolationEntity, discountCurveName);
+<span class="nc" id="L81">		this.interpolationEntityForward	= interpolationEntityForward;</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {</span>
+<span class="nc" id="L84">			super.addPoint(0.0, new RandomVariableFromDoubleArray(1.0), false);</span>
+		}
+<span class="nc" id="L86">	}</span>
+
+	/**
+	 * Generate a forward curve using a given discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 */
+	public ForwardCurveInterpolation(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName) {
+<span class="nc" id="L98">		this(name, referenceDate, paymentOffsetCode, new BusinessdayCalendarExcludingWeekends(), BusinessdayCalendar.DateRollConvention.FOLLOWING, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, interpolationEntityForward, discountCurveName);</span>
+<span class="nc" id="L99">	}</span>
+
+	/**
+	 * Generate a forward curve using a given discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 */
+	public ForwardCurveInterpolation(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final String discountCurveName) {
+<span class="nc" id="L110">		this(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.FORWARD, discountCurveName);</span>
+<span class="nc" id="L111">	}</span>
+
+	/**
+	 * Generate a forward curve using a given discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 */
+	public ForwardCurveInterpolation(final String name, final double paymentOffset, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName) {
+<span class="fc" id="L122">		super(name, null, paymentOffset, discountCurveName);</span>
+<span class="fc" id="L123">		this.interpolationEntityForward	= interpolationEntityForward;</span>
+<span class="fc" id="L124">	}</span>
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final RandomVariable[] givenForwards) {
+
+<span class="nc" id="L149">		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention,</span>
+				interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName);
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;times.length;timeIndex++) {</span>
+<span class="nc" id="L153">			forwardCurveInterpolation.addForward(model, times[timeIndex], givenForwards[timeIndex], false);</span>
+		}
+
+<span class="nc" id="L156">		return forwardCurveInterpolation;</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final Date referenceDate, final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity,
+			final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final RandomVariable[] givenForwards) {
+
+<span class="nc" id="L182">		return createForwardCurveFromForwards(name, referenceDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, interpolationMethod, extrapolationMethod, interpolationEntity, interpolationEntityForward, discountCurveName, model, times, givenForwards);</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final String interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final RandomVariable[] givenForwards) {
+<span class="nc" id="L199">		return createForwardCurveFromForwards(name, referenceDate, paymentOffsetCode, InterpolationEntityForward.valueOf(interpolationEntityForward), discountCurveName, model, times, givenForwards);</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this code, i.e., the date which defines t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param interpolationEntityForward Interpolation entity used for forward rate interpolation.
+	 * @param discountCurveName The name of a discount curve associated with this index (associated with it's funding or collateralization), if any.
+	 * @param model The model to be used to fetch the discount curve, if needed.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final InterpolationEntityForward interpolationEntityForward, final String discountCurveName, final AnalyticModel model, final double[] times, final RandomVariable[] givenForwards) {
+<span class="nc" id="L216">		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, referenceDate, paymentOffsetCode, interpolationEntityForward, discountCurveName);</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;times.length;timeIndex++) {</span>
+<span class="nc" id="L219">			forwardCurveInterpolation.addForward(model, times[timeIndex], givenForwards[timeIndex], false);</span>
+		}
+
+<span class="nc" id="L222">		return forwardCurveInterpolation;</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards.
+	 *
+	 * @param name The name of this curve.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final double[] times, final RandomVariable[] givenForwards, final double paymentOffset) {
+<span class="fc" id="L235">		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);</span>
+
+<span class="fc bfc" id="L237" title="All 2 branches covered.">		for(int timeIndex=0; timeIndex&lt;times.length;timeIndex++) {</span>
+<span class="fc" id="L238">			final double	fixingTime	= times[timeIndex];</span>
+<span class="fc bfc" id="L239" title="All 2 branches covered.">			final boolean	isParameter	= (fixingTime &gt; 0);</span>
+<span class="fc" id="L240">			forwardCurveInterpolation.addForward(null, fixingTime, givenForwards[timeIndex], isParameter);</span>
+		}
+
+<span class="fc" id="L243">		return forwardCurveInterpolation;</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and discount factors.
+	 *
+	 * The forward curve will have times.length-1 fixing times from times[0] to times[times.length-2]
+	 * &lt;code&gt;
+	 * 			forward[timeIndex] = (givenDiscountFactors[timeIndex]/givenDiscountFactors[timeIndex+1]-1.0) / (times[timeIndex+1] - times[timeIndex]);
+	 * &lt;/code&gt;
+	 * Note: If time[0] &amp;gt; 0, then the discount factor 1.0 will inserted at time 0.0
+	 *
+	 * @param name The name of this curve.
+	 * @param times A vector of given time points.
+	 * @param givenDiscountFactors A vector of given discount factors (corresponding to the given time points).
+	 * @param paymentOffset The maturity of the underlying index modeled by this curve.
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromDiscountFactors(final String name, final double[] times, final RandomVariable[] givenDiscountFactors, final double paymentOffset) {
+<span class="nc" id="L262">		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, null);</span>
+
+<span class="nc bnc" id="L264" title="All 2 branches missed.">		if(times.length == 0) {</span>
+<span class="nc" id="L265">			throw new IllegalArgumentException(&quot;Vector of times must not be empty.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		if(times[0] &gt; 0) {</span>
+			// Add first forward
+<span class="nc" id="L270">			final RandomVariable forward = givenDiscountFactors[0].sub(1.0).pow(-1.0).div(times[0]);</span>
+<span class="nc" id="L271">			forwardCurveInterpolation.addForward(null, 0.0, forward, true);</span>
+		}
+
+<span class="nc bnc" id="L274" title="All 2 branches missed.">		for(int timeIndex=0; timeIndex&lt;times.length-1;timeIndex++) {</span>
+<span class="nc" id="L275">			final RandomVariable 	forward		= givenDiscountFactors[timeIndex].div(givenDiscountFactors[timeIndex+1].sub(1.0)).div(times[timeIndex+1] - times[timeIndex]);</span>
+<span class="nc" id="L276">			final double	fixingTime	= times[timeIndex];</span>
+<span class="nc bnc" id="L277" title="All 2 branches missed.">			final boolean	isParameter	= (fixingTime &gt; 0);</span>
+<span class="nc" id="L278">			forwardCurveInterpolation.addForward(null, fixingTime, forward, isParameter);</span>
+		}
+
+<span class="nc" id="L281">		return forwardCurveInterpolation;</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards with respect to an associated discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param discountCurveName Name of the discount curve associated with this index (associated with it's funding or collateralization).
+	 * @param paymentOffset Time between fixing and payment.
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final double[] times, final RandomVariable[] givenForwards, final AnalyticModel model, final String discountCurveName, final double paymentOffset) {
+<span class="fc" id="L296">		final ForwardCurveInterpolation forwardCurveInterpolation = new ForwardCurveInterpolation(name, paymentOffset, InterpolationEntityForward.FORWARD, discountCurveName);</span>
+
+<span class="fc bfc" id="L298" title="All 2 branches covered.">		for(int timeIndex=0; timeIndex&lt;times.length;timeIndex++) {</span>
+<span class="fc" id="L299">			final double	fixingTime	= times[timeIndex];</span>
+<span class="pc bpc" id="L300" title="1 of 2 branches missed.">			final boolean	isParameter	= (fixingTime &gt; 0);</span>
+<span class="fc" id="L301">			forwardCurveInterpolation.addForward(model, fixingTime, givenForwards[timeIndex], isParameter);</span>
+		}
+<span class="fc" id="L303">		return forwardCurveInterpolation;</span>
+	}
+
+	/**
+	 * Create a forward curve from given times and given forwards with respect to an associated discount curve and payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param times A vector of given time points.
+	 * @param givenForwards A vector of given forwards (corresponding to the given time points).
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param discountCurveName Name of the discount curve associated with this index (associated with it's funding or collateralization).
+	 * @param paymentOffset Time between fixing and payment.
+	 * @return A new ForwardCurve object.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromForwards(final String name, final double[] times, final double[] givenForwards, final AnalyticModel model, final String discountCurveName, final double paymentOffset) {
+<span class="fc" id="L318">		final RandomVariable[] givenForwardsAsRandomVariables = DoubleStream.of(givenForwards).mapToObj(new DoubleFunction&lt;RandomVariableFromDoubleArray&gt;() {</span>
+			@Override
+<span class="fc" id="L320">			public RandomVariableFromDoubleArray apply(final double x) { return new RandomVariableFromDoubleArray(x); }</span>
+<span class="fc" id="L321">		}).toArray(RandomVariable[]::new);</span>
+<span class="fc" id="L322">		return createForwardCurveFromForwards(name, times, givenForwardsAsRandomVariables, model, discountCurveName, paymentOffset);</span>
+	}
+
+	/**
+	 * Create a forward curve from forwards given by a LIBORMonteCarloModel.
+	 *
+	 * @param name      name of the forward curve.
+	 * @param model     Monte Carlo model providing the forwards.
+	 * @param startTime time at which the curve starts, i.e. zero time for the curve
+	 * @return a forward curve from forwards given by a LIBORMonteCarloModel.
+	 * @throws CalculationException Thrown if the model failed to provide the forward rates.
+	 */
+	public static ForwardCurveInterpolation createForwardCurveFromMonteCarloLiborModel(final String name, final LIBORModelMonteCarloSimulationModel model, final double startTime) throws CalculationException{
+
+<span class="fc" id="L336">		final int timeIndex	= model.getTimeIndex(startTime);</span>
+		// Get all Libors at timeIndex which are not yet fixed (others null) and times for the timeDiscretizationFromArray of the curves
+<span class="fc" id="L338">		final ArrayList&lt;RandomVariable&gt; liborsAtTimeIndex = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L339">		final int firstLiborIndex = model.getLiborPeriodDiscretization().getTimeIndexNearestGreaterOrEqual(startTime);</span>
+<span class="fc" id="L340">		final double firstLiborTime = model.getLiborPeriodDiscretization().getTime(firstLiborIndex);</span>
+<span class="pc bpc" id="L341" title="1 of 2 branches missed.">		if(firstLiborTime&gt;startTime) {</span>
+<span class="nc" id="L342">			liborsAtTimeIndex.add(model.getForwardRate(startTime, startTime, firstLiborTime));</span>
+		}
+		// Vector of times for the forward curve
+<span class="pc bpc" id="L345" title="1 of 2 branches missed.">		final double[] times = new double[firstLiborTime==startTime ? (model.getNumberOfLibors()-firstLiborIndex) : (model.getNumberOfLibors()-firstLiborIndex+1)];</span>
+<span class="fc" id="L346">		times[0]=0;</span>
+<span class="pc bpc" id="L347" title="1 of 2 branches missed.">		final int indexOffset = firstLiborTime==startTime ? 0 : 1;</span>
+<span class="fc bfc" id="L348" title="All 2 branches covered.">		for(int i=firstLiborIndex;i&lt;model.getNumberOfLibors();i++) {</span>
+<span class="fc" id="L349">			liborsAtTimeIndex.add(model.getLIBOR(timeIndex,i));</span>
+<span class="fc" id="L350">			times[i-firstLiborIndex+indexOffset]=model.getLiborPeriodDiscretization().getTime(i)-startTime;</span>
+		}
+
+<span class="fc" id="L353">		final RandomVariable[] libors = liborsAtTimeIndex.toArray(new RandomVariable[liborsAtTimeIndex.size()]);</span>
+<span class="fc" id="L354">		return ForwardCurveInterpolation.createForwardCurveFromForwards(name, times, libors, model.getLiborPeriodDiscretization().getTimeStep(firstLiborIndex));</span>
+
+	}
+
+	@Override
+	public RandomVariable getForward(final AnalyticModel model, final double fixingTime)
+	{
+<span class="fc" id="L361">		final double paymentOffset = this.getPaymentOffset(fixingTime);</span>
+
+<span class="fc" id="L363">		final RandomVariable interpolationEntityForwardValue = this.getValue(model, fixingTime);</span>
+<span class="pc bpc" id="L364" title="3 of 4 branches missed.">		switch(interpolationEntityForward) {</span>
+		case FORWARD:
+		default:
+<span class="fc" id="L367">			return interpolationEntityForwardValue;</span>
+		case FORWARD_TIMES_DISCOUNTFACTOR:
+<span class="nc bnc" id="L369" title="All 2 branches missed.">			if(model==null) {</span>
+<span class="nc" id="L370">				throw new IllegalArgumentException(&quot;model==null. Not allowed for interpolationEntityForward &quot; + interpolationEntityForward);</span>
+			}
+<span class="nc" id="L372">			return interpolationEntityForwardValue.div(model.getDiscountCurve(getDiscountCurveName()).getValue(model, fixingTime+paymentOffset));</span>
+		case ZERO:
+		{
+<span class="nc" id="L375">			final RandomVariable interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);</span>
+<span class="nc" id="L376">			return interpolationEntityForwardValue2.mult(fixingTime+paymentOffset).sub(interpolationEntityForwardValue.mult(fixingTime)).exp().sub(1.0).div(paymentOffset);</span>
+		}
+		case DISCOUNTFACTOR:
+		{
+<span class="nc" id="L380">			final RandomVariable interpolationEntityForwardValue2 = this.getValue(model, fixingTime+paymentOffset);</span>
+<span class="nc" id="L381">			return interpolationEntityForwardValue.div(interpolationEntityForwardValue2).sub(1.0).div(paymentOffset);</span>
+		}
+		}
+	}
+
+	/**
+	 * Returns the forward for the corresponding fixing time.
+	 *
+	 * &lt;b&gt;Note:&lt;/b&gt; This implementation currently ignores the provided &lt;code&gt;paymentOffset&lt;/code&gt;.
+	 * Instead it uses the payment offset calculate from the curve specification.
+	 *
+	 * @param model An analytic model providing a context. Some curves do not need this (can be null).
+	 * @param fixingTime The fixing time of the index associated with this forward curve.
+	 * @param paymentOffset The payment offset (as internal day count fraction) specifying the payment of this index. Used only as a fallback and/or consistency check.
+	 *
+	 * @return The forward.
+	 */
+	@Override
+	public RandomVariable getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset)
+	{
+		// @TODO A warning should be issued that this implementation does not use
+		//		if(paymentOffset != this.getPaymentOffset(fixingTime)) {
+		//			Logger.getLogger(&quot;net.finmath&quot;).warning(&quot;Requesting forward with paymentOffsets not agreeing with original calibration. Requested: &quot; + paymentOffsets +&quot;. Calibrated: &quot; + getPaymentOffset(fixingTime) + &quot;.&quot;);
+		//		}
+<span class="fc" id="L405">		return this.getForward(model, fixingTime);</span>
+	}
+
+	/**
+	 * Add a forward to this curve.
+	 *
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTime The given fixing time.
+	 * @param forward The given forward.
+	 * @param isParameter If true, then this point is server via {@link #getParameter()} and changed via {@link #setParameter(RandomVariable[])} and {@link #getCloneForParameter(RandomVariable[])}, i.e., it can be calibrated.
+	 */
+	private void addForward(final AnalyticModel model, final double fixingTime, final RandomVariable forward, final boolean isParameter) {
+		double interpolationEntitiyTime;
+		RandomVariable interpolationEntityForwardValue;
+<span class="pc bpc" id="L419" title="3 of 4 branches missed.">		switch(interpolationEntityForward) {</span>
+		case FORWARD:
+		default:
+<span class="fc" id="L422">			interpolationEntitiyTime = fixingTime;</span>
+<span class="fc" id="L423">			interpolationEntityForwardValue = forward;</span>
+<span class="fc" id="L424">			break;</span>
+		case FORWARD_TIMES_DISCOUNTFACTOR:
+<span class="nc" id="L426">			interpolationEntitiyTime = fixingTime;</span>
+<span class="nc" id="L427">			interpolationEntityForwardValue = forward.mult(model.getDiscountCurve(getDiscountCurveName()).getValue(model, fixingTime+getPaymentOffset(fixingTime)));</span>
+<span class="nc" id="L428">			break;</span>
+		case ZERO:
+		{
+<span class="nc" id="L431">			final double paymentOffset = getPaymentOffset(fixingTime);</span>
+<span class="nc" id="L432">			interpolationEntitiyTime = fixingTime+paymentOffset;</span>
+<span class="nc" id="L433">			interpolationEntityForwardValue = forward.mult(paymentOffset).add(1.0).log().div(paymentOffset);</span>
+<span class="nc" id="L434">			break;</span>
+		}
+		case DISCOUNTFACTOR:
+		{
+<span class="nc" id="L438">			final double paymentOffset = getPaymentOffset(fixingTime);</span>
+<span class="nc" id="L439">			interpolationEntitiyTime		= fixingTime+paymentOffset;</span>
+<span class="nc" id="L440">			interpolationEntityForwardValue = getValue(fixingTime).div(forward.mult(paymentOffset).add(1.0));</span>
+<span class="nc" id="L441">			break;</span>
+		}
+		}
+<span class="fc" id="L444">		super.addPoint(interpolationEntitiyTime, interpolationEntityForwardValue, isParameter);</span>
+<span class="fc" id="L445">	}</span>
+
+	@Override
+	protected void addPoint(double time, final RandomVariable value, final boolean isParameter) {
+<span class="nc bnc" id="L449" title="All 2 branches missed.">		if(interpolationEntityForward == InterpolationEntityForward.DISCOUNTFACTOR) {</span>
+<span class="nc" id="L450">			time += getPaymentOffset(time);</span>
+		}
+<span class="nc" id="L452">		super.addPoint(time, value, isParameter);</span>
+<span class="nc" id="L453">	}</span>
+
+	/**
+	 * Returns the special interpolation method used for this forward curve.
+	 *
+	 * @return The interpolation method used for the forward.
+	 */
+	public InterpolationEntityForward getInterpolationEntityForward() {
+<span class="nc" id="L461">		return interpolationEntityForward;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L466">		return &quot;ForwardCurve [&quot; + super.toString() + &quot;, interpolationEntityForward=&quot; + interpolationEntityForward + &quot;]&quot;;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

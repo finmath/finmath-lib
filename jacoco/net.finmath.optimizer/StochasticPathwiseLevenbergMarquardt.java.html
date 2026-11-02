@@ -1,0 +1,726 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StochasticPathwiseLevenbergMarquardt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">StochasticPathwiseLevenbergMarquardt.java</span></div><h1>StochasticPathwiseLevenbergMarquardt.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 16.06.2006
+ */
+package net.finmath.optimizer;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.finmath.functions.LinearAlgebra;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * This class implements a stochastic Levenberg Marquardt non-linear least-squares fit
+ * algorithm.
+ * &lt;p&gt;
+ * The design avoids the need to define the objective function as a
+ * separate class. The objective function is defined by overriding a class
+ * method, see the sample code below.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The Levenberg-Marquardt solver is implemented in using multi-threading.
+ * The calculation of the derivatives (in case a specific implementation of
+ * {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)} is not
+ * provided) may be performed in parallel by setting the parameter &lt;code&gt;numberOfThreads&lt;/code&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * To use the solver inherit from it and implement the objective function as
+ * {@code setValues(RandomVariable[] parameters, RandomVariable[] values)} where values has
+ * to be set to the value of the objective functions for the given parameters.
+ * &lt;br&gt;
+ * You may also provide an a derivative for your objective function by
+ * additionally overriding the function {@code setDerivatives(RandomVariable[] parameters, RandomVariable[][] derivatives)},
+ * otherwise the solver will calculate the derivative via finite differences.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * To reject a point, it is allowed to set an element of &lt;code&gt;values&lt;/code&gt; to {@link java.lang.Double#NaN}
+ * in the implementation of {@code setValues(RandomVariable[] parameters, RandomVariable[] values)}.
+ * Put differently: The solver handles NaN values in &lt;code&gt;values&lt;/code&gt; as an error larger than
+ * the current one (regardless of the current error) and rejects the point.
+ * &lt;br&gt;
+ * Note, however, that is is an error if the initial parameter guess results in an NaN value.
+ * That is, the solver should be initialized with an initial parameter in an admissible region.
+ * &lt;/p&gt;
+ *
+ * The following simple example finds a solution for the equation &lt;br&gt;
+ * &lt;table&gt;
+ * &lt;caption&gt;Sample linear system of equations.&lt;/caption&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 0.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 5.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 2.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 10.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;pre&gt;
+ * &lt;code&gt;
+ * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+ * 		// Override your objective function here
+ * 		public void setValues(RandomVariable[] parameters, RandomVariable[] values) {
+ * 			values[0] = parameters[0] * 0.0 + parameters[1];
+ * 			values[1] = parameters[0] * 2.0 + parameters[1];
+ * 		}
+ * 	};
+ *
+ * 	// Set solver parameters
+ * 	optimizer.setInitialParameters(new RandomVariable[] { 0, 0 });
+ * 	optimizer.setWeights(new RandomVariable[] { 1, 1 });
+ * 	optimizer.setMaxIteration(100);
+ * 	optimizer.setTargetValues(new RandomVariable[] { 5, 10 });
+ *
+ * 	optimizer.run();
+ *
+ * 	RandomVariable[] bestParameters = optimizer.getBestFitParameters();
+ * &lt;/code&gt;
+ * &lt;/pre&gt;
+ *
+ * See the example in the main method below.
+ *
+ * &lt;p&gt;
+ * The class can be initialized to use a multi-threaded valuation. If initialized
+ * this way the implementation of &lt;code&gt;setValues&lt;/code&gt; must be thread-safe.
+ * The solver will evaluate the gradient of the value vector in parallel, i.e.,
+ * use as many threads as the number of parameters.
+ * &lt;/p&gt;
+ *
+ * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public abstract class StochasticPathwiseLevenbergMarquardt implements Serializable, Cloneable, StochasticOptimizer {
+
+	private static final long serialVersionUID = 4560864869394838155L;
+
+<span class="fc" id="L112">	private RandomVariable[] initialParameters = null;</span>
+<span class="fc" id="L113">	private RandomVariable[] parameterSteps = null;</span>
+<span class="fc" id="L114">	private RandomVariable[] targetValues = null;</span>
+<span class="fc" id="L115">	private RandomVariable[] weights = null;</span>
+
+	private final int		maxIteration;
+
+	// Local state of the solver
+	private double[]	lambda;
+<span class="fc" id="L121">	private final double		lambdaInitialValue = 0.001;</span>
+<span class="fc" id="L122">	private double		lambdaDivisor = 1.3;</span>
+<span class="fc" id="L123">	private double 		lambdaMultiplicator	= 2.0;</span>
+	private int			numberOfPaths;
+
+	private final RandomVariable	errorTolerance;
+
+<span class="fc" id="L128">	private int iteration = 0;</span>
+
+<span class="fc" id="L130">	private RandomVariable[] parameterTest = null;</span>
+<span class="fc" id="L131">	private RandomVariable[] valueTest = null;</span>
+
+<span class="fc" id="L133">	private RandomVariable[] parameterCurrent = null;</span>
+<span class="fc" id="L134">	private RandomVariable[] valueCurrent = null;</span>
+<span class="fc" id="L135">	private RandomVariable[][] derivativeCurrent = null;</span>
+
+<span class="fc" id="L137">	private RandomVariable errorMeanSquaredCurrent	= new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY);</span>
+<span class="fc" id="L138">	private RandomVariable errorRootMeanSquaredChange	= new RandomVariableFromDoubleArray(Double.POSITIVE_INFINITY);</span>
+
+	private boolean[]		isParameterCurrentDerivativeValid;
+
+	/*
+	 * Used for multi-threadded calculation of the derivative.
+	 * The use may provide its own executor. If not and numberOfThreads &gt; 1
+	 * we will temporarily create an executor with the specified number of threads.
+	 * Note: If an executor was provided upon construction, it will not receive a shutdown when done.
+	 */
+<span class="fc" id="L148">	private ExecutorService executor					= null;</span>
+<span class="fc" id="L149">	private boolean			executorShutdownWhenDone	= true;</span>
+
+<span class="fc" id="L151">	private final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+	// A simple test
+	public static void main(final String[] args) throws SolverException {
+		// RandomVariableDifferentiableAAD is possible here!
+		// RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableDifferentiableAAD(2), new RandomVariableDifferentiableAAD(2) };
+<span class="nc" id="L157">		final RandomVariable[] initialParameters = new RandomVariable[] { new RandomVariableFromDoubleArray(2), new RandomVariableFromDoubleArray(2) };</span>
+<span class="nc" id="L158">		final RandomVariable[] weights = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };</span>
+<span class="nc" id="L159">		final RandomVariable[] parameterSteps = new RandomVariable[] { new RandomVariableFromDoubleArray(1), new RandomVariableFromDoubleArray(1) };</span>
+<span class="nc" id="L160">		final int maxIteration = 100;</span>
+<span class="nc" id="L161">		final RandomVariable[] targetValues = new RandomVariable[] { new RandomVariableFromDoubleArray(25), new RandomVariableFromDoubleArray(100) };</span>
+
+<span class="nc" id="L163">		final StochasticPathwiseLevenbergMarquardt optimizer = new StochasticPathwiseLevenbergMarquardt(initialParameters, targetValues, weights, parameterSteps, maxIteration, null, null) {</span>
+			private static final long serialVersionUID = -282626938650139518L;
+
+			// Override your objective function here
+			@Override
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) {
+<span class="nc" id="L169">				values[0] = parameters[0].mult(0.0).add(parameters[1]).squared();</span>
+<span class="nc" id="L170">				values[1] = parameters[0].mult(2.0).add(parameters[1]).squared();</span>
+<span class="nc" id="L171">			}</span>
+		};
+
+		// Set solver parameters
+
+<span class="nc" id="L176">		optimizer.run();</span>
+
+<span class="nc" id="L178">		final RandomVariable[] bestParameters = optimizer.getBestFitParameters();</span>
+<span class="nc" id="L179">		System.out.println(&quot;The solver for problem 1 required &quot; + optimizer.getIterations() + &quot; iterations. The best fit parameters are:&quot;);</span>
+<span class="nc bnc" id="L180" title="All 2 branches missed.">		for (int i = 0; i &lt; bestParameters.length; i++) {</span>
+<span class="nc" id="L181">			System.out.println(&quot;\tparameter[&quot; + i + &quot;]: &quot; + bestParameters[i]);</span>
+		}
+<span class="nc" id="L183">		System.out.println(&quot;The solver accuracy is &quot; + optimizer.getRootMeanSquaredError());</span>
+
+		/*
+		 * Creating a clone, continuing the search with new target values.
+		 * Note that we do not re-define the setValues method.
+		 */
+		//		Optimizer optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);
+		//		optimizer2.run();
+
+		//		double[] bestParameters2 = optimizer2.getBestFitParameters();
+		//		System.out.println(&quot;The solver for problem 2 required &quot; + optimizer2.getIterations() + &quot; iterations. The best fit parameters are:&quot;);
+		//		for (int i = 0; i &lt; bestParameters2.length; i++) System.out.println(&quot;\tparameter[&quot; + i + &quot;]: &quot; + bestParameters2[i]);
+<span class="nc" id="L195">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param weights Weights applied to the error.
+	 * @param parameterSteps Step used for finite difference approximation.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param errorTolerance Error tolerance / accuracy.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. &lt;i&gt;Warning&lt;/i&gt;: The implementation of setValues has to be thread safe!
+	 */
+	public StochasticPathwiseLevenbergMarquardt(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final RandomVariable[] weights, final RandomVariable[] parameterSteps, final int maxIteration, final RandomVariable errorTolerance, final ExecutorService executorService) {
+<span class="fc" id="L209">		super();</span>
+<span class="fc" id="L210">		this.initialParameters	= initialParameters;</span>
+<span class="fc" id="L211">		this.targetValues		= targetValues;</span>
+<span class="fc" id="L212">		this.weights			= weights;</span>
+<span class="fc" id="L213">		this.parameterSteps		= parameterSteps;</span>
+<span class="fc" id="L214">		this.maxIteration		= maxIteration;</span>
+<span class="pc bpc" id="L215" title="1 of 2 branches missed.">		this.errorTolerance		= errorTolerance != null ? errorTolerance : new RandomVariableFromDoubleArray(0.0);</span>
+
+<span class="fc bfc" id="L217" title="All 2 branches covered.">		if(weights == null) {</span>
+<span class="fc" id="L218">			this.weights = new RandomVariable[targetValues.length];</span>
+<span class="fc bfc" id="L219" title="All 2 branches covered.">			for(int i=0; i&lt;targetValues.length; i++) {</span>
+<span class="fc" id="L220">				this.weights[i] = new RandomVariableFromDoubleArray(1.0);</span>
+			}
+		}
+
+<span class="fc" id="L224">		executor = executorService;</span>
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">		executorShutdownWhenDone = (executorService == null);</span>
+<span class="fc" id="L226">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public StochasticPathwiseLevenbergMarquardt(final RandomVariable[] initialParameters, final RandomVariable[] targetValues, final int maxIteration, final int numberOfThreads) {
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		this(initialParameters, targetValues, null, null, maxIteration, null, numberOfThreads &gt; 1 ? Executors.newFixedThreadPool(numberOfThreads) : null);</span>
+<span class="nc" id="L238">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters List of initial values for the parameters where the solver starts its search.
+	 * @param targetValues List of target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. &lt;i&gt;Warning&lt;/i&gt;: The implementation of setValues has to be thread safe!
+	 */
+	public StochasticPathwiseLevenbergMarquardt(final List&lt;RandomVariable&gt; initialParameters, final List&lt;RandomVariable&gt; targetValues, final int maxIteration, final ExecutorService executorService) {
+<span class="nc" id="L249">		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), null, null, maxIteration, null, executorService);</span>
+<span class="nc" id="L250">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public StochasticPathwiseLevenbergMarquardt(final List&lt;RandomVariable&gt; initialParameters, final List&lt;RandomVariable&gt; targetValues, final int maxIteration, final int numberOfThreads) {
+<span class="nc" id="L261">		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), maxIteration, numberOfThreads);</span>
+<span class="nc" id="L262">	}</span>
+
+	/**
+	 * Convert a list of numbers to an array of doubles.
+	 *
+	 * @param listOfNumbers A list of numbers.
+	 * @return A corresponding array of doubles executing &lt;code&gt;doubleValue()&lt;/code&gt; on each element.
+	 */
+	private static RandomVariable[] numberListToDoubleArray(final List&lt;RandomVariable&gt; listOfNumbers) {
+<span class="nc" id="L271">		final RandomVariable[] array	= new RandomVariable[listOfNumbers.size()];</span>
+<span class="nc bnc" id="L272" title="All 2 branches missed.">		for(int i=0; i&lt;array.length; i++) {</span>
+<span class="nc" id="L273">			array[i] = listOfNumbers.get(i);</span>
+		}
+<span class="nc" id="L275">		return array;</span>
+	}
+
+	/**
+	 * Get the parameter &amp;lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 *
+	 * @return the parameter \( \lambda \).
+	 */
+	public double[] getLambda() {
+<span class="nc" id="L285">		return lambda;</span>
+	}
+
+	/**
+	 * Set the parameter &amp;lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 *
+	 * @param lambda the lambda to set
+	 */
+	public void setLambda(final double[] lambda) {
+<span class="nc" id="L295">		this.lambda = lambda;</span>
+<span class="nc" id="L296">	}</span>
+
+	/**
+	 * Get the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 *
+	 * @return the lambdaMultiplicator
+	 */
+	public double getLambdaMultiplicator() {
+<span class="nc" id="L305">		return lambdaMultiplicator;</span>
+	}
+
+	/**
+	 * Set the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 *
+	 * This will make lambda larger, hence let the stepping move slower.
+	 *
+	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &amp;gt; 1.
+	 */
+	public void setLambdaMultiplicator(final double lambdaMultiplicator) {
+<span class="nc bnc" id="L317" title="All 2 branches missed.">		if(lambdaMultiplicator &lt;= 1.0) {</span>
+<span class="nc" id="L318">			throw new IllegalArgumentException(&quot;Parameter lambdaMultiplicator is required to be &gt; 1.&quot;);</span>
+		}
+<span class="nc" id="L320">		this.lambdaMultiplicator = lambdaMultiplicator;</span>
+<span class="nc" id="L321">	}</span>
+
+	/**
+	 * Get the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 *
+	 * @return the lambdaDivisor
+	 */
+	public double getLambdaDivisor() {
+<span class="nc" id="L330">		return lambdaDivisor;</span>
+	}
+
+	/**
+	 * Set the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 *
+	 * This will make lambda smaller, hence let the stepping move faster.
+	 *
+	 * @param lambdaDivisor the lambdaDivisor to set. Should be &amp;gt; 1.
+	 */
+	public void setLambdaDivisor(final double lambdaDivisor) {
+<span class="nc bnc" id="L342" title="All 2 branches missed.">		if(lambdaDivisor &lt;= 1.0) {</span>
+<span class="nc" id="L343">			throw new IllegalArgumentException(&quot;Parameter lambdaDivisor is required to be &gt; 1.&quot;);</span>
+		}
+<span class="nc" id="L345">		this.lambdaDivisor = lambdaDivisor;</span>
+<span class="nc" id="L346">	}</span>
+
+	@Override
+	public RandomVariable[] getBestFitParameters() {
+<span class="fc" id="L350">		return parameterCurrent;</span>
+	}
+
+	@Override
+	public double getRootMeanSquaredError() {
+<span class="fc" id="L355">		return errorMeanSquaredCurrent.average().sqrt().doubleValue();</span>
+	}
+
+	/**
+	 * @param errorMeanSquaredCurrent the errorMeanSquaredCurrent to set
+	 */
+	public void setErrorMeanSquaredCurrent(final RandomVariable errorMeanSquaredCurrent) {
+<span class="nc" id="L362">		this.errorMeanSquaredCurrent = errorMeanSquaredCurrent;</span>
+<span class="nc" id="L363">	}</span>
+
+	@Override
+	public int getIterations() {
+<span class="fc" id="L367">		return iteration;</span>
+	}
+
+	protected void prepareAndSetValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
+<span class="fc" id="L371">		setValues(parameters, values);</span>
+<span class="fc" id="L372">	}</span>
+
+	protected void prepareAndSetDerivatives(final RandomVariable[] parameters, final RandomVariable[] values, final RandomVariable[][] derivatives) throws SolverException {
+<span class="fc" id="L375">		setDerivatives(parameters, derivatives);</span>
+<span class="fc" id="L376">	}</span>
+
+	/**
+	 * The objective function. Override this method to implement your custom
+	 * function.
+	 *
+	 * @param parameters Input value. The parameter vector.
+	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public abstract void setValues(RandomVariable[] parameters, RandomVariable[] values) throws SolverException;
+
+	/**
+	 * The derivative of the objective function. You may override this method
+	 * if you like to implement your own derivative.
+	 *
+	 * @param parameters Input value. The parameter vector.
+	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public void setDerivatives(RandomVariable[] parameters, final RandomVariable[][] derivatives) throws SolverException {
+		// Calculate new derivatives. Note that this method is called only with
+		// parameters = parameterTest, so we may use valueTest.
+
+<span class="fc" id="L400">		parameters = parameterCurrent;</span>
+<span class="fc" id="L401">		final Vector&lt;Future&lt;RandomVariable[]&gt;&gt; valueFutures = new Vector&lt;&gt;(parameterCurrent.length);</span>
+<span class="fc bfc" id="L402" title="All 2 branches covered.">		for (int parameterIndex = 0; parameterIndex &lt; parameterCurrent.length; parameterIndex++) {</span>
+<span class="fc" id="L403">			final RandomVariable[] parametersNew	= parameters.clone();</span>
+<span class="fc" id="L404">			final RandomVariable[] derivative		= derivatives[parameterIndex];</span>
+
+<span class="fc" id="L406">			final int workerParameterIndex = parameterIndex;</span>
+<span class="fc" id="L407">			final Callable&lt;RandomVariable[]&gt; worker = new  Callable&lt;RandomVariable[]&gt;() {</span>
+				@Override
+				public RandomVariable[] call() {
+					RandomVariable parameterFiniteDifference;
+<span class="fc bfc" id="L411" title="All 2 branches covered.">					if(parameterSteps != null) {</span>
+<span class="fc" id="L412">						parameterFiniteDifference = parameterSteps[workerParameterIndex];</span>
+					}
+					else {
+						/*
+						 * Try to adaptively set a parameter shift. Note that in some
+						 * applications it may be important to set parameterSteps.
+						 * appropriately.
+						 */
+<span class="fc" id="L420">						parameterFiniteDifference = parametersNew[workerParameterIndex].abs().add(1.0).mult(1E-8);</span>
+					}
+
+					// Shift parameter value
+<span class="fc" id="L424">					parametersNew[workerParameterIndex] = parametersNew[workerParameterIndex].add(parameterFiniteDifference);</span>
+
+					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
+					try {
+<span class="fc" id="L428">						prepareAndSetValues(parametersNew, derivative);</span>
+<span class="nc" id="L429">					} catch (final Exception e) {</span>
+						// We signal an exception to calculate the derivative as NaN
+<span class="nc" id="L431">						Arrays.fill(derivative, new RandomVariableFromDoubleArray(Double.NaN));</span>
+<span class="fc" id="L432">					}</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">					for (int valueIndex = 0; valueIndex &lt; valueCurrent.length; valueIndex++) {</span>
+<span class="fc" id="L434">						derivative[valueIndex] = derivative[valueIndex].sub(valueCurrent[valueIndex]).div(parameterFiniteDifference);</span>
+<span class="fc" id="L435">						derivative[valueIndex] = derivative[valueIndex].isNaN().sub(0.5).mult(-1).choose(derivative[valueIndex], new Scalar(0.0));</span>
+					}
+<span class="fc" id="L437">					return derivative;</span>
+				}
+			};
+<span class="pc bpc" id="L440" title="1 of 2 branches missed.">			if(executor != null) {</span>
+<span class="nc" id="L441">				final Future&lt;RandomVariable[]&gt; valueFuture = executor.submit(worker);</span>
+<span class="nc" id="L442">				valueFutures.add(parameterIndex, valueFuture);</span>
+<span class="nc" id="L443">			}</span>
+			else {
+<span class="fc" id="L445">				final FutureTask&lt;RandomVariable[]&gt; valueFutureTask = new FutureTask&lt;&gt;(worker);</span>
+<span class="fc" id="L446">				valueFutureTask.run();</span>
+<span class="fc" id="L447">				valueFutures.add(parameterIndex, valueFutureTask);</span>
+			}
+		}
+
+<span class="fc bfc" id="L451" title="All 2 branches covered.">		for (int parameterIndex = 0; parameterIndex &lt; parameterCurrent.length; parameterIndex++) {</span>
+			try {
+<span class="fc" id="L453">				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();</span>
+			}
+<span class="nc" id="L455">			catch (final InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L456">				throw new SolverException(e);</span>
+<span class="fc" id="L457">			}</span>
+		}
+<span class="fc" id="L459">	}</span>
+
+	/**
+	 * You may override this method to implement a custom stop condition.
+	 *
+	 * @return Stop condition.
+	 */
+	boolean done() {
+		// The solver terminates if...
+<span class="pc bpc" id="L468" title="1 of 2 branches missed.">		return</span>
+				// Maximum number of iterations is reached
+				(iteration &gt; maxIteration)
+				||
+				// Error does not improve by more that the given error tolerance
+<span class="fc bfc" id="L473" title="All 2 branches covered.">				(errorRootMeanSquaredChange.sub(errorTolerance).getMax() &lt;= 0);</span>
+	}
+
+	@Override
+	public void run() throws SolverException {
+		try {
+
+			// Allocate memory
+<span class="fc" id="L481">			final int numberOfParameters	= initialParameters.length;</span>
+<span class="fc" id="L482">			final int numberOfValues		= targetValues.length;</span>
+
+<span class="fc" id="L484">			parameterTest		= initialParameters.clone();</span>
+<span class="fc" id="L485">			parameterCurrent	= initialParameters.clone();</span>
+
+<span class="fc" id="L487">			valueTest		= new RandomVariable[numberOfValues];</span>
+<span class="fc" id="L488">			valueCurrent		= new RandomVariable[numberOfValues];</span>
+<span class="fc" id="L489">			Arrays.fill(valueCurrent, new RandomVariableFromDoubleArray(Double.NaN));</span>
+<span class="fc" id="L490">			derivativeCurrent	= new RandomVariable[numberOfParameters][numberOfValues];</span>
+
+<span class="fc" id="L492">			iteration = 0;</span>
+
+			while(true) {
+				// Count iterations
+<span class="fc" id="L496">				iteration++;</span>
+
+				// Calculate values for test parameters
+<span class="fc" id="L499">				prepareAndSetValues(parameterTest, valueTest);</span>
+
+				// Calculate error
+<span class="fc" id="L502">				final RandomVariable errorMeanSquaredTest = getMeanSquaredError(valueTest);</span>
+
+				/*
+				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
+				 * That is: NaN is consider as a rejected point.
+				 */
+<span class="fc" id="L508">				final RandomVariable isPointAccepted = errorMeanSquaredCurrent.sub(errorMeanSquaredTest);</span>
+
+<span class="fc bfc" id="L510" title="All 2 branches covered.">				for(int parameterIndex = 0; parameterIndex&lt;parameterCurrent.length; parameterIndex++) {</span>
+<span class="fc" id="L511">					parameterCurrent[parameterIndex] = isPointAccepted.choose(parameterTest[parameterIndex], parameterCurrent[parameterIndex]);</span>
+				}
+<span class="fc bfc" id="L513" title="All 2 branches covered.">				for(int valueIndex = 0; valueIndex&lt;valueCurrent.length; valueIndex++) {</span>
+<span class="fc" id="L514">					valueCurrent[valueIndex] = isPointAccepted.choose(valueTest[valueIndex], valueCurrent[valueIndex]);</span>
+				}
+
+				// @TODO Always update change? - maybe improve?
+<span class="fc" id="L518">				errorRootMeanSquaredChange = isPointAccepted.choose(errorMeanSquaredCurrent.sqrt().sub(errorMeanSquaredTest.sqrt()), errorRootMeanSquaredChange);</span>
+<span class="fc" id="L519">				errorMeanSquaredCurrent = errorMeanSquaredTest.cap(errorMeanSquaredCurrent);</span>
+
+				// Check if we are done
+<span class="fc bfc" id="L522" title="All 2 branches covered.">				if (done()) {</span>
+<span class="fc" id="L523">					break;</span>
+				}
+
+
+				// Lazy init of lambda and isParameterCurrentDerivativeValid
+<span class="fc" id="L528">				numberOfPaths = isPointAccepted.size();		// @TODO check for parameter and target value sizes!</span>
+<span class="fc bfc" id="L529" title="All 2 branches covered.">				if(lambda == null) {</span>
+<span class="fc" id="L530">					lambda = new double[numberOfPaths];</span>
+<span class="fc" id="L531">					Arrays.fill(lambda, lambdaInitialValue);</span>
+				}
+<span class="fc bfc" id="L533" title="All 2 branches covered.">				if(isParameterCurrentDerivativeValid == null) {</span>
+<span class="fc" id="L534">					isParameterCurrentDerivativeValid = new boolean[numberOfPaths];</span>
+<span class="fc" id="L535">					Arrays.fill(isParameterCurrentDerivativeValid, false);</span>
+				}
+
+				/*
+				 * Update lambda
+				 */
+<span class="fc bfc" id="L541" title="All 2 branches covered.">				for(int pathIndex=0; pathIndex&lt;isPointAccepted.size(); pathIndex++) {</span>
+<span class="fc bfc" id="L542" title="All 2 branches covered.">					isParameterCurrentDerivativeValid[pathIndex] = isPointAccepted.get(pathIndex) &lt;= 0;</span>
+<span class="fc bfc" id="L543" title="All 2 branches covered.">					lambda[pathIndex] = isPointAccepted.get(pathIndex) &gt;= 0 ? lambda[pathIndex] / lambdaDivisor : lambda[pathIndex] * lambdaMultiplicator;</span>
+				}
+
+				/*
+				 * Calculate new derivative at parameterTest (where point is accepted).
+				 * Note: the first argument should be parameterTest to use shortest operator tree.
+				 */
+<span class="fc" id="L550">				prepareAndSetDerivatives(parameterTest, valueTest, derivativeCurrent);</span>
+
+				/*
+				 * Calculate new parameterTest
+				 */
+<span class="fc" id="L555">				final double[][]	parameterIncrement = new double[parameterCurrent.length][numberOfPaths];</span>
+<span class="fc bfc" id="L556" title="All 2 branches covered.">				for(int pathIndex=0; pathIndex&lt;numberOfPaths; pathIndex++) {</span>
+					// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
+<span class="fc" id="L558">					final double[][]	hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];</span>
+<span class="fc" id="L559">					final double[]	beta = new double[parameterCurrent.length];</span>
+
+<span class="fc" id="L561">					boolean hessianInvalid = true;</span>
+<span class="fc bfc" id="L562" title="All 2 branches covered.">					while (hessianInvalid) {</span>
+						// Build matrix H (hessian approximation)
+<span class="fc bfc" id="L564" title="All 2 branches covered.">						for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="fc bfc" id="L565" title="All 2 branches covered.">							for (int j = i; j &lt; parameterCurrent.length; j++) {</span>
+<span class="fc" id="L566">								double alphaElement = 0.0;</span>
+<span class="fc bfc" id="L567" title="All 2 branches covered.">								for (int valueIndex = 0; valueIndex &lt; valueCurrent.length; valueIndex++) {</span>
+<span class="fc" id="L568">									alphaElement += weights[valueIndex].get(pathIndex) * derivativeCurrent[i][valueIndex].get(pathIndex) * derivativeCurrent[j][valueIndex].get(pathIndex);</span>
+								}
+<span class="fc bfc" id="L570" title="All 2 branches covered.">								if (i == j) {</span>
+<span class="pc bpc" id="L571" title="1 of 2 branches missed.">									if (alphaElement == 0.0) {</span>
+<span class="nc" id="L572">										alphaElement = 1.0;</span>
+									} else {
+<span class="fc" id="L574">										alphaElement *= 1 + lambda[pathIndex];</span>
+									}
+								}
+
+<span class="fc" id="L578">								hessianMatrix[i][j] = alphaElement;</span>
+<span class="fc" id="L579">								hessianMatrix[j][i] = alphaElement;</span>
+							}
+						}
+
+						// Build beta (Newton step)
+<span class="fc bfc" id="L584" title="All 2 branches covered.">						for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="fc" id="L585">							double betaElement = 0.0;</span>
+<span class="fc bfc" id="L586" title="All 2 branches covered.">							for (int k = 0; k &lt; valueCurrent.length; k++) {</span>
+<span class="fc" id="L587">								betaElement += weights[k].get(pathIndex) * (targetValues[k].get(pathIndex) - valueCurrent[k].get(pathIndex)) * derivativeCurrent[i][k].get(pathIndex);</span>
+							}
+<span class="fc" id="L589">							beta[i] = betaElement;</span>
+						}
+
+						try {
+							// Calculate new increment
+<span class="fc" id="L594">							final double[] parameterIncrementOnPath = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);</span>
+<span class="fc bfc" id="L595" title="All 2 branches covered.">							for(int i=0; i&lt;parameterIncrementOnPath.length; i++) {</span>
+<span class="fc" id="L596">								parameterIncrement[i][pathIndex] = parameterIncrementOnPath[i];</span>
+							}
+<span class="fc" id="L598">							hessianInvalid = false;</span>
+<span class="fc" id="L599">						} catch (final Exception e) {</span>
+<span class="fc" id="L600">							hessianInvalid	= true;</span>
+<span class="fc" id="L601">							lambda[pathIndex] *= 16;</span>
+<span class="fc" id="L602">						}</span>
+					}
+				}
+
+				// Calculate new parameter
+<span class="fc bfc" id="L607" title="All 2 branches covered.">				for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="pc bpc" id="L608" title="1 of 2 branches missed.">					parameterTest[i] = parameterCurrent[i].add(numberOfPaths == 1 ? new Scalar(parameterIncrement[i][0]) : new RandomVariableFromDoubleArray(0.0, parameterIncrement[i]));</span>
+				}
+
+				// Log iteration
+<span class="pc bpc" id="L612" title="1 of 2 branches missed.">				if (logger.isLoggable(Level.FINE))</span>
+				{
+<span class="nc" id="L614">					String logString = &quot;Iteration: &quot; + iteration + &quot;\tLambda=&quot;</span>
+							+ lambda + &quot;\tError Current:&quot; + errorMeanSquaredCurrent
+							+ &quot;\tError Change:&quot; + errorRootMeanSquaredChange + &quot;\t&quot;;
+<span class="nc bnc" id="L617" title="All 2 branches missed.">					for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="nc" id="L618">						logString += &quot;[&quot; + i + &quot;] = &quot; + parameterCurrent[i] + &quot;\t&quot;;</span>
+					}
+<span class="nc" id="L620">					logger.fine(logString);</span>
+				}
+<span class="fc" id="L622">			}</span>
+		}
+		finally {
+			// Shutdown executor if present.
+<span class="pc bpc" id="L626" title="3 of 4 branches missed.">			if(executor != null &amp;&amp; executorShutdownWhenDone) {</span>
+<span class="nc" id="L627">				executor.shutdown();</span>
+<span class="nc" id="L628">				executor = null;</span>
+			}
+		}
+<span class="fc" id="L631">	}</span>
+
+	public RandomVariable getMeanSquaredError(final RandomVariable[] value) {
+		// Note: it is intentional to use a specific RandomVariableFromDoubleArray implementation here.
+<span class="fc" id="L635">		RandomVariable error = new RandomVariableFromDoubleArray(0.0);</span>
+
+<span class="fc bfc" id="L637" title="All 2 branches covered.">		for (int valueIndex = 0; valueIndex &lt; value.length; valueIndex++) {</span>
+<span class="fc" id="L638">			final RandomVariable deviation = value[valueIndex].sub(targetValues[valueIndex]);</span>
+<span class="fc" id="L639">			error = error.addProduct(weights[valueIndex], deviation.squared());</span>
+		}
+
+<span class="fc" id="L642">		return error.div(value.length);</span>
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(RandomVariable[], RandomVariable[])} and
+	 * that of {@link #setDerivatives(RandomVariable[], RandomVariable[][])} is reused.
+	 */
+	@Override
+	public StochasticPathwiseLevenbergMarquardt clone() {
+		/*
+		StochasticLevenbergMarquardt clonedOptimizer = (StochasticLevenbergMarquardt)super.clone();
+		clonedOptimizer.isParameterCurrentDerivativeValid = false;
+		clonedOptimizer.iteration = 0;
+		clonedOptimizer.errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;
+		clonedOptimizer.errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;
+		return clonedOptimizer;
+		 */
+		// @TODO add clone
+<span class="nc" id="L663">		return null;</span>
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(RandomVariable[], RandomVariable[])} and
+	 * that of {@link #setDerivatives(RandomVariable[], RandomVariable[][])} is reused.
+	 *
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 *
+	 * @param newTargetVaues New array of target values.
+	 * @param newWeights New array of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
+	 */
+	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(final RandomVariable[] newTargetVaues, final RandomVariable[] newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+<span class="nc" id="L685">		final StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();</span>
+<span class="nc" id="L686">		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy</span>
+<span class="nc" id="L687">		clonedOptimizer.weights = newWeights.clone();				// Defensive copy</span>
+
+<span class="nc bnc" id="L689" title="All 4 branches missed.">		if(isUseBestParametersAsInitialParameters &amp;&amp; this.done()) {</span>
+<span class="nc" id="L690">			clonedOptimizer.initialParameters = this.getBestFitParameters();</span>
+		}
+
+<span class="nc" id="L693">		return clonedOptimizer;</span>
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(RandomVariable[], RandomVariable[])} and
+	 * that of {@link #setDerivatives(RandomVariable[], RandomVariable[][])} is reused.
+	 *
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 *
+	 * @param newTargetVaues New list of target values.
+	 * @param newWeights New list of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
+	 */
+	public StochasticPathwiseLevenbergMarquardt getCloneWithModifiedTargetValues(final List&lt;RandomVariable&gt; newTargetVaues, final List&lt;RandomVariable&gt; newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+<span class="nc" id="L715">		final StochasticPathwiseLevenbergMarquardt clonedOptimizer = clone();</span>
+<span class="nc" id="L716">		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);</span>
+<span class="nc" id="L717">		clonedOptimizer.weights = numberListToDoubleArray(newWeights);</span>
+
+<span class="nc bnc" id="L719" title="All 4 branches missed.">		if(isUseBestParametersAsInitialParameters &amp;&amp; this.done()) {</span>
+<span class="nc" id="L720">			clonedOptimizer.initialParameters = this.getBestFitParameters();</span>
+		}
+
+<span class="nc" id="L723">		return clonedOptimizer;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HighEntropyRandomNumberGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.randomnumbers</a> &gt; <span class="el_source">HighEntropyRandomNumberGenerator.java</span></div><h1>HighEntropyRandomNumberGenerator.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Luca Bressan. Contact: contact.lucabressan@icloud.com
+ *
+ * Created December 15th, 2022.
+ */
+package net.finmath.randomnumbers;
+
+import java.security.SecureRandom;
+
+/**
+ * Wrapper class for java.security.SecureRandom. Usage of this class is not
+ * recommended for normal operations.
+ * There are reported cases in the literature where some pseudorandom number
+ * generators might fail in heavily multithreaded applications and lose their
+ * statistical properties. This class wraps a cryptography grade RNG based on
+ * the system entropy pool (eg. /dev/random on *nix systems) which does not
+ * suffer from the same issue. Performance is up to 30x slower than a regular
+ * software based PRNG.
+ *
+ * @author Luca Bressan
+ *
+ * @version 1.0
+ */
+public class HighEntropyRandomNumberGenerator implements RandomNumberGenerator1D {
+
+	private static final long serialVersionUID = -818028598001664L;
+	private final SecureRandom secureRandomNumberGenerator;
+
+	public HighEntropyRandomNumberGenerator() {
+<span class="fc" id="L30">		super();</span>
+<span class="fc" id="L31">		this.secureRandomNumberGenerator = new SecureRandom();</span>
+<span class="fc" id="L32">	}</span>
+
+	/**
+	 * This constructor accepts an object from classes that extend
+	 * java.security.SecureRandom. It is meant to provide a way to integrate
+	 * hardware RNG functionality or as a clone constructor. You should supply an
+	 * object instantiating the extending class that uses the JNI to
+	 * achieve the desired functionality.
+	 *
+	 * @param secureRandomNumberGenerator the object that will be wrapped.
+	 */
+	public HighEntropyRandomNumberGenerator(SecureRandom secureRandomNumberGenerator) {
+<span class="nc" id="L44">		super();</span>
+<span class="nc" id="L45">		this.secureRandomNumberGenerator = secureRandomNumberGenerator;</span>
+<span class="nc" id="L46">	}</span>
+
+	/**
+	 * Returns the next random number in the sequence.
+	 *
+	 * @return the next random number in the sequence.
+	 */
+	@Override
+	public double nextDouble() {
+<span class="fc" id="L55">		synchronized (secureRandomNumberGenerator) {</span>
+<span class="fc" id="L56">			return secureRandomNumberGenerator.nextDouble();</span>
+		}
+
+	}
+
+	@Override
+	public double nextDoubleFast() {
+<span class="nc" id="L63">		return secureRandomNumberGenerator.nextDouble();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L68">		return &quot;HighEntropyRandomNumberGenerator [algorithm = &quot; + secureRandomNumberGenerator.getAlgorithm() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

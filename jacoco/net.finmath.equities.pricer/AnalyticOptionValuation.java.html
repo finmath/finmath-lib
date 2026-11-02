@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticOptionValuation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.pricer</a> &gt; <span class="el_source">AnalyticOptionValuation.java</span></div><h1>AnalyticOptionValuation.java</h1><pre class="source lang-java linenums">package net.finmath.equities.pricer;
+
+import java.util.HashMap;
+
+import org.apache.commons.lang3.NotImplementedException;
+
+import net.finmath.equities.marketdata.YieldCurve;
+import net.finmath.equities.models.Black76Model;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.VolatilitySurface;
+import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
+import net.finmath.equities.products.Option;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * This class implements analytic pricing formulas for European options under a
+ * Black-Scholes process with Buehler dividends.
+ *
+ * @author Andreas Grotz
+ */
+<span class="fc" id="L21">public class AnalyticOptionValuation implements OptionValuation {</span>
+
+	private final DayCountConvention dcc;
+
+<span class="fc" id="L25">	public AnalyticOptionValuation(DayCountConvention dcc) {</span>
+<span class="fc" id="L26">		this.dcc = dcc;</span>
+<span class="fc" id="L27">	}</span>
+
+	@Override
+	public EquityValuationResult calculate(
+			EquityValuationRequest request,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+
+<span class="nc" id="L36">		final HashMap&lt;CalculationRequestType, Double&gt; results = new HashMap&lt;CalculationRequestType, Double&gt;();</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">		for(final CalculationRequestType calcType : request.getCalcsRequested()) {</span>
+<span class="nc" id="L38">			results.put(</span>
+					calcType,
+<span class="nc" id="L40">					calculate(request.getOption(), forwardStructure, discountCurve, volaSurface, calcType));</span>
+<span class="nc" id="L41">		}</span>
+
+<span class="nc" id="L43">		return new EquityValuationResult(request, results);</span>
+	}
+
+	public double calculate(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface,
+			CalculationRequestType calcType) {
+
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">		assert !option.isAmericanOption() : &quot;Analytic pricer cannot handle American options.&quot;;</span>
+
+<span class="fc" id="L55">		final java.time.LocalDate valDate = forwardStructure.getValuationDate();</span>
+<span class="fc" id="L56">		final java.time.LocalDate expiryDate = option.getExpiryDate();</span>
+<span class="fc" id="L57">		final double ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);</span>
+<span class="fc" id="L58">		final double forward = forwardStructure.getForward(expiryDate);</span>
+<span class="fc" id="L59">		final double discountFactor = discountCurve.getDiscountFactor(expiryDate);</span>
+<span class="fc" id="L60">		final double discountRate = discountCurve.getRate(expiryDate);</span>
+<span class="fc" id="L61">		final double adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);</span>
+<span class="fc" id="L62">		final double adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);</span>
+<span class="fc" id="L63">		final double volatility = volaSurface.getVolatility(option.getStrike(), option.getExpiryDate(), forwardStructure);</span>
+
+<span class="pc bpc" id="L65" title="1 of 6 branches missed.">		switch(calcType) {</span>
+		case Price:
+<span class="fc" id="L67">			return Black76Model.optionPrice(</span>
+					1.0,
+					adjustedStrike / adjustedForward,
+					ttm,
+					volatility,
+<span class="fc" id="L72">					option.isCallOption(),</span>
+					discountFactor * adjustedForward);
+
+		case EqDelta:
+<span class="fc" id="L76">			final double dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);</span>
+<span class="fc" id="L77">			return dFdS * Black76Model.optionDelta(</span>
+					1.0,
+					adjustedStrike / adjustedForward,
+					ttm,
+					volatility,
+<span class="fc" id="L82">					option.isCallOption(),</span>
+					discountFactor);
+
+		case EqGamma:
+<span class="fc" id="L86">			final double dFdS2 = Math.pow(forwardStructure.getGrowthDiscountFactor(valDate, expiryDate), 2);</span>
+<span class="fc" id="L87">			return dFdS2 * Black76Model.optionGamma(</span>
+					1.0,
+					adjustedStrike / adjustedForward,
+					ttm,
+					volatility,
+<span class="fc" id="L92">					option.isCallOption(),</span>
+					discountFactor / adjustedForward);
+
+		case EqVega:
+<span class="fc" id="L96">			return Black76Model.optionVega(</span>
+					1.0,
+					adjustedStrike / adjustedForward,
+					ttm,
+					volatility,
+<span class="fc" id="L101">					option.isCallOption(),</span>
+					discountFactor * adjustedForward);
+
+		case Theta:
+<span class="fc" id="L105">			return Black76Model.optionTheta(</span>
+					1.0,
+					adjustedStrike / adjustedForward,
+					ttm,
+					volatility,
+<span class="fc" id="L110">					option.isCallOption(),</span>
+					discountFactor * adjustedForward,
+					discountRate);
+
+		default:
+<span class="nc" id="L115">			throw new NotImplementedException(&quot;Calculation for &quot; + calcType + &quot; not implemented yet.&quot;);</span>
+		}
+	}
+
+	public double getPrice(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+<span class="fc" id="L124">		return calculate(option, forwardStructure, discountCurve, volaSurface, CalculationRequestType.Price);</span>
+	}
+
+	public double getDelta(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+<span class="fc" id="L132">		return calculate(option, forwardStructure, discountCurve, volaSurface, CalculationRequestType.EqDelta);</span>
+	}
+
+	public double getGamma(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+<span class="fc" id="L140">		return calculate(option, forwardStructure, discountCurve, volaSurface, CalculationRequestType.EqGamma);</span>
+	}
+
+	public double getVega(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+<span class="fc" id="L148">		return calculate(option, forwardStructure, discountCurve, volaSurface, CalculationRequestType.EqVega);</span>
+	}
+
+	public double getTheta(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+<span class="fc" id="L156">		return calculate(option, forwardStructure, discountCurve, volaSurface, CalculationRequestType.Theta);</span>
+	}
+
+	public double getImpliedVolatility(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			double price) {
+
+<span class="pc bpc" id="L165" title="1 of 2 branches missed.">		assert !option.isAmericanOption() : &quot;Analytic pricer cannot handle American options.&quot;;</span>
+
+<span class="fc" id="L167">		final java.time.LocalDate expiryDate = option.getExpiryDate();</span>
+<span class="fc" id="L168">		final double ttm = dcc.getDaycountFraction(forwardStructure.getValuationDate(), expiryDate);</span>
+<span class="fc" id="L169">		final double forward = forwardStructure.getForward(expiryDate);</span>
+<span class="fc" id="L170">		final double discount = discountCurve.getDiscountFactor(expiryDate);</span>
+<span class="fc" id="L171">		final double adjustedForward = forwardStructure.getDividendAdjustedStrike(forward, expiryDate);</span>
+<span class="fc" id="L172">		final double adjustedStrike = forwardStructure.getDividendAdjustedStrike(option.getStrike(), expiryDate);</span>
+<span class="fc" id="L173">		final double undiscountedPrice = price / discount / adjustedForward;</span>
+
+<span class="fc" id="L175">		return Black76Model.optionImpliedVolatility(</span>
+				1.0,
+				adjustedStrike / adjustedForward,
+				ttm,
+				undiscountedPrice,
+<span class="fc" id="L180">				option.isCallOption());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

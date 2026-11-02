@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegularSchedule.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">RegularSchedule.java</span></div><h1>RegularSchedule.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Simple schedule generated from {@link net.finmath.time.TimeDiscretization}
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class RegularSchedule implements Schedule {
+
+	private final TimeDiscretization timeDiscretization;
+
+	/**
+	 * Create a schedule from a time discretization.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 */
+<span class="fc" id="L30">	public RegularSchedule(final TimeDiscretization timeDiscretization) {</span>
+<span class="fc" id="L31">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L36">		return null;</span>
+	}
+
+	@Override
+	public ArrayList&lt;Period&gt; getPeriods() {
+<span class="nc" id="L41">		return null;</span>
+	}
+
+	@Override
+	public DayCountConvention getDaycountconvention() {
+<span class="nc" id="L46">		return null;</span>
+	}
+
+	@Override
+	public int getNumberOfPeriods() {
+<span class="fc" id="L51">		return timeDiscretization.getNumberOfTimeSteps();</span>
+	}
+
+	@Override
+	public Period getPeriod(final int periodIndex) {
+<span class="nc" id="L56">		return null;</span>
+	}
+
+	@Override
+	public double getFixing(final int periodIndex) {
+<span class="fc" id="L61">		return timeDiscretization.getTime(periodIndex);</span>
+	}
+
+	@Override
+	public double getPayment(final int periodIndex) {
+<span class="fc" id="L66">		return timeDiscretization.getTime(periodIndex+1);</span>
+	}
+
+	@Override
+	public double getPeriodStart(final int periodIndex) {
+<span class="fc" id="L71">		return timeDiscretization.getTime(periodIndex);</span>
+	}
+
+	@Override
+	public double getPeriodEnd(final int periodIndex) {
+<span class="fc" id="L76">		return timeDiscretization.getTime(periodIndex+1);</span>
+	}
+
+	@Override
+	public double getPeriodLength(final int periodIndex) {
+<span class="fc" id="L81">		return timeDiscretization.getTimeStep(periodIndex);</span>
+	}
+
+	@Override
+	public Iterator&lt;Period&gt; iterator() {
+<span class="nc" id="L86">		return null;</span>
+	}
+
+	@Override
+	public int getPeriodIndex(final double time) {
+<span class="nc" id="L91">		return timeDiscretization.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public int getPeriodIndex(final LocalDate date) {
+<span class="nc" id="L96">		final double time= FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), date);</span>
+<span class="nc" id="L97">		return getPeriodIndex(time);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

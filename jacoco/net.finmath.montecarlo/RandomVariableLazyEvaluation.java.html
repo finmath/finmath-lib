@@ -1,0 +1,1266 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableLazyEvaluation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">RandomVariableLazyEvaluation.java</span></div><h1>RandomVariableLazyEvaluation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2006
+ */
+package net.finmath.montecarlo;
+
+import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleSupplier;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements a Monte-Carlo random variable (like &lt;code&gt;RandomVariableFromDoubleArray&lt;/code&gt; using
+ * late evaluation of Java 8 streams
+ *
+ * Accesses performed exclusively through the interface
+ * &lt;code&gt;RandomVariable&lt;/code&gt; is thread safe (and does not mutate the class).
+ *
+ * The implementation require Java 8 or better.
+ *
+ * @TODO The implementation of getAverage does not use a Kahan summation, while &lt;code&gt;RandomVariableFromDoubleArray&lt;/code&gt; does.
+ *
+ * @author Christian Fries
+ * @author OSC
+ * @version 2.0
+ */
+public class RandomVariableLazyEvaluation implements RandomVariable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 8413020544732461630L;
+
+	private final double            time;	                // Time (filtration)
+
+	// Operator
+	private       IntToDoubleFunction   realizations;
+	private final int                   size;
+	// Data model for the non-stochastic case (if realizations==null)
+	private final double                valueIfNonStochastic;
+
+<span class="pc" id="L49">	private transient double[] realizationsArray = null;</span>
+
+	/**
+	 * Create a random variable from a given other implementation of &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 *
+	 * @param value Object implementing &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 */
+	public RandomVariableLazyEvaluation(final RandomVariable value) {
+<span class="nc" id="L57">		super();</span>
+<span class="nc" id="L58">		time = value.getFiltrationTime();</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">		realizations = value.isDeterministic() ? null : value::get;</span>
+<span class="nc" id="L60">		size = value.size();</span>
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		valueIfNonStochastic = value.isDeterministic() ? value.get(0) : Double.NaN;</span>
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param value the value, a constant.
+	 */
+	public RandomVariableLazyEvaluation(final double value) {
+<span class="nc" id="L70">		this(0.0, value);</span>
+<span class="nc" id="L71">	}</span>
+
+	/**
+	 * Create a random variable by applying a function to a given other implementation of &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 *
+	 * @param value Object implementing &lt;code&gt;RandomVariable&lt;/code&gt;.
+	 * @param function A function mapping double to double.
+	 */
+	public RandomVariableLazyEvaluation(final RandomVariable value, final DoubleUnaryOperator function) {
+<span class="nc" id="L80">		super();</span>
+<span class="nc" id="L81">		time = value.getFiltrationTime();</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">		realizations = value.isDeterministic() ? null : new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L85">				return function.applyAsDouble(value.get(i));</span>
+			}
+		};
+<span class="nc" id="L88">		size = value.size();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		valueIfNonStochastic = value.isDeterministic() ? function.applyAsDouble(value.get(0)) : Double.NaN;</span>
+<span class="nc" id="L90">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param value the value, a constant.
+	 */
+	public RandomVariableLazyEvaluation(final double time, final double value) {
+<span class="fc" id="L99">		super();</span>
+<span class="fc" id="L100">		this.time = time;</span>
+<span class="fc" id="L101">		realizations = null;</span>
+<span class="fc" id="L102">		size = 1;</span>
+<span class="fc" id="L103">		valueIfNonStochastic = value;</span>
+<span class="fc" id="L104">	}</span>
+
+	/**
+	 * Create a non stochastic random variable, i.e. a constant.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param numberOfPath The number of path/state of the associated Monte-Carlo simulation or lattice.
+	 * @param value the value, a constant.
+	 */
+	public RandomVariableLazyEvaluation(final double time, final int numberOfPath, final double value) {
+<span class="nc" id="L114">		super();</span>
+<span class="nc" id="L115">		this.time = time;</span>
+<span class="nc" id="L116">		size = numberOfPath;</span>
+<span class="nc" id="L117">		realizations = new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="nc" id="L120">				return value;</span>
+			}
+		};
+<span class="nc" id="L123">		valueIfNonStochastic = Double.NaN;</span>
+<span class="nc" id="L124">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realisations the vector of realizations.
+	 */
+	public RandomVariableLazyEvaluation(final double time, final double[] realisations) {
+<span class="fc" id="L133">		super();</span>
+<span class="fc" id="L134">		this.time = time;</span>
+<span class="fc" id="L135">		size = realisations.length;</span>
+<span class="fc" id="L136">		realizations = new IntToDoubleFunction() {</span>
+			@Override
+			public double applyAsDouble(final int i) {
+<span class="fc" id="L139">				return realisations[i];</span>
+			}
+		};
+<span class="fc" id="L142">		valueIfNonStochastic = Double.NaN;</span>
+<span class="fc" id="L143">		realizationsArray = realisations;</span>
+<span class="fc" id="L144">	}</span>
+
+	/**
+	 * Create a stochastic random variable.
+	 *
+	 * @param time the filtration time, set to 0.0 if not used.
+	 * @param realisations the vector of realizations.
+	 * @param size The number of path/state of the associated Monte-Carlo simulation or lattice.
+	 */
+	public RandomVariableLazyEvaluation(final double time, final IntToDoubleFunction realisations, final int size) {
+<span class="fc" id="L154">		super();</span>
+<span class="fc" id="L155">		this.time = time;</span>
+<span class="fc" id="L156">		realizations = realisations;</span>
+<span class="fc" id="L157">		this.size = size;</span>
+<span class="fc" id="L158">		valueIfNonStochastic = Double.NaN;</span>
+<span class="fc" id="L159">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.montecarlo.RandomVariableFromDoubleArray)
+	 */
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		if(time != randomVariable.getFiltrationTime()) {</span>
+<span class="nc" id="L167">			return false;</span>
+		}
+<span class="nc bnc" id="L169" title="All 4 branches missed.">		if(this.isDeterministic() &amp;&amp; randomVariable.isDeterministic()) {</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">			return valueIfNonStochastic == randomVariable.get(0);</span>
+		}
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		if(this.isDeterministic() != randomVariable.isDeterministic()) {</span>
+<span class="nc" id="L174">			return false;</span>
+		}
+
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		for(int i=0; i&lt;size(); i++) {</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">			if(get(i) != randomVariable.get(i)) {</span>
+<span class="nc" id="L179">				return false;</span>
+			}
+		}
+
+<span class="nc" id="L183">		return true;</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="fc" id="L188">		return time;</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="fc" id="L193">		return 0;</span>
+	}
+
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L200">			return valueIfNonStochastic;</span>
+		} else {
+<span class="fc" id="L202">			cache();</span>
+<span class="fc" id="L203">			return realizationsArray[pathOrState];</span>
+			//            return realizations.applyAsDouble(pathOrState);
+
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#size()
+	 */
+	@Override
+	public int size() {
+<span class="fc" id="L214">		return size;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
+	 */
+	@Override
+	public double getMin() {
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L223">			return valueIfNonStochastic;</span>
+		}
+<span class="fc" id="L225">		return getRealizationsStream().min().getAsDouble();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
+	 */
+	@Override
+	public double getMax() {
+<span class="pc bpc" id="L233" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L234">			return valueIfNonStochastic;</span>
+		}
+<span class="fc" id="L236">		return getRealizationsStream().max().getAsDouble();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
+	 */
+	@Override
+	public double getAverage() {
+<span class="fc bfc" id="L244" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L245">			return valueIfNonStochastic;</span>
+		}
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L248">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L251">		return getRealizationsStream().sum()/size();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc bnc" id="L259" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L260">			return valueIfNonStochastic * probabilities.getAverage();</span>
+		}
+<span class="nc bnc" id="L262" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L263">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L266">		return this.cache().mult(probabilities).getRealizationsStream().sum();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
+	 */
+	@Override
+	public double getVariance() {
+<span class="fc bfc" id="L274" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L275">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L277" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L278">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L281">		double sum			= 0.0;</span>
+<span class="fc" id="L282">		double sumOfSquared = 0.0;</span>
+<span class="fc bfc" id="L283" title="All 2 branches covered.">		for (final double realization : getRealizations()) {</span>
+<span class="fc" id="L284">			sum += realization;</span>
+<span class="fc" id="L285">			sumOfSquared += realization * realization;</span>
+		}
+<span class="fc" id="L287">		return sumOfSquared/size() - sum/size() * sum/size();</span>
+	}
+
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc bnc" id="L292" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L293">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L295" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L296">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L299">		double mean			= 0.0;</span>
+<span class="nc" id="L300">		double secondMoment = 0.0;</span>
+<span class="nc bnc" id="L301" title="All 2 branches missed.">		for(int i=0; i&lt;size(); i++) {</span>
+<span class="nc" id="L302">			mean			+= get(i) * probabilities.get(i);</span>
+<span class="nc" id="L303">			secondMoment	+= get(i) * get(i) * probabilities.get(i);</span>
+		}
+<span class="nc" id="L305">		return secondMoment - mean*mean;</span>
+	}
+
+	@Override
+	public double getSampleVariance() {
+<span class="nc bnc" id="L310" title="All 4 branches missed.">		if(isDeterministic() || size() == 1) {</span>
+<span class="nc" id="L311">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L314">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L317">		return getVariance() * size()/(size()-1);</span>
+	}
+
+	@Override
+	public double getStandardDeviation() {
+<span class="pc bpc" id="L322" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L323">			return 0.0;</span>
+		}
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L326">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L329">		return Math.sqrt(getVariance());</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc bnc" id="L337" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L338">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L340" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L341">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L344">		return Math.sqrt(getVariance(probabilities));</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
+	 */
+	@Override
+	public double getStandardError() {
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L353">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L355" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L356">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L359">		return getStandardDeviation()/Math.sqrt(size());</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc bnc" id="L367" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L368">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L370" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L371">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L374">		return getStandardDeviation(probabilities)/size();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile()
+	 */
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="pc bpc" id="L382" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L383">			return valueIfNonStochastic;</span>
+		}
+<span class="pc bpc" id="L385" title="1 of 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L386">			return Double.NaN;</span>
+		}
+
+<span class="fc" id="L389">		final double[] realizationsSorted = getRealizations().clone();</span>
+<span class="fc" id="L390">		Arrays.sort(realizationsSorted);</span>
+
+<span class="fc" id="L392">		final int indexOfQuantileValue = Math.min(Math.max((int)Math.round((size()+1) * quantile - 1), 0), size()-1);</span>
+
+<span class="fc" id="L394">		return realizationsSorted[indexOfQuantileValue];</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc bnc" id="L402" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L403">			return valueIfNonStochastic;</span>
+		}
+<span class="nc bnc" id="L405" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L406">			return Double.NaN;</span>
+		}
+
+<span class="nc" id="L409">		throw new RuntimeException(&quot;Method not implemented.&quot;);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getConditionalVaR()
+	 */
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc bnc" id="L417" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L418">			return valueIfNonStochastic;</span>
+		}
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		if(size() == 0) {</span>
+<span class="nc" id="L421">			return Double.NaN;</span>
+		}
+<span class="nc bnc" id="L423" title="All 2 branches missed.">		if(quantileStart &gt; quantileEnd) {</span>
+<span class="nc" id="L424">			return getQuantileExpectation(quantileEnd, quantileStart);</span>
+		}
+
+<span class="nc" id="L427">		final double[] realizationsSorted = getRealizations().clone();</span>
+<span class="nc" id="L428">		Arrays.sort(realizationsSorted);</span>
+
+<span class="nc" id="L430">		final int indexOfQuantileValueStart	= Math.min(Math.max((int)Math.round((size()+1) * quantileStart - 1), 0), size()-1);</span>
+<span class="nc" id="L431">		final int indexOfQuantileValueEnd		= Math.min(Math.max((int)Math.round((size()+1) * quantileEnd - 1), 0), size()-1);</span>
+
+<span class="nc" id="L433">		double quantileExpectation = 0.0;</span>
+<span class="nc bnc" id="L434" title="All 2 branches missed.">		for (int i=indexOfQuantileValueStart; i&lt;=indexOfQuantileValueEnd;i++) {</span>
+<span class="nc" id="L435">			quantileExpectation += realizationsSorted[i];</span>
+		}
+<span class="nc" id="L437">		quantileExpectation /= indexOfQuantileValueEnd-indexOfQuantileValueStart+1;</span>
+
+<span class="nc" id="L439">		return quantileExpectation;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram()
+	 */
+	@Override
+	public double[] getHistogram(final double[] intervalPoints)
+	{
+<span class="nc" id="L448">		final double[] histogramValues = new double[intervalPoints.length+1];</span>
+
+<span class="nc bnc" id="L450" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * consisting of 0's and one and only one 1.
+			 */
+<span class="nc" id="L455">			Arrays.fill(histogramValues, 0.0);</span>
+<span class="nc bnc" id="L456" title="All 2 branches missed.">			for (int intervalIndex=0; intervalIndex&lt;intervalPoints.length; intervalIndex++)</span>
+			{
+<span class="nc bnc" id="L458" title="All 2 branches missed.">				if(valueIfNonStochastic &gt; intervalPoints[intervalIndex]) {</span>
+<span class="nc" id="L459">					histogramValues[intervalIndex] = 1.0;</span>
+<span class="nc" id="L460">					break;</span>
+				}
+			}
+<span class="nc" id="L463">			histogramValues[intervalPoints.length] = 1.0;</span>
+		}
+		else {
+			/*
+			 * If the random variable is deterministic we will return an array
+			 * representing a density, where the sum of the entries is one.
+			 * There is one exception:
+			 * If the size of the random variable is 0, all entries will be zero.
+			 */
+<span class="nc" id="L472">			final double[] realizationsSorted = getRealizations().clone();</span>
+<span class="nc" id="L473">			Arrays.sort(realizationsSorted);</span>
+
+<span class="nc" id="L475">			int sampleIndex=0;</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">			for (int intervalIndex=0; intervalIndex&lt;intervalPoints.length; intervalIndex++)</span>
+			{
+<span class="nc" id="L478">				int sampleCount = 0;</span>
+<span class="nc bnc" id="L479" title="All 4 branches missed.">				while (sampleIndex &lt; realizationsSorted.length &amp;&amp;</span>
+						realizationsSorted[sampleIndex] &lt;= intervalPoints[intervalIndex])
+				{
+<span class="nc" id="L482">					sampleIndex++;</span>
+<span class="nc" id="L483">					sampleCount++;</span>
+				}
+<span class="nc" id="L485">				histogramValues[intervalIndex] = sampleCount;</span>
+			}
+<span class="nc" id="L487">			histogramValues[intervalPoints.length] = realizationsSorted.length-sampleIndex;</span>
+
+			// Normalize histogramValues
+<span class="nc bnc" id="L490" title="All 2 branches missed.">			if(realizationsSorted.length &gt; 0) {</span>
+<span class="nc bnc" id="L491" title="All 2 branches missed.">				for(int i=0; i&lt;histogramValues.length; i++) {</span>
+<span class="nc" id="L492">					histogramValues[i] /= realizationsSorted.length;</span>
+				}
+			}
+		}
+
+<span class="nc" id="L497">		return histogramValues;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int,double)
+	 */
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L505">		final double[] intervalPoints = new double[numberOfPoints];</span>
+<span class="nc" id="L506">		final double[] anchorPoints	= new double[numberOfPoints+1];</span>
+<span class="nc" id="L507">		final double center	= getAverage();</span>
+<span class="nc" id="L508">		final double radius	= standardDeviations * getStandardDeviation();</span>
+<span class="nc" id="L509">		final double stepSize	= (numberOfPoints-1) / 2.0;</span>
+<span class="nc bnc" id="L510" title="All 2 branches missed.">		for(int i=0; i&lt;numberOfPoints;i++) {</span>
+<span class="nc" id="L511">			final double alpha = (-(double)(numberOfPoints-1) / 2.0 + i) / stepSize;</span>
+<span class="nc" id="L512">			intervalPoints[i]	= center + alpha * radius;</span>
+<span class="nc" id="L513">			anchorPoints[i]		= center + alpha * radius - radius / (2 * stepSize);</span>
+		}
+<span class="nc" id="L515">		anchorPoints[numberOfPoints] = center + 1 * radius + radius / (2 * stepSize);</span>
+
+<span class="nc" id="L517">		final double[][] result = new double[2][];</span>
+<span class="nc" id="L518">		result[0] = anchorPoints;</span>
+<span class="nc" id="L519">		result[1] = getHistogram(intervalPoints);</span>
+
+<span class="nc" id="L521">		return result;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
+	 */
+	@Override
+	public boolean isDeterministic() {
+<span class="fc bfc" id="L529" title="All 2 branches covered.">		return realizations == null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#expand()
+	 */
+	public RandomVariable expand(final int numberOfPaths) {
+<span class="nc bnc" id="L536" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+			// Expand random variable to a vector of path values
+<span class="nc" id="L538">			final double[] clone = new double[numberOfPaths];</span>
+<span class="nc" id="L539">			Arrays.fill(clone,valueIfNonStochastic);</span>
+<span class="nc" id="L540">			return new RandomVariableFromDoubleArray(time,clone);</span>
+
+		}
+
+<span class="nc" id="L544">		return new RandomVariableFromDoubleArray(time,getRealizations());</span>
+	}
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
+	 */
+	@Override
+	public double[] getRealizations() {
+<span class="pc bpc" id="L553" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L554">			final double[] result = new double[1];</span>
+<span class="nc" id="L555">			result[0] = get(0);</span>
+<span class="nc" id="L556">			return result;</span>
+		}
+		else {
+<span class="fc" id="L559">			cache();</span>
+
+<span class="fc" id="L561">			return realizationsArray;</span>
+		}
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="nc bnc" id="L567" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L568">			return valueIfNonStochastic;</span>
+		} else {
+<span class="nc" id="L570">			throw new UnsupportedOperationException(&quot;The random variable is non-deterministic&quot;);</span>
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getOperator()
+	 */
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L579">		return realizations;</span>
+	}
+
+	public RandomVariableFromDoubleArray getRandomVariable() {
+<span class="nc bnc" id="L583" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L584">			return new RandomVariableFromDoubleArray(time, valueIfNonStochastic);</span>
+		} else {
+<span class="nc" id="L586">			return new RandomVariableFromDoubleArray(time, getRealizations());</span>
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getRealizationsStream()
+	 */
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="pc bpc" id="L595" title="1 of 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc" id="L596">			return DoubleStream.generate(new DoubleSupplier() {</span>
+				@Override
+				public double getAsDouble() {
+<span class="nc" id="L599">					return valueIfNonStochastic;</span>
+				}
+			});
+		}
+		else {
+<span class="fc" id="L604">			return IntStream.range(0,size()).mapToDouble(realizations).parallel();</span>
+		}
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="fc bfc" id="L610" title="All 2 branches covered.">		if(isDeterministic()) {</span>
+<span class="fc" id="L611">			return new RandomVariableLazyEvaluation(time, operator.applyAsDouble(valueIfNonStochastic));</span>
+		}
+		else
+		{
+<span class="fc" id="L615">			final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+				@Override
+				public double applyAsDouble(final int i) {
+<span class="fc" id="L618">					return operator.applyAsDouble(realizations.applyAsDouble(i));</span>
+				}
+			};
+<span class="fc" id="L621">			return new RandomVariableLazyEvaluation(time, newRealizations, size());</span>
+		}
+	}
+
+	@Override
+	public RandomVariable cache() {
+<span class="fc" id="L627">		synchronized (this)</span>
+		{
+<span class="fc bfc" id="L629" title="All 2 branches covered.">			if(realizationsArray == null) {</span>
+<span class="fc" id="L630">				realizationsArray = getRealizationsStream().toArray();</span>
+<span class="fc" id="L631">				realizations = new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="nc" id="L634">						return realizationsArray[i];</span>
+					}
+				};
+			}
+<span class="fc" id="L638">		}</span>
+<span class="fc" id="L639">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+
+<span class="fc" id="L645">		final double      newTime           = Math.max(time, argument.getFiltrationTime());</span>
+
+<span class="pc bpc" id="L647" title="3 of 4 branches missed.">		if(isDeterministic() &amp;&amp; argument.isDeterministic()) {</span>
+<span class="nc" id="L648">			return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument.get(0)));</span>
+		}
+<span class="pc bpc" id="L650" title="2 of 4 branches missed.">		else if(!isDeterministic() &amp;&amp; argument.isDeterministic()) {</span>
+<span class="nc" id="L651">			final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+				@Override
+				public double applyAsDouble(final int i) {
+<span class="nc" id="L654">					return operator.applyAsDouble(realizations.applyAsDouble(i), argument.get(0));</span>
+				}
+			};
+<span class="nc" id="L657">			return new RandomVariableLazyEvaluation(newTime, newRealizations, size());</span>
+		}
+<span class="pc bpc" id="L659" title="3 of 4 branches missed.">		else if(isDeterministic() &amp;&amp; !argument.isDeterministic()) {</span>
+			if(false) {
+				final IntToDoubleFunction argumentRealizations = argument.getOperator();
+<span class="nc" id="L662">				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="nc" id="L665">						return operator.applyAsDouble(valueIfNonStochastic, argumentRealizations.applyAsDouble(i));</span>
+					}
+				};
+				return new RandomVariableLazyEvaluation(newTime, newRealizations, argument.size());
+			}
+			else {
+<span class="nc" id="L671">				final double[] argumentRealizations = argument.getRealizations();</span>
+<span class="nc" id="L672">				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="nc" id="L675">						return operator.applyAsDouble(valueIfNonStochastic, argumentRealizations[i]);</span>
+					}
+				};
+<span class="nc" id="L678">				return new RandomVariableLazyEvaluation(newTime, newRealizations, argument.size());</span>
+			}
+		}
+		else
+		{
+			if(false) {
+				final IntToDoubleFunction argumentRealizations = argument.getOperator();
+<span class="nc" id="L685">				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="nc" id="L688">						return operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations.applyAsDouble(i));</span>
+					}
+				};
+				return new RandomVariableLazyEvaluation(newTime, newRealizations, size());
+			}
+			else {
+<span class="fc" id="L694">				final double[] argumentRealizations = argument.getRealizations();</span>
+<span class="fc" id="L695">				final IntToDoubleFunction newRealizations = new IntToDoubleFunction() {</span>
+					@Override
+					public double applyAsDouble(final int i) {
+<span class="fc" id="L698">						return operator.applyAsDouble(realizations.applyAsDouble(i), argumentRealizations[i]);</span>
+					}
+				};
+<span class="fc" id="L701">				return new RandomVariableLazyEvaluation(newTime, newRealizations, size());</span>
+			}
+		}
+
+	}
+
+	public RandomVariable apply(final DoubleBinaryOperator operatorOuter, final DoubleBinaryOperator operatorInner, final RandomVariable argument1, final RandomVariable argument2)
+	{
+<span class="nc" id="L709">		double newTime = Math.max(time, argument1.getFiltrationTime());</span>
+<span class="nc" id="L710">		newTime = Math.max(newTime, argument2.getFiltrationTime());</span>
+
+<span class="nc bnc" id="L712" title="All 6 branches missed.">		if(this.isDeterministic() &amp;&amp; argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L713">			return new RandomVariableLazyEvaluation(newTime, operatorOuter.applyAsDouble(valueIfNonStochastic, operatorInner.applyAsDouble(argument1.get(0), argument2.get(0))));</span>
+		}
+		else {
+<span class="nc" id="L716">			final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());</span>
+
+			if(false) {
+				if(argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {
+					final double	argument1Realization = argument1.get(0);
+					final double	argument2Realization = argument2.get(0);
+					final double	innerResult = operatorInner.applyAsDouble(argument1Realization, argument2Realization);
+<span class="nc" id="L723">					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L726">							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult);</span>
+						}
+					}, newSize);
+				}
+				else {
+<span class="nc" id="L731">					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L734">							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), operatorInner.applyAsDouble(argument1.get(i), argument2.get(i)));</span>
+						}
+					}, newSize);
+				}
+			}
+			else {
+				IntToDoubleFunction innerResult;
+<span class="nc bnc" id="L741" title="All 4 branches missed.">				if(argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L742">					final double	argument1Realization = argument1.get(0);</span>
+<span class="nc" id="L743">					final double	argument2Realization = argument2.get(0);</span>
+<span class="nc" id="L744">					innerResult = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L747">							return operatorInner.applyAsDouble(argument1Realization, argument2Realization);</span>
+						}
+					};
+<span class="nc" id="L750">				}</span>
+<span class="nc bnc" id="L751" title="All 4 branches missed.">				else if(argument1.isDeterministic() &amp;&amp; !argument2.isDeterministic()) {</span>
+<span class="nc" id="L752">					final double	argument1Realization	= argument1.get(0);</span>
+<span class="nc" id="L753">					final double[]	argument2Realizations	= argument2.getRealizations();</span>
+<span class="nc" id="L754">					innerResult = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L757">							return operatorInner.applyAsDouble(argument1Realization, argument2Realizations[i]);</span>
+						}
+					};
+<span class="nc" id="L760">				}</span>
+<span class="nc bnc" id="L761" title="All 4 branches missed.">				else if(!argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L762">					final double[]	argument1Realizations	= argument1.getRealizations();</span>
+<span class="nc" id="L763">					final double	argument2Realization	= argument2.get(0);</span>
+<span class="nc" id="L764">					innerResult = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L767">							return operatorInner.applyAsDouble(argument1Realizations[i], argument2Realization);</span>
+						}
+					};
+<span class="nc" id="L770">				}</span>
+				else {// if(!argument1.isDeterministic() &amp;&amp; !argument2.isDeterministic()) {
+<span class="nc" id="L772">					final double[]	argument1Realizations	= argument1.getRealizations();</span>
+<span class="nc" id="L773">					final double[]	argument2Realizations	= argument2.getRealizations();</span>
+<span class="nc" id="L774">					innerResult = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L777">							return operatorInner.applyAsDouble(argument1Realizations[i], argument2Realizations[i]);</span>
+						}
+					};
+				}
+
+<span class="nc bnc" id="L782" title="All 2 branches missed.">				if(isDeterministic()) {</span>
+<span class="nc" id="L783">					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L786">							return operatorOuter.applyAsDouble(valueIfNonStochastic,          innerResult.applyAsDouble(i));</span>
+						}
+					}, newSize);
+				}
+				else {
+<span class="nc" id="L791">					return new RandomVariableLazyEvaluation(newTime,new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L794">							return operatorOuter.applyAsDouble(realizations.applyAsDouble(i), innerResult.applyAsDouble(i));</span>
+						}
+					}, newSize);
+				}
+
+			}
+		}
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2)
+	{
+<span class="nc" id="L806">		double newTime = Math.max(time, argument1.getFiltrationTime());</span>
+<span class="nc" id="L807">		newTime = Math.max(newTime, argument2.getFiltrationTime());</span>
+
+<span class="nc bnc" id="L809" title="All 6 branches missed.">		if(this.isDeterministic() &amp;&amp; argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L810">			return new RandomVariableLazyEvaluation(newTime, operator.applyAsDouble(valueIfNonStochastic, argument1.get(0), argument2.get(0)));</span>
+		}
+		else {
+<span class="nc" id="L813">			final int newSize = Math.max(Math.max(this.size(), argument1.size()), argument2.size());</span>
+			IntToDoubleFunction result;
+<span class="nc bnc" id="L815" title="All 4 branches missed.">			if(argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L816">				final double	argument1Realization = argument1.get(0);</span>
+<span class="nc" id="L817">				final double	argument2Realization = argument2.get(0);</span>
+<span class="nc bnc" id="L818" title="All 2 branches missed.">				if(isDeterministic()) {</span>
+<span class="nc" id="L819">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L822">							return operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realization);</span>
+						}
+					};
+				}
+				else {
+<span class="nc" id="L827">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L830">							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realization, argument2Realization);</span>
+						}
+					};
+
+				}
+<span class="nc" id="L835">			}</span>
+<span class="nc bnc" id="L836" title="All 4 branches missed.">			else if(argument1.isDeterministic() &amp;&amp; !argument2.isDeterministic()) {</span>
+<span class="nc" id="L837">				final double	argument1Realization	= argument1.get(0);</span>
+<span class="nc" id="L838">				final double[]	argument2Realizations	= argument2.getRealizations();</span>
+<span class="nc bnc" id="L839" title="All 2 branches missed.">				if(isDeterministic()) {</span>
+<span class="nc" id="L840">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L843">							return operator.applyAsDouble(valueIfNonStochastic, argument1Realization, argument2Realizations[i]);</span>
+						}
+					};
+				}
+				else {
+<span class="nc" id="L848">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L851">							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realization, argument2Realizations[i]);</span>
+						}
+					};
+
+				}
+<span class="nc" id="L856">			}</span>
+<span class="nc bnc" id="L857" title="All 4 branches missed.">			else if(!argument1.isDeterministic() &amp;&amp; argument2.isDeterministic()) {</span>
+<span class="nc" id="L858">				final double[]	argument1Realizations	= argument1.getRealizations();</span>
+<span class="nc" id="L859">				final double	argument2Realization	= argument2.get(0);</span>
+<span class="nc bnc" id="L860" title="All 2 branches missed.">				if(isDeterministic()) {</span>
+<span class="nc" id="L861">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L864">							return operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realization);</span>
+						}
+					};
+				}
+				else {
+<span class="nc" id="L869">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L872">							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realizations[i], argument2Realization);</span>
+						}
+					};
+
+				}
+<span class="nc" id="L877">			}</span>
+			else {// if(!argument1.isDeterministic() &amp;&amp; !argument2.isDeterministic()) {
+<span class="nc" id="L879">				final double[]	argument1Realizations	= argument1.getRealizations();</span>
+<span class="nc" id="L880">				final double[]	argument2Realizations	= argument2.getRealizations();</span>
+<span class="nc bnc" id="L881" title="All 2 branches missed.">				if(isDeterministic()) {</span>
+<span class="nc" id="L882">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L885">							return operator.applyAsDouble(valueIfNonStochastic, argument1Realizations[i], argument2Realizations[i]);</span>
+						}
+					};
+				}
+				else {
+<span class="nc" id="L890">					result = new IntToDoubleFunction() {</span>
+						@Override
+						public double applyAsDouble(final int i) {
+<span class="nc" id="L893">							return operator.applyAsDouble(realizations.applyAsDouble(i), argument1Realizations[i], argument2Realizations[i]);</span>
+						}
+					};
+
+				}
+			}
+
+<span class="nc" id="L900">			return new RandomVariableLazyEvaluation(newTime, result, newSize);</span>
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cap(double)
+	 */
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="nc" id="L909">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="nc" id="L912">				return Math.min(x, cap);</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#floor(double)
+	 */
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="nc" id="L922">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="nc" id="L925">				return Math.max(x, floor);</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(double)
+	 */
+	@Override
+	public RandomVariable add(final double value) {
+<span class="fc" id="L935">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L938">				return x + value;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(double)
+	 */
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="fc" id="L948">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L951">				return x - value;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(double)
+	 */
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="fc" id="L961">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L964">				return x * value;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#div(double)
+	 */
+	@Override
+	public RandomVariable div(final double value) {
+<span class="fc" id="L974">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L977">				return x / value;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#pow(double)
+	 */
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="fc" id="L987">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L990">				return Math.pow(x, exponent);</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#average()
+	 */
+	@Override
+	public RandomVariable average() {
+<span class="nc" id="L1000">		return new RandomVariableLazyEvaluation(getAverage());</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#squared()
+	 */
+	@Override
+	public RandomVariable squared() {
+<span class="fc" id="L1008">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="fc" id="L1011">				return x * x;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sqrt()
+	 */
+	@Override
+	public RandomVariable sqrt() {
+<span class="fc" id="L1021">		return apply(Math::sqrt);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#exp()
+	 */
+	@Override
+	public RandomVariable exp() {
+<span class="fc" id="L1029">		return apply(Math::exp);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#log()
+	 */
+	@Override
+	public RandomVariable log() {
+<span class="nc" id="L1037">		return apply(Math::log);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sin()
+	 */
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L1045">		return apply(Math::sin);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cos()
+	 */
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L1053">		return apply(Math::cos);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="fc" id="L1061">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="fc" id="L1064">				return x + y;</span>
+			}
+		}, randomVariable);
+
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="fc" id="L1075">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="fc" id="L1078">				return x - y;</span>
+			}
+		}, randomVariable);
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L1085">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1088">				return -x + y;</span>
+			}
+		}, randomVariable);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="fc" id="L1098">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="fc" id="L1101">				return x * y;</span>
+			}
+		}, randomVariable);
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="nc" id="L1108">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1111">				return x / y;</span>
+			}
+		}, randomVariable);
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L1118">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1121">				return y / x;</span>
+			}
+		}, randomVariable);
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+<span class="fc" id="L1128">		return apply(Math::min, cap);</span>
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="fc" id="L1133">		return apply(Math::max, floor);</span>
+	}
+
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L1138">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1141">				return x * (1.0 + y * periodLength);</span>
+			}
+		}, rate);
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L1148">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1151">				return x / (1.0 + y * periodLength);</span>
+			}
+		}, rate);
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="nc" id="L1158">		return apply(new DoubleTernaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y, final double z) {
+<span class="nc bnc" id="L1161" title="All 2 branches missed.">				return (x &gt;= 0 ? y : z);</span>
+			}
+		}, valueIfTriggerNonNegative, valueIfTriggerNegative);
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="nc" id="L1168">		return apply(new DoubleUnaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x) {
+<span class="nc" id="L1171">				return 1.0 / x;</span>
+			}
+		});
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#abs()
+	 */
+	@Override
+	public RandomVariable abs() {
+<span class="nc" id="L1181">		return apply(Math::abs);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="nc" id="L1189">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1192">				return x + y * factor2;</span>
+			}
+		}, factor1);
+	}
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="nc" id="L1203">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1206">				return x + y;</span>
+			}
+<span class="nc" id="L1208">		}, new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1211">				return x * y;</span>
+			}
+		}, factor1, factor2);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L1221">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1224">				return x + y;</span>
+			}
+<span class="nc" id="L1226">		}, new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1229">				return x / y;</span>
+			}
+		}, numerator, denominator);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L1239">		return apply(new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1242">				return x - y;</span>
+			}
+<span class="nc" id="L1244">		}, new DoubleBinaryOperator() {</span>
+			@Override
+			public double applyAsDouble(final double x, final double y) {
+<span class="nc" id="L1247">				return x / y;</span>
+			}
+		}, numerator, denominator);
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="nc bnc" id="L1254" title="All 2 branches missed.">		if(isDeterministic()) {</span>
+<span class="nc bnc" id="L1255" title="All 2 branches missed.">			return new RandomVariableLazyEvaluation(time, Double.isNaN(valueIfNonStochastic) ? 1.0 : 0.0);</span>
+		}
+		else {
+<span class="nc" id="L1258">			final double[] newRealizations = new double[size()];</span>
+<span class="nc bnc" id="L1259" title="All 2 branches missed.">			for(int i=0; i&lt;newRealizations.length; i++) {</span>
+<span class="nc bnc" id="L1260" title="All 2 branches missed.">				newRealizations[i]		 = Double.isNaN(get(i)) ? 1.0 : 0.0;</span>
+			}
+<span class="nc" id="L1262">			return new RandomVariableLazyEvaluation(time, newRealizations);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

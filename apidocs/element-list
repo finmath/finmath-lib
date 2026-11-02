@@ -88,6 +88,7 @@ net.finmath.singleswaprate.model.curves
 net.finmath.singleswaprate.model.volatilities
 net.finmath.singleswaprate.products
 net.finmath.stochastic
+net.finmath.stochastic.operators
 net.finmath.swing
 net.finmath.time
 net.finmath.time.businessdaycalendar

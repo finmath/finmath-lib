@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BermudanExercise.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling</a> &gt; <span class="el_source">BermudanExercise.java</span></div><h1>BermudanExercise.java</h1><pre class="source lang-java linenums">package net.finmath.modelling;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * Bermudan exercise: exercise allowed only on a finite set of dates.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BermudanExercise extends AbstractExercise {
+
+	/**
+	 * Creates a Bermudan exercise from running times.
+	 *
+	 * @param exerciseTimes The exercise times in running time.
+	 */
+	public BermudanExercise(final double[] exerciseTimes) {
+<span class="nc" id="L21">		super(getLastExerciseTime(exerciseTimes), exerciseTimes);</span>
+<span class="nc" id="L22">	}</span>
+
+	/**
+	 * Creates a Bermudan exercise from dates.
+	 *
+	 * @param referenceDate The reference date.
+	 * @param exerciseDates The exercise dates.
+	 */
+	public BermudanExercise(final LocalDate referenceDate,
+			final LocalDate[] exerciseDates) {
+<span class="nc" id="L32">		this(convertDates(referenceDate, exerciseDates));</span>
+<span class="nc" id="L33">	}</span>
+
+	private static double getLastExerciseTime(final double[] exerciseTimes) {
+<span class="nc bnc" id="L36" title="All 4 branches missed.">		if (exerciseTimes == null || exerciseTimes.length == 0) {</span>
+<span class="nc" id="L37">			throw new IllegalArgumentException(&quot;Exercise times must not be null or empty.&quot;);</span>
+		}
+<span class="nc" id="L39">		final double[] sorted = exerciseTimes.clone();</span>
+<span class="nc" id="L40">		Arrays.sort(sorted);</span>
+<span class="nc" id="L41">		return sorted[sorted.length - 1];</span>
+	}
+
+	private static double[] convertDates(final LocalDate referenceDate, final LocalDate[] exerciseDates) {
+<span class="nc bnc" id="L45" title="All 4 branches missed.">		if (exerciseDates == null || exerciseDates.length == 0) {</span>
+<span class="nc" id="L46">			throw new IllegalArgumentException(&quot;Exercise dates must not be null or empty.&quot;);</span>
+		}
+
+<span class="nc" id="L49">		final double[] exerciseTimes = new double[exerciseDates.length];</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		for (int i = 0; i &lt; exerciseDates.length; i++) {</span>
+<span class="nc" id="L51">			exerciseTimes[i] = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, exerciseDates[i]);</span>
+		}
+<span class="nc" id="L53">		return exerciseTimes;</span>
+	}
+
+	@Override
+	public boolean isContinuousExercise() {
+<span class="nc" id="L58">		return false;</span>
+	}
+
+	@Override
+	public boolean isExerciseAllowed(final double time) {
+<span class="nc" id="L63">		return isScheduledExerciseTime(time);</span>
+	}
+
+	@Override
+	public boolean isEuropean() {
+<span class="nc" id="L68">		return false;</span>
+	}
+
+	@Override
+	public boolean isAmerican() {
+<span class="nc" id="L73">		return false;</span>
+	}
+
+	@Override
+	public boolean isBermudan() {
+<span class="nc" id="L78">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

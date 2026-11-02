@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOptionHestonModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">EuropeanOptionHestonModelBoundary.java</span></div><h1>EuropeanOptionHestonModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMHestonModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link EuropeanOption} under the {@link
+ * FDMHestonModel}.
+ *
+ * &lt;p&gt;
+ * State variables are assumed to be (S, v), where S is the asset level and v
+ * the variance.
+ * Dirichlet conditions are imposed in the asset direction, while the variance-
+ * direction
+ * boundaries are left untouched via {@link StandardBoundaryCondition#none()}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This implementation uses grid-aware asset-direction boundary values: instead
+ * of
+ * applying asymptotic formulas blindly, it evaluates discounted intrinsic value
+ * at
+ * the actual boundary stock level.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMHestonModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="fc" id="L49">	public EuropeanOptionHestonModelBoundary(final FDMHestonModel model) {</span>
+<span class="fc" id="L50">		this.model = model;</span>
+<span class="fc" id="L51">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="fc" id="L59">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="fc" id="L60">		time = Math.max(time, EPSILON);</span>
+
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+
+<span class="fc" id="L64">		final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="fc" id="L66">		result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="fc" id="L67">				getDiscountedIntrinsicValue(option, time, stock)</span>
+				);
+
+		// v -&gt; lower boundary: leave PDE row intact
+<span class="fc" id="L71">		result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="fc" id="L73">		return result;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="fc" id="L82">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="fc" id="L83">		time = Math.max(time, EPSILON);</span>
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		final double S = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+
+<span class="fc" id="L87">		final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+<span class="fc" id="L89">		result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="fc" id="L90">				getDiscountedIntrinsicValue(option, time, S)</span>
+				);
+
+		// v -&gt; upper boundary: leave PDE row intact
+<span class="fc" id="L94">		result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="fc" id="L96">		return result;</span>
+	}
+
+	private double getDiscountedIntrinsicValue(
+			final EuropeanOption option,
+			final double evaluationTime,
+			final double stock) {
+
+<span class="fc" id="L104">		final double maturity = option.getMaturity();</span>
+<span class="fc" id="L105">		final double tau = Math.max(maturity - evaluationTime, 0.0);</span>
+
+<span class="fc" id="L107">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(tau);</span>
+<span class="fc" id="L108">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(tau);</span>
+
+<span class="fc" id="L110">		final double discountedForwardLikeSpot = stock * discountFactorDividend;</span>
+<span class="fc" id="L111">		final double discountedStrike = option.getStrike() * discountFactorRiskFree;</span>
+
+<span class="fc bfc" id="L113" title="All 2 branches covered.">		if (option.getCallOrPut() == CallOrPut.CALL) {</span>
+<span class="fc" id="L114">			return Math.max(discountedForwardLikeSpot - discountedStrike, 0.0);</span>
+		} else {
+<span class="fc" id="L116">			return Math.max(discountedStrike - discountedForwardLikeSpot, 0.0);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

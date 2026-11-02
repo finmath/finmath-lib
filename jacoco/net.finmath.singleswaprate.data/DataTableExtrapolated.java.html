@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataTableExtrapolated.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.data</a> &gt; <span class="el_source">DataTableExtrapolated.java</span></div><h1>DataTableExtrapolated.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.data;
+
+import java.time.LocalDate;
+import java.util.List;
+
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Extends {@link net.finmath.singleswaprate.data.DataTableBasic} with the capacity to inter- and extrapolate values off the tenor grid.
+ * Note that the interpolation is done to the accuracy of the table convention.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class DataTableExtrapolated extends DataTableInterpolated implements DataTable, Cloneable {
+
+	private static final long serialVersionUID = 1237834784985091980L;
+
+	/**
+	 * Create an empty table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 */
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData) {
+<span class="nc" id="L30">		super(name, convention, referenceDate, scheduleMetaData);</span>
+<span class="nc" id="L31">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final int[] maturities, final int[] terminations, final double[] values) {
+<span class="nc" id="L46">		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);</span>
+<span class="nc" id="L47">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableExtrapolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final List&lt;Integer&gt; maturities, final List&lt;Integer&gt; terminations, final List&lt;Double&gt; values) {
+<span class="nc" id="L62">		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);</span>
+<span class="nc" id="L63">	}</span>
+
+	@Override
+	public double getValue(final int maturity, final int termination) {
+
+<span class="nc" id="L68">		final int[] maturities = getMaturities().stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="nc" id="L69">		final int[] terminations = getTerminations().stream().mapToInt(Integer::intValue).toArray();</span>
+
+		// constant extrapolation (assuming arrays are provided via TreeSet, i.e. sorted)
+<span class="nc" id="L72">		final int extraMat = Math.min(Math.max(maturity, maturities[0]), maturities[maturities.length-1]);</span>
+<span class="nc" id="L73">		final int extraTer = Math.min(Math.max(termination, terminations[0]), terminations[terminations.length-1]);</span>
+
+<span class="nc" id="L75">		return super.getValue(extraMat, extraTer);</span>
+	}
+
+	@Override
+	public double getValue(final double maturity, final double termination) {
+<span class="nc bnc" id="L80" title="All 2 branches missed.">		if(containsEntryFor(maturity, termination)) {</span>
+<span class="nc" id="L81">			return super.getValue(maturity, termination);</span>
+		}
+
+		// round to make regular grid
+		int roundingMultiplier;
+<span class="nc bnc" id="L86" title="All 5 branches missed.">		switch (getConvention()) {</span>
+<span class="nc" id="L87">		case YEARS: roundingMultiplier = 1; break;</span>
+<span class="nc" id="L88">		case MONTHS: roundingMultiplier = 12; break;</span>
+<span class="nc" id="L89">		case DAYS: roundingMultiplier = 365; break;</span>
+<span class="nc" id="L90">		case WEEKS: roundingMultiplier = 52; break;</span>
+<span class="nc" id="L91">		default: throw new RuntimeException(&quot;No tableConvention specified&quot;);</span>
+		}
+
+
+<span class="nc" id="L95">		final int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));</span>
+<span class="nc" id="L96">		final int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;</span>
+
+<span class="nc" id="L98">		return getValue(roundedMaturity, roundedTermination);</span>
+	}
+
+	@Override
+	public DataTableExtrapolated clone() {
+
+<span class="nc" id="L104">		final int[] maturities = new int[size()];</span>
+<span class="nc" id="L105">		final int[] terminations = new int[size()];</span>
+<span class="nc" id="L106">		final double[] values = new double[size()];</span>
+
+<span class="nc" id="L108">		int i = 0;</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		for(final int maturity : getMaturities()) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			for(final int termination : getTerminationsForMaturity(maturity)) {</span>
+<span class="nc" id="L111">				maturities[i] = maturity;</span>
+<span class="nc" id="L112">				terminations[i] = termination;</span>
+<span class="nc" id="L113">				values[i++] = getValue(maturity, termination);</span>
+<span class="nc" id="L114">			}</span>
+<span class="nc" id="L115">		}</span>
+
+<span class="nc" id="L117">		return new DataTableExtrapolated(getName(), getConvention(), getReferenceDate(), getScheduleMetaData(), maturities, terminations, values);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L122">		return toString(1.0);</span>
+	}
+
+	@Override
+	public String toString(final double unit) {
+<span class="nc" id="L127">		final StringBuilder builder = new StringBuilder();</span>
+<span class="nc" id="L128">		builder.append(&quot;DataTableExtrapolated with constant extrapolation and base table: &quot;);</span>
+<span class="nc" id="L129">		builder.append(super.toString(unit));</span>
+
+<span class="nc" id="L131">		return builder.toString();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

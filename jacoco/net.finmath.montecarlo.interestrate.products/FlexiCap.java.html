@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FlexiCap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">FlexiCap.java</span></div><h1>FlexiCap.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 19.02.2004
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * This class implements the valuation of a Flexi Cap (aka Auto Cap).
+ * If &lt;code&gt;maximumNumberOfExercises = fixingDates.length&lt;/code&gt; then this is a Cap.
+ * The payoff of the product is &lt;i&gt;L(T&lt;sub&gt;i&lt;/sub&gt;) - K&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; if &lt;i&gt;L(T&lt;sub&gt;i&lt;/sub&gt;) - K&lt;sub&gt;i&lt;/sub&gt; &amp;gt; 0&lt;/i&gt; and the number of
+ * &lt;i&gt;j &amp;lt; i&lt;/i&gt; such that &lt;i&gt;L(T&lt;sub&gt;j&lt;/sub&gt;) - K&lt;sub&gt;j&lt;/sub&gt;&lt;/i&gt; if &lt;i&gt;L(T&lt;sub&gt;j&lt;/sub&gt;) - K&lt;sub&gt;j&lt;/sub&gt; &amp;gt; 0&lt;/i&gt;
+ * is less than &lt;code&gt;maximumNumberOfExercises&lt;/code&gt;, where &lt;i&gt;T&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is an
+ * element of &lt;code&gt;fixingDates&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class FlexiCap extends AbstractTermStructureMonteCarloProduct {
+
+	private final double[]	fixingDates;					// Vector of fixing dates (must be sorted)
+	private final double[]	paymentDates;					// Vector of payment dates (same length as fixing dates)
+	private final double[]	strikes;						// Vector of strikes
+	private final int		maximumNumberOfExercises;		// The maximum number of exercises
+
+	/**
+	 * Create a Flexi Cap (aka Auto Cap).
+	 * If &lt;code&gt;maximumNumberOfExercises = fixingDates.length&lt;/code&gt; then this is a Cap.
+	 *
+	 * @param fixingDates Vector of fixing dates
+	 * @param paymentDates Vector of payment dates (must have same length as fixing dates)
+	 * @param strikes Vector of strikes (must have same length as fixing dates)
+	 * @param maximumNumberOfExercises Maximum number of exercises.
+	 */
+	public FlexiCap(
+			final double[]	fixingDates,
+			final double[]	paymentDates,
+			final double[]	strikes,
+			final int			maximumNumberOfExercises) {
+<span class="fc" id="L46">		super();</span>
+<span class="fc" id="L47">		this.fixingDates				= fixingDates;</span>
+<span class="fc" id="L48">		this.paymentDates				= paymentDates;</span>
+<span class="fc" id="L49">		this.strikes					= strikes;</span>
+<span class="fc" id="L50">		this.maximumNumberOfExercises	= maximumNumberOfExercises;</span>
+<span class="fc" id="L51">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// Allocate accumulator for values
+<span class="fc" id="L67">		RandomVariable values = new RandomVariableFromDoubleArray(0.0);</span>
+
+		/*
+		 * We go forward in time and on each path we remember the number of exercises so far.
+		 */
+<span class="fc" id="L72">		RandomVariable numberOfExcercises = new RandomVariableFromDoubleArray(maximumNumberOfExercises-0.5);</span>
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		for(int period=0; period&lt;fixingDates.length; period++)</span>
+		{
+<span class="fc" id="L76">			final double fixingDate	= fixingDates[period];</span>
+<span class="fc" id="L77">			final double paymentDate	= paymentDates[period];</span>
+
+			// evaluationTime &gt; fixingDate is allowed. Negative fixing date is allowed too (but likely not supported by the model)
+<span class="pc bpc" id="L80" title="1 of 2 branches missed.">			if(evaluationTime &gt; paymentDate) {</span>
+<span class="nc" id="L81">				continue;</span>
+			}
+
+<span class="fc" id="L84">			final double strike	 	= strikes[period];</span>
+<span class="fc" id="L85">			final double periodLength	= paymentDate - fixingDate;</span>
+
+			// Get random variables
+<span class="fc" id="L88">			final RandomVariable	libor					= model.getForwardRate(fixingDate, fixingDate, paymentDate);</span>
+<span class="fc" id="L89">			final RandomVariable	numeraire				= model.getNumeraire(paymentDate);</span>
+<span class="fc" id="L90">			final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(model.getTimeIndex(paymentDate));</span>
+
+			// Calculate payout
+<span class="fc" id="L93">			RandomVariable payoff = libor.sub(strike).mult(periodLength);</span>
+<span class="fc" id="L94">			RandomVariable indicator = payoff.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+<span class="fc" id="L95">			indicator = numberOfExcercises.choose(indicator, new Scalar(0.0));</span>
+
+<span class="fc" id="L97">			payoff = payoff.div(numeraire).mult(monteCarloProbabilities);</span>
+
+			// Accumulate numeraire relative values
+<span class="fc" id="L100">			values = values.addProduct(indicator, payoff);</span>
+
+			// Update exercise counter
+<span class="fc" id="L103">			numberOfExcercises = numberOfExcercises.sub(indicator);</span>
+		}
+
+<span class="fc" id="L106">		final RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L107">		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L108">		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);</span>
+
+<span class="fc" id="L110">		return values;</span>
+	}
+
+	/**
+	 * @return Returns the strikes.
+	 */
+	public double[] getStrikes() {
+<span class="nc" id="L117">		return strikes;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

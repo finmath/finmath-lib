@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearInterpolatedTimeDiscreteProcess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.process</a> &gt; <span class="el_source">LinearInterpolatedTimeDiscreteProcess.java</span></div><h1>LinearInterpolatedTimeDiscreteProcess.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28 Feb 2015
+ */
+
+package net.finmath.montecarlo.process;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * A linear interpolated time discrete process, that is, given a collection of tuples
+ * ({@link java.lang.Double},  {@link net.finmath.stochastic.RandomVariable}) representing
+ * realizations \( X(t_{i}) \) this class implements
+ * the {@link Process} and creates a stochastic process \( t \mapsto X(t) \)
+ * where
+ * \[
+ * 	X(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} X(t_{i}) + \frac{t - t_{i}}{t_{i+1}-t_{i}} X(t_{i+1})
+ * \]
+ * with \( t_{i} \leq t \leq t_{i+1} \).
+ *
+ * Note: this is the interpolation scheme used in the convergence of the Euler-Maruyama scheme.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LinearInterpolatedTimeDiscreteProcess implements Process {
+
+	private final TimeDiscretization timeDiscretization;
+	private final Map&lt;Double, RandomVariable&gt; realizations;
+
+	/**
+	 * Create a time discrete process by linear interpolation of random variables.
+	 *
+	 * @param realizations Given map from time to random variable. The map must not be modified.
+	 */
+	public LinearInterpolatedTimeDiscreteProcess(final Map&lt;Double, RandomVariable&gt; realizations) {
+<span class="nc" id="L45">		super();</span>
+<span class="nc" id="L46">		timeDiscretization = new TimeDiscretizationFromArray(realizations.keySet());</span>
+<span class="nc" id="L47">		this.realizations = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L48">		this.realizations.putAll(realizations);</span>
+<span class="nc" id="L49">	}</span>
+
+	/**
+	 * Private constructor. Note: The arguments are not cloned.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param realizations The map from Double to RandomVariable.
+	 */
+<span class="nc" id="L57">	private LinearInterpolatedTimeDiscreteProcess(final TimeDiscretization timeDiscretization, final Map&lt;Double, RandomVariable&gt; realizations) {</span>
+<span class="nc" id="L58">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L59">		this.realizations = realizations;</span>
+<span class="nc" id="L60">	}</span>
+
+	/**
+	 * Create a new linear interpolated time discrete process by
+	 * using the time discretization of this process and the sum of this process and the given one
+	 * as its values.
+	 *
+	 * @param process A given process.
+	 * @return A new process representing the of this and the given process.
+	 * @throws CalculationException Thrown if the given process fails to evaluate at a certain time point.
+	 */
+	public LinearInterpolatedTimeDiscreteProcess add(final LinearInterpolatedTimeDiscreteProcess process) throws CalculationException {
+<span class="nc" id="L72">		final Map&lt;Double, RandomVariable&gt; sum = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		for(final double time: timeDiscretization) {</span>
+<span class="nc" id="L75">			sum.put(time, realizations.get(time).add(process.getProcessValue(time, 0)));</span>
+<span class="nc" id="L76">		}</span>
+
+<span class="nc" id="L78">		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, sum);</span>
+	}
+
+	/**
+	 * Create a new process consisting of the interpolation of the random variables obtained by
+	 * applying the given function to this process discrete set of random variables.
+	 * That is \( t \mapsto Y(t) \)
+	 * where
+	 * \[
+	 * 	Y(t) = \frac{t_{i+1} - t}{t_{i+1}-t_{i}} f(X(t_{i})) + \frac{t - t_{i}}{t_{i+1}-t_{i}} f(X(t_{i+1}))
+	 * \]
+	 * with \( t_{i} \leq t \leq t_{i+1} \) and a given function \( f \).
+	 *
+	 * @param function The function \( f \), a univariate function.
+	 * @return A new process consisting of the interpolation of the random variables obtained by applying the given function to this process discrete set of random variables.
+	 */
+	public LinearInterpolatedTimeDiscreteProcess apply(final DoubleUnaryOperator function) {
+<span class="nc" id="L95">		final Map&lt;Double, RandomVariable&gt; result = new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		for(final double time: timeDiscretization) {</span>
+<span class="nc" id="L98">			result.put(time, realizations.get(time).apply(function));</span>
+<span class="nc" id="L99">		}</span>
+
+<span class="nc" id="L101">		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, result);</span>
+	}
+
+	/**
+	 * Returns the (possibly interpolated) value of this stochastic process at a given time \( t \).
+	 *
+	 * @param time The time \( t \).
+	 * @param component The component to be returned (if this is a vector valued process), otherwise 0.
+	 * @return The random variable \( X(t) \).
+	 */
+	public RandomVariable getProcessValue(final double time, final int component) {
+<span class="nc" id="L112">		final double timeLower = timeDiscretization.getTimeIndexNearestLessOrEqual(time);</span>
+<span class="nc" id="L113">		final double timeUpper = timeDiscretization.getTimeIndexNearestGreaterOrEqual(time);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		if(timeLower == timeUpper) {</span>
+<span class="nc" id="L115">			return realizations.get(timeLower);</span>
+		}
+
+<span class="nc" id="L118">		final RandomVariable valueLower	= realizations.get(timeLower);</span>
+<span class="nc" id="L119">		final RandomVariable valueUpper	= realizations.get(timeUpper);</span>
+
+<span class="nc" id="L121">		return valueUpper.mult((time-timeLower)/(timeUpper-timeLower)).add(valueLower.mult((timeUpper-time)/(timeUpper-timeLower)));</span>
+	}
+
+	@Override
+	public RandomVariable getProcessValue(final int timeIndex, final int component) {
+<span class="nc" id="L126">		return realizations.get(timeDiscretization.getTime(timeIndex));</span>
+
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) {
+<span class="nc" id="L132">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="nc" id="L137">		return 1;</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L142">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L147">		return timeDiscretization.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="nc" id="L152">		return timeDiscretization.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public Process clone() {
+<span class="nc" id="L157">		return new LinearInterpolatedTimeDiscreteProcess(timeDiscretization, realizations);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

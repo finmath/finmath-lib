@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DisplacedLognomalModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.models</a> &gt; <span class="el_source">DisplacedLognomalModel.java</span></div><h1>DisplacedLognomalModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.models;
+
+import java.util.Map;
+
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a displaced lognormal model, that is, it provides the drift and volatility specification
+ * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
+ *
+ * The model is
+ * \[
+ * 	\mathrm{d}S = r S \mathrm{d}t + \sigma (d \cdot N + S) \mathrm{d}W, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	\mathrm{d}N = r N \mathrm{d}t, \quad N(0) = N_{0},
+ * \]
+ *
+ * Note that
+ * \[
+ *	\mathrm{d}(S/N) = \sigma (d+S/N) \mathrm{d}W
+ * \]
+ * that is
+ * \[
+ * 	\mathrm{d}X = - 1/2 \sigma^2 \mathrm{d}t + \sigma \mathrm{d}W
+ * \]
+ * with exp(X) = d + S/N, i.e. S = N ( exp(X)-d ).
+ *
+ * The class provides the model of S to an &lt;code&gt;{@link net.finmath.montecarlo.process.MonteCarloProcess}&lt;/code&gt;
+ * via the specification of
+ * \( S = f(X) = N (exp(X)-d) \), \( \mu = -\frac{1}{2} \sigma^{2} \), \( \lambda_{1,1} = \sigma \), i.e.,
+ * of the SDE
+ * \[
+ * 	dX = \mu dt + \lambda_{1,1} dW, \quad X(0) = \log(d+S_{0}),
+ * \]
+ * with \( N(0) = 1 \). See {@link net.finmath.montecarlo.process.MonteCarloProcess} for the notation.
+ *
+ * The model can be interpreted as a linear interpolation of the Black-Scholes model
+ * {@link net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModel}
+ * and the homogeneous Bachelier model
+ * {@link net.finmath.montecarlo.assetderivativevaluation.models.BachelierModel}.
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.1
+ */
+public class DisplacedLognomalModel extends AbstractProcessModel {
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	private final RandomVariable initialValue;
+	private final RandomVariable riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final RandomVariable displacement;
+	private final RandomVariable volatility;
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param displacement The displacement parameter d.
+	 * @param volatility The volatility.
+	 */
+	public DisplacedLognomalModel(
+			final RandomVariableFactory randomVariableFactory,
+			final RandomVariable initialValue,
+			final RandomVariable riskFreeRate,
+			final RandomVariable displacement,
+			final RandomVariable volatility) {
+<span class="fc" id="L81">		super();</span>
+<span class="fc" id="L82">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L83">		this.initialValue	= initialValue;</span>
+<span class="fc" id="L84">		this.riskFreeRate	= riskFreeRate;</span>
+<span class="fc" id="L85">		this.displacement	= displacement;</span>
+<span class="fc" id="L86">		this.volatility		= volatility;</span>
+<span class="fc" id="L87">	}</span>
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param randomVariableFactory The RandomVariableFactory used to generate random variables from constants.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param displacement The displacement parameter d.
+	 * @param volatility The volatility.
+	 */
+	public DisplacedLognomalModel(
+			final RandomVariableFactory randomVariableFactory,
+			final double initialValue,
+			final double riskFreeRate,
+			final double displacement,
+			final double volatility) {
+<span class="fc" id="L104">		this(</span>
+				randomVariableFactory,
+<span class="fc" id="L106">				randomVariableFactory.createRandomVariable(initialValue),</span>
+<span class="fc" id="L107">				randomVariableFactory.createRandomVariable(riskFreeRate),</span>
+<span class="fc" id="L108">				randomVariableFactory.createRandomVariable(displacement),</span>
+<span class="fc" id="L109">				randomVariableFactory.createRandomVariable(volatility)</span>
+				);
+<span class="fc" id="L111">	}</span>
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param displacement The displacement parameter d.
+	 * @param volatility The volatility.
+	 */
+	public DisplacedLognomalModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double displacement,
+			final double volatility) {
+<span class="fc" id="L126">		this(new RandomVariableFromArrayFactory(), initialValue, riskFreeRate, displacement, volatility);</span>
+<span class="fc" id="L127">	}</span>
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="fc" id="L131">		return new RandomVariable[] { initialValue.add(displacement).log() };</span>
+	}
+
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="fc" id="L136">		final RandomVariable[] drift = new RandomVariable[realizationAtTimeIndex.length];</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">		for(int componentIndex = 0; componentIndex&lt;realizationAtTimeIndex.length; componentIndex++) {</span>
+<span class="fc" id="L138">			drift[componentIndex] = volatility.squared().mult(-0.5);</span>
+		}
+<span class="fc" id="L140">		return drift;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L145">		return new RandomVariable[] { volatility };</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L150">		final double time = process.getTime(timeIndex);</span>
+<span class="fc" id="L151">		return randomVariable.exp().sub(displacement).mult(riskFreeRate.mult(time).exp());</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L156">		final double time = process.getTime(timeIndex);</span>
+<span class="fc" id="L157">		return randomVariable.div(riskFreeRate.mult(time).exp()).add(displacement).log();</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+<span class="fc" id="L162">		return riskFreeRate.mult(time).exp();</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L167">		return 1;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L172">		return 1;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L177">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public DisplacedLognomalModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc" id="L185">		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault(&quot;randomVariableFactory&quot;, randomVariableFactory);</span>
+
+<span class="nc" id="L187">		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;initialValue&quot;), initialValue);</span>
+<span class="nc" id="L188">		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;riskFreeRate&quot;), riskFreeRate);</span>
+<span class="nc" id="L189">		final RandomVariable newDisplacement	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;displacement&quot;), displacement);</span>
+<span class="nc" id="L190">		final RandomVariable newVolatility		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;volatility&quot;), volatility);</span>
+
+<span class="nc" id="L192">		return new DisplacedLognomalModel(newRandomVariableFactory, newInitialValue, newRiskFreeRate, newDisplacement, newVolatility);</span>
+	}
+
+
+	@Override
+	public String toString() {
+<span class="nc" id="L198">		return &quot;DisplacedLognomalModelExperimental [randomVariableFactory=&quot; + randomVariableFactory + &quot;, initialValue=&quot;</span>
+				+ initialValue + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, displacement=&quot; + displacement + &quot;, volatility=&quot;
+				+ volatility + &quot;]&quot;;
+	}
+
+	public RandomVariableFactory getRandomVariableFactory() {
+<span class="nc" id="L204">		return randomVariableFactory;</span>
+	}
+
+	public RandomVariable getInitialValue() {
+<span class="nc" id="L208">		return initialValue;</span>
+	}
+
+	/**
+	 * Returns the risk free rate parameter of this model.
+	 *
+	 * @return Returns the riskFreeRate.
+	 */
+	public RandomVariable getRiskFreeRate() {
+<span class="nc" id="L217">		return riskFreeRate;</span>
+	}
+
+	public RandomVariable getDisplacement() {
+<span class="nc" id="L221">		return displacement;</span>
+	}
+
+	/**
+	 * Returns the volatility parameter of this model.
+	 *
+	 * @return Returns the volatility.
+	 */
+	public RandomVariable getVolatility() {
+<span class="nc" id="L230">		return volatility;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

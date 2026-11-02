@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMAsianHestonADI3D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">FDMAsianHestonADI3D.java</span></div><h1>FDMAsianHestonADI3D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.ThomasSolver;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Specialized 3D ADI solver for arithmetic Asian options under a lifted Heston
+ * state
+ * (S, v, I), where
+ *
+ *   dS_t = mu_S dt + diffusion terms,
+ *   dv_t = mu_v dt + diffusion terms,
+ *   dI_t = S_t dt.
+ *
+ * In time-to-maturity tau = T - t, the backward pricing PDE is split as
+ *
+ *   u_tau = A0 u + A1 u + A2 u + A3 u
+ *
+ * with
+ *
+ *   A0: discount term and mixed derivative terms (treated explicitly)
+ *   A1: S-direction drift and diffusion (treated implicitly)
+ *   A2: v-direction drift and diffusion (treated implicitly)
+ * A3: I-direction transport S * u_I (treated with a specialized implicit upwind
+ * solve)
+ *
+ * There is:
+ * - no diffusion in the I direction
+ * - no mixed derivative involving I
+ *
+ * The I direction is pure transport. In tau-time, the correct upwind
+ * discretization is forward in I.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMAsianHestonADI3D extends AbstractADI3D {
+
+	/**
+	 * The stencil builder.
+	 */
+	private final ADI3DStencilBuilder stencilBuilder;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param product The value.
+	 * @param spaceTimeDiscretization The value.
+	 * @param exercise The value.
+	 */
+	public FDMAsianHestonADI3D(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+<span class="nc" id="L61">		super(model, product, spaceTimeDiscretization, exercise);</span>
+<span class="nc" id="L62">		this.stencilBuilder = new ADI3DStencilBuilder(model, getX0Grid(), getX1Grid(), getX2Grid());</span>
+<span class="nc" id="L63">	}</span>
+
+	/**
+	 * Explicit application of A3 u = S * u_I
+	 * using forward upwinding in I:
+	 *
+	 *   u_I(S_i, v_j, I_k) ~ (u_{i,j,k+1} - u_{i,j,k}) / (I_{k+1} - I_k)
+	 *
+	 * for k = 0,...,n2-2.
+	 *
+	 * The top I-row k = n2 - 1 is handled via the upper I boundary.
+	 */
+	@Override
+	protected double[] applyA3Explicit(final double[] u, final double time) {
+<span class="nc" id="L77">		final double[] out = new double[getN()];</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		for (int i0 = 0; i0 &lt; getN0(); i0++) {</span>
+<span class="nc" id="L80">			final double s = getX0Grid()[i0];</span>
+
+<span class="nc bnc" id="L82" title="All 2 branches missed.">			for (int i1 = 0; i1 &lt; getN1(); i1++) {</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">				for (int i2 = 0; i2 &lt; getN2() - 1; i2++) {</span>
+<span class="nc" id="L84">					final double dIUp = getX2Grid()[i2 + 1] - getX2Grid()[i2];</span>
+<span class="nc" id="L85">					out[flatten(i0, i1, i2)] =</span>
+<span class="nc" id="L86">							s * (u[flatten(i0, i1, i2 + 1)] - u[flatten(i0, i1, i2)]) / dIUp;</span>
+				}
+
+<span class="nc" id="L89">				out[flatten(i0, i1, getN2() - 1)] = 0.0;</span>
+			}
+		}
+
+<span class="nc" id="L93">		return out;</span>
+	}
+
+	@Override
+	protected double[] solveFirstDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="nc" id="L102">		final double[] out = rhs.clone();</span>
+
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		for (int i2 = 0; i2 &lt; getN2(); i2++) {</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">			for (int i1 = 0; i1 &lt; getN1(); i1++) {</span>
+<span class="nc" id="L106">				final TridiagonalMatrix m =</span>
+<span class="nc" id="L107">						stencilBuilder.buildFirstDirectionLineMatrix(time, dt, getTheta(), i1, i2);</span>
+
+<span class="nc" id="L109">				final double[] lineRhs = new double[getN0()];</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">				for (int i0 = 0; i0 &lt; getN0(); i0++) {</span>
+<span class="nc" id="L111">					lineRhs[i0] = rhs[flatten(i0, i1, i2)];</span>
+				}
+
+<span class="nc" id="L114">				final double lowerBoundaryValue =</span>
+<span class="nc" id="L115">						getLowerBoundaryValueForFirstDirection(time, i1, i2, lineRhs[0]);</span>
+<span class="nc" id="L116">				final double upperBoundaryValue =</span>
+<span class="nc" id="L117">						getUpperBoundaryValueForFirstDirection(time, i1, i2, lineRhs[getN0() - 1]);</span>
+
+<span class="nc" id="L119">				overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);</span>
+<span class="nc" id="L120">				overwriteBoundaryRow(m, lineRhs, getN0() - 1, upperBoundaryValue);</span>
+
+<span class="nc" id="L122">				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="nc bnc" id="L124" title="All 2 branches missed.">				for (int i0 = 0; i0 &lt; getN0(); i0++) {</span>
+<span class="nc" id="L125">					out[flatten(i0, i1, i2)] = solved[i0];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L130">		return out;</span>
+	}
+
+	@Override
+	protected double[] solveSecondDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="nc" id="L139">		final double[] out = rhs.clone();</span>
+
+<span class="nc bnc" id="L141" title="All 2 branches missed.">		for (int i2 = 0; i2 &lt; getN2(); i2++) {</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">			for (int i0 = 0; i0 &lt; getN0(); i0++) {</span>
+<span class="nc" id="L143">				final TridiagonalMatrix m =</span>
+<span class="nc" id="L144">						stencilBuilder.buildSecondDirectionLineMatrix(time, dt, getTheta(), i0, i2);</span>
+
+<span class="nc" id="L146">				final double[] lineRhs = new double[getN1()];</span>
+<span class="nc bnc" id="L147" title="All 2 branches missed.">				for (int i1 = 0; i1 &lt; getN1(); i1++) {</span>
+<span class="nc" id="L148">					lineRhs[i1] = rhs[flatten(i0, i1, i2)];</span>
+				}
+
+				/*
+				 * Lower boundary in second direction (v-direction):
+				 * overwrite ONLY if explicitly Dirichlet.
+				 */
+<span class="nc" id="L155">				final BoundaryCondition[] lowerConditions =</span>
+<span class="nc" id="L156">						getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[i0], getX1Grid()[0], getX2Grid()[i2]);</span>
+
+<span class="nc bnc" id="L158" title="All 6 branches missed.">				if (lowerConditions != null</span>
+						&amp;&amp; lowerConditions.length &gt; 1
+						&amp;&amp; lowerConditions[1] != null
+<span class="nc bnc" id="L161" title="All 2 branches missed.">						&amp;&amp; lowerConditions[1].isDirichlet()) {</span>
+<span class="nc" id="L162">					overwriteBoundaryRow(m, lineRhs, 0, lowerConditions[1].getValue());</span>
+				}
+
+				/*
+				 * Upper boundary in second direction (v-direction):
+				 * overwrite ONLY if explicitly Dirichlet.
+				 */
+<span class="nc" id="L169">				final BoundaryCondition[] upperConditions =</span>
+<span class="nc" id="L170">						getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[i0], getX1Grid()[getN1() - 1], getX2Grid()[i2]);</span>
+
+<span class="nc bnc" id="L172" title="All 6 branches missed.">				if (upperConditions != null</span>
+						&amp;&amp; upperConditions.length &gt; 1
+						&amp;&amp; upperConditions[1] != null
+<span class="nc bnc" id="L175" title="All 2 branches missed.">						&amp;&amp; upperConditions[1].isDirichlet()) {</span>
+<span class="nc" id="L176">					overwriteBoundaryRow(m, lineRhs, getN1() - 1, upperConditions[1].getValue());</span>
+				}
+
+<span class="nc" id="L179">				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				for (int i1 = 0; i1 &lt; getN1(); i1++) {</span>
+<span class="nc" id="L182">					out[flatten(i0, i1, i2)] = solved[i1];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L187">		return out;</span>
+	}
+
+	@Override
+	protected double[] solveThirdDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="nc" id="L196">		final double[] out = rhs.clone();</span>
+
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		for (int i1 = 0; i1 &lt; getN1(); i1++) {</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">			for (int i0 = 0; i0 &lt; getN0(); i0++) {</span>
+<span class="nc" id="L200">				final double s = getX0Grid()[i0];</span>
+
+<span class="nc" id="L202">				final TridiagonalMatrix m = new TridiagonalMatrix(getN2());</span>
+<span class="nc" id="L203">				final double[] lineRhs = new double[getN2()];</span>
+
+<span class="nc bnc" id="L205" title="All 2 branches missed.">				for (int i2 = 0; i2 &lt; getN2(); i2++) {</span>
+<span class="nc" id="L206">					lineRhs[i2] = rhs[flatten(i0, i1, i2)];</span>
+				}
+
+				/*
+				 * PDE rows for i2 = 0,...,n2-2:
+				 *
+				 * (1 + lambda_k) v_k - lambda_k v_{k+1} = rhs_k
+				 */
+<span class="nc bnc" id="L214" title="All 2 branches missed.">				for (int i2 = 0; i2 &lt; getN2() - 1; i2++) {</span>
+<span class="nc" id="L215">					final double dIUp = getX2Grid()[i2 + 1] - getX2Grid()[i2];</span>
+<span class="nc" id="L216">					final double lambda = getTheta() * dt * s / dIUp;</span>
+
+<span class="nc" id="L218">					m.getLowerDiagonal()[i2] = 0.0;</span>
+<span class="nc" id="L219">					m.getMainDiagonal()[i2] = 1.0 + lambda;</span>
+<span class="nc" id="L220">					m.getUpperDiagonal()[i2] = -lambda;</span>
+				}
+
+				/*
+				 * Last row: default identity, then overwrite only if upper I
+				 * boundary is Dirichlet.
+				 */
+<span class="nc" id="L227">				m.getLowerDiagonal()[getN2() - 1] = 0.0;</span>
+<span class="nc" id="L228">				m.getMainDiagonal()[getN2() - 1] = 1.0;</span>
+<span class="nc" id="L229">				m.getUpperDiagonal()[getN2() - 1] = 0.0;</span>
+
+				/*
+				 * Upper I boundary is the inflow side.
+				 */
+<span class="nc" id="L234">				final BoundaryCondition[] upperConditions =</span>
+<span class="nc" id="L235">						getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[i0], getX1Grid()[i1], getX2Grid()[getN2() - 1]);</span>
+
+<span class="nc bnc" id="L237" title="All 6 branches missed.">				if (upperConditions != null</span>
+						&amp;&amp; upperConditions.length &gt; 2
+						&amp;&amp; upperConditions[2] != null
+<span class="nc bnc" id="L240" title="All 2 branches missed.">						&amp;&amp; upperConditions[2].isDirichlet()) {</span>
+<span class="nc" id="L241">					overwriteBoundaryRow(m, lineRhs, getN2() - 1, upperConditions[2].getValue());</span>
+				}
+
+				/*
+				 * Lower I boundary: overwrite only if explicitly Dirichlet.
+				 * For Asian options this is typically NONE, so row 0 remains a
+				 * PDE row.
+				 */
+<span class="nc" id="L249">				final BoundaryCondition[] lowerConditions =</span>
+<span class="nc" id="L250">						getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[i0], getX1Grid()[i1], getX2Grid()[0]);</span>
+
+<span class="nc bnc" id="L252" title="All 6 branches missed.">				if (lowerConditions != null</span>
+						&amp;&amp; lowerConditions.length &gt; 2
+						&amp;&amp; lowerConditions[2] != null
+<span class="nc bnc" id="L255" title="All 2 branches missed.">						&amp;&amp; lowerConditions[2].isDirichlet()) {</span>
+<span class="nc" id="L256">					overwriteBoundaryRow(m, lineRhs, 0, lowerConditions[2].getValue());</span>
+				}
+
+<span class="nc" id="L259">				final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="nc bnc" id="L261" title="All 2 branches missed.">				for (int i2 = 0; i2 &lt; getN2(); i2++) {</span>
+<span class="nc" id="L262">					out[flatten(i0, i1, i2)] = solved[i2];</span>
+				}
+			}
+		}
+
+<span class="nc" id="L267">		return out;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

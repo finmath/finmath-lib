@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FutureWrapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.concurrency</a> &gt; <span class="el_source">FutureWrapper.java</span></div><h1>FutureWrapper.java</h1><pre class="source lang-java linenums">package net.finmath.concurrency;
+
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+/**
+ * Implementation of the Future interface,
+ * without any concurrent execution.
+ *
+ * This wrapper comes handy, if we want to represent the result of a direct (blocking) valuation
+ * as a future to replace concurrent valuation.
+ *
+ * @author Christian Fries
+ *
+ * @param &lt;V&gt; The result type returned by this Future's get method.
+ * @version 1.0
+ */
+public class FutureWrapper&lt;V&gt; implements Future&lt;V&gt; {
+
+	private final V object;
+
+	/**
+	 * Create a wrapper to an object that looks like a Future on that object.
+	 *
+	 * @param object Object to wrap.
+	 */
+	public FutureWrapper(final V object) {
+<span class="fc" id="L28">		super();</span>
+<span class="fc" id="L29">		this.object = object;</span>
+<span class="fc" id="L30">	}</span>
+
+	@Override
+	public boolean cancel(final boolean mayInterruptIfRunning) {
+<span class="nc" id="L34">		return false;</span>
+	}
+
+	@Override
+	public V get() {
+<span class="fc" id="L39">		return object;</span>
+	}
+
+	@Override
+	public V get(final long arg0, final TimeUnit arg1) {
+<span class="nc" id="L44">		return object;</span>
+	}
+
+	@Override
+	public boolean isCancelled() {
+<span class="nc" id="L49">		return false;</span>
+	}
+
+	@Override
+	public boolean isDone() {
+<span class="nc" id="L54">		return true;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

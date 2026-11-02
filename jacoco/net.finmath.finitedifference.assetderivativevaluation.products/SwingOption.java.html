@@ -1,0 +1,986 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwingOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">SwingOption.java</span></div><h1>SwingOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.DoubleBinaryOperator;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.SwingQuantityMode;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Fixed-strike generalized swing option.
+ *
+ * &lt;p&gt;
+ * A swing option is a multiple-exercise contract with volume constraints. At
+ * each
+ * decision time &lt;i&gt;t&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;, the holder chooses an exercised quantity
+ * &lt;i&gt;q&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; subject to local bounds
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;q&lt;sub&gt;i&lt;/sub&gt; &amp;isin; [q&lt;sub&gt;i&lt;/sub&gt;&lt;sup&gt;min&lt;/sup&gt;,
+ * q&lt;sub&gt;i&lt;/sub&gt;&lt;sup&gt;max&lt;/sup&gt;]&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * and global cumulative constraints
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;Q&lt;sup&gt;min&lt;/sup&gt; &amp;le; &amp;sum;&lt;sub&gt;i=0&lt;/sub&gt;&lt;sup&gt;n-1&lt;/sup&gt; q&lt;sub&gt;i&lt;/sub&gt; &amp;le;
+ * Q&lt;sup&gt;max&lt;/sup&gt;&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For a fixed strike &lt;i&gt;K&lt;/i&gt;, the immediate payoff at decision time
+ * &lt;i&gt;t&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;
+ * is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;q&lt;sub&gt;i&lt;/sub&gt; max(&amp;omega;(S(t&lt;sub&gt;i&lt;/sub&gt;) - K), 0)&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where &lt;i&gt;&amp;omega; = 1&lt;/i&gt; for a call and &lt;i&gt;&amp;omega; = -1&lt;/i&gt; for a put.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The valuation is performed by dynamic programming over an auxiliary state
+ * variable
+ * representing cumulative consumed quantity
+ * &lt;i&gt;Q&lt;sub&gt;i&lt;/sub&gt; = &amp;sum;&lt;sub&gt;k=0&lt;/sub&gt;&lt;sup&gt;i-1&lt;/sup&gt; q&lt;sub&gt;k&lt;/sub&gt;&lt;/i&gt;.
+ * Between
+ * decision dates, continuation values are propagated backward by the finite-
+ * difference
+ * solver of the underlying model. At each decision date the value is obtained
+ * from the
+ * Bellman step
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V&lt;sub&gt;i&lt;/sub&gt;(S,Q) = sup&lt;sub&gt;q &amp;isin; A(i,Q)&lt;/sub&gt;
+ * { q max(&amp;omega;(S-K),0) + C&lt;sub&gt;i&lt;/sub&gt;(S,Q+q) }&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where &lt;i&gt;A(i,Q)&lt;/i&gt; denotes the admissible set induced by local and global
+ * quantity
+ * constraints.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The quantity control may be either bang-bang, where only local extrema are
+ * admissible,
+ * or based on a discretized quantity grid. The implementation supports one- and
+ * two-dimensional finite-difference equity models. Since cumulative consumed
+ * quantity is
+ * an additional path state not contained in the model space grid, a full value
+ * surface
+ * independent of this state is not well defined. Therefore
+ * {@link #getValues(FiniteDifferenceEquityModel)} is intentionally unsupported
+ * in this
+ * implementation, while {@link #getValue(double, FiniteDifferenceEquityModel)}
+ * is
+ * provided at evaluation time 0.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class SwingOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The eps.
+	 */
+	private static final double EPS = 1.0E-12;
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The decision times.
+	 */
+	private final double[] decisionTimes;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The local min quantity.
+	 */
+	private final double[] localMinQuantity;
+	/**
+	 * The local max quantity.
+	 */
+	private final double[] localMaxQuantity;
+	/**
+	 * The global min quantity.
+	 */
+	private final double globalMinQuantity;
+	/**
+	 * The global max quantity.
+	 */
+	private final double globalMaxQuantity;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+	/**
+	 * The quantity mode.
+	 */
+	private final SwingQuantityMode quantityMode;
+	/**
+	 * The quantity grid step.
+	 */
+	private final double quantityGridStep;
+
+	/**
+	 * Creates a generalized swing option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param decisionTimes Exercise decision times.
+	 * @param strike Fixed strike.
+	 * @param localMinQuantity Local minimum quantities.
+	 * @param localMaxQuantity Local maximum quantities.
+	 * @param globalMinQuantity Global minimum total quantity.
+	 * @param globalMaxQuantity Global maximum total quantity.
+	 * @param callOrPut Call/put indicator.
+	 * @param quantityMode Quantity control mode.
+	 * @param quantityGridStep Quantity discretization step for
+	 * {@link SwingQuantityMode#DISCRETE_QUANTITY_GRID}.
+	 */
+	public SwingOption(
+			final String underlyingName,
+			final double[] decisionTimes,
+			final double strike,
+			final double[] localMinQuantity,
+			final double[] localMaxQuantity,
+			final double globalMinQuantity,
+			final double globalMaxQuantity,
+			final CallOrPut callOrPut,
+			final SwingQuantityMode quantityMode,
+<span class="nc" id="L177">			final double quantityGridStep) {</span>
+
+<span class="nc bnc" id="L179" title="All 4 branches missed.">		if (decisionTimes == null || decisionTimes.length == 0) {</span>
+<span class="nc" id="L180">			throw new IllegalArgumentException(&quot;decisionTimes must contain at least one time.&quot;);</span>
+		}
+<span class="nc bnc" id="L182" title="All 4 branches missed.">		if (localMinQuantity == null || localMaxQuantity == null) {</span>
+<span class="nc" id="L183">			throw new IllegalArgumentException(&quot;Local quantity arrays must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L185" title="All 4 branches missed.">		if (localMinQuantity.length != decisionTimes.length || localMaxQuantity.length != decisionTimes.length) {</span>
+<span class="nc" id="L186">			throw new IllegalArgumentException(&quot;Local quantity arrays must have the same length as decisionTimes.&quot;);</span>
+		}
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		if (strike &lt; 0.0) {</span>
+<span class="nc" id="L189">			throw new IllegalArgumentException(&quot;strike must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (callOrPut == null) {</span>
+<span class="nc" id="L192">			throw new IllegalArgumentException(&quot;callOrPut must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L194" title="All 2 branches missed.">		if (quantityMode == null) {</span>
+<span class="nc" id="L195">			throw new IllegalArgumentException(&quot;quantityMode must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L197" title="All 4 branches missed.">		if (quantityMode == SwingQuantityMode.DISCRETE_QUANTITY_GRID &amp;&amp; quantityGridStep &lt;= 0.0) {</span>
+<span class="nc" id="L198">			throw new IllegalArgumentException(&quot;quantityGridStep must be positive for DISCRETE_QUANTITY_GRID mode.&quot;);</span>
+		}
+
+<span class="nc" id="L201">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L202">		this.decisionTimes = decisionTimes.clone();</span>
+<span class="nc" id="L203">		this.maturity = decisionTimes[decisionTimes.length - 1];</span>
+<span class="nc" id="L204">		this.strike = strike;</span>
+<span class="nc" id="L205">		this.localMinQuantity = localMinQuantity.clone();</span>
+<span class="nc" id="L206">		this.localMaxQuantity = localMaxQuantity.clone();</span>
+<span class="nc" id="L207">		this.globalMinQuantity = globalMinQuantity;</span>
+<span class="nc" id="L208">		this.globalMaxQuantity = globalMaxQuantity;</span>
+<span class="nc" id="L209">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L210">		this.quantityMode = quantityMode;</span>
+<span class="nc" id="L211">		this.quantityGridStep = quantityGridStep;</span>
+
+<span class="nc" id="L213">		validateInputs();</span>
+<span class="nc" id="L214">	}</span>
+
+	/**
+	 * Creates a generalized swing option with anonymous underlying.
+	 *
+	 * @param decisionTimes Exercise decision times.
+	 * @param strike Fixed strike.
+	 * @param localMinQuantity Local minimum quantities.
+	 * @param localMaxQuantity Local maximum quantities.
+	 * @param globalMinQuantity Global minimum total quantity.
+	 * @param globalMaxQuantity Global maximum total quantity.
+	 * @param callOrPut Call/put indicator.
+	 * @param quantityMode Quantity control mode.
+	 * @param quantityGridStep Quantity discretization step for
+	 * {@link SwingQuantityMode#DISCRETE_QUANTITY_GRID}.
+	 */
+	public SwingOption(
+			final double[] decisionTimes,
+			final double strike,
+			final double[] localMinQuantity,
+			final double[] localMaxQuantity,
+			final double globalMinQuantity,
+			final double globalMaxQuantity,
+			final CallOrPut callOrPut,
+			final SwingQuantityMode quantityMode,
+			final double quantityGridStep) {
+<span class="nc" id="L240">		this(</span>
+				null,
+				decisionTimes,
+				strike,
+				localMinQuantity,
+				localMaxQuantity,
+				globalMinQuantity,
+				globalMaxQuantity,
+				callOrPut,
+				quantityMode,
+				quantityGridStep
+				);
+<span class="nc" id="L252">	}</span>
+
+	/**
+	 * Creates a generalized swing option with time-homogeneous local bounds.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param decisionTimes Exercise decision times.
+	 * @param strike Fixed strike.
+	 * @param localMinQuantity Constant local minimum quantity.
+	 * @param localMaxQuantity Constant local maximum quantity.
+	 * @param globalMinQuantity Global minimum total quantity.
+	 * @param globalMaxQuantity Global maximum total quantity.
+	 * @param callOrPut Call/put indicator.
+	 * @param quantityMode Quantity control mode.
+	 * @param quantityGridStep Quantity discretization step for
+	 * {@link SwingQuantityMode#DISCRETE_QUANTITY_GRID}.
+	 */
+	public SwingOption(
+			final String underlyingName,
+			final double[] decisionTimes,
+			final double strike,
+			final double localMinQuantity,
+			final double localMaxQuantity,
+			final double globalMinQuantity,
+			final double globalMaxQuantity,
+			final CallOrPut callOrPut,
+			final SwingQuantityMode quantityMode,
+			final double quantityGridStep) {
+<span class="nc" id="L280">		this(</span>
+				underlyingName,
+				decisionTimes,
+				strike,
+<span class="nc" id="L284">				fill(decisionTimes.length, localMinQuantity),</span>
+<span class="nc" id="L285">				fill(decisionTimes.length, localMaxQuantity),</span>
+				globalMinQuantity,
+				globalMaxQuantity,
+				callOrPut,
+				quantityMode,
+				quantityGridStep
+				);
+<span class="nc" id="L292">	}</span>
+
+	/**
+	 * Creates a generalized swing option with anonymous underlying and time-
+	 * homogeneous
+	 * local bounds.
+	 *
+	 * @param decisionTimes Exercise decision times.
+	 * @param strike Fixed strike.
+	 * @param localMinQuantity Constant local minimum quantity.
+	 * @param localMaxQuantity Constant local maximum quantity.
+	 * @param globalMinQuantity Global minimum total quantity.
+	 * @param globalMaxQuantity Global maximum total quantity.
+	 * @param callOrPut Call/put indicator.
+	 * @param quantityMode Quantity control mode.
+	 * @param quantityGridStep Quantity discretization step for
+	 * {@link SwingQuantityMode#DISCRETE_QUANTITY_GRID}.
+	 */
+	public SwingOption(
+			final double[] decisionTimes,
+			final double strike,
+			final double localMinQuantity,
+			final double localMaxQuantity,
+			final double globalMinQuantity,
+			final double globalMaxQuantity,
+			final CallOrPut callOrPut,
+			final SwingQuantityMode quantityMode,
+			final double quantityGridStep) {
+<span class="nc" id="L320">		this(</span>
+				null,
+				decisionTimes,
+				strike,
+				localMinQuantity,
+				localMaxQuantity,
+				globalMinQuantity,
+				globalMaxQuantity,
+				callOrPut,
+				quantityMode,
+				quantityGridStep
+				);
+<span class="nc" id="L332">	}</span>
+
+	/**
+	 * Returns the value at the given evaluation time.
+	 *
+	 * &lt;p&gt;
+	 * In this implementation only evaluation time 0 is supported, since for
+	 * later
+	 * times the cumulative consumed quantity would have to be supplied
+	 * explicitly.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param model The finite-difference model.
+	 * @return The value on the model space grid.
+	 */
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+
+<span class="nc bnc" id="L351" title="All 2 branches missed.">		if (Math.abs(evaluationTime) &gt; EPS) {</span>
+<span class="nc" id="L352">			throw new UnsupportedOperationException(</span>
+					&quot;SwingOption v1 supports getValue only at evaluationTime = 0. &quot;
+							+ &quot;For later times, cumulative consumed quantity would need to be supplied explicitly.&quot;
+					);
+		}
+<span class="nc bnc" id="L357" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L358">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L361">		final SpaceTimeDiscretization baseDiscretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L362">		final int dimensions = baseDiscretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L364" title="All 4 branches missed.">		if (dimensions != 1 &amp;&amp; dimensions != 2) {</span>
+<span class="nc" id="L365">			throw new IllegalArgumentException(&quot;SwingOption currently supports only 1D and 2D models.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L368" title="All 4 branches missed.">		if (globalMaxQuantity &lt;= EPS || getTotalLocalMaxQuantity() &lt;= EPS) {</span>
+<span class="nc" id="L369">			return new double[getNumberOfStates(baseDiscretization)];</span>
+		}
+
+<span class="nc" id="L372">		final List&lt;double[]&gt; cumulativeQuantityGrids = buildCumulativeQuantityGrids();</span>
+
+<span class="nc" id="L374">		List&lt;double[]&gt; nextDecisionValueSlices = null;</span>
+
+<span class="nc bnc" id="L376" title="All 2 branches missed.">		for (int decisionIndex = decisionTimes.length - 1; decisionIndex &gt;= 0; decisionIndex--) {</span>
+
+<span class="nc" id="L378">			final double[] previousQuantityGrid = cumulativeQuantityGrids.get(decisionIndex);</span>
+<span class="nc" id="L379">			final double[] nextQuantityGrid = cumulativeQuantityGrids.get(decisionIndex + 1);</span>
+
+			final List&lt;double[]&gt; continuationSlicesAtCurrentDecision;
+
+<span class="nc bnc" id="L383" title="All 2 branches missed.">			if (nextDecisionValueSlices == null) {</span>
+<span class="nc" id="L384">				continuationSlicesAtCurrentDecision = null;</span>
+			} else {
+<span class="nc" id="L386">				final double segmentLength = decisionTimes[decisionIndex + 1] - decisionTimes[decisionIndex];</span>
+<span class="nc" id="L387">				continuationSlicesAtCurrentDecision = propagateBackwardOverSegment(</span>
+						model,
+						segmentLength,
+						nextDecisionValueSlices
+						);
+			}
+
+<span class="nc" id="L394">			nextDecisionValueSlices = applySwingStepConditionAtDecision(</span>
+					decisionIndex,
+					baseDiscretization,
+					previousQuantityGrid,
+					nextQuantityGrid,
+					continuationSlicesAtCurrentDecision
+					);
+		}
+
+<span class="nc bnc" id="L403" title="All 4 branches missed.">		if (nextDecisionValueSlices == null || nextDecisionValueSlices.size() != 1) {</span>
+<span class="nc" id="L404">			throw new IllegalStateException(&quot;Internal error in swing recursion.&quot;);</span>
+		}
+
+<span class="nc" id="L407">		final double[] valueAtFirstDecision = nextDecisionValueSlices.get(0);</span>
+
+<span class="nc bnc" id="L409" title="All 2 branches missed.">		if (decisionTimes[0] &lt;= EPS) {</span>
+<span class="nc" id="L410">			return valueAtFirstDecision;</span>
+		}
+
+<span class="nc" id="L413">		final List&lt;double[]&gt; valueAtTimeZero = propagateBackwardOverSegment(</span>
+				model,
+				decisionTimes[0],
+<span class="nc" id="L416">				Arrays.asList(valueAtFirstDecision)</span>
+				);
+
+<span class="nc" id="L419">		return valueAtTimeZero.get(0);</span>
+	}
+
+	/**
+	 * Returns the full value surface.
+	 *
+	 * &lt;p&gt;
+	 * This operation is intentionally unsupported, since the contract value
+	 * depends on
+	 * the additional cumulative-quantity state.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference model.
+	 * @return Never returns normally.
+	 */
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L436">		throw new UnsupportedOperationException(</span>
+				&quot;SwingOption carries an additional cumulative-quantity state. &quot;
+						+ &quot;A path-state-aware value surface container is required. &quot;
+						+ &quot;Use getValue(0.0, model) in this v1 implementation.&quot;
+				);
+	}
+
+	private List&lt;double[]&gt; applySwingStepConditionAtDecision(
+			final int decisionIndex,
+			final SpaceTimeDiscretization discretization,
+			final double[] previousQuantityGrid,
+			final double[] nextQuantityGrid,
+			final List&lt;double[]&gt; continuationSlicesAtCurrentDecision) {
+
+<span class="nc" id="L450">		final int numberOfStates = getNumberOfStates(discretization);</span>
+<span class="nc" id="L451">		final double[] unitIntrinsic = buildUnitIntrinsicVector(discretization);</span>
+
+<span class="nc" id="L453">		final List&lt;double[]&gt; valueSlicesBeforeDecision = new ArrayList&lt;&gt;(previousQuantityGrid.length);</span>
+
+<span class="nc bnc" id="L455" title="All 2 branches missed.">		for (int previousIndex = 0; previousIndex &lt; previousQuantityGrid.length; previousIndex++) {</span>
+
+<span class="nc" id="L457">			final double previousQuantity = previousQuantityGrid[previousIndex];</span>
+<span class="nc" id="L458">			final int[] admissibleDestinationIndices = getAdmissibleDestinationIndices(</span>
+					decisionIndex,
+					previousQuantity,
+					nextQuantityGrid
+					);
+
+<span class="nc bnc" id="L464" title="All 2 branches missed.">			if (admissibleDestinationIndices.length == 0) {</span>
+<span class="nc" id="L465">				throw new IllegalStateException(</span>
+						&quot;No admissible next quantities found from previous cumulative quantity &quot; + previousQuantity
+						);
+			}
+
+<span class="nc" id="L470">			final double[] valueSlice = new double[numberOfStates];</span>
+<span class="nc" id="L471">			Arrays.fill(valueSlice, Double.NEGATIVE_INFINITY);</span>
+
+<span class="nc bnc" id="L473" title="All 2 branches missed.">			for (final int nextIndex : admissibleDestinationIndices) {</span>
+
+<span class="nc" id="L475">				final double nextQuantity = nextQuantityGrid[nextIndex];</span>
+<span class="nc" id="L476">				final double exercisedQuantity = nextQuantity - previousQuantity;</span>
+<span class="nc bnc" id="L477" title="All 2 branches missed.">				final double[] continuation = continuationSlicesAtCurrentDecision == null</span>
+<span class="nc" id="L478">						? null</span>
+<span class="nc" id="L479">								: continuationSlicesAtCurrentDecision.get(nextIndex);</span>
+
+<span class="nc bnc" id="L481" title="All 2 branches missed.">				for (int stateIndex = 0; stateIndex &lt; numberOfStates; stateIndex++) {</span>
+<span class="nc" id="L482">					final double candidate =</span>
+							exercisedQuantity * unitIntrinsic[stateIndex]
+<span class="nc bnc" id="L484" title="All 2 branches missed.">									+ (continuation == null ? 0.0 : continuation[stateIndex]);</span>
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">					if (candidate &gt; valueSlice[stateIndex]) {</span>
+<span class="nc" id="L487">						valueSlice[stateIndex] = candidate;</span>
+					}
+				}
+			}
+
+<span class="nc" id="L492">			valueSlicesBeforeDecision.add(valueSlice);</span>
+		}
+
+<span class="nc" id="L495">		return valueSlicesBeforeDecision;</span>
+	}
+
+	private List&lt;double[]&gt; propagateBackwardOverSegment(
+			final FiniteDifferenceEquityModel model,
+			final double segmentLength,
+			final List&lt;double[]&gt; terminalSlicesAtSegmentEnd) {
+
+<span class="nc bnc" id="L503" title="All 2 branches missed.">		if (segmentLength &lt;= EPS) {</span>
+<span class="nc" id="L504">			return deepCopySlices(terminalSlicesAtSegmentEnd);</span>
+		}
+
+<span class="nc" id="L507">		final SpaceTimeDiscretization segmentDiscretization = createSegmentDiscretization(</span>
+<span class="nc" id="L508">				model.getSpaceTimeDiscretization(),</span>
+				segmentLength
+				);
+
+<span class="nc" id="L512">		final FiniteDifferenceEquityModel segmentModel =</span>
+<span class="nc" id="L513">				model.getCloneWithModifiedSpaceTimeDiscretization(segmentDiscretization);</span>
+
+<span class="nc" id="L515">		final FiniteDifferenceEquityProduct proxyProduct =</span>
+				new EuropeanOption(underlyingName, segmentLength, strike, callOrPut);
+
+<span class="nc" id="L518">		final int dimensions = segmentDiscretization.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L519">		final List&lt;double[]&gt; propagated = new ArrayList&lt;&gt;(terminalSlicesAtSegmentEnd.size());</span>
+
+<span class="nc bnc" id="L521" title="All 2 branches missed.">		if (dimensions == 1) {</span>
+<span class="nc" id="L522">			final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+					segmentModel,
+					proxyProduct,
+					segmentDiscretization,
+					new EuropeanExercise(segmentLength)
+					);
+
+<span class="nc bnc" id="L529" title="All 2 branches missed.">			for (final double[] terminalSlice : terminalSlicesAtSegmentEnd) {</span>
+<span class="nc" id="L530">				propagated.add(solver.getValue(0.0, segmentLength, terminalSlice));</span>
+<span class="nc" id="L531">			}</span>
+<span class="nc bnc" id="L532" title="All 2 branches missed.">		} else if (dimensions == 2) {</span>
+<span class="nc" id="L533">			final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+					segmentModel,
+					proxyProduct,
+					segmentDiscretization,
+					new EuropeanExercise(segmentLength)
+					);
+
+<span class="nc" id="L540">			final double[] x0Grid = segmentDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L541">			final double[] x1Grid = segmentDiscretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L543" title="All 2 branches missed.">			for (final double[] terminalSlice : terminalSlicesAtSegmentEnd) {</span>
+<span class="nc" id="L544">				final DoubleBinaryOperator terminalFunction =</span>
+<span class="nc" id="L545">						(x0, x1) -&gt; interpolate2DWithConstantExtrapolation(</span>
+								terminalSlice,
+								x0Grid,
+								x1Grid,
+								x0,
+								x1
+								);
+
+<span class="nc" id="L553">						propagated.add(solver.getValue(0.0, segmentLength, terminalFunction));</span>
+<span class="nc" id="L554">			}</span>
+<span class="nc" id="L555">		} else {</span>
+<span class="nc" id="L556">			throw new IllegalArgumentException(&quot;Only 1D and 2D models are supported.&quot;);</span>
+		}
+
+<span class="nc" id="L559">		return propagated;</span>
+	}
+
+	private List&lt;double[]&gt; buildCumulativeQuantityGrids() {
+
+<span class="nc" id="L564">		final int numberOfDecisionTimes = decisionTimes.length;</span>
+
+<span class="nc" id="L566">		final double[] suffixMin = new double[numberOfDecisionTimes + 1];</span>
+<span class="nc" id="L567">		final double[] suffixMax = new double[numberOfDecisionTimes + 1];</span>
+
+<span class="nc bnc" id="L569" title="All 2 branches missed.">		for (int i = numberOfDecisionTimes - 1; i &gt;= 0; i--) {</span>
+<span class="nc" id="L570">			suffixMin[i] = suffixMin[i + 1] + localMinQuantity[i];</span>
+<span class="nc" id="L571">			suffixMax[i] = suffixMax[i + 1] + localMaxQuantity[i];</span>
+		}
+
+<span class="nc" id="L574">		final List&lt;double[]&gt; grids = new ArrayList&lt;&gt;(numberOfDecisionTimes + 1);</span>
+<span class="nc" id="L575">		grids.add(new double[] {0.0 });</span>
+
+<span class="nc bnc" id="L577" title="All 2 branches missed.">		for (int decisionIndex = 0; decisionIndex &lt; numberOfDecisionTimes; decisionIndex++) {</span>
+
+<span class="nc" id="L579">			final double[] previousGrid = grids.get(decisionIndex);</span>
+<span class="nc" id="L580">			final double[] localQuantityCandidates = buildLocalQuantityCandidates(decisionIndex);</span>
+
+<span class="nc" id="L582">			final List&lt;Double&gt; nextGridCandidates = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L584" title="All 2 branches missed.">			for (final double previousQuantity : previousGrid) {</span>
+<span class="nc bnc" id="L585" title="All 2 branches missed.">				for (final double exercisedQuantity : localQuantityCandidates) {</span>
+
+<span class="nc" id="L587">					final double nextQuantity = previousQuantity + exercisedQuantity;</span>
+
+<span class="nc bnc" id="L589" title="All 2 branches missed.">					final boolean canStillReachGlobalMinimum =</span>
+							nextQuantity + suffixMax[decisionIndex + 1] &gt;= globalMinQuantity - EPS;
+
+<span class="nc bnc" id="L592" title="All 2 branches missed.">							final boolean canStillRespectGlobalMaximum =</span>
+									nextQuantity + suffixMin[decisionIndex + 1] &lt;= globalMaxQuantity + EPS;
+
+<span class="nc bnc" id="L595" title="All 4 branches missed.">							if (canStillReachGlobalMinimum &amp;&amp; canStillRespectGlobalMaximum) {</span>
+<span class="nc" id="L596">								nextGridCandidates.add(nextQuantity);</span>
+							}
+				}
+			}
+
+<span class="nc" id="L601">			final double[] nextGrid = uniqueSorted(nextGridCandidates);</span>
+<span class="nc bnc" id="L602" title="All 2 branches missed.">			if (nextGrid.length == 0) {</span>
+<span class="nc" id="L603">				throw new IllegalArgumentException(</span>
+						&quot;No feasible cumulative quantity states found at decision index &quot; + decisionIndex
+						);
+			}
+
+<span class="nc" id="L608">			grids.add(nextGrid);</span>
+		}
+
+<span class="nc" id="L611">		return grids;</span>
+	}
+
+	private double[] buildLocalQuantityCandidates(final int decisionIndex) {
+
+<span class="nc" id="L616">		final double localMin = localMinQuantity[decisionIndex];</span>
+<span class="nc" id="L617">		final double localMax = localMaxQuantity[decisionIndex];</span>
+
+<span class="nc bnc" id="L619" title="All 2 branches missed.">		if (quantityMode == SwingQuantityMode.BANG_BANG) {</span>
+<span class="nc bnc" id="L620" title="All 2 branches missed.">			if (Math.abs(localMax - localMin) &lt; EPS) {</span>
+<span class="nc" id="L621">				return new double[] {localMin };</span>
+			}
+<span class="nc" id="L623">			return new double[] {localMin, localMax };</span>
+		}
+
+<span class="nc" id="L626">		final List&lt;Double&gt; candidates = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L627">		double current = localMin;</span>
+
+<span class="nc bnc" id="L629" title="All 2 branches missed.">		while (current &lt; localMax - EPS) {</span>
+<span class="nc" id="L630">			candidates.add(current);</span>
+<span class="nc" id="L631">			current += quantityGridStep;</span>
+		}
+<span class="nc" id="L633">		candidates.add(localMax);</span>
+
+<span class="nc" id="L635">		return uniqueSorted(candidates);</span>
+	}
+
+	private int[] getAdmissibleDestinationIndices(
+			final int decisionIndex,
+			final double previousQuantity,
+			final double[] nextQuantityGrid) {
+
+<span class="nc" id="L643">		final double localMin = localMinQuantity[decisionIndex];</span>
+<span class="nc" id="L644">		final double localMax = localMaxQuantity[decisionIndex];</span>
+
+<span class="nc" id="L646">		final List&lt;Integer&gt; indices = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L648" title="All 2 branches missed.">		for (int nextIndex = 0; nextIndex &lt; nextQuantityGrid.length; nextIndex++) {</span>
+<span class="nc" id="L649">			final double exercisedQuantity = nextQuantityGrid[nextIndex] - previousQuantity;</span>
+
+<span class="nc bnc" id="L651" title="All 4 branches missed.">			if (exercisedQuantity &gt;= localMin - EPS</span>
+					&amp;&amp; exercisedQuantity &lt;= localMax + EPS) {
+<span class="nc" id="L653">				indices.add(nextIndex);</span>
+			}
+		}
+
+<span class="nc" id="L657">		final int[] result = new int[indices.size()];</span>
+<span class="nc bnc" id="L658" title="All 2 branches missed.">		for (int i = 0; i &lt; indices.size(); i++) {</span>
+<span class="nc" id="L659">			result[i] = indices.get(i);</span>
+		}
+<span class="nc" id="L661">		return result;</span>
+	}
+
+	private double[] buildUnitIntrinsicVector(final SpaceTimeDiscretization discretization) {
+
+<span class="nc" id="L666">		final double[] x0Grid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L667">		final int dimensions = discretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L669" title="All 2 branches missed.">		if (dimensions == 1) {</span>
+<span class="nc" id="L670">			final double[] payoff = new double[x0Grid.length];</span>
+<span class="nc bnc" id="L671" title="All 2 branches missed.">			for (int i = 0; i &lt; x0Grid.length; i++) {</span>
+<span class="nc" id="L672">				payoff[i] = unitIntrinsic(x0Grid[i]);</span>
+			}
+<span class="nc" id="L674">			return payoff;</span>
+<span class="nc bnc" id="L675" title="All 2 branches missed.">		} else if (dimensions == 2) {</span>
+<span class="nc" id="L676">			final double[] x1Grid = discretization.getSpaceGrid(1).getGrid();</span>
+<span class="nc" id="L677">			final double[] payoff = new double[x0Grid.length * x1Grid.length];</span>
+
+<span class="nc bnc" id="L679" title="All 2 branches missed.">			for (int j = 0; j &lt; x1Grid.length; j++) {</span>
+<span class="nc bnc" id="L680" title="All 2 branches missed.">				for (int i = 0; i &lt; x0Grid.length; i++) {</span>
+<span class="nc" id="L681">					payoff[flatten(i, j, x0Grid.length)] = unitIntrinsic(x0Grid[i]);</span>
+				}
+			}
+<span class="nc" id="L684">			return payoff;</span>
+		} else {
+<span class="nc" id="L686">			throw new IllegalArgumentException(&quot;Only 1D and 2D models are supported.&quot;);</span>
+		}
+	}
+
+	private double unitIntrinsic(final double assetValue) {
+<span class="nc" id="L691">		final double signedIntrinsic = callOrPut.toInteger() * (assetValue - strike);</span>
+<span class="nc" id="L692">		return Math.max(signedIntrinsic, 0.0);</span>
+	}
+
+	private SpaceTimeDiscretization createSegmentDiscretization(
+			final SpaceTimeDiscretization baseDiscretization,
+			final double segmentLength) {
+
+<span class="nc" id="L699">		final TimeDiscretization baseTimeDiscretization = baseDiscretization.getTimeDiscretization();</span>
+<span class="nc" id="L700">		final int baseNumberOfTimeSteps = baseTimeDiscretization.getNumberOfTimeSteps();</span>
+<span class="nc" id="L701">		final double baseLastTime = Math.max(baseTimeDiscretization.getLastTime(), EPS);</span>
+
+<span class="nc" id="L703">		final int segmentNumberOfTimeSteps = Math.max(</span>
+				1,
+<span class="nc" id="L705">				(int) Math.round(baseNumberOfTimeSteps * segmentLength / baseLastTime)</span>
+				);
+
+<span class="nc" id="L708">		final TimeDiscretization segmentTimeDiscretization = new TimeDiscretizationFromArray(</span>
+				0.0,
+				segmentNumberOfTimeSteps,
+				segmentLength / segmentNumberOfTimeSteps
+				);
+
+<span class="nc bnc" id="L714" title="All 2 branches missed.">		if (baseDiscretization.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L715">			return new SpaceTimeDiscretization(</span>
+<span class="nc" id="L716">					baseDiscretization.getSpaceGrid(0),</span>
+					segmentTimeDiscretization,
+<span class="nc" id="L718">					baseDiscretization.getTheta(),</span>
+<span class="nc" id="L719">					new double[] {baseDiscretization.getCenter(0) }</span>
+					);
+		}
+
+<span class="nc" id="L723">		final int numberOfSpaceGrids = baseDiscretization.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L724">		final Grid[] spaceGrids = new Grid[numberOfSpaceGrids];</span>
+<span class="nc" id="L725">		final double[] center = new double[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L727" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L728">			spaceGrids[i] = baseDiscretization.getSpaceGrid(i);</span>
+<span class="nc" id="L729">			center[i] = baseDiscretization.getCenter(i);</span>
+		}
+
+<span class="nc" id="L732">		return new SpaceTimeDiscretization(</span>
+				spaceGrids,
+				segmentTimeDiscretization,
+<span class="nc" id="L735">				baseDiscretization.getTheta(),</span>
+				center
+				);
+	}
+
+	private int getNumberOfStates(final SpaceTimeDiscretization discretization) {
+<span class="nc bnc" id="L741" title="All 2 branches missed.">		if (discretization.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L742">			return discretization.getSpaceGrid(0).getGrid().length;</span>
+		}
+<span class="nc" id="L744">		return discretization.getSpaceGrid(0).getGrid().length</span>
+<span class="nc" id="L745">				* discretization.getSpaceGrid(1).getGrid().length;</span>
+	}
+
+	private double interpolate2DWithConstantExtrapolation(
+			final double[] flattenedValues,
+			final double[] x0Grid,
+			final double[] x1Grid,
+			final double x0Query,
+			final double x1Query) {
+
+<span class="nc" id="L755">		final int i0 = getLowerBracketIndexWithConstantExtrapolation(x0Grid, x0Query);</span>
+<span class="nc" id="L756">		final int i1 = Math.min(i0 + 1, x0Grid.length - 1);</span>
+
+<span class="nc" id="L758">		final int j0 = getLowerBracketIndexWithConstantExtrapolation(x1Grid, x1Query);</span>
+<span class="nc" id="L759">		final int j1 = Math.min(j0 + 1, x1Grid.length - 1);</span>
+
+<span class="nc" id="L761">		final double x0L = x0Grid[i0];</span>
+<span class="nc" id="L762">		final double x0U = x0Grid[i1];</span>
+<span class="nc" id="L763">		final double x1L = x1Grid[j0];</span>
+<span class="nc" id="L764">		final double x1U = x1Grid[j1];</span>
+
+<span class="nc" id="L766">		final double f00 = flattenedValues[flatten(i0, j0, x0Grid.length)];</span>
+<span class="nc" id="L767">		final double f10 = flattenedValues[flatten(i1, j0, x0Grid.length)];</span>
+<span class="nc" id="L768">		final double f01 = flattenedValues[flatten(i0, j1, x0Grid.length)];</span>
+<span class="nc" id="L769">		final double f11 = flattenedValues[flatten(i1, j1, x0Grid.length)];</span>
+
+<span class="nc bnc" id="L771" title="All 4 branches missed.">		final double wx = (i0 == i1 || Math.abs(x0U - x0L) &lt; EPS) ? 0.0 : (x0Query - x0L) / (x0U - x0L);</span>
+<span class="nc bnc" id="L772" title="All 4 branches missed.">		final double wy = (j0 == j1 || Math.abs(x1U - x1L) &lt; EPS) ? 0.0 : (x1Query - x1L) / (x1U - x1L);</span>
+
+<span class="nc" id="L774">		return (1.0 - wx) * (1.0 - wy) * f00</span>
+				+ wx * (1.0 - wy) * f10
+				+ (1.0 - wx) * wy * f01
+				+ wx * wy * f11;
+	}
+
+	private int getLowerBracketIndexWithConstantExtrapolation(final double[] grid, final double x) {
+<span class="nc bnc" id="L781" title="All 2 branches missed.">		if (x &lt;= grid[0]) {</span>
+<span class="nc" id="L782">			return 0;</span>
+		}
+<span class="nc bnc" id="L784" title="All 2 branches missed.">		if (x &gt;= grid[grid.length - 1]) {</span>
+<span class="nc" id="L785">			return grid.length - 2;</span>
+		}
+
+<span class="nc" id="L788">		int upperIndex = 1;</span>
+<span class="nc bnc" id="L789" title="All 4 branches missed.">		while (upperIndex &lt; grid.length &amp;&amp; grid[upperIndex] &lt; x) {</span>
+<span class="nc" id="L790">			upperIndex++;</span>
+		}
+<span class="nc" id="L792">		return upperIndex - 1;</span>
+	}
+
+	private int flatten(final int i0, final int i1, final int n0) {
+<span class="nc" id="L796">		return i0 + i1 * n0;</span>
+	}
+
+	private List&lt;double[]&gt; deepCopySlices(final List&lt;double[]&gt; slices) {
+<span class="nc" id="L800">		final List&lt;double[]&gt; copy = new ArrayList&lt;&gt;(slices.size());</span>
+<span class="nc bnc" id="L801" title="All 2 branches missed.">		for (final double[] slice : slices) {</span>
+<span class="nc" id="L802">			copy.add(slice.clone());</span>
+<span class="nc" id="L803">		}</span>
+<span class="nc" id="L804">		return copy;</span>
+	}
+
+	private double[] uniqueSorted(final List&lt;Double&gt; values) {
+<span class="nc bnc" id="L808" title="All 2 branches missed.">		if (values.isEmpty()) {</span>
+<span class="nc" id="L809">			return new double[0];</span>
+		}
+
+<span class="nc" id="L812">		final double[] raw = new double[values.size()];</span>
+<span class="nc bnc" id="L813" title="All 2 branches missed.">		for (int i = 0; i &lt; values.size(); i++) {</span>
+<span class="nc" id="L814">			raw[i] = values.get(i);</span>
+		}
+<span class="nc" id="L816">		Arrays.sort(raw);</span>
+
+<span class="nc" id="L818">		final List&lt;Double&gt; unique = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L819">		unique.add(raw[0]);</span>
+
+<span class="nc bnc" id="L821" title="All 2 branches missed.">		for (int i = 1; i &lt; raw.length; i++) {</span>
+<span class="nc bnc" id="L822" title="All 2 branches missed.">			if (Math.abs(raw[i] - unique.get(unique.size() - 1)) &gt; 1.0E-10) {</span>
+<span class="nc" id="L823">				unique.add(raw[i]);</span>
+			}
+		}
+
+<span class="nc" id="L827">		final double[] result = new double[unique.size()];</span>
+<span class="nc bnc" id="L828" title="All 2 branches missed.">		for (int i = 0; i &lt; unique.size(); i++) {</span>
+<span class="nc" id="L829">			result[i] = unique.get(i);</span>
+		}
+<span class="nc" id="L831">		return result;</span>
+	}
+
+	private double getTotalLocalMaxQuantity() {
+<span class="nc" id="L835">		double total = 0.0;</span>
+<span class="nc bnc" id="L836" title="All 2 branches missed.">		for (final double q : localMaxQuantity) {</span>
+<span class="nc" id="L837">			total += q;</span>
+		}
+<span class="nc" id="L839">		return total;</span>
+	}
+
+	private static double[] fill(final int n, final double value) {
+<span class="nc" id="L843">		final double[] x = new double[n];</span>
+<span class="nc" id="L844">		Arrays.fill(x, value);</span>
+<span class="nc" id="L845">		return x;</span>
+	}
+
+	private void validateInputs() {
+
+<span class="nc bnc" id="L850" title="All 2 branches missed.">		for (int i = 0; i &lt; decisionTimes.length; i++) {</span>
+<span class="nc bnc" id="L851" title="All 2 branches missed.">			if (decisionTimes[i] &lt; 0.0) {</span>
+<span class="nc" id="L852">				throw new IllegalArgumentException(&quot;decisionTimes must be non-negative.&quot;);</span>
+			}
+<span class="nc bnc" id="L854" title="All 4 branches missed.">			if (i &gt; 0 &amp;&amp; decisionTimes[i] &lt;= decisionTimes[i - 1]) {</span>
+<span class="nc" id="L855">				throw new IllegalArgumentException(&quot;decisionTimes must be strictly increasing.&quot;);</span>
+			}
+<span class="nc bnc" id="L857" title="All 4 branches missed.">			if (localMinQuantity[i] &lt; 0.0 || localMaxQuantity[i] &lt; 0.0) {</span>
+<span class="nc" id="L858">				throw new IllegalArgumentException(&quot;Local quantities must be non-negative.&quot;);</span>
+			}
+<span class="nc bnc" id="L860" title="All 2 branches missed.">			if (localMaxQuantity[i] + EPS &lt; localMinQuantity[i]) {</span>
+<span class="nc" id="L861">				throw new IllegalArgumentException(&quot;Each localMaxQuantity must be &gt;= localMinQuantity.&quot;);</span>
+			}
+		}
+
+<span class="nc bnc" id="L865" title="All 4 branches missed.">		if (globalMinQuantity &lt; 0.0 || globalMaxQuantity &lt; 0.0) {</span>
+<span class="nc" id="L866">			throw new IllegalArgumentException(&quot;Global quantities must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L868" title="All 2 branches missed.">		if (globalMaxQuantity + EPS &lt; globalMinQuantity) {</span>
+<span class="nc" id="L869">			throw new IllegalArgumentException(&quot;globalMaxQuantity must be &gt;= globalMinQuantity.&quot;);</span>
+		}
+
+<span class="nc" id="L872">		double totalLocalMin = 0.0;</span>
+<span class="nc" id="L873">		double totalLocalMax = 0.0;</span>
+<span class="nc bnc" id="L874" title="All 2 branches missed.">		for (int i = 0; i &lt; localMinQuantity.length; i++) {</span>
+<span class="nc" id="L875">			totalLocalMin += localMinQuantity[i];</span>
+<span class="nc" id="L876">			totalLocalMax += localMaxQuantity[i];</span>
+		}
+
+<span class="nc bnc" id="L879" title="All 2 branches missed.">		if (totalLocalMin &gt; globalMaxQuantity + EPS) {</span>
+<span class="nc" id="L880">			throw new IllegalArgumentException(&quot;Global maximum is below the mandatory total local minimum.&quot;);</span>
+		}
+<span class="nc bnc" id="L882" title="All 2 branches missed.">		if (totalLocalMax + EPS &lt; globalMinQuantity) {</span>
+<span class="nc" id="L883">			throw new IllegalArgumentException(&quot;Global minimum is above the achievable total local maximum.&quot;);</span>
+		}
+<span class="nc" id="L885">	}</span>
+
+	/**
+	 * Returns the underlying name.
+	 *
+	 * @return The underlying name, possibly {@code null}.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L893">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the decision times.
+	 *
+	 * @return A defensive copy of the decision times.
+	 */
+	public double[] getDecisionTimes() {
+<span class="nc" id="L902">		return decisionTimes.clone();</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity, equal to the last decision time.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L911">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The fixed strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L920">		return strike;</span>
+	}
+
+	/**
+	 * Returns the local minimum quantities.
+	 *
+	 * @return A defensive copy of the local minimum quantities.
+	 */
+	public double[] getLocalMinQuantity() {
+<span class="nc" id="L929">		return localMinQuantity.clone();</span>
+	}
+
+	/**
+	 * Returns the local maximum quantities.
+	 *
+	 * @return A defensive copy of the local maximum quantities.
+	 */
+	public double[] getLocalMaxQuantity() {
+<span class="nc" id="L938">		return localMaxQuantity.clone();</span>
+	}
+
+	/**
+	 * Returns the global minimum total quantity.
+	 *
+	 * @return The global minimum total quantity.
+	 */
+	public double getGlobalMinQuantity() {
+<span class="nc" id="L947">		return globalMinQuantity;</span>
+	}
+
+	/**
+	 * Returns the global maximum total quantity.
+	 *
+	 * @return The global maximum total quantity.
+	 */
+	public double getGlobalMaxQuantity() {
+<span class="nc" id="L956">		return globalMaxQuantity;</span>
+	}
+
+	/**
+	 * Returns the call/put indicator.
+	 *
+	 * @return The call/put indicator.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L965">		return callOrPut;</span>
+	}
+
+	/**
+	 * Returns the quantity control mode.
+	 *
+	 * @return The quantity control mode.
+	 */
+	public SwingQuantityMode getQuantityMode() {
+<span class="nc" id="L974">		return quantityMode;</span>
+	}
+
+	/**
+	 * Returns the quantity grid step.
+	 *
+	 * @return The quantity grid step.
+	 */
+	public double getQuantityGridStep() {
+<span class="nc" id="L983">		return quantityGridStep;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

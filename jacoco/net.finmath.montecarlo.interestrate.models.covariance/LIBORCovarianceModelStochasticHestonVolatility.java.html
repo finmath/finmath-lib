@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCovarianceModelStochasticHestonVolatility.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCovarianceModelStochasticHestonVolatility.java</span></div><h1>LIBORCovarianceModelStochasticHestonVolatility.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * As Heston like stochastic volatility model, using a process \( \lambda(t) = \sqrt(V(t)) \)
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{1}(t), \quad V(0) = 1.0,
+ * \]
+ * where \( \lambda(0) = 1 \) to scale all factor loadings \( f_{i} \) returned by a given covariance model.
+ *
+ * The model constructed is \( \lambda(t) F(t) \) where \( \lambda(t) \) is
+ * a discretization of the above process and \( F = ( f_{1}, \ldots, f_{m} ) \) is the factor loading
+ * from the given covariance model.
+ *
+ * The process uses the first factor of the Brownian motion provided by an object implementing
+ * {@link net.finmath.montecarlo.BrownianMotion}. This can be used to generate correlations to
+ * other objects. If you like to reuse a factor of another Brownian motion use a
+ * {@link net.finmath.montecarlo.BrownianMotionView}
+ * to delegate \( ( \mathrm{d} W_{1}(t) ) \) to a different object.
+ *
+ * The parameter of this model is a joint parameter vector, consisting
+ * of the parameter vector of the given base covariance model and
+ * appending the parameters &lt;i&gt;&amp;kappa;&lt;/i&gt;, &lt;i&gt;&amp;theta;&lt;/i&gt; and &lt;i&gt;&amp;xi;&lt;/i&gt; at the end.
+ *
+ * If this model is not calibrateable, its parameter vector is that of the
+ * covariance model, i.e., &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; will be not
+ * part of the calibration.
+ *
+ * For an illustration of its usage see the associated unit test.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LIBORCovarianceModelStochasticHestonVolatility extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = -1438451123632424212L;
+	private AbstractLIBORCovarianceModelParametric covarianceModel;
+	private final BrownianMotion brownianMotion;
+	private	RandomVariable kappa, theta, xi;
+
+<span class="nc" id="L52">	private boolean isCalibrateable = false;</span>
+
+<span class="nc" id="L54">	private transient MonteCarloProcess stochasticVolatilityScalings = null;</span>
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
+	 * @param kappa The initial value for &lt;i&gt;&amp;kappa;&lt;/i&gt;, the mean reversion speed of the variance process V.
+	 * @param theta The initial value for &lt;i&gt;&amp;theta;&lt;/i&gt; the mean reversion level of the variance process V.
+	 * @param xi The initial value for &lt;i&gt;&amp;xi;&lt;/i&gt; the volatility of the variance process V.
+	 * @param isCalibrateable If true, the parameters &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; are parameters. Note that the covariance model (&lt;code&gt;covarianceModel&lt;/code&gt;) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticHestonVolatility(final AbstractLIBORCovarianceModelParametric covarianceModel, final BrownianMotion brownianMotion, final RandomVariable kappa, final RandomVariable theta, final RandomVariable xi, final boolean isCalibrateable) {
+<span class="nc" id="L67">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="nc" id="L69">		this.covarianceModel = covarianceModel;</span>
+<span class="nc" id="L70">		this.brownianMotion = brownianMotion;</span>
+<span class="nc" id="L71">		this.kappa = kappa;</span>
+<span class="nc" id="L72">		this.theta = theta;</span>
+<span class="nc" id="L73">		this.xi = xi;</span>
+
+<span class="nc" id="L75">		this.isCalibrateable = isCalibrateable;</span>
+<span class="nc" id="L76">	}</span>
+
+	/**
+	 * Create a modification of a given {@link AbstractLIBORCovarianceModelParametric} with a stochastic volatility scaling.
+	 *
+	 * @param covarianceModel A given AbstractLIBORCovarianceModelParametric.
+	 * @param brownianMotion An object implementing {@link BrownianMotion} with at least two factors. This class uses the first two factors, but you may use {@link net.finmath.montecarlo.BrownianMotionView} to change this.
+	 * @param kappa The initial value for &lt;i&gt;&amp;kappa;&lt;/i&gt;, the mean reversion speed of the variance process V.
+	 * @param theta The initial value for &lt;i&gt;&amp;theta;&lt;/i&gt; the mean reversion level of the variance process V.
+	 * @param xi The initial value for &lt;i&gt;&amp;xi;&lt;/i&gt; the volatility of the variance process V.
+	 * @param isCalibrateable If true, the parameters &lt;i&gt;&amp;nu;&lt;/i&gt; and &lt;i&gt;&amp;rho;&lt;/i&gt; are parameters. Note that the covariance model (&lt;code&gt;covarianceModel&lt;/code&gt;) may have its own parameter calibration settings.
+	 */
+	public LIBORCovarianceModelStochasticHestonVolatility(final AbstractLIBORCovarianceModelParametric covarianceModel, final BrownianMotion brownianMotion, final double kappa, final double theta, final double xi, final boolean isCalibrateable) {
+<span class="nc" id="L89">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="nc" id="L91">		this.covarianceModel = covarianceModel;</span>
+<span class="nc" id="L92">		this.brownianMotion = brownianMotion;</span>
+<span class="nc" id="L93">		this.kappa = new Scalar(kappa);</span>
+<span class="nc" id="L94">		this.theta = new Scalar(theta);</span>
+<span class="nc" id="L95">		this.xi = new Scalar(xi);</span>
+
+<span class="nc" id="L97">		this.isCalibrateable = isCalibrateable;</span>
+<span class="nc" id="L98">	}</span>
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="nc bnc" id="L102" title="All 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L103">			return covarianceModel.getParameter();</span>
+		}
+
+<span class="nc" id="L106">		final RandomVariable[] covarianceParameters = covarianceModel.getParameter();</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if(covarianceParameters == null) {</span>
+<span class="nc" id="L108">			return new RandomVariable[] { theta, kappa, xi };</span>
+		}
+
+		// Append nu and rho to the end of covarianceParameters
+<span class="nc" id="L112">		final RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+3];</span>
+<span class="nc" id="L113">		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);</span>
+<span class="nc" id="L114">		jointParameters[covarianceParameters.length+0] = kappa;</span>
+<span class="nc" id="L115">		jointParameters[covarianceParameters.length+1] = theta;</span>
+<span class="nc" id="L116">		jointParameters[covarianceParameters.length+2] = xi;</span>
+
+<span class="nc" id="L118">		return jointParameters;</span>
+	}
+
+	//	@Override
+	private void setParameter(final RandomVariable[] parameter) {
+<span class="nc bnc" id="L123" title="All 4 branches missed.">		if(parameter == null || parameter.length == 0) {</span>
+<span class="nc" id="L124">			return;</span>
+		}
+
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L128">			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameter);</span>
+<span class="nc" id="L129">			return;</span>
+		}
+
+<span class="nc" id="L132">		final RandomVariable[] covarianceParameters = new RandomVariable[parameter.length-3];</span>
+<span class="nc" id="L133">		System.arraycopy(parameter, 0, covarianceParameters, 0, covarianceParameters.length);</span>
+
+<span class="nc" id="L135">		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);</span>
+
+<span class="nc" id="L137">		kappa	= parameter[covarianceParameters.length + 0];</span>
+<span class="nc" id="L138">		theta	= parameter[covarianceParameters.length + 1];</span>
+<span class="nc" id="L139">		xi		= parameter[covarianceParameters.length + 2];</span>
+
+<span class="nc" id="L141">		stochasticVolatilityScalings = null;</span>
+<span class="nc" id="L142">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L146">		final LIBORCovarianceModelStochasticHestonVolatility newModel = new LIBORCovarianceModelStochasticHestonVolatility((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), brownianMotion, kappa, theta, xi, isCalibrateable);</span>
+<span class="nc" id="L147">		return newModel;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="nc" id="L152">		final LIBORCovarianceModelStochasticHestonVolatility model = (LIBORCovarianceModelStochasticHestonVolatility)this.clone();</span>
+<span class="nc" id="L153">		model.setParameter(parameters);</span>
+<span class="nc" id="L154">		return model;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="nc" id="L159">		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L164">		final RandomVariable[] parameters = getParameter();</span>
+<span class="nc" id="L165">		final double[] parametersAsDouble = new double[parameters.length];</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="nc" id="L167">			parametersAsDouble[i] = parameters[i].doubleValue();</span>
+		}
+<span class="nc" id="L169">		return parametersAsDouble;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+
+<span class="nc" id="L175">		synchronized (this) {</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">			if(stochasticVolatilityScalings == null) {</span>
+<span class="nc" id="L177">				final ProcessModel model = new ProcessModel() {</span>
+
+					@Override
+					public LocalDateTime getReferenceDate() {
+<span class="nc" id="L181">						throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+					}
+
+					@Override
+					public RandomVariable getNumeraire(final MonteCarloProcess process, double time) {
+<span class="nc" id="L186">						throw new UnsupportedOperationException();</span>
+					}
+
+					@Override
+					public int getNumberOfFactors() {
+<span class="nc" id="L191">						return 1;</span>
+					}
+
+					@Override
+					public int getNumberOfComponents() {
+<span class="nc" id="L196">						return 1;</span>
+					}
+
+					@Override
+					public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="nc" id="L201">						return new RandomVariable[] { brownianMotion.getRandomVariableForConstant(1.0) };</span>
+					}
+
+					@Override
+					public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L206">						return new RandomVariable[] { realizationAtTimeIndex[0].floor(0).sqrt().mult(xi) };</span>
+					}
+
+					@Override
+					public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="nc" id="L211">						return new RandomVariable[] { realizationAtTimeIndex[0].sub(theta).mult(kappa.mult(-1)) };</span>
+					}
+
+					@Override
+					public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="nc" id="L216">						return randomVariable;</span>
+					}
+
+					@Override
+					public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="nc" id="L221">						return randomVariable;</span>
+					}
+
+					@Override
+					public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L226">						throw new UnsupportedOperationException(&quot;Method not implemented&quot;);</span>
+					}
+
+					@Override
+					public ProcessModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="nc" id="L231">						throw new UnsupportedOperationException(&quot;Method not implemented&quot;);</span>
+					}
+				};
+
+<span class="nc" id="L235">				stochasticVolatilityScalings = new EulerSchemeFromProcessModel(model, brownianMotion);</span>
+			}
+<span class="nc" id="L237">		}</span>
+
+<span class="nc" id="L239">		RandomVariable stochasticVolatilityScaling = null;</span>
+		try {
+<span class="nc" id="L241">			stochasticVolatilityScaling = stochasticVolatilityScalings.getProcessValue(timeIndex,0);</span>
+<span class="nc" id="L242">		} catch (final CalculationException e) {</span>
+			// Exception is not handled explicitly, we just return null
+<span class="nc" id="L244">		}</span>
+
+<span class="nc" id="L246">		RandomVariable[] factorLoading = null;</span>
+
+<span class="nc bnc" id="L248" title="All 2 branches missed.">		if(stochasticVolatilityScaling != null) {</span>
+<span class="nc" id="L249">			factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">			for(int i=0; i&lt;factorLoading.length; i++) {</span>
+<span class="nc" id="L251">				factorLoading[i] = factorLoading[i].mult(stochasticVolatilityScaling.floor(0.0).sqrt());</span>
+			}
+		}
+
+<span class="nc" id="L255">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L260">		return null;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L266">		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;</span>
+<span class="nc" id="L267">		BrownianMotion brownianMotion = this.brownianMotion;</span>
+<span class="nc" id="L268">		RandomVariable kappa = this.kappa;</span>
+<span class="nc" id="L269">		RandomVariable theta = this.theta;</span>
+<span class="nc" id="L270">		RandomVariable xi = this.xi;</span>
+<span class="nc" id="L271">		boolean isCalibrateable = this.isCalibrateable;</span>
+<span class="nc" id="L272">		RandomVariableFactory randomVariableFactory = null;</span>
+
+<span class="nc bnc" id="L274" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L275" title="All 2 branches missed.">			if(dataModified.containsKey(&quot;randomVariableFactory&quot;)) {</span>
+<span class="nc" id="L276">				randomVariableFactory = (RandomVariableFactory)dataModified.get(&quot;randomVariableFactory&quot;);</span>
+<span class="nc" id="L277">				kappa = randomVariableFactory.createRandomVariable(kappa.doubleValue());</span>
+<span class="nc" id="L278">				theta = randomVariableFactory.createRandomVariable(theta.doubleValue());</span>
+<span class="nc" id="L279">				xi = randomVariableFactory.createRandomVariable(xi.doubleValue());</span>
+			}
+<span class="nc bnc" id="L281" title="All 2 branches missed.">			if(!dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="nc" id="L282">				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);</span>
+			}
+
+			// Explicitly passed covarianceModel has priority
+<span class="nc" id="L286">			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault(&quot;covarianceModel&quot;, covarianceModel);</span>
+<span class="nc" id="L287">			isCalibrateable = (boolean)dataModified.getOrDefault(&quot;isCalibrateable&quot;, isCalibrateable);</span>
+<span class="nc" id="L288">			brownianMotion = (BrownianMotion)dataModified.getOrDefault(&quot;brownianMotion&quot;, brownianMotion);</span>
+
+<span class="nc bnc" id="L290" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;kappa&quot;, kappa) instanceof RandomVariable) {</span>
+<span class="nc" id="L291">				kappa = (RandomVariable)dataModified.getOrDefault(&quot;kappa&quot;, kappa);</span>
+<span class="nc bnc" id="L292" title="All 2 branches missed.">			}else if(randomVariableFactory==null){</span>
+<span class="nc" id="L293">				kappa = new Scalar((double)dataModified.get(&quot;kappa&quot;));</span>
+			}else {
+<span class="nc" id="L295">				kappa = randomVariableFactory.createRandomVariable((double)dataModified.get(&quot;kappa&quot;));</span>
+			}
+<span class="nc bnc" id="L297" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;theta&quot;, theta) instanceof RandomVariable) {</span>
+<span class="nc" id="L298">				theta = (RandomVariable)dataModified.getOrDefault(&quot;rho&quot;, theta);</span>
+<span class="nc bnc" id="L299" title="All 2 branches missed.">			}else if(randomVariableFactory==null){</span>
+<span class="nc" id="L300">				theta = new Scalar((double)dataModified.get(&quot;theta&quot;));</span>
+			}else {
+<span class="nc" id="L302">				theta = randomVariableFactory.createRandomVariable((double)dataModified.get(&quot;theta&quot;));</span>
+			}
+<span class="nc bnc" id="L304" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;xi&quot;, xi) instanceof RandomVariable) {</span>
+<span class="nc" id="L305">				xi = (RandomVariable)dataModified.getOrDefault(&quot;xi&quot;, xi);</span>
+<span class="nc bnc" id="L306" title="All 2 branches missed.">			}else if(randomVariableFactory==null){</span>
+<span class="nc" id="L307">				xi = new Scalar((double)dataModified.get(&quot;xi&quot;));</span>
+			}else {
+<span class="nc" id="L309">				xi = randomVariableFactory.createRandomVariable((double)dataModified.get(&quot;xi&quot;));</span>
+			}
+		}
+
+<span class="nc" id="L313">		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelStochasticHestonVolatility(covarianceModel, brownianMotion, kappa, theta, xi, isCalibrateable);</span>
+<span class="nc" id="L314">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableUniqueVariable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward.alternative</a> &gt; <span class="el_source">RandomVariableUniqueVariable.java</span></div><h1>RandomVariableUniqueVariable.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * @author Stefan Sedlmair
+ * @version 1.0
+ */
+public class RandomVariableUniqueVariable implements RandomVariable {
+
+	private static final long serialVersionUID = -2631868286977854016L;
+
+<span class="nc" id="L22">	public enum OperatorType {</span>
+<span class="nc" id="L23">		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP</span>
+	}
+
+<span class="nc" id="L26">	private final RandomVariableUniqueVariableFactory factory = new RandomVariableUniqueVariableFactory();</span>
+	private ArrayList&lt;RandomVariableUniqueVariable&gt; parentsVariables;
+	private OperatorType parentOperatorType; /* important for the partial derivatives */
+
+	private int variableID;
+	private boolean isConstant;
+
+	/*---------------------------------------------------------------------------------------------------------------------------------*/
+
+	/**
+	 * &lt;b&gt;Do not use this constructor on its own.&lt;/b&gt; It is thought only to be use by the {@link RandomVariableUniqueVariableFactory}!
+	 *
+	 * @param variableID is the index of the corresponding {@link RandomVariable} in the ArrayList of the {@link RandomVariableUniqueVariableFactory}
+	 * @param isConstant If true, this is a constant.
+	 * @param parentVariables Indices of parents
+	 * @param parentOperatorType Operator
+	 */
+<span class="nc" id="L43">	public RandomVariableUniqueVariable(final int variableID, final boolean isConstant, final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables, final OperatorType parentOperatorType) {</span>
+<span class="nc" id="L44">		this.variableID = variableID;</span>
+<span class="nc" id="L45">		this.isConstant = isConstant;</span>
+<span class="nc" id="L46">		parentsVariables = parentVariables;</span>
+<span class="nc" id="L47">		this.parentOperatorType = parentOperatorType;</span>
+<span class="nc" id="L48">	}</span>
+
+<span class="nc" id="L50">	public RandomVariableUniqueVariable(final double time, final double[] values, final boolean isConstant, final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables, final OperatorType parentOperatorType){</span>
+<span class="nc" id="L51">		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, parentVariables, parentOperatorType);</span>
+<span class="nc" id="L52">	}</span>
+
+<span class="nc" id="L54">	public RandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant, final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables, final OperatorType parentOperatorType){</span>
+<span class="nc" id="L55">		constructRandomVariableUniqueVariable(randomVariable, isConstant, parentVariables, parentOperatorType);</span>
+<span class="nc" id="L56">	}</span>
+
+<span class="nc" id="L58">	public RandomVariableUniqueVariable(final double time, final double[] values, final boolean isConstant){</span>
+<span class="nc" id="L59">		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+<span class="nc" id="L60">	}</span>
+
+<span class="nc" id="L62">	public RandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant){</span>
+<span class="nc" id="L63">		constructRandomVariableUniqueVariable(randomVariable, isConstant, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+<span class="nc" id="L64">	}</span>
+
+<span class="nc" id="L66">	public RandomVariableUniqueVariable(final double time, final double[] values){</span>
+<span class="nc" id="L67">		constructRandomVariableUniqueVariable(new RandomVariableFromDoubleArray(time, values), /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+<span class="nc" id="L68">	}</span>
+
+<span class="nc" id="L70">	public RandomVariableUniqueVariable(final RandomVariable randomVariable){</span>
+<span class="nc" id="L71">		constructRandomVariableUniqueVariable(randomVariable, /*isConstant*/ false, /*parentVariables*/ null, /*parentOperatorType*/ null);</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Function calls {@link RandomVariableUniqueVariableFactory} to use the given {@link RandomVariableFromDoubleArray}
+	 * and save it to its internal ArrayList. The index of the object will be give to the new {@link RandomVariableUniqueVariable}
+	 * object.
+	 *
+	 *  @param randomVariable
+	 *  @param isConstant
+	 * */
+	private void constructRandomVariableUniqueVariable(final RandomVariable randomVariable, final boolean isConstant, final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables, final OperatorType parentOperatorType){
+		/*
+		 * by calling the method in the factory it will produce a new object of RandomVariable and
+		 * the new item will be stored in its factory internal array list
+		 */
+<span class="nc" id="L87">		final RandomVariable normalrandomvariable = factory.createRandomVariable(randomVariable, isConstant, parentVariables, parentOperatorType);</span>
+
+		/* by construction this object can be up-casted to RandomVariableUniqueVariable */
+<span class="nc" id="L90">		final RandomVariableUniqueVariable newrandomvariableuniquevariable = (RandomVariableUniqueVariable)normalrandomvariable;</span>
+
+		/* now we have access to the internal variables of the new RandomVarialeUniqueVariable */
+<span class="nc" id="L93">		variableID = newrandomvariableuniquevariable.getVariableID();</span>
+<span class="nc" id="L94">		this.isConstant = newrandomvariableuniquevariable.isConstant();</span>
+<span class="nc" id="L95">		parentsVariables = newrandomvariableuniquevariable.getParentVariables();</span>
+<span class="nc" id="L96">		this.parentOperatorType = newrandomvariableuniquevariable.getParentOperatorType();</span>
+<span class="nc" id="L97">	}</span>
+
+	/*---------------------------------------------------------------------------------------------------------------------------------*/
+
+	private int[] getParentIDs(){
+
+<span class="nc bnc" id="L103" title="All 2 branches missed.">		if(parentsVariables == null) {</span>
+<span class="nc" id="L104">			return null;</span>
+		}
+
+<span class="nc" id="L107">		final int[] parentIDs = new int[parentsVariables.size()];</span>
+
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		for(int i = 0; i &lt; parentsVariables.size(); i++){</span>
+<span class="nc" id="L110">			parentIDs[i] = parentsVariables.get(i).getVariableID();</span>
+		}
+
+		/*DO NOT sort this array! This deletes the information for divisions (de-/nominator)*/
+
+<span class="nc" id="L115">		return parentIDs;</span>
+	}
+
+	public int getVariableID(){
+<span class="nc" id="L119">		return variableID;</span>
+	}
+
+	private boolean isConstant(){
+<span class="nc" id="L123">		return isConstant;</span>
+	}
+
+	private ArrayList&lt;RandomVariableUniqueVariable&gt; getParentVariables(){
+<span class="nc" id="L127">		return parentsVariables;</span>
+	}
+
+	private OperatorType getParentOperatorType(){
+<span class="nc" id="L131">		return parentOperatorType;</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getListOfAllVariables(){
+<span class="nc" id="L135">		return factory.getListOfAllVariables();</span>
+	}
+
+	private ArrayList&lt;RandomVariable&gt; getParentRandomVariables(){
+
+<span class="nc" id="L140">		final ArrayList&lt;RandomVariable&gt; parentrandomvariables = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L142" title="All 2 branches missed.">		for(final RandomVariableUniqueVariable parent:parentsVariables){</span>
+<span class="nc" id="L143">			parentrandomvariables.add(parent.getRandomVariable());</span>
+<span class="nc" id="L144">		}</span>
+
+<span class="nc" id="L146">		return parentrandomvariables;</span>
+	}
+
+	private RandomVariable getRandomVariable(){
+<span class="nc" id="L150">		return getListOfAllVariables().get(variableID);</span>
+	}
+
+	public boolean isVariable(){
+<span class="nc bnc" id="L154" title="All 4 branches missed.">		return parentsVariables == null &amp;&amp; !isConstant();</span>
+
+	}
+
+	/*---------------------------------------------------------------------------------------------------------------------------------*/
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L167">		return false;</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="nc" id="L172">		return getRandomVariable().getFiltrationTime();</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="nc" id="L177">		return 3;</span>
+	}
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="nc" id="L182">		return getRandomVariable().get(pathOrState);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#size()
+	 */
+	@Override
+	public int size() {
+<span class="nc" id="L190">		return getRandomVariable().size();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
+	 */
+	@Override
+	public boolean isDeterministic() {
+<span class="nc" id="L198">		return getRandomVariable().isDeterministic();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
+	 */
+	@Override
+	public double[] getRealizations() {
+<span class="nc" id="L206">		return getRandomVariable().getRealizations();</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="nc" id="L211">		return getRandomVariable().doubleValue();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
+	 */
+	@Override
+	public double getMin() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L220">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
+	 */
+	@Override
+	public double getMax() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L229">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
+	 */
+	@Override
+	public double getAverage() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L238">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L247">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
+	 */
+	@Override
+	public double getVariance() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L256">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L265">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getSampleVariance()
+	 */
+	@Override
+	public double getSampleVariance() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L274">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation()
+	 */
+	@Override
+	public double getStandardDeviation() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L283">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L292">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
+	 */
+	@Override
+	public double getStandardError() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L301">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L310">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
+	 */
+	@Override
+	public double getQuantile(final double quantile) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L319">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L328">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
+	 */
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L337">		return 0;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
+	 */
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="nc" id="L345">		return getRandomVariable().getHistogram(intervalPoints);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
+	 */
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L353">		return getRandomVariable().getHistogram(numberOfPoints, standardDeviations);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cache()
+	 */
+	@Override
+	public RandomVariable cache() {
+<span class="nc" id="L361">		return getRandomVariable().cache();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#apply(java.util.function.DoubleUnaryOperator)
+	 */
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#floor(double)
+	 */
+	@Override
+	public RandomVariable floor(final double floor) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L374">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(double)
+	 */
+	@Override
+	public RandomVariable add(final double value) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L383">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(double)
+	 */
+	@Override
+	public RandomVariable sub(final double value) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L392">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(double)
+	 */
+	@Override
+	public RandomVariable mult(final double value) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L401">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#div(double)
+	 */
+	@Override
+	public RandomVariable div(final double value) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L410">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#pow(double)
+	 */
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="nc" id="L418">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="nc" id="L423">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#squared()
+	 */
+	@Override
+	public RandomVariable squared() {
+<span class="nc" id="L431">		return apply(OperatorType.SQUARED, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sqrt()
+	 */
+	@Override
+	public RandomVariable sqrt() {
+<span class="nc" id="L439">		return apply(OperatorType.SQRT, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#exp()
+	 */
+	@Override
+	public RandomVariable exp() {
+<span class="nc" id="L447">		return apply(OperatorType.EXP, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#log()
+	 */
+	@Override
+	public RandomVariable log() {
+<span class="nc" id="L455">		return apply(OperatorType.LOG, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sin()
+	 */
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L463">		return apply(OperatorType.SIN, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cos()
+	 */
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L471">		return apply(OperatorType.COS, new RandomVariable[] {this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="nc" id="L479">		return apply(OperatorType.ADD, new RandomVariable[] {this, randomVariable});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="nc" id="L487">		return apply(OperatorType.SUB, new RandomVariable[] {this, randomVariable});</span>
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L492">		return apply(OperatorType.SUB, new RandomVariable[] {randomVariable, this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="nc" id="L500">		return apply(OperatorType.MULT, new RandomVariable[] {this, randomVariable});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#div(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="nc" id="L508">		return apply(OperatorType.DIV, new RandomVariable[] {this, randomVariable});</span>
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L513">		return apply(OperatorType.DIV, new RandomVariable[] {randomVariable, this});</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cap(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L522">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#floor(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L531">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L540">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#discount(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L549">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="nc" id="L554">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#invert()
+	 */
+	@Override
+	public RandomVariable invert() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L563">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#abs()
+	 */
+	@Override
+	public RandomVariable abs() {
+		// TODO Auto-generated method stub
+<span class="nc" id="L572">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L581">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L590">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L599">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#subRatio(net.finmath.stochastic.RandomVariable, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L608">		return null;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#isNaN()
+	 */
+	@Override
+	public RandomVariable isNaN() {
+<span class="nc" id="L616">		return getRandomVariable().isNaN();</span>
+	}
+
+	/**
+	 * Check if an object can be up-casted to {@link RandomVariableUniqueVariable}.
+	 * &lt;b&gt;If not treat the object as an constant&lt;/b&gt; with respect to the AAD components.
+	 *
+	 * @param obj any object that should be tested.
+	 * @return &lt;i&gt;true&lt;/i&gt; if object can be casted to {@link RandomVariableUniqueVariable}, else &lt;i&gt;false&lt;/i&gt;
+	 * */
+	private boolean isUpcastableToRandomVariableUniqueVariable(final Object obj){
+<span class="nc" id="L627">		return (obj instanceof RandomVariableUniqueVariable);</span>
+	}
+
+	/** Apply one of the possible {@link OperatorType} to an array of {@link RandomVariable}s.
+	 *  If the entries in the array are not an instance of {@link RandomVariableUniqueVariable}
+	 *  generate a new {@link RandomVariableUniqueVariable} and consider them as constants.
+	 * */
+	private RandomVariableUniqueVariable apply(final OperatorType operatortype, final RandomVariable[] operatorVariables){
+
+<span class="nc" id="L636">		final ArrayList&lt;RandomVariableUniqueVariable&gt; parentVariables = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L638" title="All 2 branches missed.">		for(int i = 0; i &lt; operatorVariables.length; i++){</span>
+			/*
+			 * is variable upcastable to {@link RandomVariableUniqueVariable} ?
+			 */
+<span class="nc bnc" id="L642" title="All 2 branches missed.">			if(!isUpcastableToRandomVariableUniqueVariable(operatorVariables[i])){</span>
+				/*
+				 * if no then construct a new one and consider it constant
+				 */
+<span class="nc" id="L646">				operatorVariables[i] = new RandomVariableUniqueVariable(operatorVariables[i], /*isConstant*/ true);</span>
+			}
+			/* add current function variable to parentVariables of new RandomVariableUniqueVariable*/
+<span class="nc" id="L649">			parentVariables.add(i, (RandomVariableUniqueVariable) operatorVariables[i]);</span>
+
+			/* get the underlying RandomVariableFromDoubleArray from the factory */
+<span class="nc" id="L652">			operatorVariables[i] = parentVariables.get(i).getRandomVariable();</span>
+		}
+
+		RandomVariable resultrandomvariable;
+
+<span class="nc bnc" id="L657" title="All 11 branches missed.">		switch(operatortype){</span>
+		/* functions with one argument  */
+		case SQUARED:
+<span class="nc" id="L660">			resultrandomvariable = operatorVariables[0].squared();</span>
+<span class="nc" id="L661">			break;</span>
+		case SQRT:
+<span class="nc" id="L663">			resultrandomvariable = operatorVariables[0].sqrt();</span>
+<span class="nc" id="L664">			break;</span>
+		case EXP:
+<span class="nc" id="L666">			resultrandomvariable = operatorVariables[0].exp();</span>
+<span class="nc" id="L667">			break;</span>
+		case LOG:
+<span class="nc" id="L669">			resultrandomvariable = operatorVariables[0].log();</span>
+<span class="nc" id="L670">			break;</span>
+		case SIN:
+<span class="nc" id="L672">			resultrandomvariable = operatorVariables[0].sin();</span>
+<span class="nc" id="L673">			break;</span>
+		case COS:
+<span class="nc" id="L675">			resultrandomvariable = operatorVariables[0].cos();</span>
+<span class="nc" id="L676">			break;</span>
+
+			/* functions with two arguments */
+		case ADD:
+<span class="nc" id="L680">			resultrandomvariable = operatorVariables[0].add(operatorVariables[1]);</span>
+<span class="nc" id="L681">			break;</span>
+		case SUB:
+<span class="nc" id="L683">			resultrandomvariable = operatorVariables[0].sub(operatorVariables[1]);</span>
+<span class="nc" id="L684">			break;</span>
+		case MULT:
+<span class="nc" id="L686">			resultrandomvariable = operatorVariables[0].mult(operatorVariables[1]);</span>
+<span class="nc" id="L687">			break;</span>
+		case DIV:
+<span class="nc" id="L689">			resultrandomvariable = operatorVariables[0].div(operatorVariables[1]);</span>
+<span class="nc" id="L690">			break;</span>
+
+			/* if non of the above throw exception */
+		default:
+<span class="nc" id="L694">			throw new IllegalArgumentException(&quot;Operation not supported!\n&quot;);</span>
+		}
+
+		/* create new RandomVariableUniqueVariable which is definitely NOT Constant */
+<span class="nc" id="L698">		return new RandomVariableUniqueVariable(resultrandomvariable, /*isConstant*/ false, parentVariables, operatortype);</span>
+	}
+
+	/**
+	 * Apply the AAD algorithm to this very variable
+	 *
+	 * NOTE: in this case it is indeed correct to assume that the output dimension is &quot;one&quot;
+	 * meaning that there is only one {@link RandomVariableUniqueVariable} as an output.
+	 *
+	 * @return gradient for the built up function
+	 * */
+	public RandomVariable[] getGradient(){
+
+		// for now let us take the case for output-dimension equal to one!
+<span class="nc" id="L712">		final int numberOfVariables = getNumberOfVariablesInList();</span>
+<span class="nc" id="L713">		final int numberOfCalculationSteps = factory.getNumberOfEntriesInList();</span>
+
+<span class="nc" id="L715">		final RandomVariable[] omega_hat = new RandomVariable[numberOfCalculationSteps];</span>
+
+		// first entry gets initialized
+<span class="nc" id="L718">		omega_hat[numberOfCalculationSteps-1] = new RandomVariableFromDoubleArray(1.0);</span>
+
+		/*
+		 * TODO Find way that calculations form here on are not 'recorded' by the factory
+		 * IDEA: Let the calculation below run on {@link RandomVariableFromDoubleArray}, ie cast everything down!
+		 * */
+
+<span class="nc bnc" id="L725" title="All 2 branches missed.">		for(int functionIndex = numberOfCalculationSteps - 2; functionIndex &gt; 0; functionIndex--){</span>
+			// apply chain rule
+<span class="nc" id="L727">			omega_hat[functionIndex] = new RandomVariableFromDoubleArray(0.0);</span>
+
+			/*TODO save all D_{i,j}*\omega_j in vector and sum up later */
+<span class="nc bnc" id="L730" title="All 2 branches missed.">			for(final RandomVariableUniqueVariable parent:parentsVariables){</span>
+
+<span class="nc" id="L732">				final int variableIndex = parent.getVariableID();</span>
+
+<span class="nc" id="L734">				omega_hat[functionIndex] = omega_hat[functionIndex].add(getPartialDerivative(functionIndex, variableIndex).mult(omega_hat[variableIndex]));</span>
+<span class="nc" id="L735">			}</span>
+		}
+
+		/* Due to the fact that we can still introduce 'new' true variables on the fly they are NOT the last couple of indices!
+		 * Thus save the indices of the true variables and recover them after finalizing all the calculations
+		 * IDEA: quit calculation after minimal true variable index is reached */
+<span class="nc" id="L741">		final RandomVariable[] gradient = new RandomVariable[numberOfVariables];</span>
+
+		/* TODO sort array in correct manner! */
+<span class="nc" id="L744">		final int[] indicesOfVariables = getIDsOfVariablesInList();</span>
+
+<span class="nc bnc" id="L746" title="All 2 branches missed.">		for(int i = 0; i &lt; numberOfVariables; i++){</span>
+<span class="nc" id="L747">			gradient[i] = omega_hat[numberOfCalculationSteps - numberOfVariables + indicesOfVariables[i]];</span>
+		}
+
+<span class="nc" id="L750">		return gradient;</span>
+	}
+
+	private ArrayList&lt;RandomVariableUniqueVariable&gt; getListOfDependingTrueVariables(){
+
+<span class="nc" id="L755">		final ArrayList&lt;RandomVariableUniqueVariable&gt; listOfDependingTrueVariables = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L757" title="All 2 branches missed.">		for(final RandomVariableUniqueVariable parent:parentsVariables){</span>
+<span class="nc bnc" id="L758" title="All 4 branches missed.">			if(parent.isVariable() &amp;&amp; !listOfDependingTrueVariables.contains(parent)){</span>
+<span class="nc" id="L759">				listOfDependingTrueVariables.add(parent);</span>
+<span class="nc bnc" id="L760" title="All 2 branches missed.">			} else if (parent.getParentIDs() != null){</span>
+<span class="nc" id="L761">				listOfDependingTrueVariables.addAll(parent.getListOfDependingTrueVariables());</span>
+			}
+<span class="nc" id="L763">		}</span>
+
+<span class="nc" id="L765">		return listOfDependingTrueVariables;</span>
+	}
+
+	private int[] getIDsOfVariablesInList() {
+<span class="nc" id="L769">		final int[] IDsOfVariablesInList = new int[getNumberOfVariablesInList()];</span>
+
+<span class="nc" id="L771">		final ArrayList&lt;RandomVariableUniqueVariable&gt; listOfDependingTrueVariables = getListOfDependingTrueVariables();</span>
+
+<span class="nc bnc" id="L773" title="All 2 branches missed.">		for(final RandomVariableUniqueVariable variable:listOfDependingTrueVariables){</span>
+<span class="nc" id="L774">			IDsOfVariablesInList[listOfDependingTrueVariables.indexOf(variable)] = variable.getVariableID();</span>
+<span class="nc" id="L775">		}</span>
+
+<span class="nc" id="L777">		return IDsOfVariablesInList;</span>
+	}
+
+	private int getNumberOfVariablesInList() {
+<span class="nc" id="L781">		return getListOfDependingTrueVariables().size();</span>
+	}
+
+	/**
+	 * @param functionIndex
+	 * @param variableIndex
+	 * @return
+	 */
+	private RandomVariable getPartialDerivative(final int functionIndex, final int variableIndex) {
+
+<span class="nc bnc" id="L791" title="All 2 branches missed.">		if(!Arrays.asList(getParentIDs()).contains(variableIndex)) {</span>
+<span class="nc" id="L792">			return new RandomVariableFromDoubleArray(0.0);</span>
+		}
+
+<span class="nc" id="L795">		final RandomVariableUniqueVariable currentRandomVariable = (RandomVariableUniqueVariable) getListOfAllVariables().get(functionIndex);</span>
+<span class="nc" id="L796">		final ArrayList&lt;RandomVariable&gt; currentParentRandomVariables = currentRandomVariable.getParentRandomVariables();</span>
+
+		RandomVariable resultrandomvariable;
+
+<span class="nc bnc" id="L800" title="All 11 branches missed.">		switch(currentRandomVariable.getParentOperatorType()){</span>
+		/* functions with one argument  */
+		case SQUARED:
+<span class="nc" id="L803">			resultrandomvariable = currentParentRandomVariables.get(0).mult(2.0);</span>
+<span class="nc" id="L804">			break;</span>
+		case SQRT:
+<span class="nc" id="L806">			resultrandomvariable = currentParentRandomVariables.get(0).sqrt().invert().mult(0.5);</span>
+<span class="nc" id="L807">			break;</span>
+		case EXP:
+<span class="nc" id="L809">			resultrandomvariable = currentParentRandomVariables.get(0).exp();</span>
+<span class="nc" id="L810">			break;</span>
+		case LOG:
+<span class="nc" id="L812">			resultrandomvariable = currentParentRandomVariables.get(0).invert();</span>
+<span class="nc" id="L813">			break;</span>
+		case SIN:
+<span class="nc" id="L815">			resultrandomvariable = currentParentRandomVariables.get(0).cos();</span>
+<span class="nc" id="L816">			break;</span>
+		case COS:
+<span class="nc" id="L818">			resultrandomvariable = currentParentRandomVariables.get(0).sin().mult(-1.0);</span>
+<span class="nc" id="L819">			break;</span>
+
+			/* functions with two arguments */
+		case ADD:
+<span class="nc" id="L823">			resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc" id="L824">			break;</span>
+		case SUB:
+<span class="nc" id="L826">			resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L827" title="All 2 branches missed.">			if(variableIndex == currentRandomVariable.getParentIDs()[1]){</span>
+<span class="nc" id="L828">				resultrandomvariable = resultrandomvariable.mult(-1.0);</span>
+			}
+			break;
+		case MULT:
+<span class="nc bnc" id="L832" title="All 2 branches missed.">			if(variableIndex == currentRandomVariable.getParentIDs()[0]){</span>
+<span class="nc" id="L833">				resultrandomvariable = currentParentRandomVariables.get(1);</span>
+			} else {
+<span class="nc" id="L835">				resultrandomvariable = currentParentRandomVariables.get(0);</span>
+			}
+<span class="nc" id="L837">			break;</span>
+		case DIV:
+<span class="nc bnc" id="L839" title="All 2 branches missed.">			if(variableIndex == currentRandomVariable.getParentIDs()[0]){</span>
+<span class="nc" id="L840">				resultrandomvariable = currentParentRandomVariables.get(1).invert();</span>
+			} else {
+<span class="nc" id="L842">				resultrandomvariable = currentParentRandomVariables.get(0).div(currentParentRandomVariables.get(1).squared()).mult(-1);</span>
+			}
+<span class="nc" id="L844">			break;</span>
+
+			/* if non of the above throw exception */
+		default:
+<span class="nc" id="L848">			throw new IllegalArgumentException(&quot;Operation not supported!\n&quot;);</span>
+		}
+
+<span class="nc" id="L851">		return resultrandomvariable;</span>
+	}
+
+	@Override
+	public String toString(){
+<span class="nc" id="L856">		return super.toString() + &quot;\n&quot; +</span>
+<span class="nc" id="L857">				&quot;time: &quot; + getFiltrationTime() + &quot;\n&quot; +</span>
+<span class="nc" id="L858">				&quot;realizations: &quot; + Arrays.toString(getRealizations()) + &quot;\n&quot; +</span>
+				&quot;variableID: &quot; + variableID + &quot;\n&quot; +
+<span class="nc bnc" id="L860" title="All 2 branches missed.">				&quot;parentIDs: &quot; + Arrays.toString(getParentIDs()) + ((getParentIDs() == null) ? &quot;&quot; : (&quot; type: &quot; + parentOperatorType.name())) + &quot;\n&quot; +</span>
+<span class="nc" id="L861">				&quot;isTrueVariable: &quot; + isVariable() + &quot;&quot;;</span>
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L867">		return null;</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L872">		throw new UnsupportedOperationException(&quot;Not supported.&quot;);</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L877">		throw new UnsupportedOperationException(&quot;Not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="nc" id="L882">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="nc" id="L887">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L892">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BestOfOptionMultiAssetBlackScholesModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">BestOfOptionMultiAssetBlackScholesModelBoundary.java</span></div><h1>BestOfOptionMultiAssetBlackScholesModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMMultiAssetBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.BestOfOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link BestOfOption} under
+ * {@link FDMMultiAssetBlackScholesModel}.
+ *
+ * &lt;p&gt;
+ * The payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \left( \omega \left( \max(S_1(T), S_2(T)) - K \right) \right)^{+},
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code \omega \in \{+1,-1\}} is the call/put sign.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The multidimensional boundary convention of the framework is used:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;index {@code 0} of the returned array corresponds to the first state
+ * variable,&lt;/li&gt;
+ *   &lt;li&gt;index {@code 1} corresponds to the second state variable.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * On the lower faces {@code S_1 = 0} and {@code S_2 = 0}, the best-of payoff
+ * reduces exactly to a one-dimensional vanilla option on the remaining asset.
+ * Accordingly, this boundary class requires both asset grids to start at zero.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * On the upper faces, asymptotically correct Dirichlet values are used:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;on {@code S_1 = S_{1,\max}}, the call is approximated by
+ * {@code S_1 e^{-q_1 \tau} - K e^{-r \tau}} and the put by {@code 0},&lt;/li&gt;
+ *   &lt;li&gt;on {@code S_2 = S_{2,\max}}, the call is approximated by
+ * {@code S_2 e^{-q_2 \tau} - K e^{-r \tau}} and the put by {@code 0}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BestOfOptionMultiAssetBlackScholesModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The time floor.
+	 */
+	private static final double TIME_FLOOR = 1E-10;
+	/**
+	 * The grid tolerance.
+	 */
+	private static final double GRID_TOLERANCE = 1E-12;
+
+	/**
+	 * The model.
+	 */
+	private final FDMMultiAssetBlackScholesModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L78">	public BestOfOptionMultiAssetBlackScholesModelBoundary(final FDMMultiAssetBlackScholesModel model) {</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L80">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L82" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 2) {</span>
+<span class="nc" id="L83">			throw new IllegalArgumentException(</span>
+					&quot;BestOfOptionMultiAssetBlackScholesModelBoundary requires a two-dimensional model.&quot;);
+		}
+
+<span class="nc" id="L87">		final double[] firstGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L88">		final double[] secondGrid = model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L90" title="All 4 branches missed.">		if (Math.abs(firstGrid[0]) &gt; GRID_TOLERANCE || Math.abs(secondGrid[0]) &gt; GRID_TOLERANCE) {</span>
+<span class="nc" id="L91">			throw new IllegalArgumentException(</span>
+					&quot;BestOfOptionMultiAssetBlackScholesModelBoundary requires both asset grids to start at 0. &quot;
+							+ &quot;The lower-face one-dimensional reduction is exact only at S1 = 0 and S2 = 0.&quot;);
+		}
+
+<span class="nc" id="L96">		this.model = model;</span>
+<span class="nc" id="L97">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L105">		final BestOfOption bestOfOption = validateAndCastProduct(product);</span>
+<span class="nc" id="L106">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L108">		final double strike = bestOfOption.getStrike();</span>
+<span class="nc" id="L109">		final double tau = Math.max(bestOfOption.getMaturity() - time, 0.0);</span>
+
+<span class="nc" id="L111">		final double s1 = stateVariables[0];</span>
+<span class="nc" id="L112">		final double s2 = stateVariables[1];</span>
+
+<span class="nc" id="L114">		final BoundaryCondition[] conditions = new BoundaryCondition[] {</span>
+<span class="nc" id="L115">				StandardBoundaryCondition.none(),</span>
+<span class="nc" id="L116">				StandardBoundaryCondition.none()</span>
+		};
+
+		/*
+		 * On S1 = 0, max(S1, S2) = S2 since S2 &gt;= 0.
+		 */
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (isAtLowerBoundary(0, s1)) {</span>
+<span class="nc" id="L123">			conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L124">					getReducedOneDimensionalValue(</span>
+<span class="nc" id="L125">							bestOfOption.getCallOrPut(),</span>
+							s2,
+							strike,
+							1,
+							tau
+							)
+					);
+		}
+
+		/*
+		 * On S2 = 0, max(S1, S2) = S1 since S1 &gt;= 0.
+		 */
+<span class="nc bnc" id="L137" title="All 2 branches missed.">		if (isAtLowerBoundary(1, s2)) {</span>
+<span class="nc" id="L138">			conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L139">					getReducedOneDimensionalValue(</span>
+<span class="nc" id="L140">							bestOfOption.getCallOrPut(),</span>
+							s1,
+							strike,
+							0,
+							tau
+							)
+					);
+		}
+
+<span class="nc" id="L149">		return conditions;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L158">		final BestOfOption bestOfOption = validateAndCastProduct(product);</span>
+<span class="nc" id="L159">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L161">		final double strike = bestOfOption.getStrike();</span>
+<span class="nc" id="L162">		final double tau = Math.max(bestOfOption.getMaturity() - time, 0.0);</span>
+
+<span class="nc" id="L164">		final double s1 = stateVariables[0];</span>
+<span class="nc" id="L165">		final double s2 = stateVariables[1];</span>
+
+<span class="nc" id="L167">		final BoundaryCondition[] conditions = new BoundaryCondition[] {</span>
+<span class="nc" id="L168">				StandardBoundaryCondition.none(),</span>
+<span class="nc" id="L169">				StandardBoundaryCondition.none()</span>
+		};
+
+<span class="nc bnc" id="L172" title="All 2 branches missed.">		if (isAtUpperBoundary(0, s1)) {</span>
+<span class="nc" id="L173">			conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L174">					getUpperFaceValue(</span>
+<span class="nc" id="L175">							bestOfOption.getCallOrPut(),</span>
+							s1,
+							strike,
+							0,
+							tau
+							)
+					);
+		}
+
+<span class="nc bnc" id="L184" title="All 2 branches missed.">		if (isAtUpperBoundary(1, s2)) {</span>
+<span class="nc" id="L185">			conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L186">					getUpperFaceValue(</span>
+<span class="nc" id="L187">							bestOfOption.getCallOrPut(),</span>
+							s2,
+							strike,
+							1,
+							tau
+							)
+					);
+		}
+
+<span class="nc" id="L196">		return conditions;</span>
+	}
+
+	private BestOfOption validateAndCastProduct(final FiniteDifferenceEquityProduct product) {
+<span class="nc bnc" id="L200" title="All 2 branches missed.">		if (!(product instanceof BestOfOption)) {</span>
+<span class="nc" id="L201">			throw new IllegalArgumentException(</span>
+					&quot;BestOfOptionMultiAssetBlackScholesModelBoundary requires a BestOfOption.&quot;);
+		}
+
+<span class="nc" id="L205">		return (BestOfOption) product;</span>
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L209" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 2) {</span>
+<span class="nc" id="L210">			throw new IllegalArgumentException(&quot;Two state variables are required.&quot;);</span>
+		}
+<span class="nc" id="L212">	}</span>
+
+	private boolean isAtLowerBoundary(final int dimension, final double value) {
+<span class="nc" id="L215">		final double[] grid = model.getSpaceTimeDiscretization().getSpaceGrid(dimension).getGrid();</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		return Math.abs(value - grid[0]) &lt;= GRID_TOLERANCE;</span>
+	}
+
+	private boolean isAtUpperBoundary(final int dimension, final double value) {
+<span class="nc" id="L220">		final double[] grid = model.getSpaceTimeDiscretization().getSpaceGrid(dimension).getGrid();</span>
+<span class="nc bnc" id="L221" title="All 2 branches missed.">		return Math.abs(value - grid[grid.length - 1]) &lt;= GRID_TOLERANCE;</span>
+	}
+
+	private double getReducedOneDimensionalValue(
+			final CallOrPut callOrPut,
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau) {
+
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L232">			return getBlackScholesCallValue(spot, strike, assetIndex, tau);</span>
+		}
+
+<span class="nc" id="L235">		return getBlackScholesPutValue(spot, strike, assetIndex, tau);</span>
+	}
+
+	private double getUpperFaceValue(
+			final CallOrPut callOrPut,
+			final double boundarySpot,
+			final double strike,
+			final int assetIndex,
+			final double tau) {
+
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (callOrPut == CallOrPut.PUT) {</span>
+<span class="nc" id="L246">			return 0.0;</span>
+		}
+
+<span class="nc" id="L249">		return Math.max(</span>
+<span class="nc" id="L250">				boundarySpot * getDividendDiscountFactor(assetIndex, tau)</span>
+<span class="nc" id="L251">				- strike * getRiskFreeDiscountFactor(tau),</span>
+				0.0
+				);
+	}
+
+	private double getBlackScholesCallValue(
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau) {
+
+<span class="nc bnc" id="L262" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc" id="L263">			return Math.max(spot - strike, 0.0);</span>
+		}
+<span class="nc bnc" id="L265" title="All 2 branches missed.">		if (spot &lt;= 0.0) {</span>
+<span class="nc" id="L266">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L268" title="All 2 branches missed.">		if (strike &lt;= 0.0) {</span>
+<span class="nc" id="L269">			return spot * getDividendDiscountFactor(assetIndex, tau)</span>
+<span class="nc" id="L270">					- strike * getRiskFreeDiscountFactor(tau);</span>
+		}
+
+<span class="nc" id="L273">		final double riskFreeRate = getRiskFreeRate(tau);</span>
+<span class="nc" id="L274">		final double dividendYield = getDividendYieldRate(assetIndex, tau);</span>
+<span class="nc" id="L275">		final double forward = spot * Math.exp((riskFreeRate - dividendYield) * tau);</span>
+<span class="nc" id="L276">		final double payoffUnit = Math.exp(-riskFreeRate * tau);</span>
+
+<span class="nc" id="L278">		return AnalyticFormulas.blackScholesGeneralizedOptionValue(</span>
+				forward,
+<span class="nc" id="L280">				model.getVolatilities()[assetIndex],</span>
+				tau,
+				strike,
+				payoffUnit
+				);
+	}
+
+	private double getBlackScholesPutValue(
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau) {
+
+<span class="nc bnc" id="L293" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc" id="L294">			return Math.max(strike - spot, 0.0);</span>
+		}
+<span class="nc bnc" id="L296" title="All 2 branches missed.">		if (strike &lt;= 0.0) {</span>
+<span class="nc" id="L297">			return 0.0;</span>
+		}
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		if (spot &lt;= 0.0) {</span>
+<span class="nc" id="L300">			return strike * getRiskFreeDiscountFactor(tau);</span>
+		}
+
+<span class="nc" id="L303">		final double callValue = getBlackScholesCallValue(spot, strike, assetIndex, tau);</span>
+
+<span class="nc" id="L305">		return callValue</span>
+<span class="nc" id="L306">				- spot * getDividendDiscountFactor(assetIndex, tau)</span>
+<span class="nc" id="L307">				+ strike * getRiskFreeDiscountFactor(tau);</span>
+	}
+
+	private double getRiskFreeRate(final double tau) {
+<span class="nc" id="L311">		final double safeTau = Math.max(tau, TIME_FLOOR);</span>
+<span class="nc" id="L312">		final DiscountCurve curve = model.getRiskFreeCurve();</span>
+<span class="nc" id="L313">		return -Math.log(curve.getDiscountFactor(safeTau)) / safeTau;</span>
+	}
+
+	private double getDividendYieldRate(final int assetIndex, final double tau) {
+<span class="nc" id="L317">		final double safeTau = Math.max(tau, TIME_FLOOR);</span>
+<span class="nc" id="L318">		final DiscountCurve curve = model.getDividendYieldCurves()[assetIndex];</span>
+<span class="nc" id="L319">		return -Math.log(curve.getDiscountFactor(safeTau)) / safeTau;</span>
+	}
+
+	private double getRiskFreeDiscountFactor(final double tau) {
+<span class="nc bnc" id="L323" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc" id="L324">			return 1.0;</span>
+		}
+<span class="nc" id="L326">		return model.getRiskFreeCurve().getDiscountFactor(tau);</span>
+	}
+
+	private double getDividendDiscountFactor(final int assetIndex, final double tau) {
+<span class="nc bnc" id="L330" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc" id="L331">			return 1.0;</span>
+		}
+<span class="nc" id="L333">		return model.getDividendYieldCurves()[assetIndex].getDiscountFactor(tau);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

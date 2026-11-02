@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDM3DGridUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">FDM3DGridUtil.java</span></div><h1>FDM3DGridUtil.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+/**
+ * Utility methods for indexing and boundary handling on a three-dimensional
+ * grid.
+ *
+ * &lt;p&gt;
+ * The flattening convention is
+ * &lt;/p&gt;
+ * &lt;pre&gt;
+ * k = i0 + n0 * (i1 + n1 * i2)
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * This class is intentionally stateless and generic.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FDM3DGridUtil {
+
+	private FDM3DGridUtil() {
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param i0 The value.
+	 * @param i1 The value.
+	 * @param i2 The value.
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @return The value.
+	 */
+	public static int flatten(
+			final int i0,
+			final int i1,
+			final int i2,
+			final int n0,
+			final int n1) {
+<span class="nc" id="L41">		return i0 + n0 * (i1 + n1 * i2);</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param flatIndex The value.
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @param n2 The value.
+	 * @return The value.
+	 */
+	public static int[] unflatten(
+			final int flatIndex,
+			final int n0,
+			final int n1,
+			final int n2) {
+
+<span class="nc" id="L59">		final int n = n0 * n1 * n2;</span>
+<span class="nc bnc" id="L60" title="All 4 branches missed.">		if (flatIndex &lt; 0 || flatIndex &gt;= n) {</span>
+<span class="nc" id="L61">			throw new IllegalArgumentException(&quot;flatIndex out of range.&quot;);</span>
+		}
+
+<span class="nc" id="L64">		final int i2 = flatIndex / (n0 * n1);</span>
+<span class="nc" id="L65">		final int remainder = flatIndex - i2 * n0 * n1;</span>
+<span class="nc" id="L66">		final int i1 = remainder / n0;</span>
+<span class="nc" id="L67">		final int i0 = remainder - i1 * n0;</span>
+
+<span class="nc" id="L69">		return new int[] {i0, i1, i2 };</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i0 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnLowerBoundaryFirstDirection(final int i0) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		return i0 == 0;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i0 The value.
+	 * @param n0 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnUpperBoundaryFirstDirection(final int i0, final int n0) {
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		return i0 == n0 - 1;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i1 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnLowerBoundarySecondDirection(final int i1) {
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		return i1 == 0;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i1 The value.
+	 * @param n1 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnUpperBoundarySecondDirection(final int i1, final int n1) {
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		return i1 == n1 - 1;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i2 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnLowerBoundaryThirdDirection(final int i2) {
+<span class="nc bnc" id="L121" title="All 2 branches missed.">		return i2 == 0;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i2 The value.
+	 * @param n2 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnUpperBoundaryThirdDirection(final int i2, final int n2) {
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		return i2 == n2 - 1;</span>
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i0 The value.
+	 * @param i1 The value.
+	 * @param i2 The value.
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @param n2 The value.
+	 * @return The value.
+	 */
+	public static boolean isOnAnyBoundary(
+			final int i0,
+			final int i1,
+			final int i2,
+			final int n0,
+			final int n1,
+			final int n2) {
+<span class="nc bnc" id="L153" title="All 12 branches missed.">		return i0 == 0 || i0 == n0 - 1</span>
+				|| i1 == 0 || i1 == n1 - 1
+				|| i2 == 0 || i2 == n2 - 1;
+	}
+
+	/**
+	 * Returns whether the condition holds.
+	 *
+	 * @param i0 The value.
+	 * @param i1 The value.
+	 * @param i2 The value.
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @param n2 The value.
+	 * @return The value.
+	 */
+	public static boolean isInteriorPoint(
+			final int i0,
+			final int i1,
+			final int i2,
+			final int n0,
+			final int n1,
+			final int n2) {
+<span class="nc bnc" id="L176" title="All 12 branches missed.">		return i0 &gt; 0 &amp;&amp; i0 &lt; n0 - 1</span>
+				&amp;&amp; i1 &gt; 0 &amp;&amp; i1 &lt; n1 - 1
+				&amp;&amp; i2 &gt; 0 &amp;&amp; i2 &lt; n2 - 1;
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @param n2 The value.
+	 */
+	public static void validateGridShape(final int n0, final int n1, final int n2) {
+<span class="nc bnc" id="L189" title="All 6 branches missed.">		if (n0 &lt; 2 || n1 &lt; 2 || n2 &lt; 2) {</span>
+<span class="nc" id="L190">			throw new IllegalArgumentException(&quot;All grid directions must have at least two nodes.&quot;);</span>
+		}
+<span class="nc" id="L192">	}</span>
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param i0 The value.
+	 * @param i1 The value.
+	 * @param i2 The value.
+	 * @param n0 The value.
+	 * @param n1 The value.
+	 * @param n2 The value.
+	 */
+	public static void validateIndex(
+			final int i0,
+			final int i1,
+			final int i2,
+			final int n0,
+			final int n1,
+			final int n2) {
+
+<span class="nc bnc" id="L212" title="All 4 branches missed.">		if (i0 &lt; 0 || i0 &gt;= n0) {</span>
+<span class="nc" id="L213">			throw new IllegalArgumentException(&quot;Index i0 out of range.&quot;);</span>
+		}
+<span class="nc bnc" id="L215" title="All 4 branches missed.">		if (i1 &lt; 0 || i1 &gt;= n1) {</span>
+<span class="nc" id="L216">			throw new IllegalArgumentException(&quot;Index i1 out of range.&quot;);</span>
+		}
+<span class="nc bnc" id="L218" title="All 4 branches missed.">		if (i2 &lt; 0 || i2 &gt;= n2) {</span>
+<span class="nc" id="L219">			throw new IllegalArgumentException(&quot;Index i2 out of range.&quot;);</span>
+		}
+<span class="nc" id="L221">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

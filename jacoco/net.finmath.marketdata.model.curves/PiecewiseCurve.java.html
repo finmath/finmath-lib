@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PiecewiseCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">PiecewiseCurve.java</span></div><h1>PiecewiseCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 21.05.2014
+ */
+
+package net.finmath.marketdata.model.curves;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * A piecewise curve. The curve consists of a base curve and a second curve.
+ * If the &lt;code&gt;time&lt;/code&gt; parameter of the {@link #getValue(AnalyticModel, double)}
+ * method falls inside a pre-defined open interval, it is delegated to the second curve,
+ * otherwise it is delegated to the base curve.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class PiecewiseCurve extends AbstractCurve implements Curve {
+
+	private static final long serialVersionUID = 8846923173857477343L;
+
+	private Curve	baseCurve;
+	private final Curve	fixedPartCurve;
+
+	private final double fixedPartStartTime;
+	private final double fixedPartEndTime;
+
+
+	/**
+	 * A builder (following the builder pattern) for PiecewiseCurve objects.
+	 * Allows to successively construct a curve object by adding points to its base points.
+	 *
+	 * @author Christian Fries
+	 */
+	public static class Builder extends CurveInterpolation.Builder implements CurveBuilder {
+
+<span class="nc" id="L41">		private PiecewiseCurve			curve = null;</span>
+
+		/**
+		 * Create a CurveBuilder from a given piecewiseCurve
+		 *
+		 * @param piecewiseCurve The piecewise curve from which to copy the fixed part upon build().
+		 * @throws CloneNotSupportedException Thrown, when the base curve could not be cloned.
+		 */
+		public Builder(final PiecewiseCurve piecewiseCurve) throws CloneNotSupportedException {
+<span class="nc" id="L50">			super((CurveInterpolation)(piecewiseCurve.baseCurve));</span>
+<span class="nc" id="L51">			curve = piecewiseCurve;</span>
+<span class="nc" id="L52">		}</span>
+
+		@Override
+		public Curve build() throws CloneNotSupportedException {
+<span class="nc" id="L56">			final PiecewiseCurve buildCurve = curve.clone();</span>
+<span class="nc" id="L57">			buildCurve.baseCurve = super.build();</span>
+<span class="nc" id="L58">			curve = null;</span>
+<span class="nc" id="L59">			return buildCurve;</span>
+		}
+	}
+
+	public PiecewiseCurve(final Curve curve,
+			final Curve fixedPartCurve, final double fixedPartStartTime,
+			final double fixedPartEndTime) {
+<span class="nc" id="L66">		super(curve.getName(), curve.getReferenceDate());</span>
+<span class="nc" id="L67">		baseCurve = curve;</span>
+<span class="nc" id="L68">		this.fixedPartCurve = fixedPartCurve;</span>
+<span class="nc" id="L69">		this.fixedPartStartTime = fixedPartStartTime;</span>
+<span class="nc" id="L70">		this.fixedPartEndTime = fixedPartEndTime;</span>
+<span class="nc" id="L71">	}</span>
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L75">		return baseCurve.getParameter();</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L80">		baseCurve.setParameter(parameter);</span>
+<span class="nc" id="L81">	}</span>
+
+	@Override
+	public String getName() {
+<span class="nc" id="L85">		return baseCurve.getName();</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L90">		return baseCurve.getReferenceDate();</span>
+	}
+
+	/**
+	 * @return the baseCurve
+	 */
+	public Curve getBaseCurve() {
+<span class="nc" id="L97">		return baseCurve;</span>
+	}
+
+	/**
+	 * @return the fixedPartCurve
+	 */
+	public Curve getFixedPartCurve() {
+<span class="nc" id="L104">		return fixedPartCurve;</span>
+	}
+
+	/**
+	 * @return the fixedPartStartTime
+	 */
+	public double getFixedPartStartTime() {
+<span class="nc" id="L111">		return fixedPartStartTime;</span>
+	}
+
+	/**
+	 * @return the fixedPartEndTime
+	 */
+	public double getFixedPartEndTime() {
+<span class="nc" id="L118">		return fixedPartEndTime;</span>
+	}
+
+	@Override
+	public double getValue(final double time) {
+<span class="nc" id="L123">		return getValue(null, time);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc bnc" id="L128" title="All 4 branches missed.">		if(time &gt;fixedPartStartTime &amp;&amp; time &lt; fixedPartEndTime) {</span>
+<span class="nc" id="L129">			return fixedPartCurve.getValue(model, time);</span>
+		}
+		else {
+<span class="nc" id="L132">			return baseCurve.getValue(model, time);</span>
+		}
+	}
+
+	@Override
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+<span class="nc" id="L138">		final PiecewiseCurve newCurve = clone();</span>
+<span class="nc" id="L139">		newCurve.baseCurve = baseCurve.getCloneForParameter(value);</span>
+
+<span class="nc" id="L141">		return newCurve;</span>
+	}
+
+	@Override
+	public PiecewiseCurve clone() throws CloneNotSupportedException {
+<span class="nc" id="L146">		return new PiecewiseCurve((Curve) baseCurve.clone(), fixedPartCurve, fixedPartStartTime, fixedPartEndTime);</span>
+	}
+
+	@Override
+	public Builder getCloneBuilder() throws CloneNotSupportedException {
+<span class="nc" id="L151">		return new Builder(this);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L156">		return &quot;ForwardCurveWithFixings [getBaseCurve()=&quot; + getBaseCurve()</span>
+<span class="nc" id="L157">		+ &quot;, getFixedPartCurve()=&quot; + getFixedPartCurve()</span>
+<span class="nc" id="L158">		+ &quot;, getFixedPartStartTime()=&quot; + getFixedPartStartTime()</span>
+<span class="nc" id="L159">		+ &quot;, getFixedPartEndTime()=&quot; + getFixedPartEndTime()</span>
+<span class="nc" id="L160">		+ &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

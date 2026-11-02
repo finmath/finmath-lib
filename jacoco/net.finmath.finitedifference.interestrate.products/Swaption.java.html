@@ -1,0 +1,837 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Swaption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.products</a> &gt; <span class="el_source">Swaption.java</span></div><h1>Swaption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.products;
+
+import java.util.Arrays;
+
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.montecarlo.interestrate.products.BermudanSwaptionFromSwapSchedules.SwaptionType;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Finite-difference valuation of a swaption under an interest-rate
+ * finite-difference model.
+ *
+ * &lt;p&gt;
+ * This class is designed to cover European, Bermudan, and American swaptions
+ * through a single {@link Exercise} field.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The product is represented as an option on the value of an underlying swap.
+ * At an admissible exercise time {@code t}, the intrinsic value is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * max(V_swap(t,x), 0).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The sign convention is determined by {@link SwaptionType}:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code PAYER}: intrinsic value is based on float leg minus fixed
+ * leg,&lt;/li&gt;
+ * &lt;li&gt;{@code RECEIVER}: intrinsic value is based on fixed leg minus float
+ * leg.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The class supports:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;a single underlying swap (European or American-style grid exercise),&lt;/li&gt;
+ *   &lt;li&gt;one underlying swap per exercise date (Bermudan style).&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Exercise handling is implemented through the interest-rate event-condition
+ * mechanism. At each admissible exercise time {@code t},
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * V(t^{-},x) = max(V(t^{+},x), intrinsic(t,x)).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * American exercise is approximated on the solver time grid and is currently
+ * supported only with a single master underlying swap definition.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Assumption:
+ * the swap schedules supplied for a given exercise date should represent the
+ * remaining underlying swap from that exercise date onward. In particular, this
+ * class is intended for standard European/Bermudan swaption use cases where the
+ * exercise dates and underlying remaining swaps are specified consistently.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class Swaption implements FiniteDifferenceInterestRateProduct {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+	/**
+	 * The explicit exercise dates.
+	 */
+	private final double[] explicitExerciseDates;
+
+	/**
+	 * The swaption type.
+	 */
+	private final SwaptionType swaptionType;
+	/**
+	 * The forward curve name.
+	 */
+	private final String forwardCurveName;
+
+	/**
+	 * The swap rates.
+	 */
+	private final double[] swapRates;
+	/**
+	 * The notionals.
+	 */
+	private final double[] notionals;
+	/**
+	 * The fix schedules.
+	 */
+	private final Schedule[] fixSchedules;
+	/**
+	 * The float schedules.
+	 */
+	private final Schedule[] floatSchedules;
+
+	/**
+	 * Creates a swaption.
+	 *
+	 * &lt;p&gt;
+	 * If {@code explicitExerciseDates} is {@code null}, then
+	 * &lt;/p&gt;
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;European exercise uses {@code exercise.getMaturity()},&lt;/li&gt;
+	 * &lt;li&gt;Bermudan exercise derives exercise dates from the first period start
+	 * of
+	 * the supplied schedules if more than one underlying swap is provided,&lt;/li&gt;
+	 *   &lt;li&gt;American exercise uses all solver time-grid points up to
+	 * {@code exercise.getMaturity()} and requires exactly one underlying swap
+	 *       definition.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param exercise The exercise specification.
+	 * @param explicitExerciseDates Optional explicit exercise dates.
+	 * @param swaptionType The payer/receiver indicator.
+	 * @param forwardCurveName The forwarding-curve name. May be {@code null}.
+	 * @param swapRates The fixed rates of the underlying swaps.
+	 * @param notionals The notionals of the underlying swaps. Must be positive.
+	 * @param fixSchedules The fixed-leg schedules of the underlying swaps.
+	 * @param floatSchedules The floating-leg schedules of the underlying swaps.
+	 */
+	public Swaption(
+			final Exercise exercise,
+			final double[] explicitExerciseDates,
+			final SwaptionType swaptionType,
+			final String forwardCurveName,
+			final double[] swapRates,
+			final double[] notionals,
+			final Schedule[] fixSchedules,
+<span class="nc" id="L153">			final Schedule[] floatSchedules) {</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L156">			throw new IllegalArgumentException(&quot;exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (swaptionType == null) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;swaptionType must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L161" title="All 4 branches missed.">		if (swapRates == null || swapRates.length == 0) {</span>
+<span class="nc" id="L162">			throw new IllegalArgumentException(&quot;swapRates must contain at least one element.&quot;);</span>
+		}
+<span class="nc bnc" id="L164" title="All 4 branches missed.">		if (notionals == null || notionals.length != swapRates.length) {</span>
+<span class="nc" id="L165">			throw new IllegalArgumentException(&quot;notionals must have the same length as swapRates.&quot;);</span>
+		}
+<span class="nc bnc" id="L167" title="All 4 branches missed.">		if (fixSchedules == null || fixSchedules.length != swapRates.length) {</span>
+<span class="nc" id="L168">			throw new IllegalArgumentException(&quot;fixSchedules must have the same length as swapRates.&quot;);</span>
+		}
+<span class="nc bnc" id="L170" title="All 4 branches missed.">		if (floatSchedules == null || floatSchedules.length != swapRates.length) {</span>
+<span class="nc" id="L171">			throw new IllegalArgumentException(&quot;floatSchedules must have the same length as swapRates.&quot;);</span>
+		}
+
+<span class="nc" id="L174">		this.exercise = exercise;</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		this.explicitExerciseDates = explicitExerciseDates == null ? null : explicitExerciseDates.clone();</span>
+<span class="nc" id="L176">		this.swaptionType = swaptionType;</span>
+<span class="nc" id="L177">		this.forwardCurveName = forwardCurveName;</span>
+<span class="nc" id="L178">		this.swapRates = swapRates.clone();</span>
+<span class="nc" id="L179">		this.notionals = notionals.clone();</span>
+<span class="nc" id="L180">		this.fixSchedules = fixSchedules.clone();</span>
+<span class="nc" id="L181">		this.floatSchedules = floatSchedules.clone();</span>
+
+<span class="nc" id="L183">		validateInputs();</span>
+<span class="nc" id="L184">	}</span>
+
+	/**
+	 * Creates a swaption without explicit exercise dates.
+	 *
+	 * @param exercise The exercise specification.
+	 * @param swaptionType The payer/receiver indicator.
+	 * @param forwardCurveName The forwarding-curve name. May be {@code null}.
+	 * @param swapRates The fixed rates of the underlying swaps.
+	 * @param notionals The notionals of the underlying swaps. Must be positive.
+	 * @param fixSchedules The fixed-leg schedules of the underlying swaps.
+	 * @param floatSchedules The floating-leg schedules of the underlying swaps.
+	 */
+	public Swaption(
+			final Exercise exercise,
+			final SwaptionType swaptionType,
+			final String forwardCurveName,
+			final double[] swapRates,
+			final double[] notionals,
+			final Schedule[] fixSchedules,
+			final Schedule[] floatSchedules) {
+<span class="nc" id="L205">		this(</span>
+				exercise,
+				null,
+				swaptionType,
+				forwardCurveName,
+				swapRates,
+				notionals,
+				fixSchedules,
+				floatSchedules
+				);
+<span class="nc" id="L215">	}</span>
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L222">		final ResolvedExerciseData resolvedExerciseData = getResolvedExerciseData(model);</span>
+<span class="nc" id="L223">		final double lastExerciseTime = resolvedExerciseData.getLastExerciseTime();</span>
+
+<span class="nc" id="L225">		final ResolvedSwaption resolvedProduct = new ResolvedSwaption(resolvedExerciseData);</span>
+
+<span class="nc" id="L227">		final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+				model,
+				resolvedProduct,
+<span class="nc" id="L230">				model.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(lastExerciseTime)
+				);
+
+<span class="nc" id="L234">		return solver.getValue(</span>
+				evaluationTime,
+				lastExerciseTime,
+<span class="nc" id="L237">				buildZeroTerminalValues(model)</span>
+				);
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L244">		final ResolvedExerciseData resolvedExerciseData = getResolvedExerciseData(model);</span>
+<span class="nc" id="L245">		final double lastExerciseTime = resolvedExerciseData.getLastExerciseTime();</span>
+
+<span class="nc" id="L247">		final ResolvedSwaption resolvedProduct = new ResolvedSwaption(resolvedExerciseData);</span>
+
+<span class="nc" id="L249">		final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+				model,
+				resolvedProduct,
+<span class="nc" id="L252">				model.getSpaceTimeDiscretization(),</span>
+				new EuropeanExercise(lastExerciseTime)
+				);
+
+<span class="nc" id="L256">		return solver.getValues(</span>
+				lastExerciseTime,
+<span class="nc" id="L258">				buildZeroTerminalValues(model)</span>
+				);
+	}
+
+	@Override
+	public double[] getEventTimes() {
+<span class="nc bnc" id="L264" title="All 2 branches missed.">		if (exercise.isAmerican()) {</span>
+<span class="nc" id="L265">			throw new UnsupportedOperationException(</span>
+					&quot;American swaption exercise times depend on the model time grid. &quot;
+							+ &quot;Use getValue(...) or getValues(...), which resolve the exercise times internally.&quot;
+					);
+		}
+
+<span class="nc" id="L271">		return resolveDiscreteExerciseTimes();</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L280">		return exercise;</span>
+	}
+
+	/**
+	 * Returns the explicit exercise dates, if any.
+	 *
+	 * @return The explicit exercise dates, or {@code null}.
+	 */
+	public double[] getExplicitExerciseDates() {
+<span class="nc bnc" id="L289" title="All 2 branches missed.">		return explicitExerciseDates == null ? null : explicitExerciseDates.clone();</span>
+	}
+
+	/**
+	 * Returns the swaption type.
+	 *
+	 * @return The swaption type.
+	 */
+	public SwaptionType getSwaptionType() {
+<span class="nc" id="L298">		return swaptionType;</span>
+	}
+
+	/**
+	 * Returns the forwarding-curve name.
+	 *
+	 * @return The forwarding-curve name, possibly {@code null}.
+	 */
+	public String getForwardCurveName() {
+<span class="nc" id="L307">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * Returns the fixed rates of the underlying swaps.
+	 *
+	 * @return The fixed rates.
+	 */
+	public double[] getSwapRates() {
+<span class="nc" id="L316">		return swapRates.clone();</span>
+	}
+
+	/**
+	 * Returns the notionals of the underlying swaps.
+	 *
+	 * @return The notionals.
+	 */
+	public double[] getNotionals() {
+<span class="nc" id="L325">		return notionals.clone();</span>
+	}
+
+	/**
+	 * Returns the fixed-leg schedules.
+	 *
+	 * @return The fixed-leg schedules.
+	 */
+	public Schedule[] getFixSchedules() {
+<span class="nc" id="L334">		return fixSchedules.clone();</span>
+	}
+
+	/**
+	 * Returns the floating-leg schedules.
+	 *
+	 * @return The floating-leg schedules.
+	 */
+	public Schedule[] getFloatSchedules() {
+<span class="nc" id="L343">		return floatSchedules.clone();</span>
+	}
+
+	/**
+	 * Resolves the exercise data to be used numerically under the given model.
+	 *
+	 * &lt;p&gt;
+	 * For American exercise, the exercise times depend on the model time grid.
+	 * For European and Bermudan exercise, they are determined directly from the
+	 * contractual product data.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference interest-rate model.
+	 * @return The resolved exercise data.
+	 */
+	public ResolvedExerciseData getResolvedExerciseData(final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L359">		validateModel(model);</span>
+
+<span class="nc bnc" id="L361" title="All 2 branches missed.">		if (exercise.isAmerican()) {</span>
+<span class="nc" id="L362">			return resolveAmericanExerciseData(model);</span>
+		}
+
+<span class="nc" id="L365">		final double[] exerciseTimes = resolveDiscreteExerciseTimes();</span>
+<span class="nc" id="L366">		final int[] scheduleIndices = resolveDiscreteScheduleIndices(exerciseTimes);</span>
+
+<span class="nc" id="L368">		return new ResolvedExerciseData(exerciseTimes, scheduleIndices);</span>
+	}
+
+	/**
+	 * Returns the intrinsic value at the given time and state for the schedule
+	 * indexed by {@code scheduleIndex}.
+	 *
+	 * @param time The running time.
+	 * @param scheduleIndex The schedule index.
+	 * @param stateVariable The state variable.
+	 * @param model The finite-difference interest-rate model.
+	 * @return The intrinsic value.
+	 */
+	public double getIntrinsicValue(
+			final double time,
+			final int scheduleIndex,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L386">		return Math.max(getUnderlyingSwapValue(time, scheduleIndex, stateVariable, model), 0.0);</span>
+	}
+
+	/**
+	 * Returns the underlying swap value at the given time and state for the
+	 * schedule indexed by {@code scheduleIndex}.
+	 *
+	 * @param time The running time.
+	 * @param scheduleIndex The schedule index.
+	 * @param stateVariable The state variable.
+	 * @param model The finite-difference interest-rate model.
+	 * @return The underlying swap value.
+	 */
+	public double getUnderlyingSwapValue(
+			final double time,
+			final int scheduleIndex,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L405">		final double fixedLegValue = getFixedLegValue(time, scheduleIndex, stateVariable, model);</span>
+<span class="nc" id="L406">		final double floatingLegValue = getFloatingLegValue(time, scheduleIndex, stateVariable, model);</span>
+
+<span class="nc bnc" id="L408" title="All 3 branches missed.">		switch (swaptionType) {</span>
+		case PAYER:
+<span class="nc" id="L410">			return floatingLegValue - fixedLegValue;</span>
+		case RECEIVER:
+<span class="nc" id="L412">			return fixedLegValue - floatingLegValue;</span>
+		default:
+<span class="nc" id="L414">			throw new IllegalArgumentException(&quot;Unsupported swaption type: &quot; + swaptionType);</span>
+		}
+	}
+
+	private void validateInputs() {
+<span class="nc bnc" id="L419" title="All 2 branches missed.">		for (int i = 0; i &lt; notionals.length; i++) {</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">			if (notionals[i] &lt;= 0.0) {</span>
+<span class="nc" id="L421">				throw new IllegalArgumentException(&quot;All notionals must be strictly positive.&quot;);</span>
+			}
+		}
+
+<span class="nc bnc" id="L425" title="All 2 branches missed.">		if (explicitExerciseDates != null) {</span>
+<span class="nc bnc" id="L426" title="All 2 branches missed.">			if (explicitExerciseDates.length == 0) {</span>
+<span class="nc" id="L427">				throw new IllegalArgumentException(&quot;explicitExerciseDates must not be empty.&quot;);</span>
+			}
+<span class="nc bnc" id="L429" title="All 2 branches missed.">			for (int i = 0; i &lt; explicitExerciseDates.length; i++) {</span>
+<span class="nc bnc" id="L430" title="All 2 branches missed.">				if (explicitExerciseDates[i] &lt; 0.0) {</span>
+<span class="nc" id="L431">					throw new IllegalArgumentException(&quot;explicitExerciseDates must be non-negative.&quot;);</span>
+				}
+<span class="nc bnc" id="L433" title="All 4 branches missed.">				if (i &gt; 0 &amp;&amp; explicitExerciseDates[i] &lt;= explicitExerciseDates[i - 1]) {</span>
+<span class="nc" id="L434">					throw new IllegalArgumentException(&quot;explicitExerciseDates must be strictly increasing.&quot;);</span>
+				}
+			}
+		}
+
+<span class="nc bnc" id="L439" title="All 2 branches missed.">		for (int i = 0; i &lt; fixSchedules.length; i++) {</span>
+<span class="nc" id="L440">			validateSchedule(fixSchedules[i], &quot;fixSchedules[&quot; + i + &quot;]&quot;);</span>
+<span class="nc" id="L441">			validateSchedule(floatSchedules[i], &quot;floatSchedules[&quot; + i + &quot;]&quot;);</span>
+		}
+
+<span class="nc bnc" id="L444" title="All 4 branches missed.">		if (exercise.isAmerican() &amp;&amp; fixSchedules.length != 1) {</span>
+<span class="nc" id="L445">			throw new IllegalArgumentException(</span>
+					&quot;American exercise currently requires exactly one master underlying swap definition.&quot;
+					);
+		}
+<span class="nc" id="L449">	}</span>
+
+	private void validateSchedule(final Schedule schedule, final String name) {
+<span class="nc bnc" id="L452" title="All 2 branches missed.">		if (schedule == null) {</span>
+<span class="nc" id="L453">			throw new IllegalArgumentException(name + &quot; must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L455" title="All 2 branches missed.">		if (schedule.getNumberOfPeriods() &lt;= 0) {</span>
+<span class="nc" id="L456">			throw new IllegalArgumentException(name + &quot; must contain at least one period.&quot;);</span>
+		}
+<span class="nc bnc" id="L458" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">			if (schedule.getFixing(periodIndex) &lt; 0.0) {</span>
+<span class="nc" id="L460">				throw new IllegalArgumentException(name + &quot; contains a negative fixing time.&quot;);</span>
+			}
+<span class="nc bnc" id="L462" title="All 2 branches missed.">			if (schedule.getPayment(periodIndex) &lt;= schedule.getFixing(periodIndex)) {</span>
+<span class="nc" id="L463">				throw new IllegalArgumentException(</span>
+						name + &quot; must satisfy payment &gt; fixing for every period.&quot;
+						);
+			}
+		}
+<span class="nc" id="L468">	}</span>
+
+	private void validateModel(final FiniteDifferenceInterestRateModel model) {
+<span class="nc bnc" id="L471" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L472">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L474" title="All 2 branches missed.">		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 1) {</span>
+<span class="nc" id="L475">			throw new IllegalArgumentException(</span>
+					&quot;Swaption currently supports only one-dimensional finite-difference interest-rate models.&quot;
+					);
+		}
+<span class="nc" id="L479">	}</span>
+
+	private double[] buildZeroTerminalValues(final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L482">		final SpaceTimeDiscretization discretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L483">		final double[] xGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L484">		return new double[xGrid.length];</span>
+	}
+
+	private double[] resolveDiscreteExerciseTimes() {
+
+<span class="nc bnc" id="L489" title="All 2 branches missed.">		if (explicitExerciseDates != null) {</span>
+<span class="nc" id="L490">			return explicitExerciseDates.clone();</span>
+		}
+
+<span class="nc bnc" id="L493" title="All 2 branches missed.">		if (exercise.isEuropean()) {</span>
+<span class="nc" id="L494">			return new double[] {exercise.getMaturity() };</span>
+		}
+
+<span class="nc bnc" id="L497" title="All 2 branches missed.">		if (exercise.isBermudan()) {</span>
+<span class="nc bnc" id="L498" title="All 2 branches missed.">			if (fixSchedules.length == 1) {</span>
+<span class="nc" id="L499">				return new double[] {exercise.getMaturity() };</span>
+			}
+
+<span class="nc" id="L502">			final double[] exerciseTimes = new double[fixSchedules.length];</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">			for (int i = 0; i &lt; exerciseTimes.length; i++) {</span>
+<span class="nc" id="L504">				exerciseTimes[i] = inferExerciseDateFromSchedules(i);</span>
+			}
+<span class="nc" id="L506">			return exerciseTimes;</span>
+		}
+
+<span class="nc" id="L509">		throw new IllegalArgumentException(&quot;Unsupported exercise type.&quot;);</span>
+	}
+
+	private int[] resolveDiscreteScheduleIndices(final double[] exerciseTimes) {
+
+<span class="nc bnc" id="L514" title="All 2 branches missed.">		if (fixSchedules.length == 1) {</span>
+<span class="nc" id="L515">			final int[] scheduleIndices = new int[exerciseTimes.length];</span>
+<span class="nc" id="L516">			Arrays.fill(scheduleIndices, 0);</span>
+<span class="nc" id="L517">			return scheduleIndices;</span>
+		}
+
+<span class="nc bnc" id="L520" title="All 2 branches missed.">		if (fixSchedules.length != exerciseTimes.length) {</span>
+<span class="nc" id="L521">			throw new IllegalArgumentException(</span>
+					&quot;The number of underlying swap definitions must be either 1 or equal to the number of exercise dates.&quot;
+					);
+		}
+
+<span class="nc" id="L526">		final int[] scheduleIndices = new int[exerciseTimes.length];</span>
+<span class="nc bnc" id="L527" title="All 2 branches missed.">		for (int i = 0; i &lt; scheduleIndices.length; i++) {</span>
+<span class="nc" id="L528">			scheduleIndices[i] = i;</span>
+		}
+<span class="nc" id="L530">		return scheduleIndices;</span>
+	}
+
+	private ResolvedExerciseData resolveAmericanExerciseData(final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L534">		final TimeDiscretization timeDiscretization = model.getSpaceTimeDiscretization().getTimeDiscretization();</span>
+<span class="nc" id="L535">		final double exerciseMaturity = exercise.getMaturity();</span>
+
+<span class="nc" id="L537">		int count = 0;</span>
+<span class="nc bnc" id="L538" title="All 2 branches missed.">		for (int i = 0; i &lt; timeDiscretization.getNumberOfTimes(); i++) {</span>
+<span class="nc bnc" id="L539" title="All 2 branches missed.">			if (timeDiscretization.getTime(i) &lt;= exerciseMaturity + TIME_TOLERANCE) {</span>
+<span class="nc" id="L540">				count++;</span>
+			}
+		}
+
+<span class="nc bnc" id="L544" title="All 2 branches missed.">		if (count == 0) {</span>
+<span class="nc" id="L545">			throw new IllegalArgumentException(&quot;No model time-grid point is admissible for American exercise.&quot;);</span>
+		}
+
+<span class="nc" id="L548">		final double[] exerciseTimes = new double[count];</span>
+<span class="nc" id="L549">		final int[] scheduleIndices = new int[count];</span>
+
+<span class="nc" id="L551">		int index = 0;</span>
+<span class="nc bnc" id="L552" title="All 2 branches missed.">		for (int i = 0; i &lt; timeDiscretization.getNumberOfTimes(); i++) {</span>
+<span class="nc" id="L553">			final double time = timeDiscretization.getTime(i);</span>
+<span class="nc bnc" id="L554" title="All 2 branches missed.">			if (time &lt;= exerciseMaturity + TIME_TOLERANCE) {</span>
+<span class="nc" id="L555">				exerciseTimes[index] = time;</span>
+<span class="nc" id="L556">				scheduleIndices[index] = 0;</span>
+<span class="nc" id="L557">				index++;</span>
+			}
+		}
+
+<span class="nc" id="L561">		return new ResolvedExerciseData(exerciseTimes, scheduleIndices);</span>
+	}
+
+	private double inferExerciseDateFromSchedules(final int scheduleIndex) {
+<span class="nc" id="L565">		final Schedule fixSchedule = fixSchedules[scheduleIndex];</span>
+<span class="nc" id="L566">		final Schedule floatSchedule = floatSchedules[scheduleIndex];</span>
+
+<span class="nc" id="L568">		final double fixStart = fixSchedule.getPeriodStart(0);</span>
+<span class="nc" id="L569">		final double floatStart = floatSchedule.getPeriodStart(0);</span>
+
+<span class="nc bnc" id="L571" title="All 2 branches missed.">		if (Math.abs(fixStart - floatStart) &gt; TIME_TOLERANCE) {</span>
+<span class="nc" id="L572">			throw new IllegalArgumentException(</span>
+					&quot;Cannot infer a unique exercise date from schedule pair &quot;
+							+ scheduleIndex + &quot;: first fixed-leg start and first float-leg start differ.&quot;
+					);
+		}
+
+<span class="nc" id="L578">		return fixStart;</span>
+	}
+
+	private double getFixedLegValue(
+			final double time,
+			final int scheduleIndex,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L587">		final Schedule fixedSchedule = fixSchedules[scheduleIndex];</span>
+<span class="nc" id="L588">		final double fixedRate = swapRates[scheduleIndex];</span>
+<span class="nc" id="L589">		final double notional = notionals[scheduleIndex];</span>
+
+<span class="nc" id="L591">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L593" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; fixedSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L594">			final double paymentTime = fixedSchedule.getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L596" title="All 2 branches missed.">			if (paymentTime &lt;= time + TIME_TOLERANCE) {</span>
+<span class="nc" id="L597">				continue;</span>
+			}
+
+<span class="nc" id="L600">			final double accrualFactor = fixedSchedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L601">			final double discountBond = model.getDiscountBond(time, paymentTime, stateVariable);</span>
+
+<span class="nc" id="L603">			value += notional * fixedRate * accrualFactor * discountBond;</span>
+		}
+
+<span class="nc" id="L606">		return value;</span>
+	}
+
+	private double getFloatingLegValue(
+			final double time,
+			final int scheduleIndex,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L615">		final Schedule floatingSchedule = floatSchedules[scheduleIndex];</span>
+<span class="nc" id="L616">		final double notional = notionals[scheduleIndex];</span>
+
+<span class="nc" id="L618">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L620" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; floatingSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L621">			final double fixingTime = floatingSchedule.getFixing(periodIndex);</span>
+<span class="nc" id="L622">			final double paymentTime = floatingSchedule.getPayment(periodIndex);</span>
+
+			/*
+			 * The intended use is that the schedule supplied for a given
+			 * exercise
+			 * date is already the remaining forward swap from that date onward.
+			 * We therefore ignore already-started periods here.
+			 */
+<span class="nc bnc" id="L630" title="All 4 branches missed.">			if ((fixingTime &lt; time - TIME_TOLERANCE) || (paymentTime &lt;= time + TIME_TOLERANCE)) {</span>
+<span class="nc" id="L631">				continue;</span>
+			}
+
+<span class="nc" id="L634">			final double accrualFactor = floatingSchedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L635">			final double forwardRate = model.getForwardRate(</span>
+					forwardCurveName,
+					time,
+					fixingTime,
+					paymentTime,
+					stateVariable
+					);
+<span class="nc" id="L642">			final double discountBond = model.getDiscountBond(time, paymentTime, stateVariable);</span>
+
+<span class="nc" id="L644">			value += notional * forwardRate * accrualFactor * discountBond;</span>
+		}
+
+<span class="nc" id="L647">		return value;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L652">		return &quot;Swaption [exercise=&quot; + exercise</span>
+<span class="nc" id="L653">				+ &quot;, explicitExerciseDates=&quot; + Arrays.toString(explicitExerciseDates)</span>
+				+ &quot;, swaptionType=&quot; + swaptionType
+				+ &quot;, forwardCurveName=&quot; + forwardCurveName
+<span class="nc" id="L656">				+ &quot;, swapRates=&quot; + Arrays.toString(swapRates)</span>
+<span class="nc" id="L657">				+ &quot;, notionals=&quot; + Arrays.toString(notionals)</span>
+<span class="nc" id="L658">				+ &quot;, fixSchedules=&quot; + Arrays.toString(fixSchedules)</span>
+<span class="nc" id="L659">				+ &quot;, floatSchedules=&quot; + Arrays.toString(floatSchedules)</span>
+				+ &quot;]&quot;;
+	}
+
+	/**
+	 * Container for resolved exercise information.
+	 *
+	 * @author Alessandro Gnoatto
+	 */
+	public static final class ResolvedExerciseData {
+
+		/**
+		 * The exercise times.
+		 */
+		private final double[] exerciseTimes;
+		/**
+		 * The schedule indices.
+		 */
+		private final int[] scheduleIndices;
+
+		private ResolvedExerciseData(
+				final double[] exerciseTimes,
+<span class="nc" id="L681">				final int[] scheduleIndices) {</span>
+<span class="nc" id="L682">			this.exerciseTimes = exerciseTimes.clone();</span>
+<span class="nc" id="L683">			this.scheduleIndices = scheduleIndices.clone();</span>
+<span class="nc" id="L684">		}</span>
+
+		/**
+		 * Returns the resolved exercise times.
+		 *
+		 * @return The resolved exercise times.
+		 */
+		public double[] getExerciseTimes() {
+<span class="nc" id="L692">			return exerciseTimes.clone();</span>
+		}
+
+		/**
+		 * Returns the resolved schedule indices.
+		 *
+		 * @return The resolved schedule indices.
+		 */
+		public int[] getScheduleIndices() {
+<span class="nc" id="L701">			return scheduleIndices.clone();</span>
+		}
+
+		/**
+		 * Returns the number of resolved exercise opportunities.
+		 *
+		 * @return The number of resolved exercise opportunities.
+		 */
+		public int getNumberOfExerciseTimes() {
+<span class="nc" id="L710">			return exerciseTimes.length;</span>
+		}
+
+		/**
+		 * Returns the exercise time at the given index.
+		 *
+		 * @param index The index.
+		 * @return The exercise time.
+		 */
+		public double getExerciseTime(final int index) {
+<span class="nc" id="L720">			return exerciseTimes[index];</span>
+		}
+
+		/**
+		 * Returns the schedule index at the given index.
+		 *
+		 * @param index The index.
+		 * @return The schedule index.
+		 */
+		public int getScheduleIndex(final int index) {
+<span class="nc" id="L730">			return scheduleIndices[index];</span>
+		}
+
+		/**
+		 * Returns the last exercise time.
+		 *
+		 * @return The last exercise time.
+		 */
+		public double getLastExerciseTime() {
+<span class="nc" id="L739">			return exerciseTimes[exerciseTimes.length - 1];</span>
+		}
+
+		/**
+		 * Returns the resolved exercise index for the given time.
+		 *
+		 * @param time The running time.
+		 * @return The resolved exercise index.
+		 */
+		public int findExerciseIndex(final double time) {
+<span class="nc bnc" id="L749" title="All 2 branches missed.">			for (int i = 0; i &lt; exerciseTimes.length; i++) {</span>
+<span class="nc bnc" id="L750" title="All 2 branches missed.">				if (Math.abs(exerciseTimes[i] - time) &lt;= TIME_TOLERANCE) {</span>
+<span class="nc" id="L751">					return i;</span>
+				}
+			}
+
+<span class="nc" id="L755">			throw new IllegalArgumentException(&quot;No exercise index found for time &quot; + time + &quot;.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Internal resolved product with model-resolved exercise times.
+	 *
+	 * @author Alessandro Gnoatto
+	 */
+	public final class ResolvedSwaption implements FiniteDifferenceInterestRateProduct {
+
+		/**
+		 * The resolved exercise data.
+		 */
+		private final ResolvedExerciseData resolvedExerciseData;
+
+<span class="nc" id="L771">		private ResolvedSwaption(final ResolvedExerciseData resolvedExerciseData) {</span>
+<span class="nc" id="L772">			this.resolvedExerciseData = resolvedExerciseData;</span>
+<span class="nc" id="L773">		}</span>
+
+		/**
+		 * Returns the original outer swaption.
+		 *
+		 * @return The original swaption.
+		 */
+		public Swaption getOriginalSwaption() {
+<span class="nc" id="L781">			return Swaption.this;</span>
+		}
+
+		@Override
+		public double[] getEventTimes() {
+<span class="nc" id="L786">			return resolvedExerciseData.getExerciseTimes();</span>
+		}
+
+		@Override
+		public double[] applyEventCondition(
+				final double time,
+				final double[] valuesAfterEvent,
+				final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc bnc" id="L795" title="All 2 branches missed.">			if (valuesAfterEvent == null) {</span>
+<span class="nc" id="L796">				throw new IllegalArgumentException(&quot;valuesAfterEvent must not be null.&quot;);</span>
+			}
+
+<span class="nc" id="L799">			final int exerciseIndex = resolvedExerciseData.findExerciseIndex(time);</span>
+<span class="nc" id="L800">			final int scheduleIndex = resolvedExerciseData.getScheduleIndex(exerciseIndex);</span>
+
+<span class="nc" id="L802">			final double[] xGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+
+<span class="nc bnc" id="L804" title="All 2 branches missed.">			if (valuesAfterEvent.length != xGrid.length) {</span>
+<span class="nc" id="L805">				throw new IllegalArgumentException(</span>
+						&quot;The value vector length does not match the spatial grid length.&quot;);
+			}
+
+<span class="nc" id="L809">			final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+
+<span class="nc bnc" id="L811" title="All 2 branches missed.">			for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L812">				final double intrinsicValue = getIntrinsicValue(</span>
+						time,
+						scheduleIndex,
+						xGrid[i],
+						model
+						);
+<span class="nc" id="L818">				valuesBeforeEvent[i] = Math.max(valuesBeforeEvent[i], intrinsicValue);</span>
+			}
+
+<span class="nc" id="L821">			return valuesBeforeEvent;</span>
+		}
+
+		@Override
+		public double[] getValue(
+				final double evaluationTime,
+				final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L828">			return Swaption.this.getValue(evaluationTime, model);</span>
+		}
+
+		@Override
+		public double[][] getValues(final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L833">			return Swaption.this.getValues(model);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

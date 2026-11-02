@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Swap.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.products</a> &gt; <span class="el_source">Swap.java</span></div><h1>Swap.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.products;
+
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.time.Schedule;
+
+/**
+ * Finite-difference valuation of a reduced-scope swap.
+ *
+ * &lt;p&gt;
+ * The swap value is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * V_{\mathrm{swap}} = V_{\mathrm{receiver\ leg}} - V_{\mathrm{payer\ leg}}.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In line with {@link SwapLeg}, this class is interpreted as a remaining
+ * forward-looking swap in the current Markovian PDE setting. It is valued
+ * directly from discount bonds and forward rates and therefore does not require
+ * a PDE solver.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class Swap implements FiniteDifferenceInterestRateProduct {
+
+	/**
+	 * The leg receiver.
+	 */
+	private final SwapLeg legReceiver;
+	/**
+	 * The leg payer.
+	 */
+	private final SwapLeg legPayer;
+
+	/**
+	 * Creates a swap with value
+	 * {@code legReceiver - legPayer}.
+	 *
+	 * @param legReceiver The receiver leg.
+	 * @param legPayer The payer leg.
+	 */
+<span class="nc" id="L46">	public Swap(final SwapLeg legReceiver, final SwapLeg legPayer) {</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if (legReceiver == null) {</span>
+<span class="nc" id="L48">			throw new IllegalArgumentException(&quot;legReceiver must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		if (legPayer == null) {</span>
+<span class="nc" id="L51">			throw new IllegalArgumentException(&quot;legPayer must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L54">		this.legReceiver = legReceiver;</span>
+<span class="nc" id="L55">		this.legPayer = legPayer;</span>
+<span class="nc" id="L56">	}</span>
+
+	/**
+	 * Creates a swap from leg specifications.
+	 *
+	 * @param scheduleReceiveLeg The receiver-leg schedule.
+	 * @param forwardCurveReceiveName The receiver-leg forwarding-curve name.
+	 * @param notionalsReceive The receiver-leg notionals.
+	 * @param spreadsReceive The receiver-leg spreads.
+	 * @param schedulePayLeg The payer-leg schedule.
+	 * @param forwardCurvePayName The payer-leg forwarding-curve name.
+	 * @param notionalsPay The payer-leg notionals.
+	 * @param spreadsPay The payer-leg spreads.
+	 * @param isNotionalExchanged True if notional exchange is included on both
+	 *     legs.
+	 */
+	public Swap(
+			final Schedule scheduleReceiveLeg,
+			final String forwardCurveReceiveName,
+			final double[] notionalsReceive,
+			final double[] spreadsReceive,
+			final Schedule schedulePayLeg,
+			final String forwardCurvePayName,
+			final double[] notionalsPay,
+			final double[] spreadsPay,
+			final boolean isNotionalExchanged) {
+<span class="nc" id="L82">		this(</span>
+				new SwapLeg(
+						scheduleReceiveLeg,
+						forwardCurveReceiveName,
+						notionalsReceive,
+						spreadsReceive,
+						isNotionalExchanged
+						),
+				new SwapLeg(
+						schedulePayLeg,
+						forwardCurvePayName,
+						notionalsPay,
+						spreadsPay,
+						isNotionalExchanged
+						)
+				);
+<span class="nc" id="L98">	}</span>
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L105">		final double[] receiverValues = legReceiver.getValue(evaluationTime, model);</span>
+<span class="nc" id="L106">		final double[] payerValues = legPayer.getValue(evaluationTime, model);</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		if (receiverValues.length != payerValues.length) {</span>
+<span class="nc" id="L109">			throw new IllegalArgumentException(&quot;Receiver and payer leg value vectors have different lengths.&quot;);</span>
+		}
+
+<span class="nc" id="L112">		final double[] values = new double[receiverValues.length];</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L114">			values[i] = receiverValues[i] - payerValues[i];</span>
+		}
+
+<span class="nc" id="L117">		return values;</span>
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceInterestRateModel model) {
+
+<span class="nc" id="L123">		final double[][] receiverValues = legReceiver.getValues(model);</span>
+<span class="nc" id="L124">		final double[][] payerValues = legPayer.getValues(model);</span>
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if (receiverValues.length != payerValues.length) {</span>
+<span class="nc" id="L127">			throw new IllegalArgumentException(&quot;Receiver and payer leg grids have different spatial lengths.&quot;);</span>
+		}
+
+<span class="nc" id="L130">		final double[][] values = new double[receiverValues.length][receiverValues[0].length];</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">			for (int j = 0; j &lt; values[i].length; j++) {</span>
+<span class="nc" id="L133">				values[i][j] = receiverValues[i][j] - payerValues[i][j];</span>
+			}
+		}
+
+<span class="nc" id="L137">		return values;</span>
+	}
+
+	/**
+	 * Returns the swap value at the given evaluation time and state.
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param stateVariable The state variable.
+	 * @param model The finite-difference interest-rate model.
+	 * @return The swap value.
+	 */
+	public double getValueAt(
+			final double evaluationTime,
+			final double stateVariable,
+			final FiniteDifferenceInterestRateModel model) {
+<span class="nc" id="L152">		return legReceiver.getValueAt(evaluationTime, stateVariable, model)</span>
+<span class="nc" id="L153">				- legPayer.getValueAt(evaluationTime, stateVariable, model);</span>
+	}
+
+	/**
+	 * Returns the receiver leg.
+	 *
+	 * @return The receiver leg.
+	 */
+	public SwapLeg getLegReceiver() {
+<span class="nc" id="L162">		return legReceiver;</span>
+	}
+
+	/**
+	 * Returns the payer leg.
+	 *
+	 * @return The payer leg.
+	 */
+	public SwapLeg getLegPayer() {
+<span class="nc" id="L171">		return legPayer;</span>
+	}
+
+	/**
+	 * Returns the forward swap rate corresponding to the given fixed-leg and
+	 * floating-leg schedules under the specified model state.
+	 *
+	 * &lt;p&gt;
+	 * The returned quantity is
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;
+	 * S(t,x) = \frac{V_{\mathrm{float}}(t,x)}{A(t,x)},
+	 * &lt;/i&gt;
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * where {@code A(t,x)} is the swap annuity of the fixed-leg schedule.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param fixSchedule The fixed-leg schedule.
+	 * @param floatSchedule The floating-leg schedule.
+	 * @param forwardCurveName The forwarding-curve name of the floating leg.
+	 * @param model The finite-difference interest-rate model.
+	 * @param stateVariables The current state variables.
+	 * @return The forward swap rate.
+	 */
+	public static double getForwardSwapRate(
+			final double evaluationTime,
+			final Schedule fixSchedule,
+			final Schedule floatSchedule,
+			final String forwardCurveName,
+			final FiniteDifferenceInterestRateModel model,
+			final double... stateVariables) {
+
+<span class="nc bnc" id="L208" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 1) {</span>
+<span class="nc" id="L209">			throw new IllegalArgumentException(&quot;Exactly one state variable is required.&quot;);</span>
+		}
+
+<span class="nc" id="L212">		final SwapLeg floatingLeg = new SwapLeg(</span>
+				floatSchedule,
+				forwardCurveName,
+				0.0,
+				false
+				);
+
+<span class="nc" id="L219">		final double valueFloatLeg = floatingLeg.getValueAt(</span>
+				evaluationTime,
+				stateVariables[0],
+				model
+				);
+
+<span class="nc" id="L225">		final double swapAnnuity = SwapAnnuity.getSwapAnnuity(</span>
+				evaluationTime,
+				fixSchedule,
+				model,
+				stateVariables[0]
+				);
+
+<span class="nc bnc" id="L232" title="All 2 branches missed.">		if (Math.abs(swapAnnuity) &lt; 1E-15) {</span>
+<span class="nc" id="L233">			throw new IllegalArgumentException(&quot;Swap annuity is numerically zero.&quot;);</span>
+		}
+
+<span class="nc" id="L236">		return valueFloatLeg / swapAnnuity;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L241">		return &quot;Swap [legReceiver=&quot; + legReceiver + &quot;, legPayer=&quot; + legPayer + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

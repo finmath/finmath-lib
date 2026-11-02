@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOptionSmileByCarrMadan.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.products.smile</a> &gt; <span class="el_source">EuropeanOptionSmileByCarrMadan.java</span></div><h1>EuropeanOptionSmileByCarrMadan.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.products.smile;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.transform.DftNormalization;
+import org.apache.commons.math3.transform.FastFourierTransformer;
+import org.apache.commons.math3.transform.TransformType;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.interpolation.RationalFunctionInterpolation.ExtrapolationMethod;
+import net.finmath.interpolation.RationalFunctionInterpolation.InterpolationMethod;
+
+/**
+ * This class computes the prices of a collection of call options for a fixed maturity and a family of strikes.
+ *
+ * The pricing method is the FFT methodology as introduced in Carr and Madan (1999).
+ * The transform is taken for -1 &amp;lt; \alpha &amp;lt; 0, hence we have a correction term since we are applying the residue theorem as reported in Lee (2004).
+ * In this strip the transform of any meaningful financial model is well defined because we expect the following conditions to be satisfied:
+ *
+ * 1) When computed in the point z=-i, the discounted characteristic function gives us the initial asset price due to the martingale property.
+ * 2) By definition of characteristic function also z = 0 is a good point.
+ *
+ * Analytic extension over the strip is then guaranteed by Lukacs (1970), Theorem 7.1.1.
+ *
+ * From a financial point of view the choice of this strip corresponds to transforming a covered call position.
+ *
+ * References:
+ * &lt;ul&gt;
+ *  &lt;li&gt; Carr. P. and Madan, D. (1999) Option Valuation Using the Fast Fourier Transform. Journal of Computational Finance.&lt;/li&gt;
+ *  &lt;li&gt; Lee, R. (2004) Option pricing by transform methods: extensions, unification and error control. Journal of Computational Finance.&lt;/li&gt;
+ *  &lt;li&gt; Lewis, A. (2002) A simple option formula for general jump diffusion and other exponential Levy processes.&lt;/li&gt;
+ *  &lt;li&gt; Lukacks, E. (1970) Characteristic Functions. 2nd edition.
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class EuropeanOptionSmileByCarrMadan extends EuropeanOptionSmile{
+	//Fields
+	private final int numberOfPoints;
+	private final double gridSpacing;
+	private final InterpolationMethod intMethod;
+	private final ExtrapolationMethod extMethod;
+
+	//Constructors
+	public EuropeanOptionSmileByCarrMadan(final double maturity, final double[] strikes) {
+<span class="fc" id="L52">		super(maturity, strikes);</span>
+<span class="fc" id="L53">		numberOfPoints = 4096;</span>
+<span class="fc" id="L54">		gridSpacing = 0.1;</span>
+<span class="fc" id="L55">		intMethod =InterpolationMethod.HARMONIC_SPLINE;</span>
+<span class="fc" id="L56">		extMethod = ExtrapolationMethod.CONSTANT;</span>
+<span class="fc" id="L57">	}</span>
+
+	public EuropeanOptionSmileByCarrMadan(final String underlyingName, final double maturity, final double[] strikes) {
+<span class="nc" id="L60">		super(underlyingName, maturity, strikes);</span>
+<span class="nc" id="L61">		numberOfPoints = 4096;</span>
+<span class="nc" id="L62">		gridSpacing = 0.1;</span>
+<span class="nc" id="L63">		intMethod =InterpolationMethod.HARMONIC_SPLINE;</span>
+<span class="nc" id="L64">		extMethod = ExtrapolationMethod.CONSTANT;</span>
+<span class="nc" id="L65">	}</span>
+
+
+	public EuropeanOptionSmileByCarrMadan(final String underlyingName, final double maturity, final double[] strikes, final int numberOfPoints,
+			final double gridSpacing, final InterpolationMethod intMethod, final ExtrapolationMethod extMethod) {
+<span class="nc" id="L70">		super(underlyingName, maturity, strikes);</span>
+<span class="nc" id="L71">		this.numberOfPoints = numberOfPoints;</span>
+<span class="nc" id="L72">		this.gridSpacing = gridSpacing;</span>
+<span class="nc" id="L73">		this.intMethod = intMethod;</span>
+<span class="nc" id="L74">		this.extMethod = extMethod;</span>
+<span class="nc" id="L75">	}</span>
+
+	@Override
+	public Map&lt;String, Function&lt;Double, Double&gt;&gt; getValue(final double evaluationTime, final CharacteristicFunctionModel model) throws CalculationException {
+
+<span class="fc" id="L80">		final CharacteristicFunction modelCF = model.apply(getMaturity());</span>
+
+<span class="fc" id="L82">		final double lineOfIntegration = 0.5 * (getIntegrationDomainImagUpperBound()+getIntegrationDomainImagLowerBound());</span>
+
+<span class="fc" id="L84">		final double lambda = 2*Math.PI/(numberOfPoints*gridSpacing); //Equation 23 Carr and Madan</span>
+<span class="fc" id="L85">		final double upperBound = (numberOfPoints * lambda)/2.0; //Equation 20 Carr and Madan</span>
+
+<span class="fc" id="L87">		final Complex[] integrandEvaluations = new Complex[numberOfPoints];</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		for(int i = 0; i&lt;numberOfPoints; i++) {</span>
+
+<span class="fc" id="L91">			final double u = gridSpacing * i;</span>
+
+			//Integration over a line parallel to the real axis
+<span class="fc" id="L94">			final Complex z = new Complex(u,-lineOfIntegration);</span>
+
+			//The characteristic function is already discounted
+<span class="fc" id="L97">			final Complex numerator = modelCF.apply(z.subtract(Complex.I));</span>
+
+<span class="fc" id="L99">			final Complex denominator = apply(z);</span>
+<span class="fc" id="L100">			Complex ratio = numerator.divide(denominator);</span>
+<span class="fc" id="L101">			ratio = (ratio.multiply(((Complex.I).multiply(upperBound*u)).exp())).multiply(gridSpacing);</span>
+
+			double delta;
+<span class="fc bfc" id="L104" title="All 2 branches covered.">			if (i==0){</span>
+<span class="fc" id="L105">				delta=1.0;</span>
+			}else{
+<span class="fc" id="L107">				delta = 0.0;</span>
+			}
+<span class="fc" id="L109">			final double simpsonWeight = (3+Math.pow(-1,i+1)-delta)/3;</span>
+
+<span class="fc" id="L111">			integrandEvaluations[i] = ratio.multiply(simpsonWeight);</span>
+		}
+
+		//Compute the FFT
+<span class="fc" id="L115">		Complex[] transformedVector = new Complex[numberOfPoints];</span>
+<span class="fc" id="L116">		final FastFourierTransformer fft=new FastFourierTransformer(DftNormalization.STANDARD);</span>
+<span class="fc" id="L117">		transformedVector=	fft.transform(integrandEvaluations,TransformType.FORWARD);</span>
+
+		//Find relevant prices via interpolation
+<span class="fc" id="L120">		final double[] logStrikeVector = new double[numberOfPoints];</span>
+<span class="fc" id="L121">		final double[] strikeVector = new double[numberOfPoints];</span>
+<span class="fc" id="L122">		final double[] optionPriceVector = new double[numberOfPoints];</span>
+
+<span class="fc bfc" id="L124" title="All 2 branches covered.">		for(int j = 0; j&lt;numberOfPoints; j++) {</span>
+<span class="fc" id="L125">			logStrikeVector[j] = -upperBound+lambda*j;</span>
+<span class="fc" id="L126">			strikeVector[j] = Math.exp(logStrikeVector[j]);</span>
+<span class="fc" id="L127">			optionPriceVector[j] = (transformedVector[j].multiply(Math.exp(-lineOfIntegration * logStrikeVector[j]))).getReal()/Math.PI;</span>
+		}
+
+<span class="fc" id="L130">		final RationalFunctionInterpolation interpolation = new RationalFunctionInterpolation(strikeVector, optionPriceVector,intMethod, extMethod);</span>
+
+<span class="fc" id="L132">		final Complex minusI = new Complex(0,-1);</span>
+<span class="fc" id="L133">		final double residueTerm = (modelCF.apply(minusI)).getReal();</span>
+
+<span class="fc" id="L135">		final Function&lt;Double, Double&gt; strikeToPrice = new Function&lt;Double, Double&gt;(){</span>
+
+			@Override
+			public Double apply(final Double t) {
+<span class="fc" id="L139">				return residueTerm + interpolation.getValue(t);</span>
+			}
+
+		};
+
+<span class="fc" id="L144">		final HashMap&lt;String, Function&lt;Double, Double&gt;&gt; results = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L145">		results.put(&quot;valuePerStrike&quot;, strikeToPrice);</span>
+<span class="fc" id="L146">		return results;</span>
+	}
+
+	@Override
+	public EuropeanOptionSmile getCloneWithModifiedParameters(final double maturity, final double[] strikes) {
+<span class="fc" id="L151">		return new EuropeanOptionSmileByCarrMadan(maturity, strikes);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

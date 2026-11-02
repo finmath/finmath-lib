@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_30E_360.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_30E_360.java</span></div><h1>DayCountConvention_30E_360.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+/**
+ * Implementation of 30E/360 and 30E+/360.
+ *
+ * Calculates the day count of 30E/360 as
+ * &lt;code&gt;
+ *		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0))
+ * &lt;/code&gt;
+ *
+ * This day count convention is sometime called &lt;i&gt;Eurobond basis&lt;/i&gt; or &lt;i&gt;30/360 ISMA&lt;/i&gt;.
+ *
+ * For 30E/360 we have that:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		The method {@link #getDaycount(LocalDate, LocalDate) getDaycount} corresponds to the implementation of the &quot;European method&quot; of Excel function DAYS360, i.e., DAYS360(startDate,endDate,TRUE).
+ * 	&lt;/li&gt;
+ * 	&lt;li&gt;
+ * 		The method {@link #getDaycountFraction(LocalDate, LocalDate) getDaycountFraction} corresponds to the implementation of the &quot;30E/360 method&quot; of Excel function YEARFRAC, i.e., YEARFRAC(startDate,endDate,4).
+ * 	&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * The day count of 30E+/360 is that of 30E/360 whenever endDateDay is &amp;le; 30, otherwise it is that of 30E/360 plus one.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_30E_360 implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = 9198199320837217485L;
+
+	private final boolean is30Eplus360;
+
+	/**
+	 * Create a 30E/360 or 30E+/360 day count convention.
+	 *
+	 * @param is30Eplus360 If true, then 30E+/360 is constructed, otherwise 30E/360 is constructed.
+	 */
+<span class="fc" id="L48">	public DayCountConvention_30E_360(final boolean is30Eplus360) {</span>
+<span class="fc" id="L49">		this.is30Eplus360 = is30Eplus360;</span>
+<span class="fc" id="L50">	}</span>
+
+	/**
+	 * Create a 30E/360 daycount convention.
+	 */
+	public DayCountConvention_30E_360() {
+<span class="fc" id="L56">		this(false);</span>
+<span class="fc" id="L57">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L65">			return -getDaycount(endDate,startDate);</span>
+		}
+
+<span class="fc" id="L68">		final int startDateDay 	= startDate.getDayOfMonth();</span>
+<span class="fc" id="L69">		final int startDateMonth 	= startDate.getMonthValue();</span>
+<span class="fc" id="L70">		final int startDateYear 	= startDate.getYear();</span>
+
+<span class="fc" id="L72">		final int endDateDay 		= endDate.getDayOfMonth();</span>
+<span class="fc" id="L73">		final int endDateMonth 	= endDate.getMonthValue();</span>
+<span class="fc" id="L74">		final int endDateYear 	= endDate.getYear();</span>
+
+<span class="fc" id="L76">		double daycount = (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay, 30.0) - Math.min(startDateDay, 30.0));</span>
+
+<span class="pc bpc" id="L78" title="3 of 4 branches missed.">		if(is30Eplus360 &amp;&amp; endDateDay == 31) {</span>
+<span class="nc" id="L79">			daycount +=1.0;</span>
+		}
+
+<span class="fc" id="L82">		return daycount;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="fc" id="L90">		return getDaycount(startDate, endDate) / 360.0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

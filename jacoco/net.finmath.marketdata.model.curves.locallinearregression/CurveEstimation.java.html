@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurveEstimation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves.locallinearregression</a> &gt; <span class="el_source">CurveEstimation.java</span></div><h1>CurveEstimation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright finmath.net, Germany. Contact: info@finmath.net.
+ *
+ * Created on 01.06.2018
+ */
+package net.finmath.marketdata.model.curves.locallinearregression;
+
+import java.time.LocalDate;
+
+import org.apache.commons.math3.distribution.AbstractRealDistribution;
+import org.apache.commons.math3.distribution.CauchyDistribution;
+import org.apache.commons.math3.distribution.LaplaceDistribution;
+import org.apache.commons.math3.distribution.NormalDistribution;
+import org.jblas.DoubleMatrix;
+import org.jblas.Solve;
+
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * This class implements the method of local linear regression with discrete kernel function, see see https://ssrn.com/abstract=3073942
+ *
+ * In particular it represents the implementation of proposition 2 and 3 of the paper.
+ *
+ * This class allows choosing between three different kernel functions, i.e. a normal, a Laplace or a Cauchy kernel.
+ *
+ * For the kernel types provided see {@link net.finmath.marketdata.model.curves.locallinearregression.CurveEstimation.Distribution}.
+ *
+ * The resulting curve is piecewise linear. That means, only the knot points of the curve are computed in this algorithm.
+ * The final curve is then provided with linear interpolation of the knot points,
+ * see {@link net.finmath.marketdata.model.curves.CurveInterpolation}.
+ *
+ * @author Moritz Scherrmann
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CurveEstimation{
+
+	/**
+	 * Possible kernel types.
+	 */
+<span class="nc" id="L43">	public enum Distribution {</span>
+<span class="nc" id="L44">		NORMAL,</span>
+<span class="nc" id="L45">		LAPLACE,</span>
+<span class="nc" id="L46">		CAUCHY</span>
+	}
+
+	private final LocalDate referenceDate;
+	private final double bandwidth;
+	private final double[] independentValues;
+	private final double[] dependentValues;
+	private final Partition partition;
+<span class="nc" id="L54">	private final DiscountCurveInterpolation regressionCurve=null;</span>
+	private AbstractRealDistribution kernel;
+
+	/**
+	 * Creates a curve estimation object.
+	 *
+	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.
+	 * @param bandwidth The bandwidth parameter of the regression.
+	 * @param independentValues The realization of a random variable X.
+	 * @param dependentValues The realization of a random variable Y.
+	 * @param partitionValues The values to create a partition. It is important that min(partition) &amp;le; min(X) and max(partition) &amp;ge; max(X).
+	 * @param weight The weight needed to create a partition.
+	 * @param distribution The kernel type.
+	 */
+	public CurveEstimation(
+			final LocalDate referenceDate,
+			final double bandwidth,
+			final double[] independentValues,
+			final double[] dependentValues,
+			final double[] partitionValues,
+			final double weight,
+<span class="nc" id="L75">			final Distribution distribution){</span>
+<span class="nc" id="L76">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L77">		this.bandwidth = bandwidth;</span>
+<span class="nc" id="L78">		this.independentValues = independentValues;</span>
+<span class="nc" id="L79">		this.dependentValues = dependentValues;</span>
+<span class="nc" id="L80">		partition = new Partition(partitionValues.clone(), weight);</span>
+
+
+<span class="nc bnc" id="L83" title="All 3 branches missed.">		switch(distribution) {</span>
+		case LAPLACE:
+<span class="nc" id="L85">			kernel=new LaplaceDistribution(0,1);</span>
+<span class="nc" id="L86">			break;</span>
+		case CAUCHY:
+<span class="nc" id="L88">			kernel=new CauchyDistribution();</span>
+<span class="nc" id="L89">			break;</span>
+		case NORMAL:
+		default:
+<span class="nc" id="L92">			kernel=new NormalDistribution();</span>
+			break;
+		}
+
+<span class="nc" id="L96">	}</span>
+
+	/**
+	 * Creates a curve estimation object with a normal kernel.
+	 *
+	 * @param referenceDate The reference date for the resulting regression curve, i.e., the date which defined t=0.
+	 * @param bandwidth The bandwidth parameter of the regression.
+	 * @param independentValues The realization of a random variable X.
+	 * @param dependentValues The realization of a random variable Y.
+	 * @param partitionValues The values to create a partition. It is important that min(partition) &amp;le; min(X) and max(partition) &amp;ge; max(X).
+	 * @param weight The weight needed to create a partition.
+	 */
+	public CurveEstimation(
+			final LocalDate referenceDate,
+			final double bandwidth,
+			final double[] independentValues,
+			final double[] dependentValues,
+			final double[] partitionValues,
+			final double weight) {
+<span class="nc" id="L115">		this(referenceDate,bandwidth,independentValues,dependentValues,partitionValues,weight,Distribution.NORMAL);</span>
+<span class="nc" id="L116">	}</span>
+
+	/**
+	 * Returns the curve resulting from the local linear regression with discrete kernel.
+	 *
+	 * @return The regression curve.
+	 */
+	public Curve getRegressionCurve(){
+		// @TODO Add threadsafe lazy init.
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if(regressionCurve !=null) {</span>
+<span class="nc" id="L126">			return regressionCurve;</span>
+		}
+<span class="nc" id="L128">		final DoubleMatrix a = solveEquationSystem();</span>
+<span class="nc" id="L129">		final double[] curvePoints=new double[partition.getLength()];</span>
+<span class="nc" id="L130">		curvePoints[0]=a.get(0);</span>
+<span class="nc bnc" id="L131" title="All 2 branches missed.">		for(int i=1;i&lt;curvePoints.length;i++) {</span>
+<span class="nc" id="L132">			curvePoints[i]=curvePoints[i-1]+a.get(i)*(partition.getIntervalLength(i-1));</span>
+		}
+<span class="nc" id="L134">		return new CurveInterpolation(</span>
+				&quot;RegressionCurve&quot;,
+				referenceDate,
+				CurveInterpolation.InterpolationMethod.LINEAR,
+				CurveInterpolation.ExtrapolationMethod.CONSTANT,
+				CurveInterpolation.InterpolationEntity.VALUE,
+<span class="nc" id="L140">				partition.getPoints(),</span>
+				curvePoints);
+	}
+
+
+	/**
+	 * Returns the vector a from proposition 3 in Beier/Fries (2017).
+	 *
+	 * @return The vector a.
+	 */
+	private DoubleMatrix solveEquationSystem(){
+<span class="nc" id="L151">		DoubleMatrix R=new DoubleMatrix(partition.getLength());</span>
+<span class="nc" id="L152">		final DoubleMatrix M=new DoubleMatrix(partition.getLength(),partition.getLength());</span>
+<span class="nc" id="L153">		final DoubleMatrix partitionAsVector=new DoubleMatrix(partition.getPoints());</span>
+<span class="nc" id="L154">		final DoubleMatrix shiftedPartition=new DoubleMatrix(partition.getLength());</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		for(int j=1; j&lt;shiftedPartition.length;j++) {</span>
+<span class="nc" id="L156">			shiftedPartition.put(j, partition.getPoint(j-1));</span>
+		}
+<span class="nc" id="L158">		final DoubleMatrix partitionIncrements= partitionAsVector.sub(shiftedPartition).put(0,1);</span>
+<span class="nc" id="L159">		final DoubleMatrix kernelValues=new DoubleMatrix(partition.getLength()-1);</span>
+<span class="nc" id="L160">		DoubleMatrix M1_1= new DoubleMatrix(1);</span>
+<span class="nc" id="L161">		DoubleMatrix MFirstCol= new DoubleMatrix(partition.getLength()-1);</span>
+<span class="nc" id="L162">		DoubleMatrix MSubDiagonal= new DoubleMatrix(partition.getLength()-1);</span>
+<span class="nc" id="L163">		DoubleMatrix MSubMatrix= new DoubleMatrix(partition.getLength()-1,partition.getLength()-1);</span>
+<span class="nc" id="L164">		DoubleMatrix MSubMatrixSum= new DoubleMatrix(partition.getLength()-1);</span>
+
+<span class="nc bnc" id="L166" title="All 2 branches missed.">		for(int i=0;i&lt;independentValues.length;i++){</span>
+
+<span class="nc" id="L168">			final DoubleMatrix oneZeroVector= new DoubleMatrix(partition.getLength());</span>
+<span class="nc" id="L169">			DoubleMatrix kernelSum= new DoubleMatrix(partition.getLength());</span>
+<span class="nc" id="L170">			final DoubleMatrix shiftedKernelVector= new DoubleMatrix(partition.getLength());</span>
+
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">			for(int r=0;r&lt;partition.getLength()-1;r++){</span>
+<span class="nc" id="L174">				oneZeroVector.put(r, 1);</span>
+<span class="nc" id="L175">				kernelValues.put( r,kernel.density((partition.getIntervalReferencePoint(r)-independentValues[i])/bandwidth));</span>
+<span class="nc" id="L176">				shiftedKernelVector.put(r+1,kernelValues.get( r) );</span>
+<span class="nc" id="L177">				kernelSum=kernelSum.add(oneZeroVector.mmul(kernelValues.get(r)));</span>
+			}
+
+<span class="nc" id="L180">			R=R.add(shiftedPartition.neg().add(independentValues[i]).mul(shiftedKernelVector)</span>
+<span class="nc" id="L181">					.add(partitionIncrements.mul(kernelSum)).mul(dependentValues[i]));</span>
+
+<span class="nc" id="L183">			M1_1=M1_1.add( kernelSum.get(0));</span>
+
+<span class="nc" id="L185">			MFirstCol=MFirstCol.add(</span>
+<span class="nc" id="L186">					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i])</span>
+<span class="nc" id="L187">					.mul(kernelValues).add(</span>
+<span class="nc" id="L188">							partitionIncrements.getRange(1,partitionAsVector.length)</span>
+<span class="nc" id="L189">							.mul(kernelSum.getRange(1, kernelSum.length))));</span>
+
+<span class="nc" id="L191">			MSubDiagonal=MSubDiagonal.add(</span>
+<span class="nc" id="L192">					partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i])</span>
+<span class="nc" id="L193">					.mul(partitionAsVector.getRange(0,partitionAsVector.length-1).neg().add(independentValues[i]))</span>
+<span class="nc" id="L194">					.mul(kernelValues).add(</span>
+<span class="nc" id="L195">							partitionIncrements.getRange(1,partitionAsVector.length)</span>
+<span class="nc" id="L196">							.mul(partitionIncrements.getRange(1,partitionAsVector.length)</span>
+<span class="nc" id="L197">									.mul(kernelSum.getRange(1, kernelSum.length)))));</span>
+
+<span class="nc" id="L199">			MSubMatrixSum=MSubMatrixSum.add(</span>
+<span class="nc" id="L200">					partitionAsVector.getRange(0, partitionAsVector.length-1).neg().add(independentValues[i])</span>
+<span class="nc" id="L201">					.mul(kernelValues).add(</span>
+<span class="nc" id="L202">							partitionIncrements.getRange(1, partitionIncrements.length)</span>
+<span class="nc" id="L203">							.mul(kernelSum.getRange(1, kernelSum.length))));</span>
+		}
+
+<span class="nc" id="L206">		final DoubleMatrix partitionIncrementMatrix= new DoubleMatrix(partition.getLength()-1,partition.getLength()-1);</span>
+<span class="nc" id="L207">		final DoubleMatrix matrixDefine= DoubleMatrix.ones(partition.getLength()-1);</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">		for(int m=0;m&lt;matrixDefine.length-1;m++) {</span>
+<span class="nc" id="L209">			matrixDefine.put(m, 0);</span>
+<span class="nc" id="L210">			partitionIncrementMatrix.putColumn(m, matrixDefine.mul(partitionIncrements.get(m+1)));</span>
+		}
+
+<span class="nc" id="L213">		MSubMatrix=partitionIncrementMatrix.mulColumnVector(MSubMatrixSum);</span>
+<span class="nc" id="L214">		MSubMatrix=MSubMatrix.add(MSubMatrix.transpose()).add(DoubleMatrix.diag(MSubDiagonal));</span>
+
+<span class="nc" id="L216">		final int[] rowColIndex =new int[partition.getLength()-1];</span>
+<span class="nc bnc" id="L217" title="All 2 branches missed.">		for(int n=0;n&lt;rowColIndex.length;n++) {</span>
+<span class="nc" id="L218">			rowColIndex[n]=n+1;</span>
+		}
+
+<span class="nc" id="L221">		M.put(0,0,M1_1.get(0));</span>
+<span class="nc" id="L222">		M.put(rowColIndex, 0, MFirstCol);</span>
+<span class="nc" id="L223">		M.put(0, rowColIndex, MFirstCol.transpose());</span>
+<span class="nc" id="L224">		M.put(rowColIndex, rowColIndex, MSubMatrix);</span>
+
+<span class="nc" id="L226">		return Solve.solve(M, R);</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

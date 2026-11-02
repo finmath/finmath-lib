@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Partition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves.locallinearregression</a> &gt; <span class="el_source">Partition.java</span></div><h1>Partition.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright finmath.net, Germany. Contact: info@finmath.net.
+ *
+ * Created on 01.06.2018
+ */
+package net.finmath.marketdata.model.curves.locallinearregression;
+
+import java.util.Arrays;
+
+/**
+ * This class represents a set of discrete points in time with weighted interval reference points.
+ *
+ * @author Moritz Scherrmann
+ * @version 1.0
+ */
+public class Partition {
+
+	private final double[] points;
+	private final double weight;
+	private final double[] referencePoints;
+
+	/**
+	 * Creates a partition.
+	 *
+	 * @param points The points of the partition. It should be kept in mind that no point should be included twice.
+	 *               There is no need to take care of the order of the points.
+	 * @param weight The weight if the partition as double. It is needed to compute the reference points.
+	 */
+	public Partition(
+			final double[] points,
+			final double weight
+<span class="nc" id="L32">			){</span>
+<span class="nc" id="L33">		this.points=points;</span>
+<span class="nc" id="L34">		this.weight=weight;</span>
+<span class="nc" id="L35">		Arrays.sort(this.points);</span>
+<span class="nc" id="L36">		referencePoints=new double[points.length-1];</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">		for(int i=0; i&lt;referencePoints.length;i++) {</span>
+<span class="nc" id="L38">			referencePoints[i]=(1-weight)*points[i]+weight*points[i+1];</span>
+		}
+<span class="nc" id="L40">	}</span>
+
+	/**
+	 * Creates a partition with fixed weight=0.5.
+	 *
+	 * @param points The points of the partition. It should be kept in mind that no point should be included twice.
+	 *               There is no need to take care of the order of the points.
+	 */
+	public Partition(
+			final double[] points
+			){
+<span class="nc" id="L51">		this(points,0.5);</span>
+<span class="nc" id="L52">	}</span>
+
+	/**
+	 * Returns for a given x the number of the interval where x is included. Note that the intervals are of the type
+	 * [x_i,x_{i+1}). The first interval has number 1, the second number 2 and so on. If x is smaller than the minimum
+	 * of the partition, the method return 0. If x is greater or equal the maximum of the partition, it returns the
+	 * length of the partition.
+	 *
+	 * @param x The point of interest.
+	 * @return The number of the intervals which contains x.
+	 */
+	public int getIntervalNumber(final double x) {
+<span class="nc bnc" id="L64" title="All 2 branches missed.">		if (x&lt;points[0]) {</span>
+<span class="nc" id="L65">			return 0;</span>
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		} else if (x&gt;=points[points.length-1]) {</span>
+<span class="nc" id="L67">			return points.length;</span>
+		}
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		for(int i=0; i&lt;points.length-2;i++) {</span>
+<span class="nc bnc" id="L70" title="All 2 branches missed.">			if ( x&lt; points[i+1]) {</span>
+<span class="nc" id="L71">				return i+1;</span>
+			}
+		}
+<span class="nc" id="L74">		return points.length-1;</span>
+	}
+
+	/**
+	 * If a given x is into an interval of the partition, this method returns the reference point of the corresponding interval.
+	 * If the given x is not contained in any interval of the partition, this method returns x.
+	 *
+	 * @param x The point of interest.
+	 * @return The discretized value.
+	 */
+	public double d(final double x){
+<span class="nc" id="L85">		final int intervalNumber =getIntervalNumber(x);</span>
+<span class="nc bnc" id="L86" title="All 4 branches missed.">		if (intervalNumber==0 || intervalNumber==points.length) {</span>
+<span class="nc" id="L87">			return x;</span>
+		}
+<span class="nc" id="L89">		return getIntervalReferencePoint(intervalNumber-1);</span>
+	}
+
+
+	public double[] getReferencePoints(){
+<span class="nc" id="L94">		return referencePoints;</span>
+	}
+
+	public double getIntervalReferencePoint(final int intervalIndex) {
+<span class="nc" id="L98">		return referencePoints[intervalIndex];</span>
+	}
+
+	public double[] getPoints() {
+<span class="nc" id="L102">		return points;</span>
+	}
+
+	public double getPoint(final int pointIndex) {
+<span class="nc" id="L106">		return points[pointIndex];</span>
+	}
+
+	public int getLength() {
+<span class="nc" id="L110">		return points.length;</span>
+	}
+
+	public int getNumberOfIntervals() {
+<span class="nc" id="L114">		return points.length-1;</span>
+	}
+
+	public double getIntervalLength(final int intervalIndex) {
+<span class="nc" id="L118">		return points[intervalIndex+1]-points[intervalIndex];</span>
+	}
+
+	public double getWeight() {
+<span class="nc" id="L122">		return weight;</span>
+	}
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

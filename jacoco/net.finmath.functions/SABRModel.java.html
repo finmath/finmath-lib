@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SABRModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">SABRModel.java</span></div><h1>SABRModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 02.10.2016
+ */
+
+package net.finmath.functions;
+
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class SABRModel {
+
+	/**
+	 *
+	 */
+	private SABRModel() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities) throws SolverException {
+<span class="nc" id="L27">		final double[] parameterLowerBound = { 0.0, 0.0, 0.0, 0.0, Double.NEGATIVE_INFINITY};</span>
+<span class="nc" id="L28">		final double[] parameterUpperBound = {Double.POSITIVE_INFINITY, 1.0, 1.0, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY};</span>
+
+<span class="nc" id="L30">		return sabrCalibrateParameterForImpliedNormalVols(underlying, maturity, givenStrikes, givenVolatilities, parameterLowerBound, parameterUpperBound);</span>
+	}
+
+	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities, final double[] parameterLowerBound, final double[] parameterUpperBound) throws SolverException {
+<span class="nc" id="L34">		final double alpha = 0.006;</span>
+<span class="nc" id="L35">		final double beta = 0.05;</span>
+<span class="nc" id="L36">		final double rho = 0.0;</span>
+<span class="nc" id="L37">		final double nu = 0.075;</span>
+<span class="nc" id="L38">		final double displacement = 0.02;</span>
+
+<span class="nc" id="L40">		final double[] parameterInitialValues = { alpha, beta, rho, nu, displacement };</span>
+
+<span class="nc" id="L42">		final double[] parameterSteps = { 0.5/100.0/100.0, 1.0/100.0, 0.5/100.0, 0.5/100.0, 0.1/100.0 };</span>
+<span class="nc" id="L43">		return sabrCalibrateParameterForImpliedNormalVols(underlying, maturity, givenStrikes, givenVolatilities, parameterInitialValues, parameterSteps, parameterLowerBound, parameterUpperBound);</span>
+	}
+
+	public static double[] sabrCalibrateParameterForImpliedNormalVols(final double underlying, final double maturity, final double[] givenStrikes, final double[] givenVolatilities, final double[] parameterInitialValues, final double[] parameterSteps, final double[] parameterLowerBound, final double[] parameterUpperBound) throws SolverException {
+		/*
+		 * Using Levenberg Marquardt to calibrate SABR
+		 */
+
+<span class="nc" id="L51">		final double[] targetValues = givenVolatilities;</span>
+<span class="nc" id="L52">		final int maxIteration = 1000;</span>
+<span class="nc" id="L53">		final int numberOfThreads = 8;</span>
+
+<span class="nc" id="L55">		final LevenbergMarquardt lm = new LevenbergMarquardt(parameterInitialValues, targetValues, maxIteration, numberOfThreads) {</span>
+			private static final long serialVersionUID = -4481118838855868864L;
+
+			@Override
+			public void setValues(final double[] parameters, final double[] values) {
+<span class="nc bnc" id="L60" title="All 2 branches missed.">				for(int parameterIndex = 0; parameterIndex&lt;parameters.length; parameterIndex++) {</span>
+<span class="nc" id="L61">					parameters[parameterIndex] = Math.min(Math.max(parameters[parameterIndex],parameterLowerBound[parameterIndex]),parameterUpperBound[parameterIndex]);</span>
+				}
+<span class="nc bnc" id="L63" title="All 2 branches missed.">				for(int strikeIndex = 0; strikeIndex &lt; givenStrikes.length; strikeIndex++) {</span>
+<span class="nc" id="L64">					final double strike = givenStrikes[strikeIndex];</span>
+<span class="nc" id="L65">					values[strikeIndex] = AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(parameters[0] /* alpha */, parameters[1] /* beta */, parameters[2] /* rho */, parameters[3] /* nu */, parameters[4] /* displacement */, underlying, strike, maturity);</span>
+				}
+<span class="nc" id="L67">			}</span>
+		};
+<span class="nc" id="L69">		lm.setErrorTolerance(1E-16);</span>
+
+<span class="nc" id="L71">		lm.run();</span>
+
+<span class="nc" id="L73">		final double[] bestParameters = lm.getBestFitParameters();</span>
+
+<span class="nc" id="L75">		return bestParameters;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

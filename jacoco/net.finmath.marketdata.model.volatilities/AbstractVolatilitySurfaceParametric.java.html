@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractVolatilitySurfaceParametric.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">AbstractVolatilitySurfaceParametric.java</span></div><h1>AbstractVolatilitySurfaceParametric.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2014
+ */
+
+package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.calibration.ParameterObject;
+import net.finmath.marketdata.calibration.ParameterTransformation;
+import net.finmath.marketdata.calibration.Solver;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.products.AnalyticProduct;
+import net.finmath.optimizer.OptimizerFactory;
+import net.finmath.optimizer.SolverException;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Base class for parametric volatility surfaces, implementing a generic calibration algorithm.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractVolatilitySurfaceParametric extends AbstractVolatilitySurface implements ParameterObject {
+
+<span class="fc" id="L39">	private static final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+
+	public AbstractVolatilitySurfaceParametric(final String name, final LocalDate referenceDate, final ForwardCurve forwardCurve, final DiscountCurve discountCurve, final QuotingConvention quotingConvention, final DayCountConvention daycountConvention) {
+<span class="fc" id="L43">		super(name, referenceDate, forwardCurve, discountCurve, quotingConvention, daycountConvention);</span>
+<span class="fc" id="L44">	}</span>
+
+	public AbstractVolatilitySurfaceParametric(final String name, final LocalDate referenceDate) {
+<span class="nc" id="L47">		super(name, referenceDate);</span>
+<span class="nc" id="L48">	}</span>
+
+	/**
+	 * Returns a clone of this volatility surface with modified parameters.
+	 *
+	 * @param value Parameter array.
+	 * @return Clone with new parameters.
+	 * @throws CloneNotSupportedException Thrown if this object cannot be cloned.
+	 */
+	@Override
+	public abstract AbstractVolatilitySurfaceParametric getCloneForParameter(double[] value) throws CloneNotSupportedException;
+
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, final Map&lt;String,Object&gt; calibrationParameters) throws CalculationException, SolverException {
+<span class="fc" id="L61">		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, null);</span>
+	}
+
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, final Map&lt;String,Object&gt; calibrationParameters, final ParameterTransformation parameterTransformation) throws CalculationException, SolverException {
+<span class="fc" id="L65">		return getCloneCalibrated(calibrationModel, calibrationProducts, calibrationTargetValues, calibrationParameters, parameterTransformation, null);</span>
+	}
+
+	/**
+	 * Create a clone of this volatility surface using a generic calibration
+	 * of its parameters to given market data.
+	 *
+	 * @param calibrationModel The model used during calibration (contains additional objects required during valuation, e.g. curves).
+	 * @param calibrationProducts The calibration products.
+	 * @param calibrationTargetValues The target values of the calibration products.
+	 * @param calibrationParameters A map containing additional settings like &quot;evaluationTime&quot; (Double).
+	 * @param parameterTransformation An optional parameter transformation.
+	 * @param optimizerFactory The factory providing the optimizer to be used during calibration.
+	 * @return An object having the same type as this one, using (hopefully) calibrated parameters.
+	 * @throws SolverException Exception thrown when solver fails.
+	 */
+	public AbstractVolatilitySurfaceParametric getCloneCalibrated(final AnalyticModel calibrationModel, final Vector&lt;AnalyticProduct&gt; calibrationProducts, final List&lt;Double&gt; calibrationTargetValues, Map&lt;String,Object&gt; calibrationParameters, final ParameterTransformation parameterTransformation, final OptimizerFactory optimizerFactory) throws SolverException {
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">		if(calibrationParameters == null) {</span>
+<span class="fc" id="L83">			calibrationParameters = new HashMap&lt;&gt;();</span>
+		}
+<span class="fc" id="L85">		final Integer maxIterationsParameter	= (Integer)calibrationParameters.get(&quot;maxIterations&quot;);</span>
+<span class="fc" id="L86">		final Double	accuracyParameter		= (Double)calibrationParameters.get(&quot;accuracy&quot;);</span>
+<span class="fc" id="L87">		final Double	evaluationTimeParameter		= (Double)calibrationParameters.get(&quot;evaluationTime&quot;);</span>
+
+		// @TODO currently ignored, we use the setting form the OptimizerFactory
+<span class="pc bpc" id="L90" title="1 of 2 branches missed.">		final int maxIterations		= maxIterationsParameter != null ? maxIterationsParameter.intValue() : 600;</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		final double accuracy			= accuracyParameter != null ? accuracyParameter.doubleValue() : 1E-8;</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">		final double evaluationTime	= evaluationTimeParameter != null ? evaluationTimeParameter.doubleValue() : 0.0;</span>
+
+<span class="fc" id="L94">		final AnalyticModel model = calibrationModel.addVolatilitySurfaces(this);</span>
+<span class="fc" id="L95">		final Solver solver = new Solver(model, calibrationProducts, calibrationTargetValues, parameterTransformation, evaluationTime, optimizerFactory);</span>
+
+<span class="fc" id="L97">		final Set&lt;ParameterObject&gt; objectsToCalibrate = new HashSet&lt;&gt;();</span>
+<span class="fc" id="L98">		objectsToCalibrate.add(this);</span>
+<span class="fc" id="L99">		final AnalyticModel modelCalibrated = solver.getCalibratedModel(objectsToCalibrate);</span>
+
+		// Diagnostic output
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">		if (logger.isLoggable(Level.FINE)) {</span>
+<span class="nc" id="L103">			final double lastAccuracy		= solver.getAccuracy();</span>
+<span class="nc" id="L104">			final int 	lastIterations	= solver.getIterations();</span>
+
+<span class="nc" id="L106">			logger.fine(&quot;The solver achieved an accuracy of &quot; + lastAccuracy + &quot; in &quot; + lastIterations + &quot;.&quot;);</span>
+		}
+
+<span class="fc" id="L109">		return (AbstractVolatilitySurfaceParametric)modelCalibrated.getVolatilitySurface(this.getName());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

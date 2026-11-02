@@ -1,0 +1,1209 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardSensitivityDeltaHedgedPortfolio.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">ForwardSensitivityDeltaHedgedPortfolio.java</span></div><h1>ForwardSensitivityDeltaHedgedPortfolio.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 14.05.2026
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities;
+import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities.ProjectedHedgeRatioResult;
+import net.finmath.montecarlo.automaticdifferentiation.forwardsensitivities.ForwardSensitivities.ReductionMethod;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * A self-financing hedge simulator for term-structure products using stochastic
+ * hedge ratios obtained from {@link ForwardSensitivities}.
+ *
+ * &lt;p&gt;
+ * This class is the term-structure analogue of a delta-hedged portfolio. At each
+ * rebalancing time {@code t} it
+ * &lt;/p&gt;
+ * &lt;ol&gt;
+ *   &lt;li&gt;selects the differentiable process state at {@code t} as the set of
+ *       model primitives,&lt;/li&gt;
+ *   &lt;li&gt;values the product to replicate and the hedge instruments as
+ *       pathwise/proto-values,&lt;/li&gt;
+ *   &lt;li&gt;calls {@link ForwardSensitivities} to obtain stochastic hedge ratios,
+ *       and&lt;/li&gt;
+ *   &lt;li&gt;changes hedge-instrument positions in a self-financing way using
+ *       adapted trade values, i.e. conditional expectations of the proto-values
+ *       given the information at {@code t}.&lt;/li&gt;
+ * &lt;/ol&gt;
+ *
+ * &lt;p&gt;
+ * The distinction between proto-values and trade values is important for
+ * products such as {@link Bond}: {@code Bond.getValue(t, model)} returns the
+ * discounted pathwise unit payoff converted to evaluation time {@code t}. For a
+ * Monte-Carlo simulation this is generally not yet the tradable bond price
+ * {@code P(t,T)}; the tradable price is its conditional expectation given
+ * {@code F_t}. The proto-values are used for the sensitivity identities, while
+ * the adapted trade values are used for the cash-account update.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The default primitive ID provider uses the process values
+ * {@code model.getProcess().getProcessValue(timeIndex(t))}. Thus the
+ * sensitivities are with respect to the state at the current rebalancing time,
+ * not with respect to initial model parameters. This is the appropriate local
+ * hedge object for a dynamic delta hedge.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The simulator does not independently book hedge-instrument cashflows paid
+ * between rebalancing and final evaluation. Hedge instruments must therefore
+ * have no payment strictly before {@code evaluationTime}, unless a custom hedge
+ * product represents a total-return value that carries paid cashflows. Known
+ * built-in cashflow products are checked at runtime. For custom products,
+ * ensuring this convention is the caller's responsibility.
+ * &lt;/p&gt;
+ *
+ * @author Christian Fries
+ */
+public class ForwardSensitivityDeltaHedgedPortfolio extends AbstractTermStructureMonteCarloProduct {
+
+	/**
+	 * Provides basis functions used to represent stochastic hedge ratios.
+	 */
+	@FunctionalInterface
+	public interface BasisFunctionProvider {
+
+		/**
+		 * Returns basis functions evaluated at the given time on the paths of the model.
+		 *
+		 * @param evaluationTime The time t at which the hedge ratio is calculated.
+		 * @param model The term-structure Monte-Carlo model.
+		 * @return The basis functions X_q(t, omega).
+		 * @throws CalculationException Thrown if a model quantity cannot be obtained.
+		 */
+		RandomVariable[] getBasisFunctions(
+				double evaluationTime,
+				TermStructureMonteCarloSimulationModel model) throws CalculationException;
+	}
+
+	/**
+	 * Provides the AAD IDs of the primitives with respect to which the hedge
+	 * equations are formed.
+	 */
+	@FunctionalInterface
+	public interface ParameterIDProvider {
+
+		/**
+		 * Returns the AAD IDs of the model primitives at the given rebalancing time.
+		 *
+		 * @param evaluationTime The rebalancing time t.
+		 * @param model The term-structure Monte-Carlo model.
+		 * @return Map from primitive names to AAD IDs.
+		 * @throws CalculationException Thrown if the process state cannot be obtained.
+		 */
+		Map&lt;String, Long&gt; getParameterIDs(
+				double evaluationTime,
+				TermStructureMonteCarloSimulationModel model) throws CalculationException;
+	}
+
+	/**
+	 * Provides the hedge-instrument values used in the forward-sensitivity
+	 * equation. The default implementation calls product.getValue(t, model).
+	 * For diagnostic purposes, bonds may instead be valued analytically from the
+	 * current forward rates.
+	 */
+	@FunctionalInterface
+	public interface HedgeInstrumentValueProvider {
+
+		/**
+		 * Returns the hedge-instrument values used by ForwardSensitivities.
+		 *
+		 * @param evaluationTime The rebalancing time t.
+		 * @param model The term-structure Monte-Carlo model.
+		 * @param hedgeInstruments The hedge instruments.
+		 * @return The hedge-instrument values P_j(t).
+		 * @throws CalculationException Thrown if a value cannot be obtained.
+		 */
+		RandomVariable[] getValues(
+				double evaluationTime,
+				TermStructureMonteCarloSimulationModel model,
+				List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments) throws CalculationException;
+	}
+
+	/**
+	 * Provides adapted trade values used in the self-financing cash-account update.
+	 */
+	@FunctionalInterface
+	public interface HedgeInstrumentTradeValueProvider {
+
+		/**
+		 * Returns adapted trade values of the hedge instruments at evaluationTime.
+		 *
+		 * @param evaluationTime The rebalancing time t.
+		 * @param model The term-structure Monte-Carlo model.
+		 * @param hedgeInstruments The hedge instruments.
+		 * @param hedgeInstrumentProtoValues The current-time raw product values returned by getValue(t, model).
+		 * @param conditioningBasisFunctions Basis functions used for conditional-expectation projection.
+		 *        May be null if the provider supports a fallback conditioning rule.
+		 * @return The adapted trade values used to finance the hedge trades.
+		 * @throws CalculationException Thrown if a value cannot be obtained.
+		 */
+		RandomVariable[] getTradeValues(
+				double evaluationTime,
+				TermStructureMonteCarloSimulationModel model,
+				List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+				RandomVariable[] hedgeInstrumentProtoValues,
+				RandomVariable[] conditioningBasisFunctions) throws CalculationException;
+	}
+
+	/**
+	 * Provides the hedge-ratio estimator used at a rebalancing time.
+	 *
+	 * &lt;p&gt;
+	 * The default provider delegates to {@link ForwardSensitivities#getHedgeRatios(Map, double, Map, List, RandomVariable[], RandomVariable[], double, ReductionMethod, int)}.
+	 * A custom provider may persist the raw pathwise gradients or replace them by
+	 * externally projected gradients before delegating to {@link ForwardSensitivities}.
+	 * &lt;/p&gt;
+	 */
+	@FunctionalInterface
+	public interface HedgeRatioProvider {
+
+		ProjectedHedgeRatioResult getHedgeRatios(
+				Map&lt;String, Long&gt; parameterIDsByName,
+				double evaluationTime,
+				Map&lt;Long, RandomVariable&gt; derivativeGradient,
+				List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients,
+				RandomVariable[] solutionBasisFunctions,
+				RandomVariable[] testBasisFunctions,
+				double regularizationLambda,
+				ReductionMethod reductionMethod,
+				int numberOfPaths) throws CalculationException;
+	}
+
+	private final TermStructureMonteCarloProduct productToReplicate;
+	private final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments;
+	private final TimeDiscretization rebalancingTimes;
+	private final BasisFunctionProvider solutionBasisFunctionProvider;
+	private final BasisFunctionProvider testBasisFunctionProvider;
+	private final ParameterIDProvider parameterIDProvider;
+	private final HedgeInstrumentValueProvider hedgeInstrumentValueProvider;
+	private final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider;
+	private final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider;
+	private final HedgeRatioProvider hedgeRatioProvider;
+	private final double regularizationLambda;
+	private final ReductionMethod reductionMethod;
+
+<span class="fc" id="L206">	private double lastOperationTimingTotal = Double.NaN;</span>
+<span class="fc" id="L207">	private double lastOperationTimingValuation = Double.NaN;</span>
+<span class="fc" id="L208">	private double lastOperationTimingHedgeRatios = Double.NaN;</span>
+<span class="fc" id="L209">	private double lastOperationTimingHedgeRatioProject = Double.NaN;</span>
+<span class="fc" id="L210">	private double lastOperationTimingHedgeRatioSolve = Double.NaN;</span>
+<span class="fc" id="L211">	private double lastOperationTimingTradeValues = Double.NaN;</span>
+
+<span class="fc" id="L213">	private List&lt;Double&gt; lastRebalancingTimes = Collections.emptyList();</span>
+<span class="fc" id="L214">	private List&lt;Map&lt;String, Long&gt;&gt; lastParameterIDsByName = Collections.emptyList();</span>
+<span class="fc" id="L215">	private List&lt;ProjectedHedgeRatioResult&gt; lastHedgeRatioResults = Collections.emptyList();</span>
+<span class="fc" id="L216">	private RandomVariable[] lastHedgeInstrumentPositions = new RandomVariable[0];</span>
+	private RandomVariable lastNumerairePosition;
+
+	/**
+	 * Creates a self-financing hedge using the same basis for solution and test
+	 * functions, the process-state primitive provider, and regression trade values.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments P_j.
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param basisFunctionProvider The basis functions X_q used for the hedge ratios.
+	 *        May be null for an unreduced PATHWISE hedge.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider basisFunctionProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="fc" id="L241">		this(</span>
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				basisFunctionProvider,
+				null,
+<span class="fc" id="L247">				getProcessStateParameterIDProvider(),</span>
+<span class="fc" id="L248">				getRegressionTradeValueProvider(),</span>
+				regularizationLambda,
+				reductionMethod);
+<span class="fc" id="L251">	}</span>
+
+	/**
+	 * Creates a self-financing hedge using possibly different solution and test bases,
+	 * the process-state primitive provider, and regression trade values.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments P_j.
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param solutionBasisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param testBasisFunctionProvider The basis functions Y_s used for PROJECTED_GALERKIN moments. May be null.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="nc" id="L276">		this(</span>
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+<span class="nc" id="L282">				getProcessStateParameterIDProvider(),</span>
+<span class="nc" id="L283">				getRegressionTradeValueProvider(),</span>
+				regularizationLambda,
+				reductionMethod);
+<span class="nc" id="L286">	}</span>
+
+	/**
+	 * Full constructor allowing custom primitive and trade-value providers. The
+	 * hedge-instrument values used in ForwardSensitivities are the product values
+	 * returned by {@code product.getValue(t, model)}.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments P_j.
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param solutionBasisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param testBasisFunctionProvider The basis functions Y_s used for PROJECTED_GALERKIN moments. May be null.
+	 * @param parameterIDProvider Provides the primitive AAD IDs used by ForwardSensitivities.
+	 * @param hedgeInstrumentTradeValueProvider Provides adapted trade values for the self-financing update.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="fc" id="L316">		this(</span>
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+				parameterIDProvider,
+<span class="fc" id="L323">				getProductValueProvider(),</span>
+				hedgeInstrumentTradeValueProvider,
+				regularizationLambda,
+				reductionMethod);
+<span class="fc" id="L327">	}</span>
+
+	/**
+	 * Full constructor allowing custom primitive, hedge-instrument value and
+	 * trade-value providers. The final portfolio is marked using the product
+	 * value convention. This preserves the previous behavior and is appropriate
+	 * when the evaluation time is the payment time and the hedge instruments are
+	 * interpreted as their cashflow products.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments P_j.
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param solutionBasisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param testBasisFunctionProvider The basis functions Y_s used for PROJECTED_GALERKIN moments. May be null.
+	 * @param parameterIDProvider Provides the primitive AAD IDs used by ForwardSensitivities.
+	 * @param hedgeInstrumentValueProvider Provides the hedge-instrument values used in ForwardSensitivities.
+	 * @param hedgeInstrumentTradeValueProvider Provides adapted trade values for the self-financing update.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="fc" id="L361">		this(</span>
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+				parameterIDProvider,
+				hedgeInstrumentValueProvider,
+				hedgeInstrumentTradeValueProvider,
+<span class="fc" id="L370">				getProductValueProvider(),</span>
+				regularizationLambda,
+				reductionMethod);
+<span class="fc" id="L373">	}</span>
+
+	/**
+	 * Full constructor allowing custom primitive, hedge-instrument value, trade-value
+	 * and final marking providers. The final marking provider is useful for
+	 * diagnostics where the hedge is stopped at the fixing time and should be
+	 * marked with adapted tradable prices instead of product proto-values.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments \( P_{j} \).
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param solutionBasisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param testBasisFunctionProvider The basis functions Y_s used for PROJECTED_GALERKIN moments. May be null.
+	 * @param parameterIDProvider Provides the primitive AAD IDs used by ForwardSensitivities.
+	 * @param hedgeInstrumentValueProvider Provides the hedge-instrument values used in ForwardSensitivities.
+	 * @param hedgeInstrumentTradeValueProvider Provides adapted trade values for the self-financing update.
+	 * @param finalHedgeInstrumentValueProvider Provides hedge-instrument values used for final portfolio marking.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="fc" id="L408">		this(</span>
+				productToReplicate,
+				hedgeInstruments,
+				rebalancingTimes,
+				solutionBasisFunctionProvider,
+				testBasisFunctionProvider,
+				parameterIDProvider,
+				hedgeInstrumentValueProvider,
+				hedgeInstrumentTradeValueProvider,
+				finalHedgeInstrumentValueProvider,
+				regularizationLambda,
+				reductionMethod,
+<span class="fc" id="L420">				getDefaultHedgeRatioProvider());</span>
+<span class="fc" id="L421">	}</span>
+
+	/**
+	 * Full constructor with a custom hedge-ratio estimator.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param hedgeRatioProvider Provider that estimates hedge ratios from the raw
+	 *        pathwise product and hedge-instrument gradients.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final List&lt;TermStructureMonteCarloProduct&gt; hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider solutionBasisFunctionProvider,
+			final BasisFunctionProvider testBasisFunctionProvider,
+			final ParameterIDProvider parameterIDProvider,
+			final HedgeInstrumentValueProvider hedgeInstrumentValueProvider,
+			final HedgeInstrumentTradeValueProvider hedgeInstrumentTradeValueProvider,
+			final HedgeInstrumentValueProvider finalHedgeInstrumentValueProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod,
+			final HedgeRatioProvider hedgeRatioProvider) {
+
+<span class="fc" id="L445">		super();</span>
+
+<span class="fc" id="L447">		this.productToReplicate = Objects.requireNonNull(productToReplicate, &quot;productToReplicate must not be null.&quot;);</span>
+<span class="fc" id="L448">		Objects.requireNonNull(hedgeInstruments, &quot;hedgeInstruments must not be null.&quot;);</span>
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">		if(hedgeInstruments.isEmpty()) {</span>
+<span class="nc" id="L450">			throw new IllegalArgumentException(&quot;hedgeInstruments must contain at least one hedge instrument.&quot;);</span>
+		}
+<span class="fc" id="L452">		this.hedgeInstruments = Collections.unmodifiableList(new ArrayList&lt;&gt;(hedgeInstruments));</span>
+
+<span class="fc" id="L454">		Objects.requireNonNull(rebalancingTimes, &quot;rebalancingTimes must not be null.&quot;);</span>
+<span class="pc bpc" id="L455" title="1 of 2 branches missed.">		if(rebalancingTimes.size() == 0) {</span>
+<span class="nc" id="L456">			throw new IllegalArgumentException(&quot;rebalancingTimes must contain at least one time.&quot;);</span>
+		}
+<span class="fc" id="L458">		this.rebalancingTimes = rebalancingTimes;</span>
+
+<span class="fc" id="L460">		this.solutionBasisFunctionProvider = solutionBasisFunctionProvider;</span>
+<span class="fc" id="L461">		this.testBasisFunctionProvider = testBasisFunctionProvider;</span>
+<span class="fc" id="L462">		this.parameterIDProvider = Objects.requireNonNull(parameterIDProvider, &quot;parameterIDProvider must not be null.&quot;);</span>
+<span class="fc" id="L463">		this.hedgeInstrumentValueProvider = Objects.requireNonNull(</span>
+				hedgeInstrumentValueProvider,
+				&quot;hedgeInstrumentValueProvider must not be null.&quot;);
+<span class="fc" id="L466">		this.hedgeInstrumentTradeValueProvider = Objects.requireNonNull(</span>
+				hedgeInstrumentTradeValueProvider,
+				&quot;hedgeInstrumentTradeValueProvider must not be null.&quot;);
+<span class="fc" id="L469">		this.finalHedgeInstrumentValueProvider = Objects.requireNonNull(</span>
+				finalHedgeInstrumentValueProvider,
+				&quot;finalHedgeInstrumentValueProvider must not be null.&quot;);
+<span class="fc" id="L472">		this.hedgeRatioProvider = Objects.requireNonNull(</span>
+				hedgeRatioProvider,
+				&quot;hedgeRatioProvider must not be null.&quot;);
+
+<span class="pc bpc" id="L476" title="1 of 4 branches missed.">		if(!Double.isFinite(regularizationLambda) || regularizationLambda &lt; 0.0) {</span>
+<span class="fc" id="L477">			throw new IllegalArgumentException(&quot;regularizationLambda must be finite and non-negative.&quot;);</span>
+		}
+<span class="fc" id="L479">		this.regularizationLambda = regularizationLambda;</span>
+<span class="fc" id="L480">		this.reductionMethod = Objects.requireNonNull(reductionMethod, &quot;reductionMethod must not be null.&quot;);</span>
+<span class="pc bpc" id="L481" title="1 of 4 branches missed.">		if(reductionMethod == ReductionMethod.PATHWISE &amp;&amp; regularizationLambda != 0.0) {</span>
+<span class="fc" id="L482">			throw new IllegalArgumentException(&quot;PATHWISE requires regularizationLambda to be 0.0.&quot;);</span>
+		}
+<span class="fc" id="L484">	}</span>
+
+	/**
+	 * Convenience constructor accepting an array of hedge instruments.
+	 * Hedge instruments are subject to the intermediate-cashflow restriction in
+	 * the class documentation.
+	 *
+	 * @param productToReplicate The product to replicate.
+	 * @param hedgeInstruments The hedge instruments P_j.
+	 * @param rebalancingTimes The times at which the hedge is rebalanced.
+	 * @param basisFunctionProvider The basis functions X_q used for hedge ratios.
+	 * @param regularizationLambda Finite, non-negative Tikhonov parameter.
+	 *        Must be 0.0 for PATHWISE.
+	 * @param reductionMethod The reduction method, e.g. PROJECTED_GALERKIN or L2.
+	 */
+	public ForwardSensitivityDeltaHedgedPortfolio(
+			final TermStructureMonteCarloProduct productToReplicate,
+			final TermStructureMonteCarloProduct[] hedgeInstruments,
+			final TimeDiscretization rebalancingTimes,
+			final BasisFunctionProvider basisFunctionProvider,
+			final double regularizationLambda,
+			final ReductionMethod reductionMethod) {
+<span class="nc" id="L506">		this(</span>
+				productToReplicate,
+<span class="nc" id="L508">				Arrays.asList(hedgeInstruments),</span>
+				rebalancingTimes,
+				basisFunctionProvider,
+				regularizationLambda,
+				reductionMethod);
+<span class="nc" id="L513">	}</span>
+
+	/**
+	 * Values the self-financing hedge at {@code evaluationTime}.
+	 *
+	 * &lt;p&gt;
+	 * Intermediate hedge cashflows are not booked separately. Known built-in
+	 * hedge products with a payment strictly before {@code evaluationTime} are
+	 * rejected; callers using custom products must ensure that their values carry
+	 * any earlier cashflows as a total-return value.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime The final portfolio evaluation time.
+	 * @param model The term-structure Monte-Carlo model.
+	 * @return The value of the hedge portfolio.
+	 * @throws CalculationException Thrown if model quantities cannot be calculated.
+	 */
+	@Override
+	public RandomVariable getValue(
+			final double evaluationTime,
+			final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L535">		final long timingStart = System.currentTimeMillis();</span>
+<span class="fc" id="L536">		validateNoIntermediateHedgeCashflows(evaluationTime, model);</span>
+<span class="fc" id="L537">		long timingValuationMillis = 0L;</span>
+<span class="fc" id="L538">		long timingHedgeRatioMillis = 0L;</span>
+<span class="fc" id="L539">		long timingTradeValueMillis = 0L;</span>
+<span class="fc" id="L540">		long timingHedgeRatioProjectMillis = 0L;</span>
+<span class="fc" id="L541">		long timingHedgeRatioSolveMillis = 0L;</span>
+
+		/*
+		 * Initial funding: start with the time-0 price of the product in the
+		 * numeraire account and zero positions in all hedge instruments.
+		 */
+<span class="fc" id="L547">		final long timingInitialValuationStart = System.currentTimeMillis();</span>
+<span class="fc" id="L548">		final RandomVariable initialProductValue = productToReplicate.getValue(0.0, model);</span>
+<span class="fc" id="L549">		RandomVariable amountOfNumeraireAsset = model.getRandomVariableForConstant(initialProductValue.getAverage()).div(model.getNumeraire(0.0));</span>
+<span class="fc" id="L550">		timingValuationMillis += System.currentTimeMillis() - timingInitialValuationStart;</span>
+
+<span class="fc" id="L552">		RandomVariable[] hedgeInstrumentPositions = new RandomVariable[hedgeInstruments.size()];</span>
+<span class="fc bfc" id="L553" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstrumentPositions.length; hedgeIndex++) {</span>
+<span class="fc" id="L554">			hedgeInstrumentPositions[hedgeIndex] = model.getRandomVariableForConstant(0.0);</span>
+		}
+
+<span class="fc" id="L557">		final List&lt;Double&gt; rebalancedTimes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L558">		final List&lt;Map&lt;String, Long&gt;&gt; parameterIDsByNameHistory = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L559">		final List&lt;ProjectedHedgeRatioResult&gt; hedgeRatioResults = new ArrayList&lt;&gt;();</span>
+
+		/*
+		 * Note: There are two possible ways of doing this here:
+		 * 1) we can use the proto values V(0) and P(0) to calculate dV(0)/dM(t) and dP(0)/dM(t) and infer dV(t)/dP(t), or,
+		 * 2) we can use the proto values V(t) and P(t) to calculate dV(t)/dM(t) and dP(t)/dM(t) and infer dV(t)/dP(t).
+		 * The second option is much slower. The first works for sensitivities because
+		 * V(t) w(t) / N(t) - V(0) w(0) / N(0) does not depend on M(t).
+		 * Trade values are nevertheless recomputed from current-time proto values below,
+		 * preserving their units and ex-dividend cash-flow semantics.
+		 */
+<span class="fc" id="L570">		final RandomVariable derivativeProtoValue = productToReplicate.getValue(0.0, model);</span>
+<span class="fc" id="L571">		final RandomVariable[] hedgeInstrumentSensitivityProtoValues = hedgeInstrumentValueProvider.getValues(0.0, model, hedgeInstruments);</span>
+<span class="pc bpc" id="L572" title="1 of 2 branches missed.">		if(hedgeInstrumentSensitivityProtoValues.length != hedgeInstrumentPositions.length) {</span>
+<span class="nc" id="L573">			throw new IllegalStateException(</span>
+					&quot;Hedge-instrument sensitivity-value provider returned &quot;
+					+ hedgeInstrumentSensitivityProtoValues.length + &quot; values for &quot;
+					+ hedgeInstrumentPositions.length + &quot; hedge instruments.&quot;);
+		}
+<span class="fc" id="L578">		final Map&lt;Long, RandomVariable&gt; derivativeGradient = ((RandomVariableDifferentiable)derivativeProtoValue).getGradient();</span>
+<span class="fc" id="L579">		final List&lt;Map&lt;Long, RandomVariable&gt;&gt; hedgePortfolioGradients = Arrays.stream(hedgeInstrumentSensitivityProtoValues).map(hedgeInstrumentProtoValue -&gt;</span>
+<span class="fc bfc" id="L580" title="All 2 branches covered.">		hedgeInstrumentProtoValue instanceof RandomVariableDifferentiable ? ((RandomVariableDifferentiable)hedgeInstrumentProtoValue).getGradient() : Map.&lt;Long, RandomVariable&gt;of())</span>
+<span class="fc" id="L581">				.collect(Collectors.toList());</span>
+
+<span class="fc bfc" id="L583" title="All 2 branches covered.">		for(final double rebalancingTime : rebalancingTimes) {</span>
+
+<span class="pc bpc" id="L585" title="1 of 4 branches missed.">			if(rebalancingTime &lt; 0.0 || rebalancingTime &gt;= evaluationTime) {</span>
+<span class="fc" id="L586">				continue;</span>
+			}
+
+			/*
+			 * Materialize the process state at the rebalancing time first. The
+			 * product values calculated below should then be linked to the same
+			 * cached AAD nodes of the process state.
+			 */
+<span class="fc" id="L594">			final long timingParameterStart = System.currentTimeMillis();</span>
+<span class="fc" id="L595">			final Map&lt;String, Long&gt; parameterIDsByName = parameterIDProvider.getParameterIDs(rebalancingTime, model);</span>
+<span class="fc" id="L596">			timingValuationMillis += System.currentTimeMillis() - timingParameterStart;</span>
+
+<span class="fc" id="L598">			final long timingValuationStart = System.currentTimeMillis();</span>
+
+<span class="pc bpc" id="L600" title="1 of 2 branches missed.">			final RandomVariable[] solutionBasisFunctions = solutionBasisFunctionProvider != null ? solutionBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;</span>
+<span class="pc bpc" id="L601" title="1 of 2 branches missed.">			final RandomVariable[] testBasisFunctions = testBasisFunctionProvider != null ? testBasisFunctionProvider.getBasisFunctions(rebalancingTime, model) : null;</span>
+<span class="fc" id="L602">			final RandomVariable[] hedgeInstrumentTradeProtoValues = getHedgeInstrumentProductValues(</span>
+					rebalancingTime,
+					model);
+
+<span class="fc" id="L606">			final RandomVariable numeraireAtRebalancingTime = model.getNumeraire(rebalancingTime).getValues();</span>
+
+<span class="fc" id="L608">			timingValuationMillis += System.currentTimeMillis() - timingValuationStart;</span>
+<span class="pc bpc" id="L609" title="1 of 2 branches missed.">			if(hedgeInstrumentTradeProtoValues.length != hedgeInstrumentPositions.length) {</span>
+<span class="nc" id="L610">				throw new IllegalStateException(</span>
+						&quot;Current-time product valuation returned &quot; + hedgeInstrumentTradeProtoValues.length
+						+ &quot; values for &quot; + hedgeInstrumentPositions.length + &quot; hedge instruments.&quot;);
+			}
+
+<span class="fc" id="L615">			final long timingTradeValueStart = System.currentTimeMillis();</span>
+<span class="fc" id="L616">			final RandomVariable[] hedgeInstrumentTradeValues = hedgeInstrumentTradeValueProvider.getTradeValues(</span>
+					rebalancingTime,
+					model,
+					hedgeInstruments,
+					hedgeInstrumentTradeProtoValues,
+					solutionBasisFunctions);
+<span class="fc" id="L622">			timingTradeValueMillis += System.currentTimeMillis() - timingTradeValueStart;</span>
+
+<span class="fc" id="L624">			final long timingHedgeRatioStart = System.currentTimeMillis();</span>
+<span class="fc" id="L625">			final ProjectedHedgeRatioResult hedgeRatioResult = hedgeRatioProvider.getHedgeRatios(</span>
+					parameterIDsByName,
+					rebalancingTime,
+					derivativeGradient,
+					hedgePortfolioGradients,
+					solutionBasisFunctions,
+					testBasisFunctions,
+					regularizationLambda,
+<span class="fc" id="L633">					reductionMethod, derivativeProtoValue.size());</span>
+<span class="fc" id="L634">			timingHedgeRatioMillis += System.currentTimeMillis() - timingHedgeRatioStart;</span>
+
+<span class="fc" id="L636">			timingHedgeRatioProjectMillis += hedgeRatioResult.getTimings().getTimingProjectSystem();</span>
+<span class="fc" id="L637">			timingHedgeRatioSolveMillis += hedgeRatioResult.getTimings().getTimingSolveSystem();</span>
+
+<span class="fc" id="L639">			final RandomVariable[] newHedgeInstrumentPositions = hedgeRatioResult.getHedgeRatios();</span>
+<span class="pc bpc" id="L640" title="1 of 2 branches missed.">			if(newHedgeInstrumentPositions.length != hedgeInstrumentPositions.length) {</span>
+<span class="nc" id="L641">				throw new IllegalStateException(</span>
+						&quot;ForwardSensitivities returned &quot; + newHedgeInstrumentPositions.length
+						+ &quot; hedge ratios for &quot; + hedgeInstrumentPositions.length + &quot; hedge instruments.&quot;);
+			}
+<span class="pc bpc" id="L645" title="1 of 2 branches missed.">			if(hedgeInstrumentTradeValues.length != hedgeInstrumentPositions.length) {</span>
+<span class="nc" id="L646">				throw new IllegalStateException(</span>
+						&quot;Trade-value provider returned &quot; + hedgeInstrumentTradeValues.length
+						+ &quot; trade values for &quot; + hedgeInstrumentPositions.length + &quot; hedge instruments.&quot;);
+			}
+
+			/*
+			 * Self-financing rebalancing: buy/sell hedge instruments at adapted
+			 * trade values and finance the trade via the numeraire account.
+			 */
+<span class="fc" id="L655">			RandomVariable valueOfHedgeInstrumentsToBuy = model.getRandomVariableForConstant(0.0);</span>
+<span class="fc bfc" id="L656" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstrumentPositions.length; hedgeIndex++) {</span>
+<span class="fc" id="L657">				final RandomVariable hedgeInstrumentPositionChange = newHedgeInstrumentPositions[hedgeIndex]</span>
+<span class="fc" id="L658">						.sub(hedgeInstrumentPositions[hedgeIndex]);</span>
+<span class="fc" id="L659">				valueOfHedgeInstrumentsToBuy = valueOfHedgeInstrumentsToBuy</span>
+<span class="fc" id="L660">						.add(hedgeInstrumentPositionChange.mult(hedgeInstrumentTradeValues[hedgeIndex]));</span>
+			}
+
+<span class="fc" id="L663">			amountOfNumeraireAsset = amountOfNumeraireAsset</span>
+<span class="fc" id="L664">					.sub(valueOfHedgeInstrumentsToBuy.div(numeraireAtRebalancingTime));</span>
+<span class="fc" id="L665">			hedgeInstrumentPositions = newHedgeInstrumentPositions;</span>
+
+<span class="fc" id="L667">			rebalancedTimes.add(rebalancingTime);</span>
+<span class="fc" id="L668">			parameterIDsByNameHistory.add(Collections.unmodifiableMap(new LinkedHashMap&lt;&gt;(parameterIDsByName)));</span>
+<span class="fc" id="L669">			hedgeRatioResults.add(hedgeRatioResult);</span>
+<span class="fc" id="L670">		}</span>
+
+		/*
+		 * No rebalance occurs exactly at evaluationTime. Mark the remaining positions
+		 * with the configured final provider, whose product/analytic convention
+		 * determines the final ex-dividend or total-return semantics.
+		 */
+<span class="fc" id="L677">		final long timingFinalValuationStart = System.currentTimeMillis();</span>
+<span class="fc" id="L678">		RandomVariable portfolioValue = amountOfNumeraireAsset.mult(model.getNumeraire(evaluationTime));</span>
+<span class="fc" id="L679">		final RandomVariable[] hedgeInstrumentValuesAtEvaluationTime = finalHedgeInstrumentValueProvider.getValues(</span>
+				evaluationTime,
+				model,
+				hedgeInstruments);
+<span class="fc bfc" id="L683" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstrumentPositions.length; hedgeIndex++) {</span>
+<span class="fc" id="L684">			portfolioValue = portfolioValue.add(</span>
+<span class="fc" id="L685">					hedgeInstrumentPositions[hedgeIndex].mult(hedgeInstrumentValuesAtEvaluationTime[hedgeIndex]));</span>
+		}
+<span class="fc" id="L687">		timingValuationMillis += System.currentTimeMillis() - timingFinalValuationStart;</span>
+
+<span class="fc" id="L689">		lastOperationTimingTotal = (System.currentTimeMillis() - timingStart) / 1000.0;</span>
+<span class="fc" id="L690">		lastOperationTimingValuation = timingValuationMillis / 1000.0;</span>
+<span class="fc" id="L691">		lastOperationTimingHedgeRatios = timingHedgeRatioMillis / 1000.0;</span>
+<span class="fc" id="L692">		lastOperationTimingHedgeRatioProject = timingHedgeRatioProjectMillis / 1000.0;</span>
+<span class="fc" id="L693">		lastOperationTimingHedgeRatioSolve = timingHedgeRatioSolveMillis / 1000.0;</span>
+<span class="fc" id="L694">		lastOperationTimingTradeValues = timingTradeValueMillis / 1000.0;</span>
+<span class="fc" id="L695">		lastRebalancingTimes = Collections.unmodifiableList(new ArrayList&lt;&gt;(rebalancedTimes));</span>
+<span class="fc" id="L696">		lastParameterIDsByName = Collections.unmodifiableList(new ArrayList&lt;&gt;(parameterIDsByNameHistory));</span>
+<span class="fc" id="L697">		lastHedgeRatioResults = Collections.unmodifiableList(new ArrayList&lt;&gt;(hedgeRatioResults));</span>
+<span class="fc" id="L698">		lastHedgeInstrumentPositions = hedgeInstrumentPositions.clone();</span>
+<span class="fc" id="L699">		lastNumerairePosition = amountOfNumeraireAsset;</span>
+
+<span class="fc" id="L701">		return portfolioValue;</span>
+	}
+
+	private void validateNoIntermediateHedgeCashflows(
+			final double evaluationTime,
+			final TermStructureMonteCarloSimulationModel model) {
+
+<span class="fc bfc" id="L708" title="All 2 branches covered.">		for(final TermStructureMonteCarloProduct hedgeInstrument : hedgeInstruments) {</span>
+<span class="fc bfc" id="L709" title="All 2 branches covered.">			if(hedgeInstrument instanceof Bond) {</span>
+<span class="fc" id="L710">				final Bond bond = (Bond)hedgeInstrument;</span>
+<span class="fc" id="L711">				validatePaymentTime(</span>
+						&quot;Bond&quot;,
+<span class="fc" id="L713">						bond.getProductToModelTimeOffset(model) + bond.getMaturity(),</span>
+						evaluationTime);
+<span class="fc" id="L715">			}</span>
+<span class="fc bfc" id="L716" title="All 2 branches covered.">			else if(hedgeInstrument instanceof SwapAnnuity) {</span>
+<span class="fc" id="L717">				final SwapAnnuity swapAnnuity = (SwapAnnuity)hedgeInstrument;</span>
+<span class="fc" id="L718">				final double offset = swapAnnuity.getProductToModelTimeOffset(model);</span>
+<span class="fc" id="L719">				final double[] maturities = swapAnnuity.getMaturities();</span>
+<span class="fc" id="L720">				final double[] periodLengths = swapAnnuity.getPeriodLengths();</span>
+<span class="pc bpc" id="L721" title="1 of 2 branches missed.">				for(int periodIndex = 0; periodIndex &lt; maturities.length; periodIndex++) {</span>
+<span class="pc bpc" id="L722" title="1 of 2 branches missed.">					if(periodLengths[periodIndex] != 0.0) {</span>
+<span class="nc" id="L723">						validatePaymentTime(</span>
+								&quot;SwapAnnuity payment &quot; + periodIndex,
+								offset + maturities[periodIndex],
+								evaluationTime);
+					}
+				}
+<span class="nc" id="L729">			}</span>
+<span class="fc bfc" id="L730" title="All 2 branches covered.">			else if(hedgeInstrument instanceof DiscreteTenorRollOver) {</span>
+<span class="pc" id="L731">				validatePaymentTime(</span>
+						&quot;DiscreteTenorRollOver&quot;,
+<span class="fc" id="L733">						((DiscreteTenorRollOver)hedgeInstrument).getPaymentTime(),</span>
+						evaluationTime);
+			}
+<span class="fc" id="L736">		}</span>
+<span class="fc" id="L737">	}</span>
+
+	private static void validatePaymentTime(
+			final String hedgeInstrumentDescription,
+			final double paymentTime,
+			final double evaluationTime) {
+
+<span class="fc bfc" id="L744" title="All 2 branches covered.">		if(paymentTime &lt; evaluationTime - Bond.PAYMENT_TIME_TOLERANCE) {</span>
+<span class="fc" id="L745">			throw new IllegalArgumentException(</span>
+					hedgeInstrumentDescription + &quot; pays at &quot; + paymentTime
+					+ &quot;, strictly before portfolio evaluationTime &quot; + evaluationTime
+					+ &quot;. ForwardSensitivityDeltaHedgedPortfolio does not book intermediate hedge cashflows; &quot;
+					+ &quot;use a custom total-return hedge product instead.&quot;);
+		}
+<span class="fc" id="L751">	}</span>
+
+	/**
+	 * Returns the standard in-process hedge-ratio estimator.
+	 *
+	 * @return A provider delegating to {@link ForwardSensitivities}.
+	 */
+	public static HedgeRatioProvider getDefaultHedgeRatioProvider() {
+<span class="fc" id="L759">		return ForwardSensitivities::getHedgeRatios;</span>
+	}
+
+	private RandomVariable[] getHedgeInstrumentProductValues(
+			final double evaluationTime,
+			final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L766">		final RandomVariable[] values = new RandomVariable[hedgeInstruments.size()];</span>
+<span class="fc bfc" id="L767" title="All 2 branches covered.">		for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstruments.size(); hedgeIndex++) {</span>
+<span class="fc" id="L768">			values[hedgeIndex] = hedgeInstruments.get(hedgeIndex).getValue(evaluationTime, model);</span>
+		}
+<span class="fc" id="L770">		return values;</span>
+	}
+
+	/**
+	 * Hedge-instrument value provider using each product's getValue method.
+	 *
+	 * @return A provider returning product.getValue(t, model).
+	 */
+	public static HedgeInstrumentValueProvider getProductValueProvider() {
+<span class="fc" id="L779">		return (evaluationTime, model, hedgeInstruments) -&gt; {</span>
+<span class="fc" id="L780">			final RandomVariable[] values = new RandomVariable[hedgeInstruments.size()];</span>
+<span class="fc bfc" id="L781" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstruments.size(); hedgeIndex++) {</span>
+<span class="fc" id="L782">				values[hedgeIndex] = hedgeInstruments.get(hedgeIndex).getValue(evaluationTime, model);</span>
+			}
+<span class="fc" id="L784">			return values;</span>
+		};
+	}
+
+	/**
+	 * Hedge-instrument value provider valuing {@link Bond}s, the bond components
+	 * of {@link SwapAnnuity}s, and {@link DiscreteTenorRollOver}s by the model's
+	 * forward-discount-bond implementation.
+	 *
+	 * &lt;p&gt;
+	 * For a bond with maturity T greater than t, the provider returns the
+	 * model-implied adapted bond price
+	 *
+	 * \[
+	 *     P(t,T) = E\left(\frac{N(t)}{N(T)} \mid \mathcal F_t\right),
+	 * \]
+	 *
+	 * using {@code model.getModel().getForwardDiscountBond(model.getProcess(), t, T)}.
+	 * This keeps the hedge-instrument value consistent with the model's numeraire,
+	 * measure, interpolation and any deterministic discount-curve adjustment.
+	 * Differentiable values returned by the model are preserved so this provider
+	 * can safely be used as the AAD sensitivity-value provider.
+	 * &lt;/p&gt;
+	 *
+	 * @param tenorPeriodLength Kept for backward compatibility. It is not used by
+	 *        the model-implied bond valuation.
+	 * @return A hedge-instrument value provider with model-implied analytic bond values.
+	 */
+	public static HedgeInstrumentValueProvider getAnalyticBondValueProvider(final double tenorPeriodLength) {
+<span class="fc" id="L813">		return (evaluationTime, model, hedgeInstruments) -&gt; {</span>
+<span class="fc" id="L814">			final RandomVariable[] values = new RandomVariable[hedgeInstruments.size()];</span>
+<span class="fc bfc" id="L815" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; hedgeInstruments.size(); hedgeIndex++) {</span>
+<span class="fc" id="L816">				final TermStructureMonteCarloProduct hedgeInstrument = hedgeInstruments.get(hedgeIndex);</span>
+<span class="fc bfc" id="L817" title="All 2 branches covered.">				if(hedgeInstrument instanceof Bond) {</span>
+<span class="fc" id="L818">					final Bond bond = (Bond)hedgeInstrument;</span>
+<span class="fc" id="L819">					final double maturity = bond.getProductToModelTimeOffset(model) + bond.getMaturity();</span>
+<span class="fc" id="L820">					values[hedgeIndex] = getAnalyticBondValue(</span>
+							evaluationTime,
+							maturity,
+							tenorPeriodLength,
+							model);
+<span class="fc" id="L825">				}</span>
+<span class="fc bfc" id="L826" title="All 2 branches covered.">				else if(hedgeInstrument instanceof SwapAnnuity) {</span>
+<span class="fc" id="L827">					values[hedgeIndex] = Scalar.of(0.0);</span>
+<span class="fc" id="L828">					final SwapAnnuity swapAnnuity = (SwapAnnuity)hedgeInstrument;</span>
+<span class="fc" id="L829">					final double[] maturities = swapAnnuity.getMaturities();</span>
+<span class="fc" id="L830">					final double[] periodLengths = swapAnnuity.getPeriodLengths();</span>
+<span class="fc" id="L831">					final double productToModelTimeOffset = swapAnnuity.getProductToModelTimeOffset(model);</span>
+<span class="fc bfc" id="L832" title="All 2 branches covered.">					for(int timeIndex = 0; timeIndex&lt;maturities.length; timeIndex++) {</span>
+<span class="fc" id="L833">						final double paymentTime = productToModelTimeOffset + maturities[timeIndex];</span>
+<span class="fc bfc" id="L834" title="All 2 branches covered.">						if(paymentTime &lt; evaluationTime - Bond.PAYMENT_TIME_TOLERANCE) {</span>
+<span class="fc" id="L835">							continue;</span>
+						}
+<span class="fc" id="L837">						values[hedgeIndex] = values[hedgeIndex].add(getAnalyticBondValue(</span>
+								evaluationTime,
+								paymentTime,
+								tenorPeriodLength,
+<span class="fc" id="L841">								model).mult(periodLengths[timeIndex]));</span>
+					}
+<span class="fc" id="L843">				}</span>
+<span class="pc bpc" id="L844" title="1 of 2 branches missed.">				else if(hedgeInstrument instanceof DiscreteTenorRollOver) {</span>
+					/*
+					 * The product owns the piecewise fixing/payment semantics and already
+					 * uses adapted forward-discount bonds in each pre-payment phase.
+					 */
+<span class="fc" id="L849">					values[hedgeIndex] = hedgeInstrument.getValue(evaluationTime, model);</span>
+				}
+				else {
+					// Using the proto value will generate biases, due to correlation (need cond. exp. first).
+					// Option: Add numerical cond. expectation.
+<span class="nc" id="L854">					throw new UnsupportedOperationException(&quot;The hedge instrument does not have an analytic proxy. We need an analytic proxy here for benchmarking.&quot;);</span>
+				}
+			}
+<span class="fc" id="L857">			return values;</span>
+		};
+	}
+
+	/**
+	 * Trade-value provider using the analytic hedge-instrument values supplied by
+	 * {@link #getAnalyticBondValueProvider(double)}. Differentiation wrappers are
+	 * removed from the returned trade values since they are not sensitivity inputs.
+	 *
+	 * @param tenorPeriodLength The tenor period length used to form analytic bond prices.
+	 * @return A trade-value provider with analytic bond values.
+	 */
+	public static HedgeInstrumentTradeValueProvider getAnalyticBondTradeValueProvider(final double tenorPeriodLength) {
+<span class="fc" id="L870">		final HedgeInstrumentValueProvider valueProvider = getAnalyticBondValueProvider(tenorPeriodLength);</span>
+<span class="fc" id="L871">		return (evaluationTime, model, hedgeInstruments, hedgeInstrumentProtoValues, conditioningBasisFunctions) -&gt; {</span>
+<span class="fc" id="L872">			final RandomVariable[] values = valueProvider.getValues(evaluationTime, model, hedgeInstruments);</span>
+<span class="fc bfc" id="L873" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; values.length; hedgeIndex++) {</span>
+<span class="fc" id="L874">				values[hedgeIndex] = values[hedgeIndex].getValues();</span>
+			}
+<span class="fc" id="L876">			return values;</span>
+		};
+	}
+
+	/**
+	 * Model-implied analytic bond value.
+	 *
+	 * &lt;p&gt;
+	 * This method intentionally does not rebuild the discount bond as a raw product
+	 * over the model's current forward rates. Instead, it delegates to the
+	 * term-structure model's forward-discount-bond implementation, which is the
+	 * adapted conditional expectation of the numeraire ratio and is therefore
+	 * consistent with the model's numeraire, interpolation and optional
+	 * discount-curve adjustment.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime The valuation time t.
+	 * @param maturity The bond maturity T.
+	 * @param tenorPeriodLength Kept for backward compatibility. It is not used by
+	 *        the model-implied bond valuation.
+	 * @param model The term-structure Monte-Carlo model.
+	 * @return The model-implied adapted bond value P(t,T), or zero after the
+	 *         bond has paid.
+	 * @throws CalculationException Thrown if the model cannot calculate the bond value.
+	 */
+	public static RandomVariable getAnalyticBondValue(
+			final double evaluationTime,
+			final double maturity,
+			final double tenorPeriodLength,
+			final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L907">		final double tolerance = Bond.PAYMENT_TIME_TOLERANCE;</span>
+<span class="fc bfc" id="L908" title="All 2 branches covered.">		if(maturity &lt;= evaluationTime + tolerance) {</span>
+<span class="fc bfc" id="L909" title="All 2 branches covered.">			if(maturity &gt;= evaluationTime - tolerance) {</span>
+<span class="fc" id="L910">				return model.getRandomVariableForConstant(1.0);</span>
+			}
+<span class="fc" id="L912">			return model.getRandomVariableForConstant(0.0);</span>
+		}
+
+<span class="fc" id="L915">		return model.getModel().getForwardDiscountBond(</span>
+<span class="fc" id="L916">				model.getProcess(),</span>
+				evaluationTime,
+				maturity);
+	}
+
+	/**
+	 * Single-curve product-of-forwards diagnostic value.
+	 *
+	 * &lt;p&gt;
+	 * This is useful for diagnostics, but it is not used by the analytic bond
+	 * hedge-value provider. It can differ from the model-implied bond value if
+	 * the model uses a deterministic discounting adjustment, a different
+	 * interpolation convention, or if {@code getForwardRate(t,S,T)} for a long
+	 * period is not equivalent to chaining all short-tenor forward rates.
+	 * &lt;/p&gt;
+	 *
+	 * @param evaluationTime The valuation time t.
+	 * @param maturity The bond maturity T.
+	 * @param tenorPeriodLength The tenor period length used to form the product.
+	 * @param model The term-structure Monte-Carlo model.
+	 * @return The product-of-forwards value.
+	 * @throws CalculationException Thrown if a forward rate cannot be obtained.
+	 */
+	public static RandomVariable getForwardProductBondValue(
+			final double evaluationTime,
+			final double maturity,
+			final double tenorPeriodLength,
+			final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="nc bnc" id="L945" title="All 2 branches missed.">		if(tenorPeriodLength &lt;= 0.0) {</span>
+<span class="nc" id="L946">			throw new IllegalArgumentException(&quot;tenorPeriodLength must be positive.&quot;);</span>
+		}
+
+<span class="nc" id="L949">		final double tolerance = 1E-12;</span>
+<span class="nc bnc" id="L950" title="All 2 branches missed.">		if(maturity &lt;= evaluationTime + tolerance) {</span>
+<span class="nc bnc" id="L951" title="All 2 branches missed.">			if(maturity &gt;= evaluationTime - tolerance) {</span>
+<span class="nc" id="L952">				return model.getRandomVariableForConstant(1.0);</span>
+			}
+<span class="nc" id="L954">			return model.getRandomVariableForConstant(1.0)</span>
+<span class="nc" id="L955">					.div(model.getNumeraire(maturity))</span>
+<span class="nc" id="L956">					.mult(model.getMonteCarloWeights(maturity))</span>
+<span class="nc" id="L957">					.mult(model.getNumeraire(evaluationTime))</span>
+<span class="nc" id="L958">					.div(model.getMonteCarloWeights(evaluationTime));</span>
+		}
+
+<span class="nc" id="L961">		RandomVariable bondValue = model.getRandomVariableForConstant(1.0);</span>
+<span class="nc" id="L962">		double periodStart = evaluationTime;</span>
+
+<span class="nc bnc" id="L964" title="All 2 branches missed.">		while(periodStart &lt; maturity - tolerance) {</span>
+<span class="nc" id="L965">			final double nextTenorTime = getNextTenorTimeStrictlyAfter(periodStart, tenorPeriodLength, tolerance);</span>
+<span class="nc" id="L966">			final double periodEnd = Math.min(maturity, nextTenorTime);</span>
+<span class="nc" id="L967">			final double periodLength = periodEnd - periodStart;</span>
+
+<span class="nc bnc" id="L969" title="All 2 branches missed.">			if(periodLength &lt;= tolerance) {</span>
+<span class="nc" id="L970">				break;</span>
+			}
+
+<span class="nc" id="L973">			final RandomVariable forwardRate = model.getForwardRate(evaluationTime, periodStart, periodEnd);</span>
+<span class="nc" id="L974">			final RandomVariable onePlusForwardRateTimesPeriodLength = model.getRandomVariableForConstant(1.0)</span>
+<span class="nc" id="L975">					.add(forwardRate.mult(periodLength));</span>
+<span class="nc" id="L976">			bondValue = bondValue.div(onePlusForwardRateTimesPeriodLength);</span>
+
+<span class="nc" id="L978">			periodStart = periodEnd;</span>
+<span class="nc" id="L979">		}</span>
+
+<span class="nc" id="L981">		return bondValue;</span>
+	}
+
+	private static double getNextTenorTimeStrictlyAfter(
+			final double time,
+			final double tenorPeriodLength,
+			final double tolerance) {
+
+<span class="nc" id="L989">		final double scaledTime = time / tenorPeriodLength;</span>
+<span class="nc" id="L990">		double nextTenorTime = Math.floor(scaledTime + tolerance) * tenorPeriodLength + tenorPeriodLength;</span>
+
+<span class="nc bnc" id="L992" title="All 2 branches missed.">		if(nextTenorTime &lt;= time + tolerance) {</span>
+<span class="nc" id="L993">			nextTenorTime += tenorPeriodLength;</span>
+		}
+
+<span class="nc" id="L996">		return nextTenorTime;</span>
+	}
+
+	/**
+	 * Default primitive provider: use the differentiable process state at the
+	 * rebalancing time.
+	 *
+	 * @return A primitive provider based on model.getProcess().getProcessValue(timeIndex).
+	 */
+	public static ParameterIDProvider getProcessStateParameterIDProvider() {
+<span class="fc" id="L1006">		return getProcessStateParameterIDProvider(0);</span>
+	}
+
+	public static ParameterIDProvider getProcessStateParameterIDProvider(int lag) {
+<span class="fc" id="L1010">		return (evaluationTime, model) -&gt; {</span>
+
+<span class="fc" id="L1012">			int processTimeIndex = model.getTimeIndex(evaluationTime);</span>
+<span class="pc bpc" id="L1013" title="1 of 2 branches missed.">			if(processTimeIndex &lt; 0) {</span>
+<span class="nc" id="L1014">				processTimeIndex = model.getProcess().getTimeDiscretization().getTimeIndexNearestLessOrEqual(evaluationTime);</span>
+			}
+<span class="pc bpc" id="L1016" title="1 of 2 branches missed.">			if(processTimeIndex &lt; 0) {</span>
+<span class="nc" id="L1017">				throw new IllegalArgumentException(&quot;Could not find process time index for evaluationTime &quot; + evaluationTime + &quot;.&quot;);</span>
+			}
+
+<span class="fc" id="L1020">			final List&lt;RandomVariable&gt; modelPrimitivesList = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L1021" title="All 2 branches covered.">			for(int processTimeIndexLagged = Math.max(processTimeIndex-lag, 0); processTimeIndexLagged&lt;=processTimeIndex; processTimeIndexLagged++) {</span>
+<span class="fc" id="L1022">				final RandomVariable[] modelPrimitivesLagged = model.getProcess().getProcessValue(processTimeIndexLagged);</span>
+<span class="fc" id="L1023">				modelPrimitivesList.addAll(Arrays.asList(modelPrimitivesLagged));</span>
+			}
+<span class="fc" id="L1025">			final RandomVariable[] modelPrimitives = modelPrimitivesList.toArray(RandomVariable[]::new);</span>
+
+<span class="fc" id="L1027">			final Map&lt;String, Long&gt; parameterIDsByName = new LinkedHashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L1029" title="All 2 branches covered.">			for(int componentIndex = 0; componentIndex &lt; modelPrimitives.length; componentIndex++) {</span>
+<span class="fc" id="L1030">				final RandomVariable primitive = modelPrimitives[componentIndex];</span>
+<span class="pc bpc" id="L1031" title="1 of 2 branches missed.">				if(!(primitive instanceof RandomVariableDifferentiable)) {</span>
+<span class="nc" id="L1032">					throw new IllegalArgumentException(</span>
+							&quot;Process primitive (&quot; + evaluationTime + &quot;,&quot; + componentIndex + &quot;) is not differentiable. &quot;
+									+ &quot;Check that the model was created with RandomVariableDifferentiableAADFactory.&quot;);
+				}
+
+<span class="fc" id="L1037">				parameterIDsByName.put(</span>
+						&quot;(&quot; + evaluationTime + &quot;,&quot; + componentIndex + &quot;)&quot;,
+<span class="fc" id="L1039">						((RandomVariableDifferentiable)primitive).getID());</span>
+			}
+
+<span class="pc bpc" id="L1042" title="1 of 2 branches missed.">			if(parameterIDsByName.isEmpty()) {</span>
+<span class="nc" id="L1043">				throw new IllegalArgumentException(&quot;No differentiable process primitives found at time &quot; + evaluationTime + &quot;.&quot;);</span>
+			}
+
+<span class="fc" id="L1046">			return parameterIDsByName;</span>
+		};
+	}
+
+	/**
+	 * Default primitive provider: use the differentiable process state at the
+	 * rebalancing time.
+	 *
+	 * @return A primitive provider based on model.getProcess().getProcessValue(timeIndex).
+	 */
+	public static ParameterIDProvider getForwardRateIDProvider(TimeDiscretization tenorDiscretization) {
+<span class="nc" id="L1057">		return (evaluationTime, model) -&gt; {</span>
+
+<span class="nc" id="L1059">			int processTimeIndex = model.getTimeIndex(evaluationTime);</span>
+<span class="nc bnc" id="L1060" title="All 2 branches missed.">			if(processTimeIndex &lt; 0) {</span>
+<span class="nc" id="L1061">				processTimeIndex = model.getProcess().getTimeDiscretization().getTimeIndexNearestLessOrEqual(evaluationTime);</span>
+			}
+<span class="nc bnc" id="L1063" title="All 2 branches missed.">			if(processTimeIndex &lt; 0) {</span>
+<span class="nc" id="L1064">				throw new IllegalArgumentException(&quot;Could not find process time index for evaluationTime &quot; + evaluationTime + &quot;.&quot;);</span>
+			}
+
+<span class="nc" id="L1067">			final List&lt;RandomVariable&gt; forwardRates = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L1068">			final int indexRateStart = tenorDiscretization.getTimeIndexNearestGreaterOrEqual(evaluationTime);</span>
+<span class="nc" id="L1069">			final int indexRateEnd = tenorDiscretization.getNumberOfTimes()-1;</span>
+<span class="nc bnc" id="L1070" title="All 2 branches missed.">			for(int indexPeriodStart = indexRateStart; indexPeriodStart&lt;indexRateEnd; indexPeriodStart++) {</span>
+<span class="nc" id="L1071">				final RandomVariable forwardRate = model.getForwardRate(evaluationTime, tenorDiscretization.getTime(indexPeriodStart), tenorDiscretization.getTime(indexPeriodStart+1));</span>
+<span class="nc" id="L1072">				forwardRates.add(forwardRate);</span>
+			}
+
+<span class="nc" id="L1075">			final RandomVariable[] modelPrimitives = forwardRates.toArray(RandomVariable[]::new);</span>
+
+<span class="nc" id="L1077">			final Map&lt;String, Long&gt; parameterIDsByName = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L1078" title="All 2 branches missed.">			for(int componentIndex = 0; componentIndex &lt; modelPrimitives.length; componentIndex++) {</span>
+<span class="nc" id="L1079">				final RandomVariable primitive = modelPrimitives[componentIndex];</span>
+<span class="nc bnc" id="L1080" title="All 2 branches missed.">				if(!(primitive instanceof RandomVariableDifferentiable)) {</span>
+<span class="nc" id="L1081">					throw new IllegalArgumentException(</span>
+							&quot;Process primitive (&quot; + evaluationTime + &quot;,&quot; + componentIndex + &quot;) is not differentiable. &quot;
+									+ &quot;Check that the model was created with RandomVariableDifferentiableAADFactory.&quot;);
+				}
+				else {
+<span class="nc" id="L1086">					parameterIDsByName.put(</span>
+							&quot;(&quot; + evaluationTime + &quot;,&quot; + componentIndex + &quot;)&quot;,
+<span class="nc" id="L1088">							((RandomVariableDifferentiable)primitive).getID());</span>
+				}
+			}
+
+<span class="nc bnc" id="L1092" title="All 2 branches missed.">			if(parameterIDsByName.isEmpty()) {</span>
+<span class="nc" id="L1093">				throw new IllegalArgumentException(&quot;No differentiable process primitives found at time &quot; + evaluationTime + &quot;.&quot;);</span>
+			}
+
+<span class="nc" id="L1096">			return parameterIDsByName;</span>
+		};
+	}
+
+	/**
+	 * Default trade-value provider: regress proto-values on the supplied
+	 * conditioning basis. At time zero it returns constants equal to the Monte-Carlo
+	 * averages, which is the correct static trade price. If no conditioning basis
+	 * is supplied, it uses a constant basis. This keeps a raw PATHWISE hedge usable
+	 * without conflating its absent solution basis with the basis required to adapt
+	 * trade values; the resulting trade values are unconditional adapted prices.
+	 *
+	 * @return A trade-value provider based on conditional-expectation regression.
+	 */
+	public static HedgeInstrumentTradeValueProvider getRegressionTradeValueProvider() {
+<span class="fc" id="L1111">		return (evaluationTime, model, hedgeInstruments, hedgeInstrumentProtoValues, conditioningBasisFunctions) -&gt; {</span>
+
+<span class="fc" id="L1113">			Objects.requireNonNull(hedgeInstrumentProtoValues, &quot;hedgeInstrumentProtoValues must not be null.&quot;);</span>
+
+<span class="fc" id="L1115">			final RandomVariable[] tradeValues = new RandomVariable[hedgeInstrumentProtoValues.length];</span>
+
+<span class="pc bpc" id="L1117" title="1 of 2 branches missed.">			if(evaluationTime == 0.0) {</span>
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">				for(int hedgeIndex = 0; hedgeIndex &lt; tradeValues.length; hedgeIndex++) {</span>
+<span class="nc" id="L1119">					tradeValues[hedgeIndex] = model.getRandomVariableForConstant(hedgeInstrumentProtoValues[hedgeIndex].getAverage());</span>
+				}
+<span class="nc" id="L1121">				return tradeValues;</span>
+			}
+
+			final RandomVariable[] effectiveConditioningBasisFunctions =
+<span class="pc bpc" id="L1125" title="3 of 4 branches missed.">					conditioningBasisFunctions == null || conditioningBasisFunctions.length == 0</span>
+<span class="fc" id="L1126">					? new RandomVariable[] { model.getRandomVariableForConstant(1.0) }</span>
+<span class="pc" id="L1127">					: conditioningBasisFunctions;</span>
+
+<span class="fc" id="L1129">			final ConditionalExpectationEstimator conditionalExpectationOperator =</span>
+					new MonteCarloConditionalExpectationRegression(effectiveConditioningBasisFunctions);
+
+<span class="fc bfc" id="L1132" title="All 2 branches covered.">			for(int hedgeIndex = 0; hedgeIndex &lt; tradeValues.length; hedgeIndex++) {</span>
+<span class="fc" id="L1133">				tradeValues[hedgeIndex] = hedgeInstrumentProtoValues[hedgeIndex]</span>
+<span class="fc" id="L1134">						.getConditionalExpectation(conditionalExpectationOperator);</span>
+			}
+
+<span class="fc" id="L1137">			return tradeValues;</span>
+		};
+	}
+
+	public TermStructureMonteCarloProduct getProductToReplicate() {
+<span class="nc" id="L1142">		return productToReplicate;</span>
+	}
+
+	public List&lt;TermStructureMonteCarloProduct&gt; getHedgeInstruments() {
+<span class="nc" id="L1146">		return hedgeInstruments;</span>
+	}
+
+	public TimeDiscretization getRebalancingTimes() {
+<span class="nc" id="L1150">		return rebalancingTimes;</span>
+	}
+
+	public double getRegularizationLambda() {
+<span class="nc" id="L1154">		return regularizationLambda;</span>
+	}
+
+	public ReductionMethod getReductionMethod() {
+<span class="nc" id="L1158">		return reductionMethod;</span>
+	}
+
+	public double getLastOperationTimingTotal() {
+<span class="nc" id="L1162">		return lastOperationTimingTotal;</span>
+	}
+
+	public double getLastOperationTimingValuation() {
+<span class="nc" id="L1166">		return lastOperationTimingValuation;</span>
+	}
+
+	public double getLastOperationTimingHedgeRatios() {
+<span class="nc" id="L1170">		return lastOperationTimingHedgeRatios;</span>
+	}
+
+	public double getLastOperationTimingHedgeRatioProject() {
+<span class="nc" id="L1174">		return lastOperationTimingHedgeRatioProject;</span>
+	}
+
+	public double getLastOperationTimingHedgeRatioSolve() {
+<span class="nc" id="L1178">		return lastOperationTimingHedgeRatioSolve;</span>
+	}
+
+	public double getLastOperationTimingTradeValues() {
+<span class="nc" id="L1182">		return lastOperationTimingTradeValues;</span>
+	}
+
+	public List&lt;Double&gt; getLastRebalancingTimes() {
+<span class="fc" id="L1186">		return lastRebalancingTimes;</span>
+	}
+
+	public List&lt;Map&lt;String, Long&gt;&gt; getLastParameterIDsByName() {
+<span class="nc" id="L1190">		return lastParameterIDsByName;</span>
+	}
+
+	public List&lt;ProjectedHedgeRatioResult&gt; getLastHedgeRatioResults() {
+<span class="nc" id="L1194">		return lastHedgeRatioResults;</span>
+	}
+
+	public RandomVariable[] getLastHedgeInstrumentPositions() {
+<span class="fc" id="L1198">		return lastHedgeInstrumentPositions.clone();</span>
+	}
+
+	public RandomVariable getLastNumerairePosition() {
+<span class="fc" id="L1202">		return lastNumerairePosition;</span>
+	}
+
+	public HedgeInstrumentValueProvider getFinalHedgeInstrumentValueProvider() {
+<span class="nc" id="L1206">		return finalHedgeInstrumentValueProvider;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

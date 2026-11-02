@@ -1,0 +1,895 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LevenbergMarquardt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">LevenbergMarquardt.java</span></div><h1>LevenbergMarquardt.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 16.06.2006
+ */
+package net.finmath.optimizer;
+
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import net.finmath.functions.LinearAlgebra;
+
+/**
+ * This class implements a parallel Levenberg-Marquardt non-linear least-squares fit
+ * algorithm.
+ *
+ * &lt;p&gt;
+ * The solver minimizes \( || f ||_{L_{2}} \) for a function \( f:\mathbb{R}^n \rightarrow \mathbb{R}^m \).
+ * The solver requires the calculation of a Jacobi-matrix \( J = \frac{\mathrm{d}f}{\mathrm{d}x} \). The iteration steps
+ * are then defined by
+ * \[
+ * 		\Delta x = H_{\lambda}^{-1} J^T f
+ * \]
+ * where \( H_{\lambda} \) is a regularized approximation of the Hessian matrix.
+ * The solver supports two different regularizations. For &lt;code&gt;RegularizationMethod.LEVENBERG&lt;/code&gt; the solver uses
+ * \( H_{\lambda} = J^T J + \lambda I \). For &lt;code&gt;RegularizationMethod.LEVENBERG_MARQUARDT&lt;/code&gt; the solver uses
+ * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The design avoids the need to define the objective function as a
+ * separate class. The objective function is defined by overriding a class
+ * method, see the sample code below.
+ * &lt;/p&gt;
+
+ * &lt;p&gt;
+ * The Levenberg-Marquardt solver is implemented in using multi-threading.
+ * The calculation of the derivatives (in case a specific implementation of
+ * {@code setDerivatives(double[] parameters, double[][] derivatives)} is not
+ * provided) may be performed in parallel by setting the parameter &lt;code&gt;numberOfThreads&lt;/code&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * To use the solver inherit from it and implement the objective function as
+ * {@code setValues(double[] parameters, double[] values)} where values has
+ * to be set to the value of the objective functions for the given parameters.
+ * &lt;br&gt;
+ * You may also provide an a derivative for your objective function by
+ * additionally overriding the function {@code setDerivatives(double[] parameters, double[][] derivatives)},
+ * otherwise the solver will calculate the derivative via finite differences.
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * To reject a point, it is allowed to set an element of &lt;code&gt;values&lt;/code&gt; to {@link java.lang.Double#NaN}
+ * in the implementation of {@code setValues(double[] parameters, double[] values)}.
+ * Put differently: The solver handles NaN values in &lt;code&gt;values&lt;/code&gt; as an error larger than
+ * the current one (regardless of the current error) and rejects the point.
+ * &lt;br&gt;
+ * Note, however, that is is an error if the initial parameter guess results in an NaN value.
+ * That is, the solver should be initialized with an initial parameter in an admissible region.
+ * &lt;/p&gt;
+ *
+ * The following simple example finds a solution for the equation &lt;br&gt;
+ * &lt;table&gt;
+ * &lt;caption&gt;Sample linear system of equations.&lt;/caption&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 0.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 5.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;tr&gt;&lt;td&gt;
+ * 2.0 * x&lt;sub&gt;1&lt;/sub&gt; + 1.0 * x&lt;sub&gt;2&lt;/sub&gt; = 10.0
+ * &lt;/td&gt;&lt;/tr&gt;
+ * &lt;/table&gt;
+ *
+ * &lt;pre&gt;
+ * &lt;code&gt;
+ * 	LevenbergMarquardt optimizer = new LevenbergMarquardt() {
+ * 		// Override your objective function here
+ * 		public void setValues(double[] parameters, double[] values) {
+ * 			values[0] = parameters[0] * 0.0 + parameters[1];
+ * 			values[1] = parameters[0] * 2.0 + parameters[1];
+ * 		}
+ * 	};
+ *
+ * 	// Set solver parameters
+ * 	optimizer.setInitialParameters(new double[] { 0, 0 });
+ * 	optimizer.setWeights(new double[] { 1, 1 });
+ * 	optimizer.setMaxIteration(100);
+ * 	optimizer.setTargetValues(new double[] { 5, 10 });
+ *
+ * 	optimizer.run();
+ *
+ * 	double[] bestParameters = optimizer.getBestFitParameters();
+ * &lt;/code&gt;
+ * &lt;/pre&gt;
+ *
+ * See the example in the main method below.
+ *
+ * &lt;p&gt;
+ * The class can be initialized to use a multi-threaded valuation. If initialized
+ * this way the implementation of &lt;code&gt;setValues&lt;/code&gt; must be thread-safe.
+ * The solver will evaluate the gradient of the value vector in parallel, i.e.,
+ * use as many threads as the number of parameters.
+ * &lt;/p&gt;
+ *
+ * Note: Iteration steps will be logged (java.util.logging) with LogLevel.FINE
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public abstract class LevenbergMarquardt implements Serializable, Cloneable, Optimizer {
+
+	private static final long serialVersionUID = 4560864869394838155L;
+
+	/**
+	 * The regularization method used to invert the approximation of the
+	 * Hessian matrix.
+	 *
+	 * @author Christian Fries
+	 */
+<span class="fc" id="L129">	public enum RegularizationMethod {</span>
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda I \).
+		 */
+<span class="fc" id="L134">		LEVENBERG,</span>
+
+		/**
+		 * The Hessian approximated and regularized as
+		 * \( H_{\lambda} = J^T J + \lambda \text{diag}(J^T J) \).
+		 */
+<span class="fc" id="L140">		LEVENBERG_MARQUARDT</span>
+	}
+
+	private final RegularizationMethod regularizationMethod;
+
+<span class="pc" id="L145">	private double[] initialParameters = null;</span>
+<span class="pc" id="L146">	private double[] parameterSteps = null;</span>
+<span class="pc" id="L147">	private double[] targetValues = null;</span>
+<span class="pc" id="L148">	private double[] weights = null;</span>
+
+<span class="pc" id="L150">	private int		maxIteration = 100;</span>
+
+<span class="pc" id="L152">	private double	lambda				= 0.001;</span>
+<span class="pc" id="L153">	private double	lambdaDivisor		= 3.0;</span>
+<span class="pc" id="L154">	private double	lambdaMultiplicator	= 2.0;</span>
+
+<span class="pc" id="L156">	private double	errorRootMeanSquaredTolerance = 0.0;	// by default we solve upto machine presicion</span>
+
+<span class="pc" id="L158">	private int iteration = 0;</span>
+
+<span class="pc" id="L160">	private double[] parameterTest = null;</span>
+<span class="pc" id="L161">	private double[] parameterIncrement = null;</span>
+<span class="pc" id="L162">	private double[] valueTest = null;</span>
+
+<span class="pc" id="L164">	private double[] parameterCurrent = null;</span>
+<span class="pc" id="L165">	private double[] valueCurrent = null;</span>
+<span class="pc" id="L166">	private double[][] derivativeCurrent = null;</span>
+
+<span class="pc" id="L168">	private double errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;</span>
+<span class="pc" id="L169">	private double errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;</span>
+
+<span class="pc" id="L171">	private boolean isParameterCurrentDerivativeValid = false;</span>
+
+	// These members will be updated in each iteration. These are members to prevent repeated memory allocation.
+<span class="pc" id="L174">	private double[][]	hessianMatrix = null;</span>
+<span class="pc" id="L175">	private double[]	beta = null;</span>
+
+	/*
+	 * Used for multi-threadded calculation of the derivative.
+	 * The use may provide its own executor. If not and numberOfThreads &gt; 1
+	 * we will temporarily create an executor with the specified number of threads.
+	 * Note: If an executor was provided upon construction, it will not receive a shutdown when done.
+	 */
+<span class="pc" id="L183">	private int				numberOfThreads	= 1;</span>
+<span class="pc" id="L184">	private ExecutorService executor					= null;</span>
+<span class="pc" id="L185">	private boolean			executorShutdownWhenDone	= true;</span>
+
+<span class="pc" id="L187">	private final Logger logger = Logger.getLogger(&quot;net.finmath&quot;);</span>
+
+	// A simple test
+	public static void main(final String[] args) throws SolverException, CloneNotSupportedException {
+
+<span class="nc" id="L192">		final LevenbergMarquardt optimizer = new LevenbergMarquardt() {</span>
+			private static final long serialVersionUID = -282626938650139518L;
+
+			// Override your objective function here
+			@Override
+			public void setValues(final double[] parameters, final double[] values) {
+<span class="nc" id="L198">				values[0] = parameters[0] * 0.0 + parameters[1];</span>
+<span class="nc" id="L199">				values[1] = parameters[0] * 2.0 + parameters[1];</span>
+<span class="nc" id="L200">			}</span>
+		};
+
+		// Set solver parameters
+<span class="nc" id="L204">		optimizer.setInitialParameters(new double[] { 0, 0 });</span>
+<span class="nc" id="L205">		optimizer.setWeights(new double[] { 1, 1 });</span>
+<span class="nc" id="L206">		optimizer.setMaxIteration(100);</span>
+<span class="nc" id="L207">		optimizer.setTargetValues(new double[] { 5, 10 });</span>
+
+<span class="nc" id="L209">		optimizer.run();</span>
+
+<span class="nc" id="L211">		final double[] bestParameters = optimizer.getBestFitParameters();</span>
+<span class="nc" id="L212">		System.out.println(&quot;The solver for problem 1 required &quot; + optimizer.getIterations() + &quot; iterations. The best fit parameters are:&quot;);</span>
+<span class="nc bnc" id="L213" title="All 2 branches missed.">		for (int i = 0; i &lt; bestParameters.length; i++) {</span>
+<span class="nc" id="L214">			System.out.println(&quot;\tparameter[&quot; + i + &quot;]: &quot; + bestParameters[i]);</span>
+		}
+
+		/*
+		 * Creating a clone, continuing the search with new target values.
+		 * Note that we do not re-define the setValues method.
+		 */
+<span class="nc" id="L221">		final Optimizer optimizer2 = optimizer.getCloneWithModifiedTargetValues(new double[] { 5.1, 10.2 }, new double[] { 1, 1 }, true);</span>
+<span class="nc" id="L222">		optimizer2.run();</span>
+
+<span class="nc" id="L224">		final double[] bestParameters2 = optimizer2.getBestFitParameters();</span>
+<span class="nc" id="L225">		System.out.println(&quot;The solver for problem 2 required &quot; + optimizer2.getIterations() + &quot; iterations. The best fit parameters are:&quot;);</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		for (int i = 0; i &lt; bestParameters2.length; i++) {</span>
+<span class="nc" id="L227">			System.out.println(&quot;\tparameter[&quot; + i + &quot;]: &quot; + bestParameters2[i]);</span>
+		}
+<span class="nc" id="L229">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. &lt;i&gt;Warning&lt;/i&gt;: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final RegularizationMethod regularizationMethod, final double[] initialParameters, final double[] targetValues, final int maxIteration, final ExecutorService executorService) {
+<span class="fc" id="L241">		super();</span>
+<span class="fc" id="L242">		this.regularizationMethod = regularizationMethod;</span>
+<span class="fc" id="L243">		this.initialParameters	= initialParameters;</span>
+<span class="fc" id="L244">		this.targetValues		= targetValues;</span>
+<span class="fc" id="L245">		this.maxIteration		= maxIteration;</span>
+
+<span class="fc" id="L247">		weights			= new double[targetValues.length];</span>
+<span class="fc" id="L248">		java.util.Arrays.fill(weights, 1.0);</span>
+
+<span class="fc" id="L250">		executor = executorService;</span>
+<span class="pc bpc" id="L251" title="1 of 2 branches missed.">		executorShutdownWhenDone = (executorService == null);</span>
+<span class="fc" id="L252">		numberOfThreads = 1;</span>
+<span class="fc" id="L253">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. &lt;i&gt;Warning&lt;/i&gt;: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final double[] initialParameters, final double[] targetValues, final int maxIteration, final ExecutorService executorService) {
+<span class="fc" id="L264">		this(RegularizationMethod.LEVENBERG_MARQUARDT,</span>
+				initialParameters, targetValues, maxIteration, executorService);
+<span class="fc" id="L266">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param regularizationMethod The regularization method to use. See {@link RegularizationMethod}.
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final RegularizationMethod regularizationMethod, final double[] initialParameters, final double[] targetValues, final int maxIteration, final int numberOfThreads) {
+<span class="fc" id="L278">		this(regularizationMethod, initialParameters, targetValues, maxIteration, null);</span>
+
+<span class="fc" id="L280">		this.numberOfThreads = numberOfThreads;</span>
+<span class="fc" id="L281">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final double[] initialParameters, final double[] targetValues, final int maxIteration, final int numberOfThreads) {
+<span class="fc" id="L292">		this(RegularizationMethod.LEVENBERG_MARQUARDT, initialParameters, targetValues, maxIteration, numberOfThreads);</span>
+<span class="fc" id="L293">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters List of initial values for the parameters where the solver starts its search.
+	 * @param targetValues List of target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param executorService Executor to be used for concurrent valuation of the derivatives. This is only performed if setDerivative is not overwritten. &lt;i&gt;Warning&lt;/i&gt;: The implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final List&lt;Number&gt; initialParameters, final List&lt;Number&gt; targetValues, final int maxIteration, final ExecutorService executorService) {
+<span class="fc" id="L304">		this(numberListToDoubleArray(initialParameters), numberListToDoubleArray(targetValues), maxIteration, executorService);</span>
+<span class="fc" id="L305">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param initialParameters Initial value for the parameters where the solver starts its search.
+	 * @param targetValues Target values to achieve.
+	 * @param maxIteration Maximum number of iterations.
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final List&lt;Number&gt; initialParameters, final List&lt;Number&gt; targetValues, final int maxIteration, final int numberOfThreads) {
+<span class="fc" id="L316">		this(initialParameters, targetValues, maxIteration, null);</span>
+
+<span class="fc" id="L318">		this.numberOfThreads = numberOfThreads;</span>
+<span class="fc" id="L319">	}</span>
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 */
+	public LevenbergMarquardt() {
+<span class="fc" id="L325">		super();</span>
+<span class="fc" id="L326">		regularizationMethod = RegularizationMethod.LEVENBERG_MARQUARDT;</span>
+<span class="fc" id="L327">	}</span>
+
+	/**
+	 * Convert a list of numbers to an array of doubles.
+	 *
+	 * @param listOfNumbers A list of numbers.
+	 * @return A corresponding array of doubles executing &lt;code&gt;doubleValue()&lt;/code&gt; on each element.
+	 */
+	private static double[] numberListToDoubleArray(final List&lt;Number&gt; listOfNumbers) {
+<span class="fc" id="L336">		final double[] arrayOfDoubles	= new double[listOfNumbers.size()];</span>
+<span class="fc bfc" id="L337" title="All 2 branches covered.">		for(int i=0; i&lt;arrayOfDoubles.length; i++) {</span>
+<span class="fc" id="L338">			arrayOfDoubles[i] = listOfNumbers.get(i).doubleValue();</span>
+		}
+<span class="fc" id="L340">		return arrayOfDoubles;</span>
+	}
+
+	/**
+	 * Create a Levenberg-Marquardt solver.
+	 *
+	 * @param numberOfThreads Maximum number of threads. &lt;i&gt;Warning&lt;/i&gt;: If this number is larger than one, the implementation of setValues has to be thread safe!
+	 */
+	public LevenbergMarquardt(final int numberOfThreads) {
+<span class="nc" id="L349">		super();</span>
+<span class="nc" id="L350">		regularizationMethod = RegularizationMethod.LEVENBERG_MARQUARDT;</span>
+<span class="nc" id="L351">		this.numberOfThreads = numberOfThreads;</span>
+<span class="nc" id="L352">	}</span>
+
+
+	/**
+	 * Set the initial parameters for the solver.
+	 *
+	 * @param initialParameters The initial parameters.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setInitialParameters(final double[] initialParameters) {
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L363">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L365">		this.initialParameters = initialParameters;</span>
+<span class="fc" id="L366">		return this;</span>
+	}
+
+	/**
+	 * Set the parameter step for the solver.
+	 * The parameter step is used to evaluate the derivatives via
+	 * finite differences, if analytic derivatives are not provided.
+	 *
+	 * @param parameterSteps The parameter step.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setParameterSteps(final double[] parameterSteps) {
+<span class="pc bpc" id="L378" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L379">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L381">		this.parameterSteps = parameterSteps;</span>
+<span class="fc" id="L382">		return this;</span>
+	}
+
+	/**
+	 * Set the target values for the solver. The solver will solver the
+	 * equation weights * objectiveFunction = targetValues.
+	 *
+	 * @param targetValues The target values.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setTargetValues(final double[] targetValues) {
+<span class="pc bpc" id="L393" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L394">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L396">		this.targetValues = targetValues;</span>
+<span class="fc" id="L397">		return this;</span>
+	}
+
+	/**
+	 * Set the maximum number of iterations to be performed until the solver
+	 * gives up.
+	 *
+	 * @param maxIteration The maximum number of iterations.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setMaxIteration(final int maxIteration) {
+<span class="pc bpc" id="L408" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L409">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L411">		this.maxIteration = maxIteration;</span>
+<span class="fc" id="L412">		return this;</span>
+	}
+
+	/**
+	 * Set the weight for the objective function.
+	 *
+	 * @param weights The weights for the objective function.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setWeights(final double[] weights) {
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L423">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L425">		this.weights = weights;</span>
+<span class="fc" id="L426">		return this;</span>
+	}
+
+
+	/**
+	 * Set the error tolerance. The solver considers the solution &quot;found&quot;
+	 * if the error is not improving by this given error tolerance.
+	 *
+	 * @param errorTolerance The error tolerance.
+	 * @return A self reference.
+	 */
+	public LevenbergMarquardt setErrorTolerance(final double errorTolerance) {
+<span class="pc bpc" id="L438" title="1 of 2 branches missed.">		if(done()) {</span>
+<span class="nc" id="L439">			throw new UnsupportedOperationException(&quot;Solver cannot be modified after it has run.&quot;);</span>
+		}
+<span class="fc" id="L441">		errorRootMeanSquaredTolerance = errorTolerance;</span>
+<span class="fc" id="L442">		return this;</span>
+	}
+
+	/**
+	 * Get the parameter &amp;lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 *
+	 * @return the parameter \( \lambda \).
+	 */
+	public double getLambda() {
+<span class="nc" id="L452">		return lambda;</span>
+	}
+
+	/**
+	 * Set the parameter &amp;lambda; used in the Tikhonov-like regularization of the Hessian matrix,
+	 * that is the \( \lambda \) in \( H + \lambda \diag H \).
+	 *
+	 * @param lambda the lambda to set
+	 * @return Self reference to this optimizer.
+	 */
+	public LevenbergMarquardt setLambda(final double lambda) {
+<span class="fc" id="L463">		this.lambda = lambda;</span>
+<span class="fc" id="L464">		return this;</span>
+	}
+
+	/**
+	 * Get the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 *
+	 * @return the lambdaMultiplicator
+	 */
+	public double getLambdaMultiplicator() {
+<span class="nc" id="L474">		return lambdaMultiplicator;</span>
+	}
+
+	/**
+	 * Set the multiplicator applied to lambda if the inversion of regularized
+	 * Hessian fails, that is, if \( H + \lambda \diag H \) is not invertable.
+	 *
+	 * This will make lambda larger, hence let the stepping move slower.
+	 *
+	 * @param lambdaMultiplicator the lambdaMultiplicator to set. Should be &amp;gt; 1.
+	 */
+	public void setLambdaMultiplicator(final double lambdaMultiplicator) {
+<span class="nc bnc" id="L486" title="All 2 branches missed.">		if(lambdaMultiplicator &lt;= 1.0) {</span>
+<span class="nc" id="L487">			throw new IllegalArgumentException(&quot;Parameter lambdaMultiplicator is required to be &gt; 1.&quot;);</span>
+		}
+<span class="nc" id="L489">		this.lambdaMultiplicator = lambdaMultiplicator;</span>
+<span class="nc" id="L490">	}</span>
+
+	/**
+	 * Get the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 *
+	 * @return the lambdaDivisor
+	 */
+	public double getLambdaDivisor() {
+<span class="nc" id="L499">		return lambdaDivisor;</span>
+	}
+
+	/**
+	 * Set the divisor applied to lambda (for the next iteration) if the inversion of regularized
+	 * Hessian succeeds, that is, if \( H + \lambda \diag H \) is invertable.
+	 *
+	 * This will make lambda smaller, hence let the stepping move faster.
+	 *
+	 * @param lambdaDivisor the lambdaDivisor to set. Should be &amp;gt; 1.
+	 */
+	public void setLambdaDivisor(final double lambdaDivisor) {
+<span class="nc bnc" id="L511" title="All 2 branches missed.">		if(lambdaDivisor &lt;= 1.0) {</span>
+<span class="nc" id="L512">			throw new IllegalArgumentException(&quot;Parameter lambdaDivisor is required to be &gt; 1.&quot;);</span>
+		}
+<span class="nc" id="L514">		this.lambdaDivisor = lambdaDivisor;</span>
+<span class="nc" id="L515">	}</span>
+
+	@Override
+	public double[] getBestFitParameters() {
+<span class="fc" id="L519">		return parameterCurrent;</span>
+	}
+
+	@Override
+	public double getRootMeanSquaredError() {
+<span class="fc" id="L524">		return Math.sqrt(errorMeanSquaredCurrent);</span>
+	}
+
+	@Override
+	public int getIterations() {
+<span class="fc" id="L529">		return iteration;</span>
+	}
+
+	/**
+	 * The objective function. Override this method to implement your custom
+	 * function.
+	 *
+	 * @param parameters Input value. The parameter vector.
+	 * @param values Output value. The vector of values f(i,parameters), i=1,...,n
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public abstract void setValues(double[] parameters, double[] values) throws SolverException;
+
+	/**
+	 * The derivative of the objective function. You may override this method
+	 * if you like to implement your own derivative.
+	 *
+	 * @param parameters Input value. The parameter vector.
+	 * @param derivatives Output value, where derivatives[i][j] is d(value(j)) / d(parameters(i)
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public void setDerivatives(final double[] parameters, final double[][] derivatives) throws SolverException {
+		// Calculate new derivatives. Note that this method is called only with
+		// parameters = parameterCurrent, so we may use valueCurrent.
+
+<span class="fc" id="L554">		final Vector&lt;Future&lt;double[]&gt;&gt; valueFutures = new Vector&lt;&gt;(parameterCurrent.length);</span>
+<span class="fc bfc" id="L555" title="All 2 branches covered.">		for (int parameterIndex = 0; parameterIndex &lt; parameterCurrent.length; parameterIndex++) {</span>
+<span class="fc" id="L556">			final double[] parametersNew	= parameters.clone();</span>
+<span class="fc" id="L557">			final double[] derivative		= derivatives[parameterIndex];</span>
+
+<span class="fc" id="L559">			final int workerParameterIndex = parameterIndex;</span>
+<span class="fc" id="L560">			final Callable&lt;double[]&gt; worker = new  Callable&lt;double[]&gt;() {</span>
+				@Override
+				public double[] call() {
+					double parameterFiniteDifference;
+<span class="fc bfc" id="L564" title="All 2 branches covered.">					if(parameterSteps != null) {</span>
+<span class="fc" id="L565">						parameterFiniteDifference = parameterSteps[workerParameterIndex];</span>
+					}
+					else {
+						/*
+						 * Try to adaptively set a parameter shift. Note that in some
+						 * applications it may be important to set parameterSteps.
+						 * appropriately.
+						 */
+<span class="fc" id="L573">						parameterFiniteDifference = (Math.abs(parametersNew[workerParameterIndex]) + 1) * 1E-8;</span>
+					}
+
+					// Shift parameter value
+<span class="fc" id="L577">					parametersNew[workerParameterIndex] += parameterFiniteDifference;</span>
+
+					// Calculate derivative as (valueUpShift - valueCurrent) / parameterFiniteDifference
+					try {
+<span class="fc" id="L581">						setValues(parametersNew, derivative);</span>
+<span class="nc" id="L582">					} catch (final Exception e) {</span>
+<span class="nc" id="L583">						logger.severe(&quot;Valuation failed with exeption &quot; + e.getMessage() + &quot;\n&quot; + e.getStackTrace());</span>
+						// We signal an exception to calculate the derivative as NaN
+<span class="nc" id="L585">						Arrays.fill(derivative, Double.NaN);</span>
+<span class="fc" id="L586">					}</span>
+<span class="fc bfc" id="L587" title="All 2 branches covered.">					for (int valueIndex = 0; valueIndex &lt; valueCurrent.length; valueIndex++) {</span>
+<span class="fc" id="L588">						derivative[valueIndex] -= valueCurrent[valueIndex];</span>
+<span class="fc" id="L589">						derivative[valueIndex] /= parameterFiniteDifference;</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">						if(Double.isNaN(derivative[valueIndex])) {</span>
+<span class="fc" id="L591">							derivative[valueIndex] = 0.0;</span>
+						}
+					}
+<span class="fc" id="L594">					return derivative;</span>
+				}
+			};
+<span class="fc bfc" id="L597" title="All 2 branches covered.">			if(executor != null) {</span>
+<span class="fc" id="L598">				final Future&lt;double[]&gt; valueFuture = executor.submit(worker);</span>
+<span class="fc" id="L599">				valueFutures.add(parameterIndex, valueFuture);</span>
+<span class="fc" id="L600">			}</span>
+			else {
+<span class="fc" id="L602">				final FutureTask&lt;double[]&gt; valueFutureTask = new FutureTask&lt;&gt;(worker);</span>
+<span class="fc" id="L603">				valueFutureTask.run();</span>
+<span class="fc" id="L604">				valueFutures.add(parameterIndex, valueFutureTask);</span>
+			}
+		}
+
+<span class="fc bfc" id="L608" title="All 2 branches covered.">		for (int parameterIndex = 0; parameterIndex &lt; parameterCurrent.length; parameterIndex++) {</span>
+			try {
+<span class="fc" id="L610">				derivatives[parameterIndex] = valueFutures.get(parameterIndex).get();</span>
+			}
+<span class="nc" id="L612">			catch (final InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L613">				throw new SolverException(e);</span>
+<span class="fc" id="L614">			}</span>
+		}
+<span class="fc" id="L616">	}</span>
+
+	/**
+	 * You may override this method to implement a custom stop condition.
+	 *
+	 * @return Stop condition.
+	 */
+	boolean done() {
+		// The solver terminates if...
+<span class="fc bfc" id="L625" title="All 4 branches covered.">		return</span>
+				// Maximum number of iterations is reached
+				(iteration &gt; maxIteration)
+				||
+				// Error does not improve by more that the given error tolerance
+				(errorRootMeanSquaredChange &lt;= errorRootMeanSquaredTolerance)
+				||
+				/*
+				 * Lambda is infinite, i.e., no new point is acceptable.
+				 * For example, this may happen if setValue repeatedly give contains invalid (NaN) values.
+				 */
+<span class="pc bpc" id="L636" title="1 of 2 branches missed.">				Double.isInfinite(lambda);</span>
+	}
+
+	@Override
+	public void run() throws SolverException {
+		// Create an executor for concurrent evaluation of derivatives
+<span class="fc bfc" id="L642" title="All 2 branches covered.">		if(numberOfThreads &gt; 1) {</span>
+<span class="pc bpc" id="L643" title="1 of 2 branches missed.">			if(executor == null) {</span>
+<span class="fc" id="L644">				executor = Executors.newFixedThreadPool(numberOfThreads);</span>
+<span class="fc" id="L645">				executorShutdownWhenDone = true;</span>
+			}
+		}
+
+		try {
+
+			// Allocate memory
+<span class="fc" id="L652">			final int numberOfParameters	= initialParameters.length;</span>
+<span class="fc" id="L653">			final int numberOfValues		= targetValues.length;</span>
+
+<span class="fc" id="L655">			parameterTest		= initialParameters.clone();</span>
+<span class="fc" id="L656">			parameterIncrement	= new double[numberOfParameters];</span>
+<span class="fc" id="L657">			parameterCurrent	= new double[numberOfParameters];</span>
+
+<span class="fc" id="L659">			valueTest			= new double[numberOfValues];</span>
+<span class="fc" id="L660">			valueCurrent		= new double[numberOfValues];</span>
+<span class="fc" id="L661">			derivativeCurrent	= new double[parameterCurrent.length][valueCurrent.length];</span>
+
+<span class="fc" id="L663">			hessianMatrix = new double[parameterCurrent.length][parameterCurrent.length];</span>
+<span class="fc" id="L664">			beta = new double[parameterCurrent.length];</span>
+
+<span class="fc" id="L666">			iteration = 0;</span>
+
+			while(true) {
+				// Count iterations
+<span class="fc" id="L670">				iteration++;</span>
+
+				// Calculate values for test parameters
+<span class="fc" id="L673">				setValues(parameterTest, valueTest);</span>
+
+				// Calculate error
+<span class="fc" id="L676">				final double errorMeanSquaredTest = getMeanSquaredError(valueTest);</span>
+
+				/*
+				 * Note: The following test will be false if errorMeanSquaredTest is NaN.
+				 * That is: NaN is considered as a rejected point.
+				 */
+<span class="fc bfc" id="L682" title="All 2 branches covered.">				if(errorMeanSquaredTest &lt; errorMeanSquaredCurrent) {</span>
+<span class="fc" id="L683">					errorRootMeanSquaredChange = Math.sqrt(errorMeanSquaredCurrent) - Math.sqrt(errorMeanSquaredTest);</span>
+
+					// Accept point
+<span class="fc" id="L686">					System.arraycopy(parameterTest, 0, parameterCurrent, 0, parameterCurrent.length);</span>
+<span class="fc" id="L687">					System.arraycopy(valueTest, 0, valueCurrent, 0, valueCurrent.length);</span>
+<span class="fc" id="L688">					errorMeanSquaredCurrent		= errorMeanSquaredTest;</span>
+
+					// Derivative has to be recalculated
+<span class="fc" id="L691">					isParameterCurrentDerivativeValid = false;</span>
+
+					// Decrease lambda (move faster)
+<span class="fc" id="L694">					lambda			/= lambdaDivisor;</span>
+				} else {
+<span class="fc" id="L696">					errorRootMeanSquaredChange = Math.sqrt(errorMeanSquaredTest) - Math.sqrt(errorMeanSquaredCurrent);</span>
+
+					// Reject point, increase lambda (move slower)
+<span class="fc" id="L699">					lambda				*= lambdaMultiplicator;</span>
+				}
+
+				// Update a new parameter trial, if we are not done
+<span class="fc bfc" id="L703" title="All 2 branches covered.">				if (!done()) {</span>
+<span class="fc" id="L704">					updateParameterTest();</span>
+				} else {
+					break;
+				}
+
+				// Log iteration
+<span class="pc bpc" id="L710" title="1 of 2 branches missed.">				if (logger.isLoggable(Level.FINE))</span>
+				{
+<span class="nc" id="L712">					String logString =</span>
+							&quot;Iteration: &quot; + iteration +
+							&quot;\tLambda=&quot; + lambda +
+<span class="nc" id="L715">							&quot;\tError Current (RMS):&quot; + Math.sqrt(errorMeanSquaredCurrent) +</span>
+							&quot;\tError Change:&quot; + errorRootMeanSquaredChange + &quot;\t&quot;;
+<span class="nc bnc" id="L717" title="All 2 branches missed.">					for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="nc" id="L718">						logString += &quot;[&quot; + i + &quot;] = &quot; + parameterCurrent[i] + &quot;\t&quot;;</span>
+					}
+<span class="nc" id="L720">					logger.fine(logString);</span>
+				}
+<span class="fc" id="L722">			}</span>
+		}
+		finally {
+			// Shutdown executor if present.
+<span class="pc bpc" id="L726" title="1 of 4 branches missed.">			if(executor != null &amp;&amp; executorShutdownWhenDone) {</span>
+<span class="fc" id="L727">				executor.shutdown();</span>
+<span class="fc" id="L728">				executor = null;</span>
+			}
+		}
+<span class="fc" id="L731">	}</span>
+
+	public double getMeanSquaredError(final double[] value) {
+<span class="fc" id="L734">		double error = 0.0;</span>
+
+<span class="fc bfc" id="L736" title="All 2 branches covered.">		for (int valueIndex = 0; valueIndex &lt; value.length; valueIndex++) {</span>
+<span class="fc" id="L737">			final double deviation = value[valueIndex] - targetValues[valueIndex];</span>
+<span class="fc" id="L738">			error += weights[valueIndex] * deviation * deviation;</span>
+		}
+
+<span class="fc" id="L741">		return error/value.length;</span>
+	}
+
+	/**
+	 * Calculate a new parameter guess.
+	 *
+	 * @throws SolverException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	private void updateParameterTest() throws SolverException {
+<span class="fc bfc" id="L750" title="All 2 branches covered.">		if (!isParameterCurrentDerivativeValid) {</span>
+<span class="fc" id="L751">			this.setDerivatives(parameterCurrent, derivativeCurrent);</span>
+<span class="fc" id="L752">			isParameterCurrentDerivativeValid = true;</span>
+		}
+
+		/*
+		 * We solve H \Delta x = b,
+		 * where H = J^T J is the Hessian approximation and b = J^T (y-f(x)) and \Delta x is the parameterIncrement
+		 */
+<span class="fc" id="L759">		boolean hessianInvalid = true;</span>
+<span class="pc bpc" id="L760" title="1 of 4 branches missed.">		while (hessianInvalid &amp;&amp; Double.isFinite(lambda)) {</span>
+<span class="fc" id="L761">			hessianInvalid = false;</span>
+			// Build matrix H (Hessian approximation), that is H = J^T J
+<span class="fc bfc" id="L763" title="All 2 branches covered.">			for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="fc bfc" id="L764" title="All 2 branches covered.">				for (int j = i; j &lt; parameterCurrent.length; j++) {</span>
+<span class="fc" id="L765">					double hessianElement = 0.0;</span>
+<span class="fc bfc" id="L766" title="All 2 branches covered.">					for (int valueIndex = 0; valueIndex &lt; valueCurrent.length; valueIndex++) {</span>
+<span class="fc" id="L767">						hessianElement += weights[valueIndex] * derivativeCurrent[i][valueIndex] * derivativeCurrent[j][valueIndex];</span>
+					}
+<span class="fc bfc" id="L769" title="All 2 branches covered.">					if (i == j) {</span>
+<span class="fc bfc" id="L770" title="All 2 branches covered.">						if(regularizationMethod == RegularizationMethod.LEVENBERG) {</span>
+							// RegularizationMethod.LEVENBERG - Regularization with a constant lambda
+<span class="fc" id="L772">							hessianElement += lambda;</span>
+						}
+						else {
+							// RegularizationMethod.LEVENBERG_MARQUARDT - Regularization with a lambda time the diagonal of J^T J
+<span class="fc bfc" id="L776" title="All 2 branches covered.">							if (hessianElement == 0.0) {</span>
+<span class="fc" id="L777">								hessianElement = lambda;</span>
+							}
+							else {
+<span class="fc" id="L780">								hessianElement *= 1 + lambda;</span>
+							}
+						}
+					}
+
+					// The matrix is symmetric
+<span class="fc" id="L786">					hessianMatrix[i][j] = hessianElement;</span>
+<span class="fc" id="L787">					hessianMatrix[j][i] = hessianElement;</span>
+				}
+			}
+
+			// Build right hand side beta - gradient decent step: beta = J^T (y-f(x))
+<span class="fc bfc" id="L792" title="All 2 branches covered.">			for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="fc" id="L793">				double betaElement = 0.0;</span>
+<span class="fc" id="L794">				final double[] derivativeCurrentSingleParam = derivativeCurrent[i];</span>
+<span class="fc bfc" id="L795" title="All 2 branches covered.">				for (int k = 0; k &lt; valueCurrent.length; k++) {</span>
+<span class="fc" id="L796">					betaElement += weights[k] * (targetValues[k] - valueCurrent[k]) * derivativeCurrentSingleParam[k];</span>
+				}
+<span class="fc" id="L798">				beta[i] = betaElement;</span>
+			}
+
+			try {
+				// Calculate new increment
+				//				parameterIncrement = LinearAlgebra.solveLinearEquationSymmetric(hessianMatrix, beta);
+<span class="fc" id="L804">				parameterIncrement = LinearAlgebra.solveLinearEquationSVD(hessianMatrix, beta);</span>
+<span class="nc" id="L805">			} catch (final Exception e) {</span>
+				// Matrix not invertable, increase lambda
+<span class="nc" id="L807">				hessianInvalid	= true;</span>
+<span class="nc" id="L808">				lambda			*= 16;</span>
+<span class="pc" id="L809">			}</span>
+		}
+
+		// Calculate new parameter
+<span class="fc bfc" id="L813" title="All 2 branches covered.">		for (int i = 0; i &lt; parameterCurrent.length; i++) {</span>
+<span class="fc" id="L814">			parameterTest[i] = parameterCurrent[i] + parameterIncrement[i];</span>
+		}
+<span class="fc" id="L816">	}</span>
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 */
+	@Override
+	public LevenbergMarquardt clone() throws CloneNotSupportedException {
+<span class="fc" id="L827">		final LevenbergMarquardt clonedOptimizer = (LevenbergMarquardt)super.clone();</span>
+<span class="fc" id="L828">		clonedOptimizer.isParameterCurrentDerivativeValid = false;</span>
+<span class="fc" id="L829">		clonedOptimizer.iteration = 0;</span>
+<span class="fc" id="L830">		clonedOptimizer.errorMeanSquaredCurrent	= Double.POSITIVE_INFINITY;</span>
+<span class="fc" id="L831">		clonedOptimizer.errorRootMeanSquaredChange	= Double.POSITIVE_INFINITY;</span>
+<span class="fc" id="L832">		return clonedOptimizer;</span>
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 *
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 *
+	 * @param newTargetVaues New array of target values.
+	 * @param newWeights New array of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
+	 */
+	public LevenbergMarquardt getCloneWithModifiedTargetValues(final double[] newTargetVaues, final double[] newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+<span class="fc" id="L854">		final LevenbergMarquardt clonedOptimizer = clone();</span>
+<span class="fc" id="L855">		clonedOptimizer.targetValues = newTargetVaues.clone();		// Defensive copy</span>
+<span class="fc" id="L856">		clonedOptimizer.weights = newWeights.clone();				// Defensive copy</span>
+
+<span class="pc bpc" id="L858" title="2 of 4 branches missed.">		if(isUseBestParametersAsInitialParameters &amp;&amp; this.done()) {</span>
+<span class="fc" id="L859">			clonedOptimizer.initialParameters = this.getBestFitParameters();</span>
+		}
+
+<span class="fc" id="L862">		return clonedOptimizer;</span>
+	}
+
+	/**
+	 * Create a clone of this LevenbergMarquardt optimizer with a new vector for the
+	 * target values and weights.
+	 *
+	 * The clone will use the same objective function than this implementation,
+	 * i.e., the implementation of {@link #setValues(double[], double[])} and
+	 * that of {@link #setDerivatives(double[], double[][])} is reused.
+	 *
+	 * The initial values of the cloned optimizer will either be the original
+	 * initial values of this object or the best parameters obtained by this
+	 * optimizer, the latter is used only if this optimized signals a {@link #done()}.
+	 *
+	 * @param newTargetVaues New list of target values.
+	 * @param newWeights New list of weights.
+	 * @param isUseBestParametersAsInitialParameters If true and this optimizer is done(), then the clone will use this.{@link #getBestFitParameters()} as initial parameters.
+	 * @return A new LevenbergMarquardt optimizer, cloning this one except modified target values and weights.
+	 * @throws CloneNotSupportedException Thrown if this optimizer cannot be cloned.
+	 */
+	public LevenbergMarquardt getCloneWithModifiedTargetValues(final List&lt;Number&gt; newTargetVaues, final List&lt;Number&gt; newWeights, final boolean isUseBestParametersAsInitialParameters) throws CloneNotSupportedException {
+<span class="nc" id="L884">		final LevenbergMarquardt clonedOptimizer = clone();</span>
+<span class="nc" id="L885">		clonedOptimizer.targetValues = numberListToDoubleArray(newTargetVaues);</span>
+<span class="nc" id="L886">		clonedOptimizer.weights = numberListToDoubleArray(newWeights);</span>
+
+<span class="nc bnc" id="L888" title="All 4 branches missed.">		if(isUseBestParametersAsInitialParameters &amp;&amp; this.done()) {</span>
+<span class="nc" id="L889">			clonedOptimizer.initialParameters = this.getBestFitParameters();</span>
+		}
+
+<span class="nc" id="L892">		return clonedOptimizer;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

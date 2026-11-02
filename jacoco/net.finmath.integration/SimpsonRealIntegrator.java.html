@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpsonRealIntegrator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.integration</a> &gt; <span class="el_source">SimpsonRealIntegrator.java</span></div><h1>SimpsonRealIntegrator.java</h1><pre class="source lang-java linenums">package net.finmath.integration;
+
+import java.util.function.DoubleUnaryOperator;
+import java.util.stream.IntStream;
+
+import org.apache.commons.lang3.Validate;
+
+
+/**
+ * A simple integrator using Simpson's rule.
+ *
+ * The constructor has an optional argument to allow
+ * parallel function evaluation. In that case, the integration rule
+ * uses Java 8 parallel streams to evaluate.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SimpsonRealIntegrator extends AbstractRealIntegral{
+
+	private final int		numberOfEvaluationPoints;
+	private final boolean	useParallelEvaluation;
+
+
+	/**
+	 * Create an integrator using Simpson's rule.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used, must be greater or equal to 3, should be odd.
+	 * @param useParallelEvaluation If true, the integration rule will perform parallel evaluation of the integrand.
+	 */
+	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints, final boolean useParallelEvaluation) {
+<span class="fc" id="L34">		super(lowerBound, upperBound);</span>
+<span class="fc" id="L35">		Validate.exclusiveBetween(2, Integer.MAX_VALUE, numberOfEvaluationPoints, &quot;Parameter numberOfEvaluationPoints required to be &gt; 2.&quot;);</span>
+<span class="fc" id="L36">		this.numberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="fc" id="L37">		this.useParallelEvaluation = useParallelEvaluation;</span>
+<span class="fc" id="L38">	}</span>
+
+	/**
+	 * Create an integrator using Simpson's rule.
+	 *
+	 * @param lowerBound Lower bound of the integral.
+	 * @param upperBound Upper bound of the integral.
+	 * @param numberOfEvaluationPoints Maximum number of evaluation points to be used.
+	 */
+	public SimpsonRealIntegrator(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="fc" id="L48">		this(lowerBound, upperBound, numberOfEvaluationPoints, false);</span>
+<span class="fc" id="L49">	}</span>
+
+	@Override
+	public double integrate(final DoubleUnaryOperator integrand) {
+<span class="fc" id="L53">		final double	lowerBound			= getLowerBound();</span>
+<span class="fc" id="L54">		final double	upperBound			= getUpperBound();</span>
+<span class="fc" id="L55">		final double	range				= upperBound-lowerBound;</span>
+
+<span class="fc" id="L57">		final int		numberOfDoubleSizeIntervals	= (int) ((numberOfEvaluationPoints-1) / 2.0);</span>
+
+<span class="fc" id="L59">		final double doubleInterval = range / numberOfDoubleSizeIntervals;</span>
+<span class="fc" id="L60">		final double singleInterval = 0.5 * doubleInterval;</span>
+
+<span class="fc" id="L62">		IntStream intervals = IntStream.range(1, numberOfDoubleSizeIntervals);</span>
+
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		if(useParallelEvaluation) {</span>
+<span class="fc" id="L65">			intervals = intervals.parallel();</span>
+		}
+
+<span class="fc" id="L68">		double sum = intervals.mapToDouble(</span>
+<span class="fc" id="L69">				i -&gt; integrand.applyAsDouble(lowerBound + i * doubleInterval) + 2 * integrand.applyAsDouble(lowerBound + i * doubleInterval + singleInterval)</span>
+<span class="fc" id="L70">				).sum();</span>
+
+<span class="fc" id="L72">		sum += 2.0 * integrand.applyAsDouble(lowerBound + singleInterval);</span>
+
+<span class="fc" id="L74">		return (integrand.applyAsDouble(lowerBound) + 2.0 * sum + integrand.applyAsDouble(upperBound)) / 3.0 * singleInterval;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

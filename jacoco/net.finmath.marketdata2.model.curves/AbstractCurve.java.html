@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.model.curves</a> &gt; <span class="el_source">AbstractCurve.java</span></div><h1>AbstractCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 17.02.2013
+ */
+package net.finmath.marketdata2.model.curves;
+
+import java.time.LocalDate;
+
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Abstract base class for a curve. It stores the name of the curve and
+ * provides some convenient way of getting values.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractCurve implements Curve, Cloneable {
+
+	private	final	LocalDate	referenceDate;
+	private final	String		name;
+
+	/**
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date of this curve.
+	 */
+	public AbstractCurve(final String name, final LocalDate referenceDate) {
+<span class="fc" id="L29">		super();</span>
+<span class="fc" id="L30">		this.name = name;</span>
+<span class="fc" id="L31">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L32">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.CurveInterface#getName()
+	 */
+	@Override
+	public String getName() {
+<span class="fc" id="L39">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L44">		return referenceDate;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
+	 */
+	@Override
+	public RandomVariable getValue(final double time) {
+<span class="nc" id="L52">		return getValue(null, time);</span>
+	}
+
+	/**
+	 * Return a vector of values corresponding to a given vector of times.
+	 * @param times A given vector of times.
+	 * @return A vector of values corresponding to the given vector of times.
+	 */
+	public RandomVariable[] getValues(final double[] times) {
+<span class="nc" id="L61">		final RandomVariable[] values = new RandomVariable[times.length];</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		for(int i=0; i&lt;times.length; i++) {</span>
+<span class="nc" id="L64">			values[i] = getValue(null, times[i]);</span>
+		}
+
+<span class="nc" id="L67">		return values;</span>
+	}
+
+	@Override
+	public AbstractCurve clone() throws CloneNotSupportedException {
+<span class="fc" id="L72">		return (AbstractCurve)super.clone();</span>
+	}
+
+
+	@Override
+	public Curve getCloneForParameter(final RandomVariable[] value) throws CloneNotSupportedException {
+<span class="nc" id="L78">		throw new CloneNotSupportedException();</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L83">		return &quot;AbstractCurve [name=&quot; + name + &quot;, referenceDate=&quot; + referenceDate + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

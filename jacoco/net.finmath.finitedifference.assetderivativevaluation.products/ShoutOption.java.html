@@ -1,0 +1,748 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ShoutOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">ShoutOption.java</span></div><h1>ShoutOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.Arrays;
+import java.util.function.DoubleBinaryOperator;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.finitedifference.solvers.adi.AbstractADI2D;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Finite-difference valuation of a shout option.
+ *
+ * &lt;p&gt;
+ * A shout option is a path-dependent extension of a vanilla option allowing the
+ * holder to
+ * lock in intrinsic value a finite number of times before maturity. In this
+ * implementation,
+ * the locked level is represented by a reset strike &lt;i&gt;K&lt;/i&gt;&lt;sup&gt;*&lt;/sup&gt;, and
+ * the standard
+ * shout rule
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;K&lt;/i&gt;&lt;sup&gt;*&lt;/sup&gt; = &lt;i&gt;S&lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * is used at each shout time. The contract considered here has fixed maturity
+ * &lt;i&gt;T&lt;/i&gt;, a finite maximum number of shouts, continuous shout right, optional
+ * constant
+ * shout cash adjustment, and no maturity extension or yearly counter reset.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For a fixed locked strike &lt;i&gt;K&lt;/i&gt;, the terminal payoff is that of a vanilla
+ * option,
+ * namely
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;&amp;Phi;(S(T);K) = max(&amp;omega;(S(T)-K),0)&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where &lt;i&gt;&amp;omega; = 1&lt;/i&gt; for a call and &lt;i&gt;&amp;omega; = -1&lt;/i&gt; for a put.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Let &lt;i&gt;V&lt;/i&gt;&lt;sup&gt;(u)&lt;/sup&gt;(&lt;i&gt;t,S;K&lt;/i&gt;) denote the value when &lt;i&gt;u&lt;/i&gt;
+ * shouts have already
+ * been used and the current locked strike is &lt;i&gt;K&lt;/i&gt;. The shout feature
+ * induces the obstacle
+ * recursion
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;V&lt;/i&gt;&lt;sup&gt;(u)&lt;/sup&gt;(&lt;i&gt;t,S;K&lt;/i&gt;) =
+ * max(
+ * continuation,
+ * &lt;i&gt;V&lt;/i&gt;&lt;sup&gt;(u+1)&lt;/sup&gt;(&lt;i&gt;t,S;S&lt;/i&gt;) + c
+ * ),
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where &lt;i&gt;c&lt;/i&gt; is the constant shout cash adjustment. Hence the valuation
+ * proceeds
+ * backward over planes indexed by the number of used shouts and, inside each
+ * plane,
+ * over slices corresponding to fixed strike values taken from a strike grid.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The implementation adapts to the present framework the ideas of H. Windcliff,
+ * K.R. Vetzal, P.A. Forsyth, A. Verma, T.F. Coleman,
+ * &lt;i&gt;An object-oriented framework for valuing shout options on high-performance
+ * computer architectures&lt;/i&gt;,
+ * JEDC.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The recursion is performed over planes of used shout count and slices of
+ * fixed strike.
+ * Each slice is a standard PDE solve with a continuous obstacle interpolated
+ * from the next
+ * shout plane.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class ShoutOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The initial strike.
+	 */
+	private final double initialStrike;
+	/**
+	 * The strike grid.
+	 */
+	private final double[] strikeGrid;
+	/**
+	 * The maximum number of shouts.
+	 */
+	private final int maximumNumberOfShouts;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+	/**
+	 * The shout cash adjustment.
+	 */
+	private final double shoutCashAdjustment;
+
+	/**
+	 * Creates a shout option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param initialStrike Initial strike.
+	 * @param strikeGrid Grid of strikes used for the locked-strike recursion.
+	 * @param maximumNumberOfShouts Maximum number of shouts.
+	 * @param callOrPut Call/put flag.
+	 * @param shoutCashAdjustment Constant cash adjustment added upon shout.
+	 */
+	public ShoutOption(
+			final String underlyingName,
+			final double maturity,
+			final double initialStrike,
+			final double[] strikeGrid,
+			final int maximumNumberOfShouts,
+			final CallOrPut callOrPut,
+<span class="nc" id="L144">			final double shoutCashAdjustment) {</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (callOrPut == null) {</span>
+<span class="nc" id="L147">			throw new IllegalArgumentException(&quot;callOrPut must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L150">			throw new IllegalArgumentException(&quot;maturity must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		if (initialStrike &lt;= 0.0) {</span>
+<span class="nc" id="L153">			throw new IllegalArgumentException(&quot;initialStrike must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L155" title="All 4 branches missed.">		if (strikeGrid == null || strikeGrid.length &lt; 2) {</span>
+<span class="nc" id="L156">			throw new IllegalArgumentException(&quot;strikeGrid must contain at least two points.&quot;);</span>
+		}
+<span class="nc bnc" id="L158" title="All 2 branches missed.">		if (maximumNumberOfShouts &lt; 0) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;maximumNumberOfShouts must be non-negative.&quot;);</span>
+		}
+
+<span class="nc" id="L162">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L163">		this.maturity = maturity;</span>
+<span class="nc" id="L164">		this.initialStrike = initialStrike;</span>
+<span class="nc" id="L165">		this.strikeGrid = strikeGrid.clone();</span>
+<span class="nc" id="L166">		this.maximumNumberOfShouts = maximumNumberOfShouts;</span>
+<span class="nc" id="L167">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L168">		this.shoutCashAdjustment = shoutCashAdjustment;</span>
+
+<span class="nc" id="L170">		validateStrikeGrid();</span>
+<span class="nc" id="L171">	}</span>
+
+	/**
+	 * Creates a shout option with zero shout cash adjustment.
+	 *
+	 * @param maturity Option maturity.
+	 * @param initialStrike Initial strike.
+	 * @param strikeGrid Grid of strikes used for the locked-strike recursion.
+	 * @param maximumNumberOfShouts Maximum number of shouts.
+	 * @param callOrPut Call/put flag.
+	 */
+	public ShoutOption(
+			final double maturity,
+			final double initialStrike,
+			final double[] strikeGrid,
+			final int maximumNumberOfShouts,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L188">		this(</span>
+				null,
+				maturity,
+				initialStrike,
+				strikeGrid,
+				maximumNumberOfShouts,
+				callOrPut,
+				0.0
+				);
+<span class="nc" id="L197">	}</span>
+
+	/**
+	 * Returns the value at the specified evaluation time.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param model The finite-difference model.
+	 * @return The value vector on the model space grid.
+	 */
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L208">		final double[][] values = getValues(model);</span>
+
+<span class="nc" id="L210">		final SpaceTimeDiscretization valuationDiscretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L211">		final double tau = maturity - evaluationTime;</span>
+<span class="nc" id="L212">		final int timeIndex = valuationDiscretization.getTimeDiscretization()</span>
+<span class="nc" id="L213">				.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc" id="L215">		final double[] column = new double[values.length];</span>
+<span class="nc bnc" id="L216" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L217">			column[i] = values[i][timeIndex];</span>
+		}
+<span class="nc" id="L219">		return column;</span>
+	}
+
+	/**
+	 * Returns the full value surface.
+	 *
+	 * @param model The finite-difference model.
+	 * @return The value surface indexed by space point and time index.
+	 */
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L230">		validateModel(model);</span>
+
+<span class="nc" id="L232">		final int dimensions = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		if (maximumNumberOfShouts == 0) {</span>
+<span class="nc" id="L235">			return createVanillaSliceProduct(initialStrike).getValues(model);</span>
+		}
+
+<span class="nc bnc" id="L238" title="All 2 branches missed.">		if (dimensions == 1) {</span>
+<span class="nc" id="L239">			return getValues1D(model);</span>
+<span class="nc bnc" id="L240" title="All 2 branches missed.">		} else if (dimensions == 2) {</span>
+<span class="nc" id="L241">			return getValues2D(model);</span>
+		} else {
+<span class="nc" id="L243">			throw new IllegalArgumentException(&quot;ShoutOption currently supports only 1D and 2D models.&quot;);</span>
+		}
+	}
+
+	private double[][] getValues1D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L248">		final SpaceTimeDiscretization discretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L249">		final double[] xGrid = discretization.getSpaceGrid(0).getGrid();</span>
+
+<span class="nc" id="L251">		validateInitialStrikeInsideGrid();</span>
+<span class="nc" id="L252">		validateStrikeGridCoversResetRange(xGrid);</span>
+
+<span class="nc" id="L254">		double[][][] nextPlane = solveLastPlane1D(model);</span>
+
+<span class="nc bnc" id="L256" title="All 2 branches missed.">		for (int usedShouts = maximumNumberOfShouts - 1; usedShouts &gt;= 0; usedShouts--) {</span>
+<span class="nc" id="L257">			final double[][][] currentPlane = new double[strikeGrid.length][][];</span>
+
+<span class="nc bnc" id="L259" title="All 2 branches missed.">			for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L260">				final double strike = strikeGrid[strikeIndex];</span>
+
+<span class="nc" id="L262">				final FiniteDifferenceEquityProduct sliceProduct = createVanillaSliceProduct(strike);</span>
+<span class="nc" id="L263">				final double[] terminalValues = buildPointwiseTerminalValues(xGrid, strike);</span>
+
+<span class="nc" id="L265">				final FDMThetaMethod1D solver = new FDMThetaMethod1D(</span>
+						model,
+						sliceProduct,
+						discretization,
+						new EuropeanExercise(maturity)
+						);
+
+<span class="nc" id="L272">				final double[][][] nextPlaneForObstacle = nextPlane;</span>
+
+<span class="nc" id="L274">				final DoubleBinaryOperator continuousObstacle =</span>
+						(runningTime, currentSpot) -&gt;
+<span class="nc" id="L276">				interpolateNextPlaneAtResetStrike1D(</span>
+						nextPlaneForObstacle,
+						discretization,
+						xGrid,
+						currentSpot,
+						runningTime
+						) + shoutCashAdjustment;
+
+<span class="nc" id="L284">				currentPlane[strikeIndex] = solver.getValues(</span>
+						maturity,
+						terminalValues,
+						continuousObstacle
+						);
+			}
+
+<span class="nc" id="L291">			nextPlane = currentPlane;</span>
+		}
+
+<span class="nc" id="L294">		return interpolatePlaneAtInitialStrike1D(nextPlane, discretization, xGrid, initialStrike);</span>
+	}
+
+	private double[][] getValues2D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L298">		final SpaceTimeDiscretization discretization = model.getSpaceTimeDiscretization();</span>
+<span class="nc" id="L299">		final double[] x0Grid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L300">		final double[] x1Grid = discretization.getSpaceGrid(1).getGrid();</span>
+
+<span class="nc" id="L302">		validateInitialStrikeInsideGrid();</span>
+<span class="nc" id="L303">		validateStrikeGridCoversResetRange(x0Grid);</span>
+
+<span class="nc" id="L305">		double[][][] nextPlane = solveLastPlane2D(model);</span>
+
+<span class="nc bnc" id="L307" title="All 2 branches missed.">		for (int usedShouts = maximumNumberOfShouts - 1; usedShouts &gt;= 0; usedShouts--) {</span>
+<span class="nc" id="L308">			final double[][][] currentPlane = new double[strikeGrid.length][][];</span>
+
+<span class="nc bnc" id="L310" title="All 2 branches missed.">			for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L311">				final double strike = strikeGrid[strikeIndex];</span>
+
+<span class="nc" id="L313">				final FiniteDifferenceEquityProduct sliceProduct = createVanillaSliceProduct(strike);</span>
+<span class="nc" id="L314">				final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+						model,
+						sliceProduct,
+						new EuropeanExercise(maturity)
+						);
+
+<span class="nc bnc" id="L320" title="All 2 branches missed.">				if (!(solver instanceof AbstractADI2D)) {</span>
+<span class="nc" id="L321">					throw new IllegalArgumentException(&quot;2D shout recursion requires an ADI-style solver.&quot;);</span>
+				}
+
+<span class="nc" id="L324">				final double[][][] nextPlaneForObstacle = nextPlane;</span>
+
+<span class="nc" id="L326">				final AbstractADI2D.DoubleTernaryOperator continuousObstacle =</span>
+						(runningTime, currentSpot, secondState) -&gt;
+<span class="nc" id="L328">				interpolateNextPlaneAtResetStrike2D(</span>
+						nextPlaneForObstacle,
+						discretization,
+						x0Grid,
+						x1Grid,
+						currentSpot,
+						secondState,
+						runningTime
+						) + shoutCashAdjustment;
+
+<span class="nc" id="L338">				currentPlane[strikeIndex] = ((AbstractADI2D) solver).getValuesWithContinuousObstacle(</span>
+						maturity,
+<span class="nc" id="L340">						(assetValue, secondState) -&gt; terminalPayoff(assetValue, strike),</span>
+						continuousObstacle
+						);
+			}
+
+<span class="nc" id="L345">			nextPlane = currentPlane;</span>
+		}
+
+<span class="nc" id="L348">		return interpolatePlaneAtInitialStrike2D(nextPlane, discretization, x0Grid, x1Grid, initialStrike);</span>
+	}
+
+	private double[][][] solveLastPlane1D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L352">		final double[][][] plane = new double[strikeGrid.length][][];</span>
+
+<span class="nc bnc" id="L354" title="All 2 branches missed.">		for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L355">			plane[strikeIndex] = createVanillaSliceProduct(strikeGrid[strikeIndex]).getValues(model);</span>
+		}
+
+<span class="nc" id="L358">		return plane;</span>
+	}
+
+	private double[][][] solveLastPlane2D(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L362">		final double[][][] plane = new double[strikeGrid.length][][];</span>
+
+<span class="nc bnc" id="L364" title="All 2 branches missed.">		for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L365">			plane[strikeIndex] = createVanillaSliceProduct(strikeGrid[strikeIndex]).getValues(model);</span>
+		}
+
+<span class="nc" id="L368">		return plane;</span>
+	}
+
+	private FiniteDifferenceEquityProduct createVanillaSliceProduct(final double strike) {
+<span class="nc" id="L372">		return new EuropeanOption(underlyingName, maturity, strike, callOrPut);</span>
+	}
+
+	private double[] buildPointwiseTerminalValues(final double[] xGrid, final double strike) {
+<span class="nc" id="L376">		final double[] values = new double[xGrid.length];</span>
+
+<span class="nc bnc" id="L378" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L379">			values[i] = terminalPayoff(xGrid[i], strike);</span>
+		}
+
+<span class="nc" id="L382">		return values;</span>
+	}
+
+	private double terminalPayoff(final double assetValue, final double strike) {
+<span class="nc bnc" id="L386" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L387">			return Math.max(assetValue - strike, 0.0);</span>
+		} else {
+<span class="nc" id="L389">			return Math.max(strike - assetValue, 0.0);</span>
+		}
+	}
+
+	private double interpolateNextPlaneAtResetStrike1D(
+			final double[][][] nextPlane,
+			final SpaceTimeDiscretization discretization,
+			final double[] xGrid,
+			final double currentSpot,
+			final double runningTime) {
+
+<span class="nc" id="L400">		final int timeIndex = getTimeIndexForRunningTime(discretization, runningTime);</span>
+
+<span class="nc" id="L402">		final double[] valuesAcrossStrikes = new double[strikeGrid.length];</span>
+<span class="nc bnc" id="L403" title="All 2 branches missed.">		for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L404">			valuesAcrossStrikes[strikeIndex] = interpolate1DAtTime(</span>
+					nextPlane[strikeIndex],
+					xGrid,
+					timeIndex,
+					currentSpot
+					);
+		}
+
+<span class="nc" id="L412">		return interpolateLinearWithConstantExtrapolation(</span>
+				strikeGrid,
+				valuesAcrossStrikes,
+<span class="nc" id="L415">				resetStrike(currentSpot)</span>
+				);
+	}
+
+	private double interpolateNextPlaneAtResetStrike2D(
+			final double[][][] nextPlane,
+			final SpaceTimeDiscretization discretization,
+			final double[] x0Grid,
+			final double[] x1Grid,
+			final double currentSpot,
+			final double secondState,
+			final double runningTime) {
+
+<span class="nc" id="L428">		final int timeIndex = getTimeIndexForRunningTime(discretization, runningTime);</span>
+
+<span class="nc" id="L430">		final double[] valuesAcrossStrikes = new double[strikeGrid.length];</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">		for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L432">			valuesAcrossStrikes[strikeIndex] = interpolate2DAtTime(</span>
+					nextPlane[strikeIndex],
+					x0Grid,
+					x1Grid,
+					timeIndex,
+					currentSpot,
+					secondState
+					);
+		}
+
+<span class="nc" id="L442">		return interpolateLinearWithConstantExtrapolation(</span>
+				strikeGrid,
+				valuesAcrossStrikes,
+<span class="nc" id="L445">				resetStrike(currentSpot)</span>
+				);
+	}
+
+	private double[][] interpolatePlaneAtInitialStrike1D(
+			final double[][][] plane,
+			final SpaceTimeDiscretization discretization,
+			final double[] xGrid,
+			final double strike) {
+
+<span class="nc" id="L455">		final int numberOfTimePoints = discretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="nc" id="L456">		final double[][] result = new double[xGrid.length][numberOfTimePoints];</span>
+
+<span class="nc bnc" id="L458" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfTimePoints; timeIndex++) {</span>
+<span class="nc bnc" id="L459" title="All 2 branches missed.">			for (int spotIndex = 0; spotIndex &lt; xGrid.length; spotIndex++) {</span>
+<span class="nc" id="L460">				final double[] valuesAcrossStrikes = new double[strikeGrid.length];</span>
+
+<span class="nc bnc" id="L462" title="All 2 branches missed.">				for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L463">					valuesAcrossStrikes[strikeIndex] = plane[strikeIndex][spotIndex][timeIndex];</span>
+				}
+
+<span class="nc" id="L466">				result[spotIndex][timeIndex] = interpolateLinearWithConstantExtrapolation(</span>
+						strikeGrid,
+						valuesAcrossStrikes,
+						strike
+						);
+			}
+		}
+
+<span class="nc" id="L474">		return result;</span>
+	}
+
+	private double[][] interpolatePlaneAtInitialStrike2D(
+			final double[][][] plane,
+			final SpaceTimeDiscretization discretization,
+			final double[] x0Grid,
+			final double[] x1Grid,
+			final double strike) {
+
+<span class="nc" id="L484">		final int numberOfTimePoints = discretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="nc" id="L485">		final int numberOfStates = x0Grid.length * x1Grid.length;</span>
+<span class="nc" id="L486">		final double[][] result = new double[numberOfStates][numberOfTimePoints];</span>
+
+<span class="nc bnc" id="L488" title="All 2 branches missed.">		for (int timeIndex = 0; timeIndex &lt; numberOfTimePoints; timeIndex++) {</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">			for (int flatIndex = 0; flatIndex &lt; numberOfStates; flatIndex++) {</span>
+<span class="nc" id="L490">				final double[] valuesAcrossStrikes = new double[strikeGrid.length];</span>
+
+<span class="nc bnc" id="L492" title="All 2 branches missed.">				for (int strikeIndex = 0; strikeIndex &lt; strikeGrid.length; strikeIndex++) {</span>
+<span class="nc" id="L493">					valuesAcrossStrikes[strikeIndex] = plane[strikeIndex][flatIndex][timeIndex];</span>
+				}
+
+<span class="nc" id="L496">				result[flatIndex][timeIndex] = interpolateLinearWithConstantExtrapolation(</span>
+						strikeGrid,
+						valuesAcrossStrikes,
+						strike
+						);
+			}
+		}
+
+<span class="nc" id="L504">		return result;</span>
+	}
+
+	private int getTimeIndexForRunningTime(
+			final SpaceTimeDiscretization discretization,
+			final double runningTime) {
+
+<span class="nc" id="L511">		final double tau = maturity - runningTime;</span>
+<span class="nc" id="L512">		int timeIndex = discretization.getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc bnc" id="L514" title="All 2 branches missed.">		if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L515">			timeIndex = 0;</span>
+		}
+<span class="nc bnc" id="L517" title="All 2 branches missed.">		if (timeIndex &gt;= discretization.getTimeDiscretization().getNumberOfTimeSteps() + 1) {</span>
+<span class="nc" id="L518">			timeIndex = discretization.getTimeDiscretization().getNumberOfTimeSteps();</span>
+		}
+
+<span class="nc" id="L521">		return timeIndex;</span>
+	}
+
+	private double interpolate1DAtTime(
+			final double[][] surface,
+			final double[] xGrid,
+			final int timeIndex,
+			final double xQuery) {
+
+<span class="nc" id="L530">		final int i0 = getLowerBracketIndexWithConstantExtrapolation(xGrid, xQuery);</span>
+<span class="nc" id="L531">		final int i1 = Math.min(i0 + 1, xGrid.length - 1);</span>
+
+<span class="nc" id="L533">		final double x0 = xGrid[i0];</span>
+<span class="nc" id="L534">		final double x1 = xGrid[i1];</span>
+
+<span class="nc" id="L536">		final double v0 = surface[i0][timeIndex];</span>
+<span class="nc" id="L537">		final double v1 = surface[i1][timeIndex];</span>
+
+<span class="nc bnc" id="L539" title="All 4 branches missed.">		if (i0 == i1 || Math.abs(x1 - x0) &lt; 1E-14) {</span>
+<span class="nc" id="L540">			return v0;</span>
+		}
+
+<span class="nc" id="L543">		final double w = (xQuery - x0) / (x1 - x0);</span>
+<span class="nc" id="L544">		return (1.0 - w) * v0 + w * v1;</span>
+	}
+
+	private double interpolate2DAtTime(
+			final double[][] surface,
+			final double[] x0Grid,
+			final double[] x1Grid,
+			final int timeIndex,
+			final double x0Query,
+			final double x1Query) {
+
+<span class="nc" id="L555">		final int i0 = getLowerBracketIndexWithConstantExtrapolation(x0Grid, x0Query);</span>
+<span class="nc" id="L556">		final int i1 = Math.min(i0 + 1, x0Grid.length - 1);</span>
+
+<span class="nc" id="L558">		final int j0 = getLowerBracketIndexWithConstantExtrapolation(x1Grid, x1Query);</span>
+<span class="nc" id="L559">		final int j1 = Math.min(j0 + 1, x1Grid.length - 1);</span>
+
+<span class="nc" id="L561">		final double x0L = x0Grid[i0];</span>
+<span class="nc" id="L562">		final double x0U = x0Grid[i1];</span>
+<span class="nc" id="L563">		final double x1L = x1Grid[j0];</span>
+<span class="nc" id="L564">		final double x1U = x1Grid[j1];</span>
+
+<span class="nc" id="L566">		final double f00 = surface[flatten(i0, j0, x0Grid.length)][timeIndex];</span>
+<span class="nc" id="L567">		final double f10 = surface[flatten(i1, j0, x0Grid.length)][timeIndex];</span>
+<span class="nc" id="L568">		final double f01 = surface[flatten(i0, j1, x0Grid.length)][timeIndex];</span>
+<span class="nc" id="L569">		final double f11 = surface[flatten(i1, j1, x0Grid.length)][timeIndex];</span>
+
+		final double wx;
+<span class="nc bnc" id="L572" title="All 4 branches missed.">		if (i0 == i1 || Math.abs(x0U - x0L) &lt; 1E-14) {</span>
+<span class="nc" id="L573">			wx = 0.0;</span>
+		} else {
+<span class="nc" id="L575">			wx = (x0Query - x0L) / (x0U - x0L);</span>
+		}
+
+		final double wy;
+<span class="nc bnc" id="L579" title="All 4 branches missed.">		if (j0 == j1 || Math.abs(x1U - x1L) &lt; 1E-14) {</span>
+<span class="nc" id="L580">			wy = 0.0;</span>
+		} else {
+<span class="nc" id="L582">			wy = (x1Query - x1L) / (x1U - x1L);</span>
+		}
+
+<span class="nc" id="L585">		return (1.0 - wx) * (1.0 - wy) * f00</span>
+				+ wx * (1.0 - wy) * f10
+				+ (1.0 - wx) * wy * f01
+				+ wx * wy * f11;
+	}
+
+	private double resetStrike(final double currentSpot) {
+<span class="nc" id="L592">		return currentSpot;</span>
+	}
+
+	private int flatten(final int i0, final int i1, final int n0) {
+<span class="nc" id="L596">		return i0 + i1 * n0;</span>
+	}
+
+	private double interpolateLinearWithConstantExtrapolation(
+			final double[] x,
+			final double[] y,
+			final double xQuery) {
+
+<span class="nc" id="L604">		final int i0 = getLowerBracketIndexWithConstantExtrapolation(x, xQuery);</span>
+<span class="nc" id="L605">		final int i1 = Math.min(i0 + 1, x.length - 1);</span>
+
+<span class="nc" id="L607">		final double x0 = x[i0];</span>
+<span class="nc" id="L608">		final double x1 = x[i1];</span>
+
+<span class="nc" id="L610">		final double y0 = y[i0];</span>
+<span class="nc" id="L611">		final double y1 = y[i1];</span>
+
+<span class="nc bnc" id="L613" title="All 4 branches missed.">		if (i0 == i1 || Math.abs(x1 - x0) &lt; 1E-14) {</span>
+<span class="nc" id="L614">			return y0;</span>
+		}
+
+<span class="nc" id="L617">		final double w = (xQuery - x0) / (x1 - x0);</span>
+<span class="nc" id="L618">		return (1.0 - w) * y0 + w * y1;</span>
+	}
+
+	private int getLowerBracketIndexWithConstantExtrapolation(final double[] grid, final double x) {
+<span class="nc bnc" id="L622" title="All 2 branches missed.">		if (x &lt;= grid[0]) {</span>
+<span class="nc" id="L623">			return 0;</span>
+		}
+<span class="nc bnc" id="L625" title="All 2 branches missed.">		if (x &gt;= grid[grid.length - 1]) {</span>
+<span class="nc" id="L626">			return grid.length - 2;</span>
+		}
+
+<span class="nc" id="L629">		int upperIndex = 1;</span>
+<span class="nc bnc" id="L630" title="All 4 branches missed.">		while (upperIndex &lt; grid.length &amp;&amp; grid[upperIndex] &lt; x) {</span>
+<span class="nc" id="L631">			upperIndex++;</span>
+		}
+<span class="nc" id="L633">		return upperIndex - 1;</span>
+	}
+
+	private void validateModel(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L637" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L638">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc" id="L640">	}</span>
+
+	private void validateStrikeGrid() {
+<span class="nc bnc" id="L643" title="All 2 branches missed.">		for (int i = 0; i &lt; strikeGrid.length; i++) {</span>
+<span class="nc bnc" id="L644" title="All 2 branches missed.">			if (strikeGrid[i] &lt;= 0.0) {</span>
+<span class="nc" id="L645">				throw new IllegalArgumentException(&quot;All strike-grid values must be positive.&quot;);</span>
+			}
+<span class="nc bnc" id="L647" title="All 4 branches missed.">			if (i &gt; 0 &amp;&amp; strikeGrid[i] &lt;= strikeGrid[i - 1]) {</span>
+<span class="nc" id="L648">				throw new IllegalArgumentException(&quot;strikeGrid must be strictly increasing.&quot;);</span>
+			}
+		}
+<span class="nc" id="L651">	}</span>
+
+	private void validateInitialStrikeInsideGrid() {
+<span class="nc bnc" id="L654" title="All 4 branches missed.">		if (initialStrike &lt; strikeGrid[0] || initialStrike &gt; strikeGrid[strikeGrid.length - 1]) {</span>
+<span class="nc" id="L655">			throw new IllegalArgumentException(&quot;initialStrike must lie inside strikeGrid.&quot;);</span>
+		}
+<span class="nc" id="L657">	}</span>
+
+	private void validateStrikeGridCoversResetRange(final double[] xGrid) {
+<span class="nc bnc" id="L660" title="All 2 branches missed.">		final double effectiveLower = xGrid.length &gt; 2 ? xGrid[1] : xGrid[0];</span>
+<span class="nc bnc" id="L661" title="All 2 branches missed.">		final double effectiveUpper = xGrid.length &gt; 2 ? xGrid[xGrid.length - 2] : xGrid[xGrid.length - 1];</span>
+
+<span class="nc bnc" id="L663" title="All 4 branches missed.">		if (strikeGrid[0] &gt; effectiveLower || strikeGrid[strikeGrid.length - 1] &lt; effectiveUpper) {</span>
+<span class="nc" id="L664">			throw new IllegalArgumentException(</span>
+					&quot;For v1 with K* = S, strikeGrid should cover the interior range of the first-state grid.&quot;
+					);
+		}
+<span class="nc" id="L668">	}</span>
+
+	/**
+	 * Returns the underlying name.
+	 *
+	 * @return The underlying name, possibly {@code null}.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L676">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L685">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the initial strike.
+	 *
+	 * @return The initial strike.
+	 */
+	public double getInitialStrike() {
+<span class="nc" id="L694">		return initialStrike;</span>
+	}
+
+	/**
+	 * Returns the strike grid.
+	 *
+	 * @return A defensive copy of the strike grid.
+	 */
+	public double[] getStrikeGrid() {
+<span class="nc" id="L703">		return strikeGrid.clone();</span>
+	}
+
+	/**
+	 * Returns the maximum number of shouts.
+	 *
+	 * @return The maximum number of shouts.
+	 */
+	public int getMaximumNumberOfShouts() {
+<span class="nc" id="L712">		return maximumNumberOfShouts;</span>
+	}
+
+	/**
+	 * Returns the call/put flag.
+	 *
+	 * @return The call/put flag.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L721">		return callOrPut;</span>
+	}
+
+	/**
+	 * Returns the constant shout cash adjustment.
+	 *
+	 * @return The shout cash adjustment.
+	 */
+	public double getShoutCashAdjustment() {
+<span class="nc" id="L730">		return shoutCashAdjustment;</span>
+	}
+
+	/**
+	 * Returns a string representation.
+	 *
+	 * @return A string representation of the product parameters.
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L740">		return &quot;ShoutOption [maturity=&quot; + maturity</span>
+				+ &quot;, initialStrike=&quot; + initialStrike
+				+ &quot;, maximumNumberOfShouts=&quot; + maximumNumberOfShouts
+				+ &quot;, callOrPut=&quot; + callOrPut
+<span class="nc" id="L744">				+ &quot;, strikeGrid=&quot; + Arrays.toString(strikeGrid)</span>
+				+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

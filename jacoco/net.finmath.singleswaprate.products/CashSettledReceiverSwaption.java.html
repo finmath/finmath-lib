@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CashSettledReceiverSwaption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.products</a> &gt; <span class="el_source">CashSettledReceiverSwaption.java</span></div><h1>CashSettledReceiverSwaption.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.products;
+
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMappingFactory;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.time.Schedule;
+
+/**
+ * A European cash settled receiver swaption.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class CashSettledReceiverSwaption extends AbstractSingleSwapRateProduct {
+
+	private final double strike;
+	private final AnnuityMappingType annuityMappingType;
+
+	/**
+	 * Create the product.
+	 *
+	 * @param fixSchedule The fix schedule of the swap.
+	 * @param floatSchedule The float schedule of the swap.
+	 * @param strike The strike of the option.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 * @param annuityMappingType The type of annuity mapping to be used for evaluation.
+	 */
+	public CashSettledReceiverSwaption(final Schedule fixSchedule, final Schedule floatSchedule, final double strike, final String discountCurveName, final String forwardCurveName,
+			final String volatilityCubeName, final AnnuityMappingType annuityMappingType) {
+<span class="fc" id="L34">		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);</span>
+<span class="fc" id="L35">		this.strike = strike;</span>
+<span class="fc" id="L36">		this.annuityMappingType = annuityMappingType;</span>
+<span class="fc" id="L37">	}</span>
+
+	/**
+	 * Create the product with custom replication settings.
+	 *
+	 * @param fixSchedule The fix schedule of the swap.
+	 * @param floatSchedule The float schedule of the swap.
+	 * @param strike The strike of the option.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 * @param annuityMappingType The type of annuity mapping to be used for evaluation.
+	 * @param replicationLowerBound The lowest strike the replication may use.
+	 * @param replicationUpperBound The largest strike the replication may use.
+	 * @param replicationNumberOfEvaluationPoints The number of points the replication may evaluate.
+	 */
+	public CashSettledReceiverSwaption(final Schedule fixSchedule, final Schedule floatSchedule, final double strike, final String discountCurveName,
+			final String forwardCurveName, final String volatilityCubeName, final AnnuityMappingType annuityMappingType,
+			final double replicationLowerBound, final double replicationUpperBound, final int replicationNumberOfEvaluationPoints) {
+<span class="fc" id="L56">		super(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName);</span>
+<span class="fc" id="L57">		this.strike = strike;</span>
+<span class="fc" id="L58">		this.annuityMappingType = annuityMappingType;</span>
+
+<span class="fc" id="L60">		setIntegrationParameters(replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);</span>
+<span class="fc" id="L61">	}</span>
+
+	@Override
+	protected double payoffFunction(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
+<span class="fc" id="L65">		double value = Math.max(strike -swapRate, 0.0);</span>
+<span class="fc" id="L66">		value *= annuityMapping.getValue(swapRate) *cashFunction(swapRate);</span>
+<span class="fc" id="L67">		return value;</span>
+	}
+
+	//Not full integrand; singular part is being split of to be added after integration
+	@Override
+	protected double hedgeWeight(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
+
+<span class="fc bfc" id="L74" title="All 2 branches covered.">		if(!(swapRate &lt; strike)) {</span>
+<span class="fc" id="L75">			return 0;</span>
+		}
+
+<span class="fc" id="L78">		double value = annuityMapping.getSecondDerivative(swapRate) * cashFunction(swapRate);</span>
+<span class="fc" id="L79">		value += 2 *annuityMapping.getFirstDerivative(swapRate) *cashFunctionFirstDerivative(swapRate);</span>
+<span class="fc" id="L80">		value += annuityMapping.getValue(swapRate) *cashFunctionSecondDerivative(swapRate);</span>
+<span class="fc" id="L81">		value *= strike -swapRate;</span>
+
+<span class="fc" id="L83">		value -= (annuityMapping.getFirstDerivative(swapRate) *cashFunction(swapRate) +annuityMapping.getValue(swapRate)</span>
+<span class="fc" id="L84">		*cashFunctionFirstDerivative(swapRate)) *2;</span>
+<span class="fc" id="L85">		return value;</span>
+	}
+
+	//added to the integral over the hedge weight
+	@Override
+	protected double singularAddon(final double swapRate, final AnnuityMapping annuityMapping, final VolatilityCubeModel model) {
+<span class="fc" id="L91">		double value = annuityMapping.getValue(swapRate) * cashFunction(swapRate);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">		if(swapRate &lt; strike) {</span>
+<span class="fc" id="L93">			value *= valueCall(strike, model, swapRate);</span>
+		} else {
+<span class="fc" id="L95">			value *= valuePut(strike, model, swapRate);</span>
+		}
+<span class="fc" id="L97">		return value;</span>
+	}
+
+	@Override
+	protected AnnuityMapping buildAnnuityMapping( final VolatilityCubeModel model) {
+
+<span class="fc" id="L103">		final AnnuityMappingFactory factory = new AnnuityMappingFactory(getFixSchedule(), getFloatSchedule(), getDiscountCurveName(), getForwardCurveName(), getVolatilityCubeName(),</span>
+<span class="fc" id="L104">				strike, getIntegrationLowerBound(), getIntegrationUpperBound(), getIntegrationNumberOfEvaluationPoints());</span>
+<span class="fc" id="L105">		return factory.build(annuityMappingType, model);</span>
+	}
+
+	/**
+	 * The annuity cash function for equidistant tenors. This replaces the annuity compared to the physically settled swaption.
+	 *
+	 * @param swapRate The swap rate.
+	 * @return The value of the annuity cash function.
+	 */
+	private double cashFunction(final double swapRate) {
+
+<span class="fc" id="L116">		final int numberOfPeriods = getFixSchedule().getNumberOfPeriods();</span>
+<span class="fc" id="L117">		double periodLength = 0.0;</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		for(int index = 0; index &lt; numberOfPeriods; index++) {</span>
+<span class="fc" id="L119">			periodLength += getFixSchedule().getPeriodLength(index);</span>
+		}
+<span class="fc" id="L121">		periodLength /= getFixSchedule().getNumberOfPeriods();</span>
+
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">		if(swapRate == 0.0) {</span>
+<span class="nc" id="L124">			return numberOfPeriods * periodLength;</span>
+		} else {
+<span class="fc" id="L126">			return (1 - Math.pow(1 + periodLength * swapRate, - numberOfPeriods)) / swapRate;</span>
+		}
+	}
+
+	/**
+	 * The first derivative of the annuity cash function.
+	 *
+	 * @param swapRate The swap rate.
+	 * @return The first derivative of the annuity cash function.
+	 */
+	private double cashFunctionFirstDerivative(final double swapRate){
+
+<span class="fc" id="L138">		final int numberOfPeriods = getFixSchedule().getNumberOfPeriods();</span>
+<span class="fc" id="L139">		double periodLength = 0.0;</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">		for(int index = 0; index &lt; getFixSchedule().getNumberOfPeriods(); index++) {</span>
+<span class="fc" id="L141">			periodLength += getFixSchedule().getPeriodLength(index);</span>
+		}
+<span class="fc" id="L143">		periodLength /= getFixSchedule().getNumberOfPeriods();</span>
+
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">		if(swapRate == 0.0) {</span>
+<span class="nc" id="L146">			return - (numberOfPeriods +1) *numberOfPeriods /2 /periodLength /periodLength;</span>
+		} else {
+<span class="fc" id="L148">			double value = Math.pow(periodLength * swapRate + 1, - numberOfPeriods - 1);</span>
+<span class="fc" id="L149">			value *= numberOfPeriods * periodLength / swapRate;</span>
+<span class="fc" id="L150">			value -= cashFunction(swapRate) /swapRate;</span>
+<span class="fc" id="L151">			return value;</span>
+		}
+	}
+
+	/**
+	 * The second derivative of the annuity cash function.
+	 *
+	 * @param swapRate The swap rate.
+	 * @return The second derivative of the annuity cash function.
+	 */
+	private double cashFunctionSecondDerivative(final double swapRate) {
+
+<span class="fc" id="L163">		final int numberOfPeriods = getFixSchedule().getNumberOfPeriods();</span>
+<span class="fc" id="L164">		double periodLength = 0.0;</span>
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		for(int index = 0; index &lt; numberOfPeriods; index++) {</span>
+<span class="fc" id="L166">			periodLength += getFixSchedule().getPeriodLength(index);</span>
+		}
+<span class="fc" id="L168">		periodLength /= numberOfPeriods;</span>
+
+		double value;
+<span class="pc bpc" id="L171" title="1 of 2 branches missed.">		if(swapRate == 0.0) {</span>
+<span class="nc" id="L172">			value  = numberOfPeriods * (numberOfPeriods +1) * (numberOfPeriods +2);</span>
+<span class="nc" id="L173">			value *= periodLength * periodLength * periodLength /3;</span>
+		} else {
+<span class="fc" id="L175">			value  = Math.pow(periodLength * swapRate + 1, - numberOfPeriods - 2);</span>
+<span class="fc" id="L176">			value *= - (numberOfPeriods +1) * numberOfPeriods * periodLength * periodLength / swapRate;</span>
+<span class="fc" id="L177">			value -= cashFunctionFirstDerivative(swapRate) *2 /swapRate;</span>
+		}
+<span class="fc" id="L179">		return value;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

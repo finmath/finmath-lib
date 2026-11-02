@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SobolSequence.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.randomnumbers</a> &gt; <span class="el_source">SobolSequence.java</span></div><h1>SobolSequence.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 21 May 2018
+ */
+package net.finmath.randomnumbers;
+
+import org.apache.commons.math3.random.SobolSequenceGenerator;
+
+/**
+ * Implements a multi-dimensional Sobol sequence.
+ *
+ * The class is just a wrapper to Apache commons-math implementation
+ * in order to implement the interface &lt;code&gt;RandomNumberGenerator&lt;/code&gt;
+ * with a minimal change. The value 0, the first element of the sequence, is omitted.
+ *
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SobolSequence implements RandomNumberGenerator {
+
+	private static final long serialVersionUID = -1904010803493075019L;
+
+	private final int dimension;
+
+	private final SobolSequenceGenerator generator;
+
+	/**
+	 * Constructs a Sobol sequence with given dimension.
+	 *
+	 * @param dimension The dimension of the sequence.
+	 */
+<span class="nc" id="L34">	public SobolSequence(final int dimension) {</span>
+<span class="nc" id="L35">		this.dimension = dimension;</span>
+<span class="nc" id="L36">		generator = new SobolSequenceGenerator(dimension);</span>
+<span class="nc" id="L37">	}</span>
+
+	@Override
+	public double[] getNext() {
+<span class="nc" id="L41">		synchronized (generator) {</span>
+<span class="nc" id="L42">			return generator.nextVector();</span>
+		}
+	}
+
+	@Override
+	public int getDimension() {
+<span class="nc" id="L48">		return dimension;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

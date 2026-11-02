@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwapLeg.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">SwapLeg.java</span></div><h1>SwapLeg.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28.02.2015
+ */
+
+package net.finmath.montecarlo.interestrate.products;
+
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.Collection;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.montecarlo.interestrate.products.components.AccruingNotional;
+import net.finmath.montecarlo.interestrate.products.components.Notional;
+import net.finmath.montecarlo.interestrate.products.components.Period;
+import net.finmath.montecarlo.interestrate.products.components.ProductCollection;
+import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
+import net.finmath.montecarlo.interestrate.products.indices.FixedCoupon;
+import net.finmath.montecarlo.interestrate.products.indices.LinearCombinationIndex;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.Schedule;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class SwapLeg extends AbstractTermStructureMonteCarloProduct {
+
+	private final ProductCollection				components;
+
+	/**
+	 * Creates a swap leg. The swap leg is build from elementary components.
+	 *
+	 * @param legSchedule ScheduleFromPeriods of the leg.
+	 * @param notional The notional.
+	 * @param index The index.
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see &lt;code&gt;isNotionalAccruing&lt;/code&gt;.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 * @param isNotionalAccruing If true, the notional is accruing, that is, the notional of a period is given by the notional of the previous period, accrued with the coupon of the previous period.
+	 */
+	public SwapLeg(final Schedule legSchedule, Notional notional, final AbstractIndex index, final double spread, final boolean couponFlow, final boolean isNotionalExchanged, final boolean isNotionalAccruing) {
+<span class="fc" id="L48">		super();</span>
+
+<span class="fc bfc" id="L50" title="All 2 branches covered.">		final LocalDateTime referenceDate = legSchedule.getReferenceDate() != null ? legSchedule.getReferenceDate().atStartOfDay() : null;</span>
+
+		/*
+		 * Create components.
+		 *
+		 * The interesting part here is, that the creation of the components implicitly
+		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
+		 * Hence, the definition of the product is the definition of the pricing algorithm.
+		 */
+<span class="fc" id="L59">		final Collection&lt;AbstractProductComponent&gt; periods = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;legSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L61">			final double fixingDate	= legSchedule.getFixing(periodIndex);</span>
+<span class="fc" id="L62">			final double paymentDate	= legSchedule.getPayment(periodIndex);</span>
+<span class="fc" id="L63">			final double periodLength	= legSchedule.getPeriodLength(periodIndex);</span>
+
+			/*
+			 * We do not count empty periods.
+			 * Since empty periods are an indication for a ill-specified
+			 * product, it might be reasonable to throw an illegal argument exception instead.
+			 */
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">			if(periodLength == 0) {</span>
+<span class="nc" id="L71">				continue;</span>
+			}
+
+			AbstractIndex coupon;
+<span class="fc bfc" id="L75" title="All 2 branches covered.">			if(index != null) {</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">				if(spread != 0) {</span>
+<span class="fc" id="L77">					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spread));</span>
+				} else {
+<span class="fc" id="L79">					coupon = index;</span>
+				}
+			}
+			else {
+<span class="fc" id="L83">				coupon = new FixedCoupon(spread);</span>
+			}
+
+<span class="fc" id="L86">			final Period period = new Period(referenceDate, fixingDate, paymentDate, fixingDate, paymentDate, notional, coupon, periodLength, couponFlow, isNotionalExchanged, false, false);</span>
+<span class="fc" id="L87">			periods.add(period);</span>
+
+<span class="pc bpc" id="L89" title="1 of 2 branches missed.">			if(isNotionalAccruing) {</span>
+<span class="nc" id="L90">				notional = new AccruingNotional(notional, period);</span>
+			}
+		}
+
+<span class="fc" id="L94">		components = new ProductCollection(periods);</span>
+<span class="fc" id="L95">	}</span>
+
+	/**
+	 * Creates a swap leg. The swap leg is build from elementary components.
+	 *
+	 * @param legSchedule ScheduleFromPeriods of the leg.
+	 * @param notionals An array of notionals for each period in the schedule.
+	 * @param index The index.
+	 * @param spreads Fixed spreads on the forward or fix rate.
+	 * @param couponFlow If true, the coupon is payed. If false, the coupon is not payed, but may still be part of an accruing notional, see &lt;code&gt;isNotionalAccruing&lt;/code&gt;.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
+	public SwapLeg(final Schedule legSchedule, final Notional[] notionals, final AbstractIndex index, final double[] spreads, final boolean couponFlow, final boolean isNotionalExchanged) {
+<span class="fc" id="L108">		super();</span>
+<span class="pc bpc" id="L109" title="1 of 2 branches missed.">		if(legSchedule.getNumberOfPeriods() != notionals.length) {</span>
+<span class="nc" id="L110">			throw new IllegalArgumentException(&quot;Number of notionals (&quot;+notionals.length+&quot;) must match number of periods (&quot;+legSchedule.getNumberOfPeriods()+&quot;).&quot;);</span>
+		}
+
+		/*
+		 * Create components.
+		 *
+		 * The interesting part here is, that the creation of the components implicitly
+		 * constitutes the (traditional) pricing algorithms (e.g., loop over all periods).
+		 * Hence, the definition of the product is the definition of the pricing algorithm.
+		 */
+<span class="fc" id="L120">		final Collection&lt;AbstractProductComponent&gt; periods = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;legSchedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L122">			final LocalDateTime referenceDate = LocalDateTime.of(legSchedule.getReferenceDate(), LocalTime.of(0, 0));</span>
+
+<span class="fc" id="L124">			final double periodStart	= legSchedule.getPeriodStart(periodIndex);</span>
+<span class="fc" id="L125">			final double periodEnd	= legSchedule.getPeriodEnd(periodIndex);</span>
+<span class="fc" id="L126">			final double fixingDate	= legSchedule.getFixing(periodIndex);</span>
+<span class="fc" id="L127">			final double paymentDate	= legSchedule.getPayment(periodIndex);</span>
+<span class="fc" id="L128">			final double periodLength	= legSchedule.getPeriodLength(periodIndex);</span>
+
+			/*
+			 * We do not count empty periods.
+			 * Since empty periods are an indication for a ill-specified
+			 * product, it might be reasonable to throw an illegal argument exception instead.
+			 */
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if(periodLength == 0) {</span>
+<span class="nc" id="L136">				continue;</span>
+			}
+
+			AbstractIndex coupon;
+<span class="fc bfc" id="L140" title="All 2 branches covered.">			if(index != null) {</span>
+<span class="pc bpc" id="L141" title="1 of 2 branches missed.">				if(spreads[periodIndex] != 0) {</span>
+<span class="nc" id="L142">					coupon = new LinearCombinationIndex(1, index, 1, new FixedCoupon(spreads[periodIndex]));</span>
+				} else {
+<span class="fc" id="L144">					coupon = index;</span>
+				}
+			}
+			else {
+<span class="fc" id="L148">				coupon = new FixedCoupon(spreads[periodIndex]);</span>
+			}
+
+<span class="fc" id="L151">			final Period period = new Period(referenceDate, periodStart, periodEnd, fixingDate, paymentDate, notionals[periodIndex], coupon,</span>
+					periodLength, couponFlow, isNotionalExchanged, false /* payer */, false /* isExcludeAccruedInterest */);
+<span class="fc" id="L153">			periods.add(period);</span>
+		}
+
+<span class="fc" id="L156">		components = new ProductCollection(periods);</span>
+<span class="fc" id="L157">	}</span>
+
+	/**
+	 * Creates a swap leg. The swap leg is build from elementary components
+	 *
+	 * @param legSchedule ScheduleFromPeriods of the leg.
+	 * @param notional The notional.
+	 * @param index The index.
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
+	public SwapLeg(final Schedule legSchedule, final Notional notional, final AbstractIndex index, final double spread, final boolean isNotionalExchanged) {
+<span class="fc" id="L169">		this(legSchedule, notional, index, spread, true, isNotionalExchanged, false);</span>
+<span class="fc" id="L170">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="fc" id="L174">		return components.getValue(evaluationTime, model);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

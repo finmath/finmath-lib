@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusinessdayCalendar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.businessdaycalendar</a> &gt; <span class="el_source">BusinessdayCalendar.java</span></div><h1>BusinessdayCalendar.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.09.2013
+ */
+
+package net.finmath.time.businessdaycalendar;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import org.apache.commons.lang3.Validate;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public interface BusinessdayCalendar extends Serializable {
+
+<span class="fc" id="L20">	enum DateOffsetUnit {</span>
+<span class="fc" id="L21">		DAYS,</span>
+<span class="fc" id="L22">		BUSINESS_DAYS,</span>
+<span class="fc" id="L23">		WEEKS,</span>
+<span class="fc" id="L24">		MONTHS,</span>
+<span class="fc" id="L25">		YEARS;</span>
+
+		/**
+		 * Get the date offset unit enum for a string (using common synonyms like &quot;d&quot;, &quot;b&quot;, &quot;bd&quot;, &quot;w&quot;).
+		 *
+		 * @param string The date roll convention name.
+		 * @return The date roll convention enum.
+		 */
+		public static DateOffsetUnit getEnum(final String string) {
+<span class="fc" id="L34">			Validate.notNull(string, &quot;Date offset unit string must not be null.&quot;);</span>
+
+<span class="fc bfc" id="L36" title="All 2 branches covered.">			if(string.equalsIgnoreCase(&quot;d&quot;)) {</span>
+<span class="fc" id="L37">				return DAYS;</span>
+			}
+<span class="pc bpc" id="L39" title="1 of 4 branches missed.">			if(string.equalsIgnoreCase(&quot;b&quot;) || string.equalsIgnoreCase(&quot;bd&quot;)) {</span>
+<span class="fc" id="L40">				return BUSINESS_DAYS;</span>
+			}
+<span class="fc bfc" id="L42" title="All 2 branches covered.">			if(string.equalsIgnoreCase(&quot;w&quot;)) {</span>
+<span class="fc" id="L43">				return WEEKS;</span>
+			}
+<span class="fc bfc" id="L45" title="All 2 branches covered.">			if(string.equalsIgnoreCase(&quot;m&quot;)) {</span>
+<span class="fc" id="L46">				return MONTHS;</span>
+			}
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;y&quot;)) {</span>
+<span class="fc" id="L49">				return YEARS;</span>
+			}
+
+<span class="nc" id="L52">			return DateOffsetUnit.valueOf(string.toUpperCase());</span>
+		}
+	}
+
+<span class="fc" id="L56">	enum DateRollConvention {</span>
+<span class="fc" id="L57">		UNADJUSTED,</span>
+<span class="fc" id="L58">		FOLLOWING,</span>
+<span class="fc" id="L59">		PRECEDING,</span>
+<span class="fc" id="L60">		MODIFIED_FOLLOWING,</span>
+<span class="fc" id="L61">		MODIFIED_PRECEDING;</span>
+
+		/**
+		 * Get the date roll convention enum for a string (using common synonyms like &quot;modfollow&quot;.
+		 *
+		 * @param string The date roll convention name.
+		 * @return The date roll convention enum.
+		 */
+		public static DateRollConvention getEnum(final String string) {
+<span class="fc" id="L70">			Validate.notNull(string, &quot;Date roll convention string must not be null.&quot;);</span>
+
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;actual&quot;)) {</span>
+<span class="nc" id="L73">				return UNADJUSTED;</span>
+			}
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;modfollow&quot;)) {</span>
+<span class="nc" id="L76">				return MODIFIED_FOLLOWING;</span>
+			}
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;modpreced&quot;)) {</span>
+<span class="nc" id="L79">				return MODIFIED_PRECEDING;</span>
+			}
+<span class="pc bpc" id="L81" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;follow&quot;)) {</span>
+<span class="nc" id="L82">				return 	FOLLOWING;</span>
+			}
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if(string.equalsIgnoreCase(&quot;preced&quot;)) {</span>
+<span class="nc" id="L85">				return 	PRECEDING;</span>
+			}
+
+<span class="fc" id="L88">			return DateRollConvention.valueOf(string.toUpperCase());</span>
+		}
+	}
+
+
+	/**
+	 * Test if a given date is a businessday.
+	 *
+	 * @param date The given date.
+	 * @return True, if the given date is a businessday, otherwise false.
+	 */
+	boolean isBusinessday(LocalDate date);
+
+	/**
+	 * Get an adjusted date for a given date.
+	 *
+	 * @param date Given date to be adjusted.
+	 * @param dateRollConvention The date roll convention to be used for the adjustment.
+	 * @return The adjusted date applying dateRollConvention to the given date.
+	 */
+	LocalDate getAdjustedDate(LocalDate date, DateRollConvention dateRollConvention);
+
+	/**
+	 * Get an adjusted date for a given date and offset code.
+	 *
+	 * First we create a new date by &quot;adding&quot; an offset to the base date.
+	 * The offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
+	 * 1Y, 2Y, etc., where the letters denote the units as follows: D denotes days, W denotes weeks, M denotes month
+	 * Y denotes years.
+	 *
+	 * Next the result is adjusted according to the given dateRollConvention.
+	 *
+	 * @param baseDate The start date.
+	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
+	 * @param dateRollConvention The date roll convention to be used for the adjustment.
+	 * @return The adjusted date applying dateRollConvention to the given date.
+	 */
+	LocalDate getAdjustedDate(LocalDate baseDate, String dateOffsetCode, DateRollConvention dateRollConvention);
+
+	/**
+	 * Find a new date by adding the given number of business days to a given base date.
+	 *
+	 * If businessDays is zero, the method returns the unmodified base date (without adjustment).
+	 *
+	 * @param baseDate The starting date.
+	 * @param businessDays The number of business days from the starting date (negative values are allowed).
+	 * @return A date of a business day such that the number of business days between this one (including) and the start date (excluding) is businessDays.
+	 */
+	LocalDate getRolledDate(LocalDate baseDate, int businessDays);
+
+	/**
+	 * Create a new date by &quot;adding&quot; a year fraction to a given base date.
+	 *
+	 * &lt;p&gt;
+	 * The date offset may be given by codes like 1D, 2D, 1W, 2W, 1M, 2M, 3M,
+	 * 1Y, 2Y, etc., where the letters denote the units of the corresponding offset.
+	 *
+	 * If the date offset does not carry a letter code at the end, it will
+	 * be interpreted as ACT/365 year fraction.
+	 * &lt;/p&gt;
+	 *
+	 * Date offsets can be given as (mapping to the corresponding &lt;code&gt;DateOffsetUnit&lt;/code&gt;):
+	 * &lt;dl&gt;
+	 * 	&lt;dt&gt;days&lt;/dt&gt;				&lt;dd&gt;&quot;D&quot;, &quot;DAYS&quot;&lt;/dd&gt;
+	 * 	&lt;dt&gt;business days&lt;/dt&gt;		&lt;dd&gt;&quot;B&quot;, &quot;BD&quot;, &quot;BUSINESS_DAYS&quot;&lt;/dd&gt;
+	 * 	&lt;dt&gt;weeks&lt;/dt&gt;				&lt;dd&gt;&quot;W&quot;, &quot;WEEKS&quot;&lt;/dd&gt;
+	 * 	&lt;dt&gt;months&lt;/dt&gt;				&lt;dd&gt;&quot;M&quot;, &quot;MONTHS&quot;&lt;/dd&gt;
+	 * 	&lt;dt&gt;years&lt;/dt&gt;				&lt;dd&gt;&quot;Y&quot;, &quot;YEARS&quot;&lt;/dd&gt;
+	 * &lt;/dl&gt;
+	 *
+	 * &lt;p&gt;
+	 * The function may be used to ease the creation of maturities in spreadsheets.
+	 * &lt;/p&gt;
+	 *
+	 * @param baseDate The start date.
+	 * @param dateOffsetCode String containing date offset codes (like 2D, 1W, 3M, etc.) or combination of them separated by spaces.
+	 * @return A date corresponding the date adding the offset to the start date.
+	 */
+	LocalDate getDateFromDateAndOffsetCode(LocalDate baseDate, String dateOffsetCode);
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

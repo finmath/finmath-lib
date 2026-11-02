@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.products</a> &gt; <span class="el_source">EuropeanOption.java</span></div><h1>EuropeanOption.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+package net.finmath.fouriermethod.products;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Implements valuation of a European option on a single asset.
+ *
+ * Given a model for an asset &lt;i&gt;S&lt;/i&gt;, the European option with strike &lt;i&gt;K&lt;/i&gt;, maturity &lt;i&gt;T&lt;/i&gt;
+ * pays
+ * &lt;br&gt;
+ * 	&lt;i&gt;max((S(T) - K) * CallOrPut , 0)&lt;/i&gt; in &lt;i&gt;T&lt;/i&gt;
+ * &lt;br&gt;
+ *
+ * The class implements the characteristic function of the call option
+ * payoff, i.e., its Fourier transform.
+ *
+ * @author Christian Fries
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class EuropeanOption extends AbstractFourierTransformProduct {
+
+	private final String underlyingName;
+	private final double maturity;
+	private final double strike;
+	private final CallOrPut callOrPutSign;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(sign * (S(T)-K),0).
+	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final double callOrPutSign) {
+<span class="fc" id="L45">		super();</span>
+<span class="fc" id="L46">		this.underlyingName	= underlyingName;</span>
+<span class="fc" id="L47">		this.maturity		= maturity;</span>
+<span class="fc" id="L48">		this.strike			= strike;</span>
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		if(callOrPutSign == 1.0) {</span>
+<span class="fc" id="L50">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		}else if(callOrPutSign == - 1.0) {</span>
+<span class="nc" id="L52">			this.callOrPutSign = CallOrPut.PUT;</span>
+		}else {
+<span class="nc" id="L54">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+<span class="fc" id="L56">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(sign * (S(T)-K),0).
+	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final CallOrPut callOrPutSign) {
+<span class="nc" id="L66">		super();</span>
+<span class="nc" id="L67">		this.underlyingName	= underlyingName;</span>
+<span class="nc" id="L68">		this.maturity		= maturity;</span>
+<span class="nc" id="L69">		this.strike			= strike;</span>
+<span class="nc" id="L70">		this.callOrPutSign	= callOrPutSign;</span>
+<span class="nc" id="L71">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final double callOrPutSign) {
+<span class="fc" id="L80">		super();</span>
+<span class="fc" id="L81">		this.maturity			= maturity;</span>
+<span class="fc" id="L82">		this.strike				= strike;</span>
+<span class="pc bpc" id="L83" title="1 of 2 branches missed.">		if(callOrPutSign == 1.0) {</span>
+<span class="fc" id="L84">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">		}else if(callOrPutSign == - 1.0) {</span>
+<span class="nc" id="L86">			this.callOrPutSign = CallOrPut.PUT;</span>
+		}else {
+<span class="nc" id="L88">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+<span class="fc" id="L90">		this.underlyingName	= null;		// Use underlyingIndex</span>
+<span class="fc" id="L91">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
+<span class="fc" id="L100">		super();</span>
+<span class="fc" id="L101">		this.maturity			= maturity;</span>
+<span class="fc" id="L102">		this.strike				= strike;</span>
+<span class="fc" id="L103">		this.callOrPutSign		= callOrPutSign;</span>
+<span class="fc" id="L104">		this.underlyingName	= null;		// Use underlyingIndex</span>
+<span class="fc" id="L105">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
+<span class="fc" id="L114">		this(underlyingName, maturity, strike, 1.0);</span>
+<span class="fc" id="L115">	}</span>
+
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public EuropeanOption(final double maturity, final double strike) {
+<span class="fc" id="L124">		this(maturity, strike, 1.0);</span>
+<span class="fc" id="L125">	}</span>
+
+
+	@Override
+	public Complex apply(final Complex argument) {
+<span class="fc" id="L130">		final Complex iargument = argument.multiply(Complex.I);</span>
+<span class="fc" id="L131">		final Complex exponent = (iargument).add(1);</span>
+<span class="fc" id="L132">		final Complex numerator = (new Complex(strike)).pow(exponent);</span>
+<span class="fc" id="L133">		final Complex denominator = (argument.multiply(argument)).subtract(iargument);</span>
+
+<span class="fc" id="L135">		return numerator.divide(denominator).negate();</span>
+	}
+
+	@Override
+	public double getValue(final CharacteristicFunctionModel model) throws CalculationException {
+<span class="fc bfc" id="L140" title="All 2 branches covered.">		if(callOrPutSign == CallOrPut.CALL) {</span>
+			//It is a call, just use the existing implementation
+<span class="fc" id="L142">			return super.getValue(model);</span>
+		}else {
+<span class="pc bpc" id="L144" title="1 of 2 branches missed.">			final double df = model.getDiscountCurveForDiscountRate() == null ?</span>
+<span class="fc" id="L145">					Math.exp(- model.getDiscountRate())</span>
+<span class="pc" id="L146">					: model.getDiscountCurveForDiscountRate().getDiscountFactor(maturity);</span>
+			//It is a put, use the put call parity
+<span class="fc" id="L148">			return super.getValue(model) - model.getInitialValue() + this.strike * df;</span>
+		}
+
+	}
+
+	public String getUnderlyingName() {
+<span class="nc" id="L154">		return underlyingName;</span>
+	}
+
+	@Override
+	public double getMaturity() {
+<span class="fc" id="L159">		return maturity;</span>
+	}
+
+	public double getStrike() {
+<span class="nc" id="L163">		return strike;</span>
+	}
+
+	@Override
+	public double getIntegrationDomainImagLowerBound() {
+<span class="fc" id="L168">		return 0.5;</span>
+	}
+
+	@Override
+	public double getIntegrationDomainImagUpperBound() {
+<span class="fc" id="L173">		return 2.5;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

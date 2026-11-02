@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatesJumpComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">BatesJumpComponent.java</span></div><h1>BatesJumpComponent.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+/**
+ * Jump component for the Bates model.
+ *
+ * &lt;p&gt;
+ * The jump part in the Bates model is a finite-activity compound Poisson jump
+ * component acting on one selected state variable through multiplicative jumps
+ * of the form
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * x -&gt; x * exp(y),
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * where the log-jump size {@code y} is normally distributed with mean
+ * {@code jumpMean} and standard deviation {@code jumpStdDev}. Hence the
+ * associated Levy density is
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * nu(y) = intensity * gaussianDensity(y; jumpMean, jumpStdDev^2).
+ * &lt;/pre&gt;
+ *
+ * &lt;p&gt;
+ * Numerically, this is the same jump specification as in the Merton
+ * jump-diffusion model. The dedicated class name is introduced in order to keep
+ * the code aligned with the Bates model semantics and naming.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BatesJumpComponent extends MertonJumpComponent {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Creates a Bates jump component acting on the first state variable.
+	 *
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param intensity Jump intensity.
+	 * @param jumpMean Mean of the log-jump size.
+	 * @param jumpStdDev Standard deviation of the log-jump size.
+	 */
+	public BatesJumpComponent(
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double intensity,
+			final double jumpMean,
+			final double jumpStdDev) {
+<span class="nc" id="L55">		super(</span>
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				intensity,
+				jumpMean,
+				jumpStdDev
+				);
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * Creates a Bates jump component.
+	 *
+	 * @param stateVariableIndex Index of the affected state variable.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param intensity Jump intensity.
+	 * @param jumpMean Mean of the log-jump size.
+	 * @param jumpStdDev Standard deviation of the log-jump size.
+	 */
+	public BatesJumpComponent(
+			final int stateVariableIndex,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double intensity,
+			final double jumpMean,
+			final double jumpStdDev) {
+<span class="nc" id="L83">		super(</span>
+				stateVariableIndex,
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				intensity,
+				jumpMean,
+				jumpStdDev
+				);
+<span class="nc" id="L91">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

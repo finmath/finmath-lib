@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DamageFromTemperature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">DamageFromTemperature.java</span></div><h1>DamageFromTemperature.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.DoubleUnaryOperator;
+
+/**
+ * The function \( T \mapsto \Omega(T) \) with \( T \) being the temperature above baseline, i.e., \( Omega(0) = 0 \).
+ *
+ * The function is a second order polynomial.
+ *
+ * @author Christian Fries
+ */
+public class DamageFromTemperature implements DoubleUnaryOperator {
+
+	private final double tempToDamage0;
+	private final double tempToDamage1;
+	private final double tempToDamage2;
+
+	/**
+	 * Create the damage function
+	 * \( T \mapsto \Omega(T) = a_{0} + a_{1} T + a_{2} T^{2} \), with
+	 * \( T \) being temperature above pre-industrial.
+	 *
+	 * @param tempToDamage0 The constant term.
+	 * @param tempToDamage1 The coefficient of the linear term.
+	 * @param tempToDamage2 The coefficient of the quadratic term.
+	 */
+	public DamageFromTemperature(double tempToDamage0, double tempToDamage1, double tempToDamage2) {
+<span class="fc" id="L28">		super();</span>
+<span class="fc" id="L29">		this.tempToDamage0 = tempToDamage0;</span>
+<span class="fc" id="L30">		this.tempToDamage1 = tempToDamage1;</span>
+<span class="fc" id="L31">		this.tempToDamage2 = tempToDamage2;</span>
+<span class="fc" id="L32">	}</span>
+
+	/**
+	 * Create the damage function \( T \mapsto (a_{0} + a_{1} T + a_{2} T^{2}) \), with \( T \) being temperature above pre-industrial,
+	 * using the default DICE (2016) parameters.
+	 */
+	public DamageFromTemperature() {
+		// Parameters from original model
+<span class="fc" id="L40">		this(0.0, 0.0, 0.00236);</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * Get the relative damage the GDP at a given temperature above pre-industrial.
+	 * @param temperature The above pre-industrial in °K.
+	 */
+	@Override
+	public double applyAsDouble(double temperature) {
+<span class="fc" id="L49">		final double damage = tempToDamage0 + tempToDamage1 * temperature + tempToDamage2 * temperature * temperature;</span>
+
+<span class="fc" id="L51">		return damage;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

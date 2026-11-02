@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TouchOptionBachelierModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">TouchOptionBachelierModelBoundary.java</span></div><h1>TouchOptionBachelierModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.assetderivativevaluation.products.TouchOption;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.BarrierType;
+
+/**
+ * Boundary conditions for {@link TouchOption} under {@link FDMBachelierModel}.
+ */
+public class TouchOptionBachelierModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMBachelierModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L30">	public TouchOptionBachelierModelBoundary(final FDMBachelierModel model) {</span>
+<span class="nc" id="L31">		this.model = model;</span>
+<span class="nc" id="L32">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L40">		final TouchOption option = (TouchOption) product;</span>
+<span class="nc" id="L41">		final BarrierType barrierType = option.getBarrierType();</span>
+
+<span class="nc bnc" id="L43" title="All 2 branches missed.">		if (barrierType == BarrierType.DOWN_OUT) {</span>
+<span class="nc" id="L44">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L45">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L49">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L51">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L52">				StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L62">		final TouchOption option = (TouchOption) product;</span>
+<span class="nc" id="L63">		final BarrierType barrierType = option.getBarrierType();</span>
+
+<span class="nc bnc" id="L65" title="All 2 branches missed.">		if (barrierType == BarrierType.UP_OUT) {</span>
+<span class="nc" id="L66">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L67">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L71">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L73">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L74">				StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+		};
+	}
+
+	private double getDiscountedCashValue(final TouchOption option, final double time) {
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (time &gt;= option.getMaturity()) {</span>
+<span class="nc" id="L80">			return option.getPayoffAmount();</span>
+		}
+
+<span class="nc" id="L83">		final double dfTime = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L84">		final double dfMat = model.getRiskFreeCurve().getDiscountFactor(option.getMaturity());</span>
+
+<span class="nc" id="L86">		return option.getPayoffAmount() * dfMat / dfTime;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractBusinessdayCalendar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.businessdaycalendar</a> &gt; <span class="el_source">AbstractBusinessdayCalendar.java</span></div><h1>AbstractBusinessdayCalendar.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.09.2013
+ */
+
+package net.finmath.time.businessdaycalendar;
+
+import java.time.LocalDate;
+import java.util.StringTokenizer;
+
+/**
+ * Base class for all business day calendars.
+ *
+ * Implements date rolling and date adjustment.
+ * For the supported date roll conventions see {@link BusinessdayCalendar.DateRollConvention}.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+<span class="fc" id="L21">public abstract class AbstractBusinessdayCalendar implements BusinessdayCalendar {</span>
+
+	private static final long serialVersionUID = -970677373015282512L;
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.BusinessdayCalendarInterface#getAdjustedDate(java.time.LocalDate, net.finmath.time.BusinessdayCalendarInterface.DateRollConvention)
+	 */
+	@Override
+	public LocalDate getAdjustedDate(final LocalDate date, final DateRollConvention dateRollConvention) {
+<span class="fc bfc" id="L30" title="All 2 branches covered.">		if(dateRollConvention == DateRollConvention.UNADJUSTED) {</span>
+<span class="fc" id="L31">			return date;</span>
+		}
+<span class="fc bfc" id="L33" title="All 2 branches covered.">		else if(dateRollConvention == DateRollConvention.MODIFIED_FOLLOWING) {</span>
+<span class="fc" id="L34">			final LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.FOLLOWING);</span>
+<span class="fc bfc" id="L35" title="All 2 branches covered.">			if (adjustedDate.getMonth() != date.getMonth()){</span>
+<span class="fc" id="L36">				return getAdjustedDate(date, DateRollConvention.PRECEDING);</span>
+			} else {
+<span class="fc" id="L38">				return adjustedDate;</span>
+			}
+		}
+<span class="fc bfc" id="L41" title="All 2 branches covered.">		else if(dateRollConvention == DateRollConvention.MODIFIED_PRECEDING) {</span>
+<span class="fc" id="L42">			final LocalDate adjustedDate = getAdjustedDate(date, DateRollConvention.PRECEDING);</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">			if (adjustedDate.getMonth() != date.getMonth()) {</span>
+<span class="fc" id="L44">				return getAdjustedDate(date, DateRollConvention.FOLLOWING);</span>
+			} else {
+<span class="fc" id="L46">				return adjustedDate;</span>
+			}
+		}
+<span class="pc bpc" id="L49" title="1 of 4 branches missed.">		else if(dateRollConvention == DateRollConvention.FOLLOWING || dateRollConvention == DateRollConvention.PRECEDING) {</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">			final int adjustment = dateRollConvention == DateRollConvention.FOLLOWING ? 1 : -1;</span>
+<span class="fc" id="L51">			LocalDate adjustedDate = date;</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">			while(!isBusinessday(adjustedDate)) {</span>
+<span class="fc" id="L53">				adjustedDate = adjustedDate.plusDays(adjustment);</span>
+			}
+<span class="fc" id="L55">			return adjustedDate;</span>
+		}
+		else {
+<span class="nc" id="L58">			throw new IllegalArgumentException(&quot;Unknown date roll convention.&quot;);</span>
+		}
+	}
+
+	@Override
+	public LocalDate getRolledDate(final LocalDate baseDate, int businessDays) {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		final int					direction			= businessDays &gt;= 0 ? 1: -1;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		final DateRollConvention	dateRollConvention	= direction &gt; 0 ? DateRollConvention.FOLLOWING : DateRollConvention.PRECEDING;</span>
+
+<span class="fc" id="L67">		LocalDate rolledDate = baseDate;</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">		while(businessDays != 0) {</span>
+<span class="fc" id="L69">			rolledDate = rolledDate.plusDays(direction);</span>
+<span class="fc" id="L70">			rolledDate = getAdjustedDate(rolledDate, dateRollConvention);</span>
+<span class="fc" id="L71">			businessDays -= direction;</span>
+		}
+<span class="fc" id="L73">		return rolledDate;</span>
+	}
+
+	@Override
+	public LocalDate getAdjustedDate(final LocalDate baseDate, final String dateOffsetCode, final DateRollConvention dateRollConvention) {
+<span class="fc" id="L78">		return getAdjustedDate(getDateFromDateAndOffsetCode(baseDate, dateOffsetCode), dateRollConvention);</span>
+	}
+
+	@Override
+	public LocalDate getDateFromDateAndOffsetCode(final LocalDate baseDate, String dateOffsetCode) {
+<span class="fc" id="L83">		dateOffsetCode = dateOffsetCode.trim();</span>
+
+<span class="fc" id="L85">		final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);</span>
+
+<span class="fc" id="L87">		LocalDate maturityDate = baseDate;</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		while(tokenizer.hasMoreTokens()) {</span>
+<span class="fc" id="L89">			final String maturityCodeSingle = tokenizer.nextToken();</span>
+<span class="fc" id="L90">			final String[] maturityCodeSingleParts = maturityCodeSingle.split(&quot;(?&lt;=[0-9|\\.])(?=[A-Z|a-z])&quot;);</span>
+
+			/*
+			 * If no unit is given, the number is interpreted as ACT/365.
+			 * Otherwise we switch according to dateOffsetUnit.
+			 */
+<span class="fc bfc" id="L96" title="All 2 branches covered.">			if(maturityCodeSingleParts.length == 1) {</span>
+				// Try to parse a double as ACT/365
+<span class="fc" id="L98">				final double maturityValue	= Double.valueOf(maturityCodeSingle);</span>
+<span class="fc" id="L99">				maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));</span>
+<span class="fc" id="L100">			}</span>
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">			else if(maturityCodeSingleParts.length == 2) {</span>
+<span class="fc" id="L102">				final int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);</span>
+<span class="fc" id="L103">				final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);</span>
+
+<span class="pc bpc" id="L105" title="1 of 6 branches missed.">				switch(dateOffsetUnit) {</span>
+				case DAYS:
+				{
+<span class="fc" id="L108">					maturityDate = maturityDate.plusDays(maturityValue);</span>
+<span class="fc" id="L109">					break;</span>
+				}
+				case BUSINESS_DAYS:
+				{
+<span class="fc" id="L113">					maturityDate = getRolledDate(maturityDate,maturityValue);</span>
+<span class="fc" id="L114">					break;</span>
+				}
+				case WEEKS:
+				{
+<span class="fc" id="L118">					maturityDate = maturityDate.plusWeeks(maturityValue);</span>
+<span class="fc" id="L119">					break;</span>
+				}
+				case MONTHS:
+				{
+<span class="fc" id="L123">					maturityDate = maturityDate.plusMonths(maturityValue);</span>
+<span class="fc" id="L124">					break;</span>
+				}
+				case YEARS:
+				{
+<span class="fc" id="L128">					maturityDate = maturityDate.plusYears(maturityValue);</span>
+<span class="fc" id="L129">					break;</span>
+				}
+				default:
+<span class="nc" id="L132">					throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+				}
+<span class="fc" id="L134">			}</span>
+			else {
+<span class="nc" id="L136">				throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+			}
+<span class="fc" id="L138">		}</span>
+
+<span class="fc" id="L140">		return maturityDate;</span>
+	}
+
+	public LocalDate[] createDateFromDateAndOffsetCodes(final LocalDate baseDate, final String[] dateOffsetCodes) {
+<span class="fc" id="L144">		final LocalDate[] maturityDates = new LocalDate[dateOffsetCodes.length];</span>
+<span class="fc bfc" id="L145" title="All 2 branches covered.">		for(int i = 0; i &lt; dateOffsetCodes.length; i++) {</span>
+<span class="fc" id="L146">			final String dateOffsetCode = dateOffsetCodes[i].trim();</span>
+
+<span class="fc" id="L148">			final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);</span>
+
+<span class="fc" id="L150">			LocalDate maturityDate = baseDate;</span>
+<span class="fc bfc" id="L151" title="All 2 branches covered.">			while(tokenizer.hasMoreTokens()) {</span>
+<span class="fc" id="L152">				final String maturityCodeSingle = tokenizer.nextToken();</span>
+<span class="fc" id="L153">				final String[] maturityCodeSingleParts = maturityCodeSingle.split(&quot;(?&lt;=[0-9|\\.])(?=[A-Z|a-z])&quot;);</span>
+
+				/*
+				 * If no unit is given, the number is interpreted as ACT/365.
+				 * Otherwise we switch according to dateOffsetUnit.
+				 */
+<span class="fc bfc" id="L159" title="All 2 branches covered.">				if(maturityCodeSingleParts.length == 1) {</span>
+					// Try to parse a double as ACT/365
+<span class="fc" id="L161">					final double maturityValue	= Double.valueOf(maturityCodeSingle);</span>
+<span class="fc" id="L162">					maturityDate = maturityDate.plusDays((int)Math.round(maturityValue * 365));</span>
+<span class="fc" id="L163">				}</span>
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">				else if(maturityCodeSingleParts.length == 2) {</span>
+<span class="fc" id="L165">					final int maturityValue = Integer.valueOf(maturityCodeSingleParts[0]);</span>
+<span class="fc" id="L166">					final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);</span>
+
+<span class="pc bpc" id="L168" title="1 of 6 branches missed.">					switch(dateOffsetUnit) {</span>
+					case DAYS:
+					{
+<span class="fc" id="L171">						maturityDate = maturityDate.plusDays(maturityValue);</span>
+<span class="fc" id="L172">						break;</span>
+					}
+					case BUSINESS_DAYS:
+					{
+<span class="fc" id="L176">						maturityDate = getRolledDate(maturityDate,maturityValue);</span>
+<span class="fc" id="L177">						break;</span>
+					}
+					case WEEKS:
+					{
+<span class="fc" id="L181">						maturityDate = maturityDate.plusWeeks(maturityValue);</span>
+<span class="fc" id="L182">						break;</span>
+					}
+					case MONTHS:
+					{
+<span class="fc" id="L186">						maturityDate = maturityDate.plusMonths(maturityValue);</span>
+<span class="fc" id="L187">						break;</span>
+					}
+					case YEARS:
+					{
+<span class="fc" id="L191">						maturityDate = maturityDate.plusYears(maturityValue);</span>
+<span class="fc" id="L192">						break;</span>
+					}
+					default:
+<span class="nc" id="L195">						throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+					}
+<span class="fc" id="L197">				}</span>
+				else {
+<span class="nc" id="L199">					throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+				}
+<span class="fc" id="L201">			}</span>
+<span class="fc" id="L202">			maturityDates[i] = maturityDate;</span>
+		}
+<span class="fc" id="L204">		return maturityDates;</span>
+	}
+
+	public double[] convertOffsetCodesToTimes(final String[] dateOffsetCodes) {
+<span class="nc" id="L208">		final double[] times = new double[dateOffsetCodes.length];</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">		for(int i = 0; i &lt; dateOffsetCodes.length; i++) {</span>
+<span class="nc" id="L210">			final String dateOffsetCode = dateOffsetCodes[i].trim();</span>
+
+<span class="nc" id="L212">			final StringTokenizer tokenizer = new StringTokenizer(dateOffsetCode);</span>
+
+<span class="nc" id="L214">			double time = 0;</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">			while(tokenizer.hasMoreTokens()) {</span>
+<span class="nc" id="L216">				final String maturityCodeSingle = tokenizer.nextToken();</span>
+<span class="nc" id="L217">				final String[] maturityCodeSingleParts = maturityCodeSingle.split(&quot;(?&lt;=[0-9|\\.])(?=[A-Z|a-z])&quot;);</span>
+
+				/*
+				 * If no unit is given, the number is interpreted as ACT/365.
+				 * Otherwise we switch according to dateOffsetUnit.
+				 */
+<span class="nc bnc" id="L223" title="All 2 branches missed.">				if(maturityCodeSingleParts.length == 1) {</span>
+					// Try to parse a double as ACT/365
+<span class="nc" id="L225">					time = Double.valueOf(maturityCodeSingle);</span>
+				}
+<span class="nc bnc" id="L227" title="All 2 branches missed.">				else if(maturityCodeSingleParts.length == 2) {</span>
+<span class="nc" id="L228">					final double maturityValue = Double.valueOf(maturityCodeSingleParts[0]);</span>
+<span class="nc" id="L229">					final DateOffsetUnit dateOffsetUnit = DateOffsetUnit.getEnum(maturityCodeSingleParts[1]);</span>
+
+<span class="nc bnc" id="L231" title="All 5 branches missed.">					switch(dateOffsetUnit) {</span>
+					case DAYS:
+					{
+<span class="nc" id="L234">						time =  maturityValue/365;</span>
+<span class="nc" id="L235">						break;</span>
+					}
+					case WEEKS:
+					{
+<span class="nc" id="L239">						time =  maturityValue/52;</span>
+<span class="nc" id="L240">						break;</span>
+					}
+					case MONTHS:
+					{
+<span class="nc" id="L244">						time =  maturityValue/12;</span>
+<span class="nc" id="L245">						break;</span>
+					}
+					case YEARS:
+					{
+<span class="nc" id="L249">						time =  maturityValue;</span>
+<span class="nc" id="L250">						break;</span>
+					}
+					default:
+<span class="nc" id="L253">						throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+					}
+<span class="nc" id="L255">				}</span>
+				else {
+<span class="nc" id="L257">					throw new IllegalArgumentException(&quot;Cannot handle dateOffsetCode '&quot; + dateOffsetCode + &quot;'.&quot;);</span>
+				}
+<span class="nc" id="L259">			}</span>
+<span class="nc" id="L260">			times[i] = time;</span>
+		}
+<span class="nc" id="L262">		return times;</span>
+
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L268">		return &quot;AbstractBusinessdayCalendar&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

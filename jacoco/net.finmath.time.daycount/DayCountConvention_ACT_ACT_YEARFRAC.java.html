@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_ACT_ACT_YEARFRAC.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_ACT_ACT_YEARFRAC.java</span></div><h1>DayCountConvention_ACT_ACT_YEARFRAC.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Month;
+
+/**
+ * Implementation of ACT/ACT as in Excel (2013).
+ *
+ * Calculates the day count by calculating the actual number of days between startDate and endDate.
+ *
+ * A fractional day is rounded to the approximately nearest day.
+ *
+ * The day count fraction is calculated using ACT_ACT_YEARFRAC convention, that is, it is calculates the daycount fraction
+ * corresponding to the Excel (2013) function YEARFRAC(startDate, endDate, 1). The day count fraction is calculated by dividing
+ * the actual number of days between start and end date by a denominator, where the denominator is determines as follows:
+ * &lt;ul&gt;
+ * 		&lt;li&gt;If the interval from start to end spans more than one year fraction, denominator is the average number of days per year&lt;/li&gt;
+ * 		&lt;li&gt;If the interval from start to end spans less or equal one year and if start and end fall in a leap year, denominator is 366.0&lt;/li&gt;
+ * 		&lt;li&gt;If the interval from start to end spans less or equal one year and if either falls in a leap year and if February 29th of that leap year lies in between start and end (or is equal to start or end), denominator is 366.0&lt;/li&gt;
+ * 		&lt;li&gt;If the interval from start to end spans less or equal one year and neither of the above applied denominator is 365.0&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * 	&lt;strong&gt;
+ * 		This method is not identical to ACT/ACT ISDA. For ACT/ACT ISDA use {@link net.finmath.time.daycount.DayCountConvention_ACT_ACT_ISDA}.
+ * 	&lt;/strong&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * 		In addition the method has the defect, that it is not additive (if you consider small intervals). For example
+ *		YEARFRAC(30.12.2011, 04.01.2012, 1) is not equal to YEARFRAC(30.12.2011, 01.01.2012, 1) + YEARFRAC(01.01.2012, 04.01.2012, 1).
+ * &lt;/p&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_ACT_ACT_YEARFRAC extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = -970929056011501752L;
+
+	/**
+	 * Create an ACT/ACT YEARFRAC daycount convention.
+	 */
+<span class="fc" id="L51">	public DayCountConvention_ACT_ACT_YEARFRAC() {</span>
+<span class="fc" id="L52">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L60">			return -getDaycountFraction(endDate,startDate);</span>
+		}
+
+
+		/*
+		 * Determine the denominator of act/act.
+		 */
+		double denominator;
+
+<span class="fc" id="L69">		final LocalDate startDatePlusOneYear = startDate.plusYears(1);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		if(endDate.isAfter(startDatePlusOneYear)) {</span>
+			/*
+			 * The following method applies, if the interval spans more than one year:
+			 * fraction = actual number of days / average number of days per year.
+			 */
+
+<span class="fc" id="L76">			final LocalDate startDateYearStart = startDate.withDayOfYear(1);</span>
+<span class="fc" id="L77">			final LocalDate endDateYearEnd = endDate.withDayOfYear(endDate.lengthOfYear()).plusDays(1);</span>
+
+<span class="fc" id="L79">			final double spannedYears = endDate.getYear() - startDate.getYear() + 1;</span>
+<span class="fc" id="L80">			denominator = getDaycount(startDateYearStart, endDateYearEnd) / spannedYears;</span>
+<span class="fc" id="L81">		}</span>
+		else {
+<span class="fc" id="L83">			final boolean isStartLeapYear	= startDate.isLeapYear();</span>
+<span class="fc" id="L84">			final boolean isEndLeapYear	= endDate.isLeapYear();</span>
+			/*
+			 * If the start and end span less or equal one year:
+			 * If start and end fall in a leap year, use ACT/366.
+			 */
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">			if(isStartLeapYear &amp;&amp; isEndLeapYear)</span>
+			{
+<span class="fc" id="L91">				denominator = 366.0;</span>
+			}
+			else
+				/*
+				 * If the start and end span less or equal one year:
+				 * If either falls in a leap year and Feb 29th of that leap year lies in between start and end (or is equal to start or end), use ACT/366.
+				 */
+<span class="pc bpc" id="L98" title="2 of 4 branches missed.">				if(isStartLeapYear || isEndLeapYear)</span>
+				{
+					// Get February 29th of the respective leap year
+<span class="nc bnc" id="L101" title="All 2 branches missed.">					final LocalDate leapYearsFeb29th = isStartLeapYear ?</span>
+<span class="nc" id="L102">							LocalDate.of(startDate.getYear(), Month.FEBRUARY, 29) :</span>
+<span class="nc" id="L103">								LocalDate.of(endDate.getYear(), Month.FEBRUARY, 29);</span>
+
+
+					// Check position of February 29th
+<span class="nc bnc" id="L107" title="All 4 branches missed.">					if(startDate.compareTo(leapYearsFeb29th) &lt;= 0 &amp;&amp; endDate.compareTo(leapYearsFeb29th) &gt;= 0) {</span>
+<span class="nc" id="L108">						denominator = 366.0;</span>
+					}
+					else {
+<span class="nc" id="L111">						denominator = 365.0;</span>
+					}
+<span class="nc" id="L113">				}</span>
+				else {
+					/*
+					 * If the start and end span less or equal one year:
+					 * If none of the above applies, use denominator = ACT/365.
+					 */
+<span class="fc" id="L119">					denominator = 365.0;</span>
+				}
+		}
+
+<span class="fc" id="L123">		final double daycountFraction = getDaycount(startDate, endDate) / denominator;</span>
+
+<span class="fc" id="L125">		return daycountFraction;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L130">		return &quot;DayCountConvention_ACT_ACT_YEARFRAC&quot;;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmissionIndustrialIntensityFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">EmissionIndustrialIntensityFunction.java</span></div><h1>EmissionIndustrialIntensityFunction.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.BiFunction;
+
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * The function that maps \(i, \sigma(t_{i})) \) to \sigma(t_{i+1})), where \( \sigma(t) \) is the emission intensity (in kgCO2 / USD = GtCO2 / (10^12 USD)).
+ *
+ * The emission intensity is the factor that is applied to the GDP to get the corresponding emissions.
+ *
+ * The function is modelled as an exponential decay, where the decay rate decays exponentially (double exponential).
+ *
+ * Note: This is a continuous time version of the function \( \sigma(t) \) from the original model, except that the division by \( (1-\mu(0)) \) is missing here.
+ *
+ * @author Christian Fries
+ */
+public class EmissionIndustrialIntensityFunction implements BiFunction&lt;Integer, Double, Double&gt; {
+
+<span class="nc" id="L20">	private static double e0 = 35.85;					// Initial emissions</span>
+<span class="nc" id="L21">	private static double q0 = 105.5;					// Initial global output</span>
+<span class="nc" id="L22">	private static double sigma0 = e0/q0;				// Calculated initial emissions intensity, the 1/(1-mu0) is outside</span>
+
+	//	private static double mu0 = 0.03;					// Initial mitigation rate
+	//	private static double sigma0 = e0/(q0*(1-mu0));		// Calculated initial emissions intensity
+
+	private final TimeDiscretization timeDiscretization;
+	private final double emissionIntensityInitial;		// sigma0;
+	private final double emissionIntensityRateInitial;	// = 0.0152;		// -g	// per year
+	private final double emissionIntensityRateDecay;	// exp decay rate corresponding to annual -0.001;			// -d	// per year
+
+	/**
+	 * The evolution of the emission intensity
+	 * @param timeDiscretization The time discretization used.
+	 * @param emissionIntensityInitial The initial emission intensity. Unit: GtCO2 / (10^12 USD)
+	 * @param emissionIntensityRateInitial Initial value for the exponential decay rate.
+	 * @param emissionIntensityRateDecay Exponential decay rate for the decay rate.
+	 */
+	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization, double emissionIntensityInitial,
+			double emissionIntensityRateInitial, double emissionIntensityRateDecay) {
+<span class="nc" id="L41">		super();</span>
+<span class="nc" id="L42">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L43">		this.emissionIntensityInitial = emissionIntensityInitial;</span>
+<span class="nc" id="L44">		this.emissionIntensityRateInitial = emissionIntensityRateInitial;</span>
+<span class="nc" id="L45">		this.emissionIntensityRateDecay = emissionIntensityRateDecay;</span>
+<span class="nc" id="L46">	}</span>
+
+	public EmissionIndustrialIntensityFunction(TimeDiscretization timeDiscretization) {
+		// Parameters from original model
+<span class="nc" id="L50">		this(timeDiscretization, sigma0, 0.0152, -Math.log(1-0.001));</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * Update the emissionIntensity to the next time at timeIndex+1.
+	 *
+	 * @param timeIndex current time index.
+	 * @param emissionIntensityCurrent current emission intensity at time index.
+	 */
+	@Override
+	public Double apply(Integer timeIndex, Double emissionIntensityCurrent) {
+<span class="nc" id="L61">		final double time = timeDiscretization.getTime(timeIndex);</span>
+<span class="nc" id="L62">		final double emissionIntensityRate = emissionIntensityRateInitial * Math.exp(-emissionIntensityRateDecay * time);</span>
+
+<span class="nc" id="L64">		final double emissionIntensity = emissionIntensityInitial * Math.exp((emissionIntensityRate-emissionIntensityRateInitial) / emissionIntensityRateDecay);</span>
+
+<span class="nc" id="L66">		return emissionIntensity;</span>
+	}
+
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L70">		return timeDiscretization;</span>
+	}
+
+	public double getEmissionIntensityInitial() {
+<span class="nc" id="L74">		return emissionIntensityInitial;</span>
+	}
+
+	public double getEmissionIntensityRateInitial() {
+<span class="nc" id="L78">		return emissionIntensityRateInitial;</span>
+	}
+
+	public double getEmissionIntensityRateDecay() {
+<span class="nc" id="L82">		return emissionIntensityRateDecay;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardCurveNelsonSiegelSvensson.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">ForwardCurveNelsonSiegelSvensson.java</span></div><h1>ForwardCurveNelsonSiegelSvensson.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.curves;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Implementation of a forward given by a Nelson-Siegel-Svensson (NSS) parameterization.
+ * In the NSS parameterization the zero rate \( r(T) \) is given by
+ *
+ * \[ r(T) = \beta_0 + \beta_1 \frac{1-x_0}{T/\tau_0} + \beta_2 ( \frac{1-x_0}{T/\tau_0} - x_0) + \beta_3 ( \frac{1-x_1}{T/\tau_1} - x_1) \]
+ *
+ * where \( x_0 = \exp(-T/\tau_0) \) and \( x_1 = \exp(-T/\tau_1) \).
+ *
+ * The sub-family of curves with \( \beta_3 = 0 \) is called Nelson-Siegel parameterization.
+ *
+ * @see net.finmath.marketdata.model.curves.DiscountCurveNelsonSiegelSvensson
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ForwardCurveNelsonSiegelSvensson extends AbstractCurve implements Serializable, ForwardCurve {
+
+	private static final long serialVersionUID = 8024640795839972709L;
+
+	private final String paymentOffsetCode;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
+	private final DayCountConvention daycountConvention;
+<span class="fc" id="L38">	private double periodOffset = 0.0;</span>
+
+	private final DiscountCurveNelsonSiegelSvensson discountCurve;
+
+	/**
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols}.
+	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
+	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
+	 * @param paymentBusinessdayCalendar The payment businessday calendar.
+	 * @param paymentDateRollConvention The payment date roll convention.
+	 * @param daycountConvention The daycount convention.
+	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 * @param periodOffset An offset in ACT/365 applied to the fixing to construct the period start (the negative of the fixingOffset of the period).
+	 */
+	public ForwardCurveNelsonSiegelSvensson(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final DayCountConvention daycountConvention, final double[] parameter, final double timeScaling, final double periodOffset) {
+<span class="fc" id="L54">		super(name, referenceDate);</span>
+<span class="fc" id="L55">		this.paymentOffsetCode = paymentOffsetCode;</span>
+<span class="fc" id="L56">		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;</span>
+<span class="fc" id="L57">		this.paymentDateRollConvention = paymentDateRollConvention;</span>
+<span class="fc" id="L58">		this.daycountConvention = daycountConvention;</span>
+<span class="fc" id="L59">		this.periodOffset = periodOffset;</span>
+
+<span class="fc" id="L61">		discountCurve = new DiscountCurveNelsonSiegelSvensson(name, referenceDate, parameter, timeScaling);</span>
+<span class="fc" id="L62">	}</span>
+
+	/**
+	 * @param name The name of the curve. The curve can be fetched under this name when being part of an {@link net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols}.
+	 * @param referenceDate The reference date to the curve, i.e., the date associated with t=0.
+	 * @param paymentOffsetCode The payment offset code, like 3M, 6M, 12M, etc., used in calculating forwards from discount factors.
+	 * @param paymentBusinessdayCalendar The payment businessday calendar.
+	 * @param paymentDateRollConvention The payment date roll convention.
+	 * @param daycountConvention The daycount convention.
+	 * @param parameter The Nelson-Siegel-Svensson parameters in the order \( ( \beta_0, \beta_1, \beta_2, \beta_3, \tau_0, \tau_1 ) \).
+	 * @param timeScaling A scaling factor applied to t when converting from global double time to the parametric function argument t.
+	 */
+	public ForwardCurveNelsonSiegelSvensson(final String name, final LocalDate referenceDate, final String paymentOffsetCode, final BusinessdayCalendar paymentBusinessdayCalendar, final BusinessdayCalendar.DateRollConvention paymentDateRollConvention, final DayCountConvention daycountConvention, final double[] parameter, final double timeScaling) {
+<span class="nc" id="L75">		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, parameter, timeScaling, 0.0);</span>
+<span class="nc" id="L76">	}</span>
+
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime) {
+<span class="fc" id="L80">		return getForward(model, fixingTime, getPaymentOffset(fixingTime+periodOffset));</span>
+	}
+
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset) {
+<span class="fc" id="L85">		double daycountFraction = (paymentOffset*discountCurve.getTimeScaling());</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">		if(daycountConvention != null) {</span>
+<span class="fc" id="L87">			final LocalDate fixingDate		= getDateFromModelTime(fixingTime+periodOffset);</span>
+<span class="fc" id="L88">			final LocalDate paymentDate		= getDateFromModelTime(fixingTime+periodOffset + paymentOffset);</span>
+<span class="fc" id="L89">			daycountFraction = Math.max(daycountConvention.getDaycountFraction(fixingDate, paymentDate), 1.0/365.0);</span>
+		}
+
+<span class="fc" id="L92">		return (discountCurve.getDiscountFactor(model, fixingTime+periodOffset) / discountCurve.getDiscountFactor(model, fixingTime+periodOffset + paymentOffset) - 1.0) / daycountFraction;</span>
+	}
+
+	@Override
+	public String getDiscountCurveName() {
+<span class="nc" id="L97">		return null;</span>
+	}
+
+	@Override
+	public CurveBuilder getCloneBuilder() {
+<span class="nc" id="L102">		return new CurveBuilder() {</span>
+			@Override
+			public Curve build() {
+<span class="nc" id="L105">				return ForwardCurveNelsonSiegelSvensson.this;</span>
+			}
+
+			@Override
+			public CurveBuilder addPoint(final double time, final double value, final boolean isParameter) {
+<span class="nc" id="L110">				throw new UnsupportedOperationException(&quot;NSS curve does not support adding points.&quot;);</span>
+			}
+		};
+	}
+
+	@Override
+	public ForwardCurveNelsonSiegelSvensson clone() throws CloneNotSupportedException {
+<span class="nc" id="L117">		return (ForwardCurveNelsonSiegelSvensson)super.clone();</span>
+	}
+
+	@Override
+	public ForwardCurveNelsonSiegelSvensson getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+<span class="nc" id="L122">		return new ForwardCurveNelsonSiegelSvensson(getName(), getReferenceDate(), paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, daycountConvention, value, discountCurve.getTimeScaling(), periodOffset);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="fc" id="L127">		return getForward(model, time, getPaymentOffset(time));</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L132">		return discountCurve.getParameter();</span>
+	}
+
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 *
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
+	 */
+	public double[] getForwards(final AnalyticModel model, final double[] fixingTimes)
+	{
+<span class="nc" id="L144">		final double[] values = new double[fixingTimes.length];</span>
+
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		for(int i=0; i&lt;fixingTimes.length; i++) {</span>
+<span class="nc" id="L147">			values[i] = getForward(model, fixingTimes[i]);</span>
+		}
+
+<span class="nc" id="L150">		return values;</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L155">		discountCurve.setParameter(parameter);</span>
+<span class="nc" id="L156">	}</span>
+
+	/*
+	 * @TODO This operates on model internal time and not on curve time - which is inefficient. Performance improvement possible.
+	 * @TODO Should use a cache
+	 */
+	@Override
+	public double getPaymentOffset(final double fixingTime) {
+<span class="fc" id="L164">		final LocalDate fixingDate		= getDateFromModelTime(fixingTime);</span>
+<span class="fc" id="L165">		final LocalDate paymentDate		= paymentBusinessdayCalendar.getAdjustedDate(fixingDate, paymentOffsetCode, paymentDateRollConvention);</span>
+<span class="fc" id="L166">		final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(getReferenceDate(), paymentDate);</span>
+<span class="fc" id="L167">		return paymentTime-fixingTime;</span>
+	}
+
+	private LocalDate getDateFromModelTime(final double fixingTime) {
+<span class="fc" id="L171">		return getReferenceDate().plusDays((int)Math.round(fixingTime*365.0));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

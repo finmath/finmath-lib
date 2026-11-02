@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMAsianADI2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">FDMAsianADI2D.java</span></div><h1>FDMAsianADI2D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.ThomasSolver;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Specialized ADI solver for arithmetic Asian options in the lifted state
+ * &lt;i&gt;(S,I)&lt;/i&gt;.
+ *
+ * &lt;p&gt;
+ * The lifted formulation augments the spot process &lt;i&gt;S&lt;/i&gt; by the running
+ * integral
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;I_t = \int_0^t S_u \, du&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * so that an arithmetic-average payoff can be represented as a terminal payoff
+ * in the
+ * two-dimensional state variables &lt;i&gt;(S_t,I_t)&lt;/i&gt;. The state dynamics are
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;dS_t = \mu_S dt + \sigma(S_t,t) dW_t&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;dI_t = S_t dt&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * In time-to-maturity coordinates &lt;i&gt;\tau = T - t&lt;/i&gt;, the backward pricing PDE
+ * is
+ * written as
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;u_{\tau} = A_0 u + A_1 u + A_2 u&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * with
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;A_0 u = -r u&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;A_1 u = \mu_S u_S + \frac{1}{2} a_{SS} u_{SS}&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;A_2 u = S u_I&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Hence there is no mixed derivative and no diffusion in the integral
+ * direction.
+ * The second state direction is a pure transport direction. In
+ * &lt;i&gt;\tau&lt;/i&gt;-time,
+ * transport is propagated toward increasing &lt;i&gt;I&lt;/i&gt;, so the consistent upwind
+ * discretization is forward in the &lt;i&gt;I&lt;/i&gt; direction.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Relative to the generic {@link AbstractADI2D} implementation, this class
+ * therefore:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;uses only discounting in the explicit {@code A0} part,&lt;/li&gt;
+ *   &lt;li&gt;uses a forward-upwind discretization for {@code A2},&lt;/li&gt;
+ * &lt;li&gt;solves the second-direction implicit systems with the corresponding
+ * transport stencil.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMAsianADI2D extends AbstractADI2D {
+
+	/**
+	 * Creates the lifted two-dimensional ADI solver for arithmetic Asian
+	 * products.
+	 *
+	 * @param model The finite-difference model.
+	 * @param product The product to be valued.
+	 * @param spaceTimeDiscretization The space-time discretization.
+	 * @param exercise The exercise specification.
+	 */
+	public FDMAsianADI2D(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+<span class="nc" id="L101">		super(model, product, spaceTimeDiscretization, exercise);</span>
+<span class="nc" id="L102">	}</span>
+
+	/**
+	 * Applies the explicit operator part {@code A0}.
+	 *
+	 * &lt;p&gt;
+	 * For the lifted arithmetic Asian PDE, {@code A0} contains only the
+	 * discounting term
+	 * &lt;i&gt;-r u&lt;/i&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * @param u Current solution vector.
+	 * @param time Current running time.
+	 * @return Explicit contribution of {@code A0}.
+	 */
+	@Override
+	protected double[] applyA0Explicit(final double[] u, final double time) {
+<span class="nc" id="L119">		final double[] out = new double[getN()];</span>
+
+<span class="nc" id="L121">		final double tSafe = Math.max(time, 1E-10);</span>
+<span class="nc" id="L122">		final double discountFactor = getModel().getRiskFreeCurve().getDiscountFactor(tSafe);</span>
+<span class="nc" id="L123">		final double r = -Math.log(discountFactor) / tSafe;</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L127">				out[flatten(i, j)] = -r * u[flatten(i, j)];</span>
+			}
+		}
+
+<span class="nc" id="L131">		return out;</span>
+	}
+
+	/**
+	 * Applies the explicit transport operator {@code A2 u = S u_I}.
+	 *
+	 * &lt;p&gt;
+	 * The derivative in the integral direction is approximated by forward
+	 * upwinding:
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;u_I(S_i,I_j) \approx (u_{i,j+1} - u_{i,j}) / (I_{j+1} - I_j)&lt;/i&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * This is the appropriate upwind choice in time-to-maturity coordinates for
+	 * the
+	 * transport equation induced by &lt;i&gt;dI_t = S_t dt&lt;/i&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * @param u Current solution vector.
+	 * @param time Current running time.
+	 * @return Explicit contribution of {@code A2}.
+	 */
+	@Override
+	protected double[] applyA2Explicit(final double[] u, final double time) {
+<span class="nc" id="L158">		final double[] out = new double[getN()];</span>
+
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L161">			final double s = getX0Grid()[i];</span>
+
+<span class="nc bnc" id="L163" title="All 2 branches missed.">			for (int j = 0; j &lt; getN1() - 1; j++) {</span>
+<span class="nc" id="L164">				final double dIUp = getX1Grid()[j + 1] - getX1Grid()[j];</span>
+<span class="nc" id="L165">				out[flatten(i, j)] = s * (u[flatten(i, j + 1)] - u[flatten(i, j)]) / dIUp;</span>
+			}
+
+<span class="nc" id="L168">			out[flatten(i, getN1() - 1)] = 0.0;</span>
+		}
+
+<span class="nc" id="L171">		return out;</span>
+	}
+
+	/**
+	 * Solves the implicit systems in the integral direction.
+	 *
+	 * &lt;p&gt;
+	 * For each fixed spot index, the second-direction system corresponds to the
+	 * transport
+	 * discretization
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * &lt;i&gt;(1 + \lambda_j) v_j - \lambda_j v_{j+1} = rhs_j&lt;/i&gt;,
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * where &lt;i&gt;\lambda_j = \theta \Delta \tau S / (I_{j+1} - I_j)&lt;/i&gt;.
+	 * &lt;/p&gt;
+	 *
+	 * &lt;p&gt;
+	 * The upper integral boundary is the inflow side and is imposed if it is
+	 * Dirichlet.
+	 * The lower integral boundary is overwritten only when an explicit
+	 * Dirichlet condition
+	 * is provided.
+	 * &lt;/p&gt;
+	 *
+	 * @param rhs Right-hand side vector.
+	 * @param time Current running time.
+	 * @param dt Time-step size.
+	 * @return Updated solution vector.
+	 */
+	@Override
+	protected double[] solveSecondDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="nc" id="L210">		final double[] out = rhs.clone();</span>
+
+<span class="nc bnc" id="L212" title="All 2 branches missed.">		for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L213">			final double s = getX0Grid()[i];</span>
+
+<span class="nc" id="L215">			final TridiagonalMatrix m = new TridiagonalMatrix(getN1());</span>
+<span class="nc" id="L216">			final double[] lineRhs = new double[getN1()];</span>
+
+<span class="nc bnc" id="L218" title="All 2 branches missed.">			for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc" id="L219">				lineRhs[j] = rhs[flatten(i, j)];</span>
+			}
+
+			/*
+			 * PDE rows for j = 0,...,n1-2:
+			 *
+			 * (1 + lambda_j) v_j - lambda_j v_{j+1} = rhs_j
+			 */
+<span class="nc bnc" id="L227" title="All 2 branches missed.">			for (int j = 0; j &lt; getN1() - 1; j++) {</span>
+<span class="nc" id="L228">				final double dIUp = getX1Grid()[j + 1] - getX1Grid()[j];</span>
+<span class="nc" id="L229">				final double lambda = getTheta() * dt * s / dIUp;</span>
+
+<span class="nc" id="L231">				m.getLowerDiagonal()[j] = 0.0;</span>
+<span class="nc" id="L232">				m.getMainDiagonal()[j] = 1.0 + lambda;</span>
+<span class="nc" id="L233">				m.getUpperDiagonal()[j] = -lambda;</span>
+			}
+
+			/*
+			 * Last row: default identity, then overwrite only if upper boundary
+			 * is Dirichlet.
+			 */
+<span class="nc" id="L240">			m.getLowerDiagonal()[getN1() - 1] = 0.0;</span>
+<span class="nc" id="L241">			m.getMainDiagonal()[getN1() - 1] = 1.0;</span>
+<span class="nc" id="L242">			m.getUpperDiagonal()[getN1() - 1] = 0.0;</span>
+
+			/*
+			 * Upper I boundary is the inflow side.
+			 */
+<span class="nc" id="L247">			final net.finmath.finitedifference.boundaries.BoundaryCondition[] upperConditions =</span>
+<span class="nc" id="L248">					getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, getX0Grid()[i], getX1Grid()[getN1() - 1]);</span>
+
+<span class="nc bnc" id="L250" title="All 6 branches missed.">			if (upperConditions != null</span>
+					&amp;&amp; upperConditions.length &gt; 1
+					&amp;&amp; upperConditions[1] != null
+<span class="nc bnc" id="L253" title="All 2 branches missed.">					&amp;&amp; upperConditions[1].isDirichlet()) {</span>
+<span class="nc" id="L254">				overwriteBoundaryRow(m, lineRhs, getN1() - 1, upperConditions[1].getValue());</span>
+			}
+
+			/*
+			 * Lower I boundary: overwrite ONLY if explicitly Dirichlet.
+			 * For AsianOption it is NONE, so row 0 remains a PDE row.
+			 */
+<span class="nc" id="L261">			final net.finmath.finitedifference.boundaries.BoundaryCondition[] lowerConditions =</span>
+<span class="nc" id="L262">					getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, getX0Grid()[i], getX1Grid()[0]);</span>
+
+<span class="nc bnc" id="L264" title="All 6 branches missed.">			if (lowerConditions != null</span>
+					&amp;&amp; lowerConditions.length &gt; 1
+					&amp;&amp; lowerConditions[1] != null
+<span class="nc bnc" id="L267" title="All 2 branches missed.">					&amp;&amp; lowerConditions[1].isDirichlet()) {</span>
+<span class="nc" id="L268">				overwriteBoundaryRow(m, lineRhs, 0, lowerConditions[1].getValue());</span>
+			}
+
+<span class="nc" id="L271">			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);</span>
+
+<span class="nc bnc" id="L273" title="All 2 branches missed.">			for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc" id="L274">				out[flatten(i, j)] = solved[j];</span>
+			}
+		}
+
+<span class="nc" id="L278">		return out;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

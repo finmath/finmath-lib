@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Scalar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.stochastic</a> &gt; <span class="el_source">Scalar.java</span></div><h1>Scalar.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 12.08.2017
+ */
+package net.finmath.stochastic;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+
+/**
+ * A scalar value implementing the RandomVariable.
+ *
+ * @author Christian Fries
+ * @version 1.0.1
+ */
+public class Scalar implements RandomVariable {
+
+	private static final long serialVersionUID = -3216862708399401052L;
+
+	/*
+	 * Frequently used values
+	 */
+<span class="fc" id="L28">	public static final Scalar ZERO = Scalar.of(0.0);</span>
+<span class="fc" id="L29">	public static final Scalar ONE = Scalar.of(1.0);</span>
+
+	private final double value;
+
+	public static Scalar of(final double value) {
+<span class="fc" id="L34">		return new Scalar(value);</span>
+	}
+
+	public Scalar(final double value) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.value = value;</span>
+//		if(Double.isNaN(value)) {
+//			throw new ArithmeticException(&quot;Not a Numbber&quot;);
+//		}
+<span class="fc" id="L43">	}</span>
+
+	public static Scalar[] arrayOf(final double[] arrayOfDoubles) {
+<span class="fc" id="L46">		final Scalar[] array = new Scalar[arrayOfDoubles.length];</span>
+<span class="fc bfc" id="L47" title="All 2 branches covered.">		for(int i=0; i&lt;arrayOfDoubles.length; i++) {</span>
+<span class="fc" id="L48">			array[i] = new Scalar(arrayOfDoubles[i]);</span>
+		}
+<span class="fc" id="L50">		return array;</span>
+	}
+
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L55" title="1 of 4 branches missed.">		return randomVariable.isDeterministic() &amp;&amp; value == randomVariable.get(0);</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="fc" id="L60">		return Double.NEGATIVE_INFINITY;</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="fc" id="L65">		return 0;</span>
+	}
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="fc" id="L70">		return value;</span>
+	}
+
+	@Override
+	public int size() {
+<span class="fc" id="L75">		return 1;</span>
+	}
+
+	@Override
+	public boolean isDeterministic() {
+<span class="fc" id="L80">		return true;</span>
+	}
+
+	@Override
+	public double[] getRealizations() {
+<span class="nc" id="L85">		return null;</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="fc" id="L90">		return value;</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L95">		return null;</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L100">		return null;</span>
+	}
+
+	@Override
+	public double getMin() {
+<span class="nc" id="L105">		return value;</span>
+	}
+
+	@Override
+	public double getMax() {
+<span class="nc" id="L110">		return value;</span>
+	}
+
+	@Override
+	public double getAverage() {
+<span class="fc" id="L115">		return value;</span>
+	}
+
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="fc" id="L120">		return value * probabilities.getAverage();</span>
+	}
+
+	@Override
+	public double getVariance() {
+<span class="fc" id="L125">		return 0;</span>
+	}
+
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc" id="L130">		return 0;</span>
+	}
+
+	@Override
+	public double getSampleVariance() {
+<span class="nc" id="L135">		return 0;</span>
+	}
+
+	@Override
+	public double getStandardDeviation() {
+<span class="nc" id="L140">		return 0;</span>
+	}
+
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc" id="L145">		return 0;</span>
+	}
+
+	@Override
+	public double getStandardError() {
+<span class="fc" id="L150">		return 0;</span>
+	}
+
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc" id="L155">		return 0;</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="nc" id="L160">		return value;</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc" id="L165">		return value;</span>
+	}
+
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc" id="L170">		return value;</span>
+	}
+
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="nc" id="L175">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L180">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public RandomVariable cache() {
+<span class="nc" id="L185">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="fc" id="L190">		return new Scalar(operator.applyAsDouble(value));</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L196">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1,
+			final RandomVariable argument2) {
+		// TODO Auto-generated method stub
+<span class="nc" id="L203">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="fc" id="L208">		return new Scalar(Math.min(value, cap));</span>
+	}
+
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="fc" id="L213">		return new Scalar(Math.max(value, floor));</span>
+	}
+
+	@Override
+	public RandomVariable add(final double value) {
+<span class="fc" id="L218">		return new Scalar(this.value + value);</span>
+	}
+
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="fc" id="L223">		return new Scalar(this.value - value);</span>
+	}
+
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="fc" id="L228">		return new Scalar(this.value * value);</span>
+	}
+
+	@Override
+	public RandomVariable div(final double value) {
+<span class="fc" id="L233">		return new Scalar(this.value / value);</span>
+	}
+
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="fc" id="L238">		return new Scalar(Math.pow(value, exponent));</span>
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="fc" id="L243">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable squared() {
+<span class="fc" id="L248">		return new Scalar(value * value);</span>
+	}
+
+	@Override
+	public RandomVariable sqrt() {
+<span class="fc" id="L253">		return new Scalar(Math.sqrt(value));</span>
+	}
+
+	@Override
+	public RandomVariable exp() {
+<span class="fc" id="L258">		return new Scalar(Math.exp(value));</span>
+	}
+
+	@Override
+	public RandomVariable expm1() {
+<span class="fc" id="L263">		return new Scalar(Math.expm1(value));</span>
+	}
+
+	@Override
+	public RandomVariable log() {
+<span class="fc" id="L268">		return new Scalar(Math.log(value));</span>
+	}
+
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L273">		return new Scalar(Math.sin(value));</span>
+	}
+
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L278">		return new Scalar(Math.cos(value));</span>
+	}
+
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="fc" id="L283">		return randomVariable.add(value);</span>
+	}
+
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="fc" id="L288">		return randomVariable.sub(value).mult(-1.0);</span>
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L293">		return randomVariable.sub(value);</span>
+	}
+
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="fc" id="L298">		return randomVariable.mult(value);</span>
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="fc" id="L303">		return randomVariable.invert().mult(value);</span>
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L308">		return randomVariable.div(value);</span>
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+<span class="fc" id="L313">		return cap.cap(value);</span>
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="fc" id="L318">		return floor.floor(value);</span>
+	}
+
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="fc" id="L323">		return rate.mult(periodLength*value).add(value);</span>
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="fc bfc" id="L328" title="All 2 branches covered.">		if(value == 0) {</span>
+<span class="fc" id="L329">			return rate.mult(0.0);</span>
+		}
+		else {
+<span class="fc" id="L332">			return rate.mult(periodLength/value).add(1.0/value).invert();</span>
+		}
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="fc bfc" id="L338" title="All 2 branches covered.">		if(value &gt;= 0) {</span>
+<span class="fc" id="L339">			return valueIfTriggerNonNegative;</span>
+		} else {
+<span class="fc" id="L341">			return valueIfTriggerNegative;</span>
+		}
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="fc" id="L347">		return new Scalar(1.0/value);</span>
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="fc" id="L352">		return new Scalar(Math.abs(value));</span>
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="fc" id="L357">		return factor1.mult(factor2).add(value);</span>
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="fc" id="L362">		return factor1.mult(factor2).add(value);</span>
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="fc" id="L367">		return numerator.div(denominator).add(value);</span>
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="fc" id="L372">		return numerator.div(denominator).sub(value).mult(-1.0);</span>
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="fc bfc" id="L377" title="All 2 branches covered.">		return new Scalar(Double.isNaN(value) ? 1.0 : 0.0);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L382">		return &quot;Scalar [value=&quot; + value + &quot;, filtrationTime=&quot; + getFiltrationTime() + &quot;, typePriority()=&quot;</span>
+<span class="fc" id="L383">				+ getTypePriority() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

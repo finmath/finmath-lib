@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceEquityEventProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">FiniteDifferenceEquityEventProduct.java</span></div><h1>FiniteDifferenceEquityEventProduct.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+
+/**
+ * Equity finite-difference products with vector-level event conditions.
+ *
+ * &lt;p&gt;
+ * Event times are running times t at which the backward induction first
+ * computes the continuation value V(t+,x) and then applies a jump/event rule
+ * to obtain V(t-,x).
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public interface FiniteDifferenceEquityEventProduct extends FiniteDifferenceEquityProduct {
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	default double[] getEventTimes() {
+<span class="nc" id="L24">		return new double[0];</span>
+	}
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param time The value.
+	 * @param valuesAfterEvent The value.
+	 * @param model The value.
+	 * @return The value.
+	 */
+	default double[] applyEventCondition(
+			final double time,
+			final double[] valuesAfterEvent,
+			final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L39">		return valuesAfterEvent;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SABRVolatilityCubeSingleSmile.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">SABRVolatilityCubeSingleSmile.java</span></div><h1>SABRVolatilityCubeSingleSmile.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+
+/**
+ * A simplified volatility cube that provides a volatility smile in strike for all possible maturities and terminations, based on a single set of SABR parameters.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SABRVolatilityCubeSingleSmile implements VolatilityCube, Serializable {
+
+	private static final long serialVersionUID = -2465149876882995369L;
+
+	private final String name;
+	private final LocalDate referenceDate;
+
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
+
+	//SABR parameters
+	private final double underlying;
+	private final double sabrAlpha;
+	private final double sabrBeta;
+	private final double sabrRho;
+	private final double sabrNu;
+	private final double sabrDisplacement;
+
+<span class="pc" id="L37">	private final QuotingConvention quotingConvention = QuotingConvention.VOLATILITYNORMAL;</span>
+
+	/**
+	 * Create the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param underlying The dummy underlying to be used for the SABR model.
+	 * @param sabrAlpha The initial value of the stochastic volatility process of the SABR model.
+	 * @param sabrBeta The beta CEV parameter of the SABR model.
+	 * @param sabrRho Correlation (leverages) of the stochastic volatility.
+	 * @param sabrNu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param sabrDisplacement The displacement parameter of the smile.
+	 */
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement) {
+<span class="nc" id="L53">		super();</span>
+<span class="nc" id="L54">		this.name = name;</span>
+<span class="nc" id="L55">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L56">		this.underlying = underlying;</span>
+<span class="nc" id="L57">		this.sabrAlpha = sabrAlpha;</span>
+<span class="nc" id="L58">		this.sabrBeta = sabrBeta;</span>
+<span class="nc" id="L59">		this.sabrRho = sabrRho;</span>
+<span class="nc" id="L60">		this.sabrNu = sabrNu;</span>
+<span class="nc" id="L61">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="nc" id="L62">		this.correlationDecay = 1.0;</span>
+<span class="nc" id="L63">		this.iborOisDecorrelation = 1.0;</span>
+<span class="nc" id="L64">	}</span>
+
+	/**
+	 * Create the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param underlying The dummy underlying to be used for the SABR model.
+	 * @param sabrAlpha The initial value of the stochastic volatility process of the SABR model.
+	 * @param sabrBeta The beta CEV parameter of the SABR model.
+	 * @param sabrRho Correlation (leverages) of the stochastic volatility.
+	 * @param sabrNu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param sabrDisplacement The displacement parameter of the smile.
+	 * @param correlationDecay The correlation decay inherent to this cube.
+	 */
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement, final double correlationDecay) {
+<span class="nc" id="L81">		super();</span>
+<span class="nc" id="L82">		this.name = name;</span>
+<span class="nc" id="L83">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L84">		this.underlying = underlying;</span>
+<span class="nc" id="L85">		this.sabrAlpha = sabrAlpha;</span>
+<span class="nc" id="L86">		this.sabrBeta = sabrBeta;</span>
+<span class="nc" id="L87">		this.sabrRho = sabrRho;</span>
+<span class="nc" id="L88">		this.sabrNu = sabrNu;</span>
+<span class="nc" id="L89">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="nc" id="L90">		this.correlationDecay = correlationDecay;</span>
+<span class="nc" id="L91">		this.iborOisDecorrelation = 1.0;</span>
+<span class="nc" id="L92">	}</span>
+
+	/**
+	 * Create the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param underlying The dummy underlying to be used for the SABR model.
+	 * @param sabrAlpha The initial value of the stochastic volatility process of the SABR model.
+	 * @param sabrBeta The beta CEV parameter of the SABR model.
+	 * @param sabrRho Correlation (leverages) of the stochastic volatility.
+	 * @param sabrNu Volatility of the stochastic volatility (vol-of-vol).
+	 * @param sabrDisplacement The displacement parameter of the smile.
+	 * @param correlationDecay The correlation decay inherent to this cube.
+	 * @param iborOisDecorrelation The ibor ois decorrealtion parameter of this cube.
+	 */
+	public SABRVolatilityCubeSingleSmile(final String name, final LocalDate referenceDate, final double underlying, final double sabrAlpha,
+			final double sabrBeta, final double sabrRho, final double sabrNu, final double sabrDisplacement, final double correlationDecay, final double iborOisDecorrelation) {
+<span class="fc" id="L110">		super();</span>
+<span class="fc" id="L111">		this.name = name;</span>
+<span class="fc" id="L112">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L113">		this.underlying = underlying;</span>
+<span class="fc" id="L114">		this.sabrAlpha = sabrAlpha;</span>
+<span class="fc" id="L115">		this.sabrBeta = sabrBeta;</span>
+<span class="fc" id="L116">		this.sabrRho = sabrRho;</span>
+<span class="fc" id="L117">		this.sabrNu = sabrNu;</span>
+<span class="fc" id="L118">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="fc" id="L119">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L120">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+<span class="fc" id="L121">	}</span>
+
+	@Override
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike,
+			final QuotingConvention quotingConvention) {
+
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">		if(quotingConvention == this.quotingConvention) {</span>
+<span class="fc" id="L128">			return AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(sabrAlpha, sabrBeta, sabrRho, sabrNu, sabrDisplacement, underlying, strike, maturity);</span>
+		} else {
+<span class="nc" id="L130">			throw new IllegalArgumentException(&quot;This cube supports only the Quoting Convention &quot; +this.quotingConvention);</span>
+		}
+		//TODO support other conventions
+	}
+
+	@Override
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="nc" id="L137">		return getValue(null, termination, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="nc" id="L142">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L147">		return referenceDate;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L152">		return super.toString() + &quot;\n\&quot;&quot; + this.getName() + &quot;\&quot;&quot; + getParameters().toString();</span>
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+<span class="nc" id="L157">		return new SABRVolatilityCubeSingleSmile(name, referenceDate, underlying, sabrAlpha, sabrBeta, sabrRho, sabrNu, sabrDisplacement, correlationDecay, iborOisDecorrelation);</span>
+	}
+
+	@Override
+	public double getCorrelationDecay() {
+<span class="fc" id="L162">		return correlationDecay;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getParameters() {
+<span class="nc" id="L167">		final Map&lt;String,Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L168">		map.put(&quot;sabrAlpha&quot;, sabrAlpha);</span>
+<span class="nc" id="L169">		map.put(&quot;sabrBeta&quot;, sabrBeta);</span>
+<span class="nc" id="L170">		map.put(&quot;sabrRho&quot;, sabrRho);</span>
+<span class="nc" id="L171">		map.put(&quot;sabrNu&quot;, sabrNu);</span>
+<span class="nc" id="L172">		map.put(&quot;sabrDisplacement&quot;, sabrDisplacement);</span>
+<span class="nc" id="L173">		map.put(&quot;InherentCorrelationDecay&quot;, correlationDecay);</span>
+<span class="nc" id="L174">		map.put(&quot;iborOisDecorrelation&quot;, iborOisDecorrelation);</span>
+<span class="nc" id="L175">		map.put(&quot;DummyUnderlying&quot;, underlying);</span>
+
+<span class="nc" id="L177">		return map;</span>
+	}
+
+	@Override
+	public double getLowestStrike(final VolatilityCubeModel model) {
+<span class="fc" id="L182">		return -sabrDisplacement;</span>
+	}
+
+	@Override
+	public double getIborOisDecorrelation() {
+<span class="fc" id="L187">		return iborOisDecorrelation;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

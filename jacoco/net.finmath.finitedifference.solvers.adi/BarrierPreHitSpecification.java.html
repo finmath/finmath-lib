@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarrierPreHitSpecification.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">BarrierPreHitSpecification.java</span></div><h1>BarrierPreHitSpecification.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import net.finmath.modelling.products.BarrierType;
+
+/**
+ * Immutable specification for the pre-hit continuation PDE used in the direct
+ * 2D knock-in formulation.
+ *
+ * &lt;p&gt;
+ * The pre-hit PDE is solved only on the continuation side of the barrier.
+ * The barrier itself is represented by a spot-side interface row carrying the
+ * activated trace.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class BarrierPreHitSpecification {
+
+	/**
+	 * The barrier type.
+	 */
+	private final BarrierType barrierType;
+	/**
+	 * The barrier value.
+	 */
+	private final double barrierValue;
+	/**
+	 * The barrier spot index.
+	 */
+	private final int barrierSpotIndex;
+	/**
+	 * The spot min.
+	 */
+	private final double spotMin;
+	/**
+	 * The spot max.
+	 */
+	private final double spotMax;
+	/**
+	 * The number of spot steps.
+	 */
+	private final int numberOfSpotSteps;
+	/**
+	 * The activated trace.
+	 */
+	private final ActivatedBarrierTrace2D activatedTrace;
+
+	/**
+	 * Creates the pre-hit PDE specification.
+	 *
+	 * @param barrierType The barrier type. Only DOWN_IN and UP_IN are valid
+	 *     here.
+	 * @param barrierValue The barrier level.
+	 * @param barrierSpotIndex The spot-grid index corresponding to the barrier
+	 *     node
+	 *        on the pre-hit auxiliary grid.
+	 * @param spotMin The lower bound of the pre-hit spot grid.
+	 * @param spotMax The upper bound of the pre-hit spot grid.
+	 * @param numberOfSpotSteps The number of uniform spot steps.
+	 * @param activatedTrace The activated post-hit trace prescribed on the
+	 *     barrier.
+	 */
+	public BarrierPreHitSpecification(
+			final BarrierType barrierType,
+			final double barrierValue,
+			final int barrierSpotIndex,
+			final double spotMin,
+			final double spotMax,
+			final int numberOfSpotSteps,
+<span class="nc" id="L70">			final ActivatedBarrierTrace2D activatedTrace) {</span>
+
+<span class="nc bnc" id="L72" title="All 4 branches missed.">		if (barrierType != BarrierType.DOWN_IN &amp;&amp; barrierType != BarrierType.UP_IN) {</span>
+<span class="nc" id="L73">			throw new IllegalArgumentException(</span>
+					&quot;BarrierPreHitSpecification is only valid for knock-in barrier types.&quot;);
+		}
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		if (numberOfSpotSteps &lt;= 0) {</span>
+<span class="nc" id="L77">			throw new IllegalArgumentException(&quot;numberOfSpotSteps must be strictly positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (spotMax &lt;= spotMin) {</span>
+<span class="nc" id="L80">			throw new IllegalArgumentException(&quot;spotMax must be strictly greater than spotMin.&quot;);</span>
+		}
+<span class="nc bnc" id="L82" title="All 4 branches missed.">		if (barrierSpotIndex &lt; 0 || barrierSpotIndex &gt; numberOfSpotSteps) {</span>
+<span class="nc" id="L83">			throw new IllegalArgumentException(</span>
+					&quot;barrierSpotIndex must lie between 0 and numberOfSpotSteps inclusive.&quot;);
+		}
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (activatedTrace == null) {</span>
+<span class="nc" id="L87">			throw new IllegalArgumentException(&quot;activatedTrace must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L90">		this.barrierType = barrierType;</span>
+<span class="nc" id="L91">		this.barrierValue = barrierValue;</span>
+<span class="nc" id="L92">		this.barrierSpotIndex = barrierSpotIndex;</span>
+<span class="nc" id="L93">		this.spotMin = spotMin;</span>
+<span class="nc" id="L94">		this.spotMax = spotMax;</span>
+<span class="nc" id="L95">		this.numberOfSpotSteps = numberOfSpotSteps;</span>
+<span class="nc" id="L96">		this.activatedTrace = activatedTrace;</span>
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Returns the knock-in barrier type.
+	 *
+	 * @return The barrier type.
+	 */
+	public BarrierType getBarrierType() {
+<span class="nc" id="L105">		return barrierType;</span>
+	}
+
+	/**
+	 * Returns the barrier level.
+	 *
+	 * @return The barrier value.
+	 */
+	public double getBarrierValue() {
+<span class="nc" id="L114">		return barrierValue;</span>
+	}
+
+	/**
+	 * Returns the barrier node index on the pre-hit spot grid.
+	 *
+	 * @return The barrier spot index.
+	 */
+	public int getBarrierSpotIndex() {
+<span class="nc" id="L123">		return barrierSpotIndex;</span>
+	}
+
+	/**
+	 * Returns the lower bound of the pre-hit spot domain.
+	 *
+	 * @return The lower spot bound.
+	 */
+	public double getSpotMin() {
+<span class="nc" id="L132">		return spotMin;</span>
+	}
+
+	/**
+	 * Returns the upper bound of the pre-hit spot domain.
+	 *
+	 * @return The upper spot bound.
+	 */
+	public double getSpotMax() {
+<span class="nc" id="L141">		return spotMax;</span>
+	}
+
+	/**
+	 * Returns the number of spot steps of the pre-hit uniform grid.
+	 *
+	 * @return The number of spot steps.
+	 */
+	public int getNumberOfSpotSteps() {
+<span class="nc" id="L150">		return numberOfSpotSteps;</span>
+	}
+
+	/**
+	 * Returns the activated trace prescribed on the barrier.
+	 *
+	 * @return The activated barrier trace.
+	 */
+	public ActivatedBarrierTrace2D getActivatedTrace() {
+<span class="nc" id="L159">		return activatedTrace;</span>
+	}
+
+	/**
+	 * Returns true if the pre-hit domain corresponds to a down-in option.
+	 *
+	 * @return True for down-in.
+	 */
+	public boolean isDownIn() {
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		return barrierType == BarrierType.DOWN_IN;</span>
+	}
+
+	/**
+	 * Returns true if the pre-hit domain corresponds to an up-in option.
+	 *
+	 * @return True for up-in.
+	 */
+	public boolean isUpIn() {
+<span class="nc bnc" id="L177" title="All 2 branches missed.">		return barrierType == BarrierType.UP_IN;</span>
+	}
+
+	/**
+	 * Returns the implied uniform spot step size.
+	 *
+	 * @return The spot step size.
+	 */
+	public double getSpotStepSize() {
+<span class="nc" id="L186">		return (spotMax - spotMin) / numberOfSpotSteps;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

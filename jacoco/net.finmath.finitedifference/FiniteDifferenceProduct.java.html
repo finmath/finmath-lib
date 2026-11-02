@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferenceProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference</a> &gt; <span class="el_source">FiniteDifferenceProduct.java</span></div><h1>FiniteDifferenceProduct.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference;
+
+import net.finmath.modelling.Model;
+import net.finmath.modelling.Product;
+
+/**
+ * Base interface for finite-difference products.
+ *
+ * &lt;p&gt;
+ * The interface abstracts the common structure shared by all finite-difference
+ * products, independently of the asset class. A product is parameterized by the
+ * specific finite-difference model type against which it can be valued.
+ * &lt;/p&gt;
+ *
+ * @param &lt;M&gt; The finite-difference model type compatible with the product.
+ *
+ * @author Alessandro Gnoatto
+ */
+public interface FiniteDifferenceProduct&lt;M extends FiniteDifferenceModel&gt; extends Product {
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param evaluationTime The value.
+	 * @param model The value.
+	 * @return The value.
+	 */
+	double[] getValue(double evaluationTime, M model);
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param model The value.
+	 * @return The value.
+	 */
+	double[][] getValues(M model);
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	Class&lt;M&gt; getModelClass();
+
+	@Override
+	default Object getValue(final double evaluationTime, final Model model) {
+
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (getModelClass().isInstance(model)) {</span>
+<span class="nc" id="L49">			return getValue(evaluationTime, getModelClass().cast(model));</span>
+		} else {
+<span class="nc" id="L51">			throw new IllegalArgumentException(</span>
+<span class="nc" id="L52">					&quot;The product &quot; + this.getClass()</span>
+					+ &quot; cannot be valued against a model &quot;
+<span class="nc" id="L54">					+ model.getClass() + &quot;. &quot;</span>
+					+ &quot;It requires a model of type &quot;
+<span class="nc" id="L56">					+ getModelClass() + &quot;.&quot;</span>
+					);
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

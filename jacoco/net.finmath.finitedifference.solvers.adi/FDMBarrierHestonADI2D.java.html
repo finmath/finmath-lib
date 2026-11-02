@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMBarrierHestonADI2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers.adi</a> &gt; <span class="el_source">FDMBarrierHestonADI2D.java</span></div><h1>FDMBarrierHestonADI2D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers.adi;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.RealMatrix;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMHestonModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.ThomasSolver;
+import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Barrier-aware ADI finite difference solver for the two-dimensional Heston
+ * PDE.
+ *
+ * &lt;p&gt;
+ * This class supports:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;standard direct barrier solves via {@link
+ * BarrierPDEMode#OUT_STANDARD},&lt;/li&gt;
+ *   &lt;li&gt;pre-hit continuation solves for direct knock-in pricing via
+ *       {@link BarrierPDEMode#IN_PRE_HIT}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * In pre-hit mode, the barrier is treated as an interface on the first state
+ * variable (spot) and the activated post-hit value is injected through an
+ * {@link ActivatedBarrierTrace2D}. The exercise obstacle is intentionally
+ * disabled in that mode.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FDMBarrierHestonADI2D extends AbstractADI2D {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The heston model.
+	 */
+	private final FDMHestonModel hestonModel;
+	/**
+	 * The barrier mode.
+	 */
+	private final BarrierPDEMode barrierMode;
+	/**
+	 * The pre hit specification.
+	 */
+	private final BarrierPreHitSpecification preHitSpecification;
+
+	/**
+	 * Creates the barrier-aware Heston ADI solver.
+	 *
+	 * @param model The Heston model.
+	 * @param product The finite-difference product.
+	 * @param spaceTimeDiscretization The discretization to use.
+	 * @param exercise The exercise specification.
+	 * @param barrierMode The barrier PDE mode.
+	 * @param preHitSpecification The pre-hit specification. Required in
+	 *     IN_PRE_HIT mode.
+	 */
+	public FDMBarrierHestonADI2D(
+			final FDMHestonModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise,
+			final BarrierPDEMode barrierMode,
+			final BarrierPreHitSpecification preHitSpecification) {
+<span class="nc" id="L77">		super(model, product, spaceTimeDiscretization, exercise);</span>
+
+<span class="nc bnc" id="L79" title="All 2 branches missed.">		if (barrierMode == null) {</span>
+<span class="nc" id="L80">			throw new IllegalArgumentException(&quot;barrierMode must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L82" title="All 4 branches missed.">		if (barrierMode == BarrierPDEMode.IN_PRE_HIT &amp;&amp; preHitSpecification == null) {</span>
+<span class="nc" id="L83">			throw new IllegalArgumentException(</span>
+					&quot;preHitSpecification must not be null in IN_PRE_HIT mode.&quot;);
+		}
+
+<span class="nc" id="L87">		this.hestonModel = model;</span>
+<span class="nc" id="L88">		this.barrierMode = barrierMode;</span>
+<span class="nc" id="L89">		this.preHitSpecification = preHitSpecification;</span>
+<span class="nc" id="L90">	}</span>
+
+	@Override
+	public double[][] getValues(final double time, final DoubleUnaryOperator valueAtMaturity) {
+<span class="nc" id="L94">		return getValues(</span>
+				time,
+<span class="nc" id="L96">				(x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0),</span>
+<span class="nc" id="L97">				(runningTime, x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0));</span>
+	}
+
+	@Override
+	public double[][] getValues(final double time, final DoubleBinaryOperator valueAtMaturity) {
+<span class="nc" id="L102">		return getValues(</span>
+				time,
+				valueAtMaturity,
+<span class="nc" id="L105">				(runningTime, x0, x1) -&gt; valueAtMaturity.applyAsDouble(x0, x1));</span>
+	}
+
+	@Override
+	public double[][] getValues(
+			final double time,
+			final DoubleBinaryOperator valueAtMaturity,
+			final DoubleTernaryOperator exerciseValue) {
+
+<span class="nc" id="L114">		final int timeLength = getSpaceTimeDiscretization().getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="nc" id="L115">		final int numberOfTimeSteps = getSpaceTimeDiscretization().getTimeDiscretization().getNumberOfTimeSteps();</span>
+
+<span class="nc" id="L117">		double[] u = new double[getN()];</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L120">				u[flatten(i, j)] = valueAtMaturity.applyAsDouble(getX0Grid()[i], getX1Grid()[j]);</span>
+			}
+		}
+
+<span class="nc" id="L124">		applyOuterBoundaries(time, u);</span>
+<span class="nc" id="L125">		applyInternalConstraints(time, u);</span>
+<span class="nc" id="L126">		applyBarrierTraceIfNeeded(time, u);</span>
+<span class="nc" id="L127">		u = sanitize(u);</span>
+
+<span class="nc" id="L129">		final RealMatrix solutionSurface = new Array2DRowRealMatrix(getN(), timeLength);</span>
+<span class="nc" id="L130">		solutionSurface.setColumn(0, u.clone());</span>
+
+<span class="nc bnc" id="L132" title="All 2 branches missed.">		for (int m = 0; m &lt; numberOfTimeSteps; m++) {</span>
+<span class="nc" id="L133">			final double dt = getSpaceTimeDiscretization().getTimeDiscretization().getTimeStep(m);</span>
+
+<span class="nc" id="L135">			final double tauNext = getSpaceTimeDiscretization().getTimeDiscretization().getTime(m + 1);</span>
+<span class="nc" id="L136">			final double runningTimeNext =</span>
+<span class="nc" id="L137">					getSpaceTimeDiscretization().getTimeDiscretization().getLastTime() - tauNext;</span>
+
+<span class="nc" id="L139">			u = performStableDouglasStep(u, runningTimeNext, dt);</span>
+
+<span class="nc" id="L141">			applyInternalConstraints(runningTimeNext, u);</span>
+<span class="nc" id="L142">			applyOuterBoundaries(runningTimeNext, u);</span>
+<span class="nc" id="L143">			applyBarrierTraceIfNeeded(runningTimeNext, u);</span>
+
+<span class="nc bnc" id="L145" title="All 2 branches missed.">			if (!isPreHitMode()) {</span>
+<span class="nc" id="L146">				applyExerciseObstacleIfNeeded(runningTimeNext, tauNext, u, exerciseValue);</span>
+			}
+
+<span class="nc" id="L149">			applyInternalConstraints(runningTimeNext, u);</span>
+<span class="nc" id="L150">			applyOuterBoundaries(runningTimeNext, u);</span>
+<span class="nc" id="L151">			applyBarrierTraceIfNeeded(runningTimeNext, u);</span>
+
+<span class="nc" id="L153">			u = sanitize(u);</span>
+
+<span class="nc" id="L155">			solutionSurface.setColumn(m + 1, u.clone());</span>
+		}
+
+<span class="nc" id="L158">		return solutionSurface.getData();</span>
+	}
+
+	@Override
+	protected double[] solveFirstDirectionLines(
+			final double[] rhs,
+			final double time,
+			final double dt) {
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		if (!isPreHitMode()) {</span>
+<span class="nc" id="L168">			return super.solveFirstDirectionLines(rhs, time, dt);</span>
+		}
+
+<span class="nc" id="L171">		final double[] out = rhs.clone();</span>
+
+<span class="nc bnc" id="L173" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc" id="L174">			final TridiagonalMatrix matrix =</span>
+<span class="nc" id="L175">					getStencilBuilder().buildFirstDirectionLineMatrix(time, dt, getTheta(), j);</span>
+
+<span class="nc" id="L177">			final double[] lineRhs = new double[getN0()];</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L179">				lineRhs[i] = rhs[flatten(i, j)];</span>
+			}
+
+<span class="nc" id="L182">			final double lowerBoundaryValue =</span>
+<span class="nc" id="L183">					getLowerBoundaryValueForFirstDirection(time, j, lineRhs[0]);</span>
+<span class="nc" id="L184">			final double upperBoundaryValue =</span>
+<span class="nc" id="L185">					getUpperBoundaryValueForFirstDirection(time, j, lineRhs[getN0() - 1]);</span>
+
+<span class="nc" id="L187">			overwriteBoundaryRow(matrix, lineRhs, 0, lowerBoundaryValue);</span>
+<span class="nc" id="L188">			overwriteBoundaryRow(matrix, lineRhs, getN0() - 1, upperBoundaryValue);</span>
+
+<span class="nc" id="L190">			overwriteBarrierTraceRow(matrix, lineRhs, j, time);</span>
+
+<span class="nc" id="L192">			final double[] solved = ThomasSolver.solve(</span>
+<span class="nc" id="L193">					matrix.getLowerDiagonal(),</span>
+<span class="nc" id="L194">					matrix.getMainDiagonal(),</span>
+<span class="nc" id="L195">					matrix.getUpperDiagonal(),</span>
+					lineRhs
+					);
+
+<span class="nc bnc" id="L199" title="All 2 branches missed.">			for (int i = 0; i &lt; getN0(); i++) {</span>
+<span class="nc" id="L200">				out[flatten(i, j)] = solved[i];</span>
+			}
+		}
+
+<span class="nc" id="L204">		return out;</span>
+	}
+
+	@Override
+	protected void applyOuterBoundaries(final double time, final double[] u) {
+<span class="nc" id="L209">		super.applyOuterBoundaries(time, u);</span>
+<span class="nc" id="L210">		applyBarrierTraceIfNeeded(time, u);</span>
+<span class="nc" id="L211">	}</span>
+
+	/**
+	 * Returns true if this solver is in pre-hit continuation mode.
+	 *
+	 * @return True if in pre-hit mode.
+	 */
+	protected boolean isPreHitMode() {
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		return barrierMode == BarrierPDEMode.IN_PRE_HIT;</span>
+	}
+
+	/**
+	 * Overwrites the barrier interface row in a first-direction tridiagonal
+	 * system.
+	 *
+	 * @param matrix The tridiagonal matrix.
+	 * @param rhs The corresponding right-hand side.
+	 * @param secondIndex The variance index.
+	 * @param runningTime The running time.
+	 */
+	protected void overwriteBarrierTraceRow(
+			final TridiagonalMatrix matrix,
+			final double[] rhs,
+			final int secondIndex,
+			final double runningTime) {
+
+<span class="nc bnc" id="L237" title="All 2 branches missed.">		if (!isPreHitMode()) {</span>
+<span class="nc" id="L238">			return;</span>
+		}
+
+<span class="nc" id="L241">		final int barrierRow = preHitSpecification.getBarrierSpotIndex();</span>
+<span class="nc" id="L242">		final double barrierValue = getBarrierTraceValue(secondIndex, runningTime);</span>
+
+<span class="nc" id="L244">		overwriteBoundaryRow(matrix, rhs, barrierRow, barrierValue);</span>
+<span class="nc" id="L245">	}</span>
+
+	/**
+	 * Applies the barrier trace directly to the flattened solution vector.
+	 *
+	 * @param runningTime The running time.
+	 * @param u The solution vector.
+	 */
+	protected void applyBarrierTraceIfNeeded(
+			final double runningTime,
+			final double[] u) {
+
+<span class="nc bnc" id="L257" title="All 2 branches missed.">		if (!isPreHitMode()) {</span>
+<span class="nc" id="L258">			return;</span>
+		}
+
+<span class="nc" id="L261">		final int barrierRow = preHitSpecification.getBarrierSpotIndex();</span>
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">		for (int j = 0; j &lt; getN1(); j++) {</span>
+<span class="nc" id="L264">			u[flatten(barrierRow, j)] = getBarrierTraceValue(j, runningTime);</span>
+		}
+<span class="nc" id="L266">	}</span>
+
+	/**
+	 * Returns the activated barrier trace value at the given variance row and
+	 * running time.
+	 *
+	 * @param secondIndex The variance index.
+	 * @param runningTime The running time.
+	 * @return The corresponding trace value.
+	 */
+	protected double getBarrierTraceValue(
+			final int secondIndex,
+			final double runningTime) {
+
+<span class="nc" id="L280">		final double tau =</span>
+<span class="nc" id="L281">				Math.max(</span>
+						0.0,
+<span class="nc" id="L283">						getSpaceTimeDiscretization().getTimeDiscretization().getLastTime() - runningTime</span>
+						);
+
+<span class="nc" id="L286">		return preHitSpecification.getActivatedTrace().getValue(secondIndex, tau);</span>
+	}
+
+	/**
+	 * Returns the Heston model used by this solver.
+	 *
+	 * @return The Heston model.
+	 */
+	public FDMHestonModel getHestonModel() {
+<span class="nc" id="L295">		return hestonModel;</span>
+	}
+
+	/**
+	 * Returns the barrier PDE mode.
+	 *
+	 * @return The barrier mode.
+	 */
+	public BarrierPDEMode getBarrierMode() {
+<span class="nc" id="L304">		return barrierMode;</span>
+	}
+
+	/**
+	 * Returns the pre-hit specification, or null if not in pre-hit mode.
+	 *
+	 * @return The pre-hit specification.
+	 */
+	public BarrierPreHitSpecification getPreHitSpecification() {
+<span class="nc" id="L313">		return preHitSpecification;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalBasketOptionMultiAssetBlackScholesModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DigitalBasketOptionMultiAssetBlackScholesModelBoundary.java</span></div><h1>DigitalBasketOptionMultiAssetBlackScholesModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMMultiAssetBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DigitalBasketOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link DigitalBasketOption} under
+ * {@link FDMMultiAssetBlackScholesModel}.
+ *
+ * &lt;p&gt;
+ * The class covers the three digital payoff families supported by
+ * {@link DigitalBasketOption}:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;linear-combination digital,&lt;/li&gt;
+ *   &lt;li&gt;best-of digital,&lt;/li&gt;
+ *   &lt;li&gt;worst-of digital.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The lower-face reductions are exact and therefore this class requires both
+ * asset grids to start at zero.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalBasketOptionMultiAssetBlackScholesModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The time floor.
+	 */
+	private static final double TIME_FLOOR = 1E-10;
+	/**
+	 * The grid tolerance.
+	 */
+	private static final double GRID_TOLERANCE = 1E-12;
+	/**
+	 * The quantity tolerance.
+	 */
+	private static final double QUANTITY_TOLERANCE = 1E-14;
+	/**
+	 * The strike tolerance.
+	 */
+	private static final double STRIKE_TOLERANCE = 1E-14;
+
+	/**
+	 * The model.
+	 */
+	private final FDMMultiAssetBlackScholesModel model;
+
+	/**
+	 * Creates the boundary class.
+	 *
+	 * @param model The underlying finite-difference model.
+	 */
+<span class="nc" id="L62">	public DigitalBasketOptionMultiAssetBlackScholesModelBoundary(final FDMMultiAssetBlackScholesModel model) {</span>
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L64">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L66" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 2) {</span>
+<span class="nc" id="L67">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOptionMultiAssetBlackScholesModelBoundary requires a two-dimensional model.&quot;);
+		}
+
+<span class="nc" id="L71">		final double[] firstGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L72">		final double[] secondGrid = model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L74" title="All 4 branches missed.">		if (Math.abs(firstGrid[0]) &gt; GRID_TOLERANCE || Math.abs(secondGrid[0]) &gt; GRID_TOLERANCE) {</span>
+<span class="nc" id="L75">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOptionMultiAssetBlackScholesModelBoundary requires both asset grids to start at 0. &quot;
+							+ &quot;The lower-face reductions are exact only at S1 = 0 and S2 = 0.&quot;);
+		}
+
+<span class="nc" id="L80">		this.model = model;</span>
+<span class="nc" id="L81">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L89">		final DigitalBasketOption digitalBasketOption = validateAndCastProduct(product);</span>
+<span class="nc" id="L90">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L92">		final double tau = Math.max(digitalBasketOption.getMaturity() - time, 0.0);</span>
+<span class="nc" id="L93">		final double s1 = stateVariables[0];</span>
+<span class="nc" id="L94">		final double s2 = stateVariables[1];</span>
+
+<span class="nc" id="L96">		final BoundaryCondition[] conditions = new BoundaryCondition[] {</span>
+<span class="nc" id="L97">				StandardBoundaryCondition.none(),</span>
+<span class="nc" id="L98">				StandardBoundaryCondition.none()</span>
+		};
+
+<span class="nc bnc" id="L101" title="All 4 branches missed.">		switch (digitalBasketOption.getBasketDigitalType()) {</span>
+		case LINEAR_COMBINATION:
+<span class="nc" id="L103">			final double[] quantities = digitalBasketOption.getQuantities();</span>
+
+<span class="nc bnc" id="L105" title="All 2 branches missed.">			if (isAtLowerBoundary(0, s1)) {</span>
+<span class="nc" id="L106">				conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L107">						getReducedLinearCombinationDigitalValue(</span>
+<span class="nc" id="L108">								digitalBasketOption.getCallOrPut(),</span>
+								quantities[1],
+								s2,
+<span class="nc" id="L111">								digitalBasketOption.getStrike() - quantities[0] * s1,</span>
+								1,
+								tau,
+<span class="nc" id="L114">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+
+<span class="nc bnc" id="L119" title="All 2 branches missed.">			if (isAtLowerBoundary(1, s2)) {</span>
+<span class="nc" id="L120">				conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L121">						getReducedLinearCombinationDigitalValue(</span>
+<span class="nc" id="L122">								digitalBasketOption.getCallOrPut(),</span>
+								quantities[0],
+								s1,
+<span class="nc" id="L125">								digitalBasketOption.getStrike() - quantities[1] * s2,</span>
+								0,
+								tau,
+<span class="nc" id="L128">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+			break;
+
+		case BEST_OF:
+<span class="nc bnc" id="L135" title="All 2 branches missed.">			if (isAtLowerBoundary(0, s1)) {</span>
+<span class="nc" id="L136">				conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L137">						getReducedVanillaDigitalValue(</span>
+<span class="nc" id="L138">								digitalBasketOption.getCallOrPut(),</span>
+								s2,
+<span class="nc" id="L140">								digitalBasketOption.getStrike(),</span>
+								1,
+								tau,
+<span class="nc" id="L143">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+
+<span class="nc bnc" id="L148" title="All 2 branches missed.">			if (isAtLowerBoundary(1, s2)) {</span>
+<span class="nc" id="L149">				conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L150">						getReducedVanillaDigitalValue(</span>
+<span class="nc" id="L151">								digitalBasketOption.getCallOrPut(),</span>
+								s1,
+<span class="nc" id="L153">								digitalBasketOption.getStrike(),</span>
+								0,
+								tau,
+<span class="nc" id="L156">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+			break;
+
+		case WORST_OF:
+<span class="nc" id="L163">			final double deterministicLowerFaceValue = getDeterministicDigitalValue(</span>
+<span class="nc" id="L164">					digitalBasketOption.getCallOrPut(),</span>
+					0.0,
+<span class="nc" id="L166">					digitalBasketOption.getStrike(),</span>
+					tau,
+<span class="nc" id="L168">					digitalBasketOption.getCashPayoff()</span>
+					);
+
+<span class="nc bnc" id="L171" title="All 2 branches missed.">			if (isAtLowerBoundary(0, s1)) {</span>
+<span class="nc" id="L172">				conditions[0] = StandardBoundaryCondition.dirichlet(deterministicLowerFaceValue);</span>
+			}
+
+<span class="nc bnc" id="L175" title="All 2 branches missed.">			if (isAtLowerBoundary(1, s2)) {</span>
+<span class="nc" id="L176">				conditions[1] = StandardBoundaryCondition.dirichlet(deterministicLowerFaceValue);</span>
+			}
+			break;
+
+		default:
+<span class="nc" id="L181">			throw new IllegalStateException(&quot;Unsupported basket digital type.&quot;);</span>
+		}
+
+<span class="nc" id="L184">		return conditions;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L193">		final DigitalBasketOption digitalBasketOption = validateAndCastProduct(product);</span>
+<span class="nc" id="L194">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L196">		final double tau = Math.max(digitalBasketOption.getMaturity() - time, 0.0);</span>
+<span class="nc" id="L197">		final double s1 = stateVariables[0];</span>
+<span class="nc" id="L198">		final double s2 = stateVariables[1];</span>
+
+<span class="nc" id="L200">		final BoundaryCondition[] conditions = new BoundaryCondition[] {</span>
+<span class="nc" id="L201">				StandardBoundaryCondition.none(),</span>
+<span class="nc" id="L202">				StandardBoundaryCondition.none()</span>
+		};
+
+<span class="nc bnc" id="L205" title="All 4 branches missed.">		switch (digitalBasketOption.getBasketDigitalType()) {</span>
+		case LINEAR_COMBINATION:
+<span class="nc" id="L207">			final double[] quantities = digitalBasketOption.getQuantities();</span>
+
+<span class="nc bnc" id="L209" title="All 2 branches missed.">			if (isAtUpperBoundary(0, s1)) {</span>
+<span class="nc" id="L210">				conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L211">						getReducedLinearCombinationDigitalValue(</span>
+<span class="nc" id="L212">								digitalBasketOption.getCallOrPut(),</span>
+								quantities[1],
+								s2,
+<span class="nc" id="L215">								digitalBasketOption.getStrike() - quantities[0] * s1,</span>
+								1,
+								tau,
+<span class="nc" id="L218">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+
+<span class="nc bnc" id="L223" title="All 2 branches missed.">			if (isAtUpperBoundary(1, s2)) {</span>
+<span class="nc" id="L224">				conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L225">						getReducedLinearCombinationDigitalValue(</span>
+<span class="nc" id="L226">								digitalBasketOption.getCallOrPut(),</span>
+								quantities[0],
+								s1,
+<span class="nc" id="L229">								digitalBasketOption.getStrike() - quantities[1] * s2,</span>
+								0,
+								tau,
+<span class="nc" id="L232">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+			break;
+
+		case BEST_OF:
+<span class="nc bnc" id="L239" title="All 2 branches missed.">			if (isAtUpperBoundary(0, s1)) {</span>
+<span class="nc" id="L240">				conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L241">						getBestOfUpperFaceValue(</span>
+<span class="nc" id="L242">								digitalBasketOption.getCallOrPut(),</span>
+								s1,
+								s2,
+<span class="nc" id="L245">								digitalBasketOption.getStrike(),</span>
+								1,
+								tau,
+<span class="nc" id="L248">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+
+<span class="nc bnc" id="L253" title="All 2 branches missed.">			if (isAtUpperBoundary(1, s2)) {</span>
+<span class="nc" id="L254">				conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L255">						getBestOfUpperFaceValue(</span>
+<span class="nc" id="L256">								digitalBasketOption.getCallOrPut(),</span>
+								s2,
+								s1,
+<span class="nc" id="L259">								digitalBasketOption.getStrike(),</span>
+								0,
+								tau,
+<span class="nc" id="L262">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+			break;
+
+		case WORST_OF:
+<span class="nc bnc" id="L269" title="All 2 branches missed.">			if (isAtUpperBoundary(0, s1)) {</span>
+<span class="nc" id="L270">				conditions[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L271">						getWorstOfUpperFaceValue(</span>
+<span class="nc" id="L272">								digitalBasketOption.getCallOrPut(),</span>
+								s1,
+								s2,
+<span class="nc" id="L275">								digitalBasketOption.getStrike(),</span>
+								1,
+								tau,
+<span class="nc" id="L278">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+
+<span class="nc bnc" id="L283" title="All 2 branches missed.">			if (isAtUpperBoundary(1, s2)) {</span>
+<span class="nc" id="L284">				conditions[1] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L285">						getWorstOfUpperFaceValue(</span>
+<span class="nc" id="L286">								digitalBasketOption.getCallOrPut(),</span>
+								s2,
+								s1,
+<span class="nc" id="L289">								digitalBasketOption.getStrike(),</span>
+								0,
+								tau,
+<span class="nc" id="L292">								digitalBasketOption.getCashPayoff()</span>
+								)
+						);
+			}
+			break;
+
+		default:
+<span class="nc" id="L299">			throw new IllegalStateException(&quot;Unsupported basket digital type.&quot;);</span>
+		}
+
+<span class="nc" id="L302">		return conditions;</span>
+	}
+
+	private DigitalBasketOption validateAndCastProduct(final FiniteDifferenceEquityProduct product) {
+<span class="nc bnc" id="L306" title="All 2 branches missed.">		if (!(product instanceof DigitalBasketOption)) {</span>
+<span class="nc" id="L307">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOptionMultiAssetBlackScholesModelBoundary requires a DigitalBasketOption.&quot;);
+		}
+
+<span class="nc" id="L311">		final DigitalBasketOption digitalBasketOption = (DigitalBasketOption) product;</span>
+
+<span class="nc bnc" id="L313" title="All 2 branches missed.">		if (!digitalBasketOption.getExercise().isEuropean()) {</span>
+<span class="nc" id="L314">			throw new IllegalArgumentException(</span>
+					&quot;DigitalBasketOptionMultiAssetBlackScholesModelBoundary currently supports only European exercise.&quot;);
+		}
+
+<span class="nc" id="L318">		return digitalBasketOption;</span>
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L322" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 2) {</span>
+<span class="nc" id="L323">			throw new IllegalArgumentException(&quot;Two state variables are required.&quot;);</span>
+		}
+<span class="nc" id="L325">	}</span>
+
+	private boolean isAtLowerBoundary(final int dimension, final double value) {
+<span class="nc" id="L328">		final double[] grid = model.getSpaceTimeDiscretization().getSpaceGrid(dimension).getGrid();</span>
+<span class="nc bnc" id="L329" title="All 2 branches missed.">		return Math.abs(value - grid[0]) &lt;= GRID_TOLERANCE;</span>
+	}
+
+	private boolean isAtUpperBoundary(final int dimension, final double value) {
+<span class="nc" id="L333">		final double[] grid = model.getSpaceTimeDiscretization().getSpaceGrid(dimension).getGrid();</span>
+<span class="nc bnc" id="L334" title="All 2 branches missed.">		return Math.abs(value - grid[grid.length - 1]) &lt;= GRID_TOLERANCE;</span>
+	}
+
+	private double getReducedLinearCombinationDigitalValue(
+			final CallOrPut callOrPut,
+			final double quantity,
+			final double spot,
+			final double adjustedStrike,
+			final int assetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc" id="L346">		final int sign = callOrPut.toInteger();</span>
+
+<span class="nc bnc" id="L348" title="All 2 branches missed.">		if (Math.abs(quantity) &lt;= QUANTITY_TOLERANCE) {</span>
+<span class="nc" id="L349">			return getDeterministicDigitalValue(callOrPut, 0.0, adjustedStrike, tau, cashPayoff);</span>
+		}
+
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if (quantity &gt; 0.0) {</span>
+<span class="nc" id="L353">			final double effectiveStrike = adjustedStrike / quantity;</span>
+
+<span class="nc bnc" id="L355" title="All 2 branches missed.">			if (sign &gt; 0) {</span>
+<span class="nc" id="L356">				return getCashOrNothingCallValue(spot, effectiveStrike, assetIndex, tau, cashPayoff);</span>
+			}
+
+<span class="nc" id="L359">			return getCashOrNothingPutValue(spot, effectiveStrike, assetIndex, tau, cashPayoff);</span>
+		}
+
+<span class="nc" id="L362">		final double absoluteQuantity = -quantity;</span>
+<span class="nc" id="L363">		final double transformedStrike = -adjustedStrike / absoluteQuantity;</span>
+
+<span class="nc bnc" id="L365" title="All 2 branches missed.">		if (sign &gt; 0) {</span>
+<span class="nc" id="L366">			return getCashOrNothingPutValue(spot, transformedStrike, assetIndex, tau, cashPayoff);</span>
+		}
+
+<span class="nc" id="L369">		return getCashOrNothingCallValue(spot, transformedStrike, assetIndex, tau, cashPayoff);</span>
+	}
+
+	private double getReducedVanillaDigitalValue(
+			final CallOrPut callOrPut,
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L380" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L381">			return getCashOrNothingCallValue(spot, strike, assetIndex, tau, cashPayoff);</span>
+		}
+
+<span class="nc" id="L384">		return getCashOrNothingPutValue(spot, strike, assetIndex, tau, cashPayoff);</span>
+	}
+
+	private double getBestOfUpperFaceValue(
+			final CallOrPut callOrPut,
+			final double boundarySpot,
+			final double remainingSpot,
+			final double strike,
+			final int remainingAssetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L396" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc bnc" id="L397" title="All 2 branches missed.">			if (boundarySpot &gt; strike) {</span>
+<span class="nc" id="L398">				return cashPayoff * getRiskFreeDiscountFactor(tau);</span>
+			}
+
+<span class="nc" id="L401">			return getCashOrNothingCallValue(</span>
+					remainingSpot,
+					strike,
+					remainingAssetIndex,
+					tau,
+					cashPayoff
+					);
+		}
+
+<span class="nc bnc" id="L410" title="All 2 branches missed.">		if (boundarySpot &gt;= strike) {</span>
+<span class="nc" id="L411">			return 0.0;</span>
+		}
+
+<span class="nc" id="L414">		return getCashOrNothingPutValue(</span>
+				remainingSpot,
+				strike,
+				remainingAssetIndex,
+				tau,
+				cashPayoff
+				);
+	}
+
+	private double getWorstOfUpperFaceValue(
+			final CallOrPut callOrPut,
+			final double boundarySpot,
+			final double remainingSpot,
+			final double strike,
+			final int remainingAssetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L432" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc bnc" id="L433" title="All 2 branches missed.">			if (boundarySpot &lt;= strike) {</span>
+<span class="nc" id="L434">				return 0.0;</span>
+			}
+
+<span class="nc" id="L437">			return getCashOrNothingCallValue(</span>
+					remainingSpot,
+					strike,
+					remainingAssetIndex,
+					tau,
+					cashPayoff
+					);
+		}
+
+<span class="nc bnc" id="L446" title="All 2 branches missed.">		if (boundarySpot &lt; strike) {</span>
+<span class="nc" id="L447">			return cashPayoff * getRiskFreeDiscountFactor(tau);</span>
+		}
+
+<span class="nc" id="L450">		return getCashOrNothingPutValue(</span>
+				remainingSpot,
+				strike,
+				remainingAssetIndex,
+				tau,
+				cashPayoff
+				);
+	}
+
+	private double getDeterministicDigitalValue(
+			final CallOrPut callOrPut,
+			final double underlyingValue,
+			final double strike,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L466" title="All 2 branches missed.">		return callOrPut.toInteger() * (underlyingValue - strike) &gt; 0.0</span>
+<span class="nc" id="L467">				? cashPayoff * getRiskFreeDiscountFactor(tau)</span>
+<span class="nc" id="L468">						: 0.0;</span>
+	}
+
+	private double getCashOrNothingCallValue(
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L478" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">			return spot &gt; strike ? cashPayoff : 0.0;</span>
+		}
+
+<span class="nc bnc" id="L482" title="All 2 branches missed.">		if (strike &lt; -STRIKE_TOLERANCE) {</span>
+<span class="nc" id="L483">			return cashPayoff * getRiskFreeDiscountFactor(tau);</span>
+		}
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">		if (Math.abs(strike) &lt;= STRIKE_TOLERANCE) {</span>
+<span class="nc bnc" id="L487" title="All 2 branches missed.">			return spot &gt; 0.0 ? cashPayoff * getRiskFreeDiscountFactor(tau) : 0.0;</span>
+		}
+
+<span class="nc bnc" id="L490" title="All 2 branches missed.">		if (spot &lt;= 0.0) {</span>
+<span class="nc" id="L491">			return 0.0;</span>
+		}
+
+<span class="nc" id="L494">		final double riskFreeRate = getRiskFreeRate(tau);</span>
+<span class="nc" id="L495">		final double dividendYield = getDividendYieldRate(assetIndex, tau);</span>
+<span class="nc" id="L496">		final double forward = spot * Math.exp((riskFreeRate - dividendYield) * tau);</span>
+<span class="nc" id="L497">		final double payoffUnit = Math.exp(-riskFreeRate * tau);</span>
+
+<span class="nc" id="L499">		return cashPayoff</span>
+				* payoffUnit
+<span class="nc" id="L501">				* AnalyticFormulas.blackScholesDigitalOptionValue(</span>
+						forward,
+						0.0,
+<span class="nc" id="L504">						model.getVolatilities()[assetIndex],</span>
+						tau,
+						strike
+						);
+	}
+
+	private double getCashOrNothingPutValue(
+			final double spot,
+			final double strike,
+			final int assetIndex,
+			final double tau,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L517" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc bnc" id="L518" title="All 2 branches missed.">			return spot &lt; strike ? cashPayoff : 0.0;</span>
+		}
+
+<span class="nc bnc" id="L521" title="All 2 branches missed.">		if (strike &lt;= STRIKE_TOLERANCE) {</span>
+<span class="nc" id="L522">			return 0.0;</span>
+		}
+
+<span class="nc bnc" id="L525" title="All 2 branches missed.">		if (spot &lt;= 0.0) {</span>
+<span class="nc" id="L526">			return cashPayoff * getRiskFreeDiscountFactor(tau);</span>
+		}
+
+<span class="nc" id="L529">		return cashPayoff * getRiskFreeDiscountFactor(tau)</span>
+<span class="nc" id="L530">				- getCashOrNothingCallValue(spot, strike, assetIndex, tau, cashPayoff);</span>
+	}
+
+	private double getRiskFreeRate(final double tau) {
+<span class="nc" id="L534">		final double safeTau = Math.max(tau, TIME_FLOOR);</span>
+<span class="nc" id="L535">		final DiscountCurve curve = model.getRiskFreeCurve();</span>
+<span class="nc" id="L536">		return -Math.log(curve.getDiscountFactor(safeTau)) / safeTau;</span>
+	}
+
+	private double getDividendYieldRate(final int assetIndex, final double tau) {
+<span class="nc" id="L540">		final double safeTau = Math.max(tau, TIME_FLOOR);</span>
+<span class="nc" id="L541">		final DiscountCurve curve = model.getDividendYieldCurves()[assetIndex];</span>
+<span class="nc" id="L542">		return -Math.log(curve.getDiscountFactor(safeTau)) / safeTau;</span>
+	}
+
+	private double getRiskFreeDiscountFactor(final double tau) {
+<span class="nc bnc" id="L546" title="All 2 branches missed.">		if (tau &lt;= 0.0) {</span>
+<span class="nc" id="L547">			return 1.0;</span>
+		}
+<span class="nc" id="L549">		return model.getRiskFreeCurve().getDiscountFactor(tau);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableDifferentiableAADFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward</a> &gt; <span class="el_source">RandomVariableDifferentiableAADFactory.java</span></div><h1>RandomVariableDifferentiableAADFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 21.06.2017
+ */
+
+package net.finmath.montecarlo.automaticdifferentiation.backward;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.automaticdifferentiation.AbstractRandomVariableDifferentiableFactory;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.1
+ */
+public class RandomVariableDifferentiableAADFactory extends AbstractRandomVariableDifferentiableFactory {
+
+	private static final long serialVersionUID = -6035830497454502442L;
+
+<span class="fc" id="L26">	public enum DiracDeltaApproximationMethod {</span>
+<span class="fc" id="L27">		DISCRETE_DELTA,</span>
+<span class="fc" id="L28">		REGRESSION_ON_DENSITY,</span>
+<span class="fc" id="L29">		REGRESSION_ON_DISTRIBUITON,</span>
+<span class="fc" id="L30">		ONE,</span>
+<span class="fc" id="L31">		ZERO</span>
+	}
+
+	/*
+	 * diractDeltaApproximationWidthPerStdDev defines the width of the discrete approximation of the Dirac peak
+	 * from differentiation of a jump (barrier). It corresponds to the finite difference shift
+	 * when the derivative is calculated via finite differences.
+	 *
+	 * It is a multiplicator to the standard deviation of the random variable.
+	 */
+	private final DiracDeltaApproximationMethod diracDeltaApproximationMethod;
+	private final double diracDeltaApproximationWidthPerStdDev;
+	private final double diracDeltaApproximationDensityRegressionWidthPerStdDev;
+
+	private final boolean isGradientRetainsLeafNodesOnly;
+
+	/**
+	 * Create a factory for objects of type {@link RandomVariableDifferentiableAAD}.
+	 *
+	 * Supported propeties are
+	 * &lt;ul&gt;
+	 * &lt;li&gt;isGradientRetainsLeafNodesOnly: Boolean&lt;/li&gt;
+	 * &lt;li&gt;diracDeltaApproximationMethod: String&lt;/li&gt;
+	 * &lt;li&gt;diracDeltaApproximationWidthPerStdDev: Double&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
+	 * @param properties A key value map with properties.
+	 */
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable, final Map&lt;String, Object&gt; properties) {
+<span class="fc" id="L61">		super(randomVariableFactoryForNonDifferentiable);</span>
+
+		/*
+		 * diractDeltaApproximationWidthPerStdDev = 0.05 corresponds to 2% of paths used for estimation bin 0.05 = 2%,  0.025 = 1%
+		 * diracDeltaApproximationDensityRegressionWidthPerStdDev = 0.50 corresponds to 20% of path used for regression of density, 1.00 = 40%.
+		 */
+<span class="fc" id="L67">		diracDeltaApproximationMethod = DiracDeltaApproximationMethod.valueOf((String)properties.getOrDefault(&quot;diracDeltaApproximationMethod&quot;, DiracDeltaApproximationMethod.DISCRETE_DELTA.name()));</span>
+<span class="fc" id="L68">		diracDeltaApproximationWidthPerStdDev = (Double)properties.getOrDefault(&quot;diracDeltaApproximationWidthPerStdDev&quot;, properties.getOrDefault(&quot;barrierDiracWidth&quot;, 0.05));</span>
+<span class="fc" id="L69">		diracDeltaApproximationDensityRegressionWidthPerStdDev = (Double)properties.getOrDefault(&quot;diracDeltaApproximationDensityRegressionWidthPerStdDev&quot;, 0.5);</span>
+
+<span class="fc" id="L71">		isGradientRetainsLeafNodesOnly = (Boolean) properties.getOrDefault(&quot;isGradientRetainsLeafNodesOnly&quot;, true);</span>
+<span class="fc" id="L72">	}</span>
+
+	/**
+	 * @param properties A key value map with properties.
+	 */
+	public RandomVariableDifferentiableAADFactory(final Map&lt;String, Object&gt; properties) {
+<span class="nc" id="L78">		this(new RandomVariableFromArrayFactory(), properties);</span>
+<span class="nc" id="L79">	}</span>
+
+	/**
+	 * @param randomVariableFactoryForNonDifferentiable Random variable factory for the underlying values.
+	 */
+	public RandomVariableDifferentiableAADFactory(final RandomVariableFactory randomVariableFactoryForNonDifferentiable) {
+<span class="fc" id="L85">		this(randomVariableFactoryForNonDifferentiable, new HashMap&lt;String, Object&gt;());</span>
+<span class="fc" id="L86">	}</span>
+
+	public RandomVariableDifferentiableAADFactory() {
+<span class="fc" id="L89">		this(new RandomVariableFromArrayFactory());</span>
+<span class="fc" id="L90">	}</span>
+
+	@Override
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double value) {
+<span class="fc" id="L94">		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, value), this);</span>
+	}
+
+	@Override
+	public RandomVariableDifferentiable createRandomVariable(final double time, final double[] values) {
+<span class="fc" id="L99">		return new RandomVariableDifferentiableAAD(createRandomVariableNonDifferentiable(time, values), this);</span>
+	}
+
+	public DiracDeltaApproximationMethod getDiracDeltaApproximationMethod() {
+<span class="fc" id="L103">		return diracDeltaApproximationMethod;</span>
+	}
+
+	public double getDiracDeltaApproximationWidthPerStdDev() {
+<span class="fc" id="L107">		return diracDeltaApproximationWidthPerStdDev;</span>
+	}
+
+	public double getDiracDeltaApproximationDensityRegressionWidthPerStdDev() {
+<span class="fc" id="L111">		return diracDeltaApproximationDensityRegressionWidthPerStdDev;</span>
+	}
+
+	@Deprecated
+	public double getBarrierDiracWidth() {
+<span class="nc" id="L116">		return getDiracDeltaApproximationWidthPerStdDev();</span>
+	}
+
+	public boolean isGradientRetainsLeafNodesOnly() {
+<span class="fc" id="L120">		return isGradientRetainsLeafNodesOnly;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L125">		return &quot;RandomVariableDifferentiableAADFactory [diracDeltaApproximationMethod=&quot; + diracDeltaApproximationMethod</span>
+				+ &quot;, diracDeltaApproximationWidthPerStdDev=&quot; + diracDeltaApproximationWidthPerStdDev
+				+ &quot;, diracDeltaApproximationDensityRegressionWidthPerStdDev=&quot;
+				+ diracDeltaApproximationDensityRegressionWidthPerStdDev + &quot;, isGradientRetainsLeafNodesOnly=&quot;
+<span class="fc" id="L129">				+ isGradientRetainsLeafNodesOnly + &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

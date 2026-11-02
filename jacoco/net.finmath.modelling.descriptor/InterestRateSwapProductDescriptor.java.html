@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterestRateSwapProductDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">InterestRateSwapProductDescriptor.java</span></div><h1>InterestRateSwapProductDescriptor.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor;
+
+import net.finmath.modelling.InterestRateProductDescriptor;
+
+/**
+ * Product descriptor for an interest rate swap.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ * @version 1.0
+ */
+public class InterestRateSwapProductDescriptor implements InterestRateProductDescriptor {
+
+	private static final String productName = &quot;Interest Rate Swap&quot;;
+
+	private final InterestRateProductDescriptor legReceiver;
+	private final InterestRateProductDescriptor legPayer;
+
+	/**
+	 * Construct a swap product descriptor from the descriptors of its legs.
+	 *
+	 * @param legReceiver The descriptor of the receiver leg.
+	 * @param legPayer The descriptor of the payer leg.
+	 */
+	public InterestRateSwapProductDescriptor(final InterestRateProductDescriptor legReceiver,
+			final InterestRateProductDescriptor legPayer) {
+<span class="nc" id="L27">		super();</span>
+<span class="nc" id="L28">		this.legReceiver = legReceiver;</span>
+<span class="nc" id="L29">		this.legPayer = legPayer;</span>
+<span class="nc" id="L30">	}</span>
+
+
+	/**
+	 * Return the descriptor of the receiver leg of this swap.
+	 *
+	 * @return The leg descriptor.
+	 */
+	public InterestRateProductDescriptor getLegReceiver() {
+<span class="nc" id="L39">		return legReceiver;</span>
+	}
+
+	/**
+	 * Return the descriptor of the payer leg of this swap.
+	 *
+	 * @return The leg descriptor.
+	 */
+	public InterestRateProductDescriptor getLegPayer() {
+<span class="nc" id="L48">		return legPayer;</span>
+	}
+
+	@Override
+	public Integer version() {
+<span class="nc" id="L53">		return 1;</span>
+	}
+
+	@Override
+	public String name() {
+<span class="nc" id="L58">		return productName;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

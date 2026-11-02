@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwapAnnuity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.products</a> &gt; <span class="el_source">SwapAnnuity.java</span></div><h1>SwapAnnuity.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.11.2012
+ */
+package net.finmath.marketdata.products;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveFromForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.Schedule;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements the valuation of a swap annuity using curves (discount curve).
+ * Support for day counting is limited to the capabilities of
+ * &lt;code&gt;TimeDiscretization&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SwapAnnuity extends AbstractAnalyticProduct implements AnalyticProduct {
+
+	private final Schedule	schedule;
+	private final String	discountCurveName;
+
+	/**
+	 * Creates a swap annuity for a given schedule and discount curve.
+	 *
+	 * @param schedule TenorFromArray of the swap annuity.
+	 * @param discountCurveName Name of the discount curve for the swap annuity.
+	 */
+	public SwapAnnuity(final Schedule schedule, final String discountCurveName) {
+<span class="nc" id="L38">		super();</span>
+<span class="nc" id="L39">		this.schedule = schedule;</span>
+<span class="nc" id="L40">		this.discountCurveName = discountCurveName;</span>
+<span class="nc" id="L41">	}</span>
+
+	@Override
+	public double getValue(final double evaluationTime, final AnalyticModel model) {
+<span class="nc" id="L45">		final DiscountCurve discountCurve = (DiscountCurve) model.getCurve(discountCurveName);</span>
+
+<span class="nc" id="L47">		return getSwapAnnuity(evaluationTime, schedule, discountCurve, model);</span>
+	}
+
+	/**
+	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
+	 *
+	 * @param tenor The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param discountCurve The discount curve.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(final TimeDiscretization tenor, final DiscountCurve discountCurve) {
+<span class="fc" id="L58">		return getSwapAnnuity(new RegularSchedule(tenor), discountCurve);</span>
+	}
+
+	/**
+	 * Function to calculate an (idealized) single curve swap annuity for a given schedule and forward curve.
+	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
+	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
+	 *
+	 * @param tenor The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param forwardCurve The forward curve.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(final TimeDiscretization tenor, final ForwardCurve forwardCurve) {
+<span class="fc" id="L71">		return getSwapAnnuity(new RegularSchedule(tenor), forwardCurve);</span>
+	}
+
+	/**
+	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
+	 *
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModel)}.
+	 *
+	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param discountCurve The discount curve.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(final Schedule schedule, final DiscountCurve discountCurve) {
+<span class="fc" id="L84">		final double evaluationTime = 0.0;	// Consider only payment time &gt; 0</span>
+<span class="fc" id="L85">		return getSwapAnnuity(evaluationTime, schedule, discountCurve, null);</span>
+	}
+
+	/**
+	 * Function to calculate an (idealized) single curve swap annuity for a given schedule and forward curve.
+	 * The discount curve used to calculate the annuity is calculated from the forward curve using classical
+	 * single curve interpretations of forwards and a default period length. The may be a crude approximation.
+	 *
+	 * Note: This method will consider evaluationTime being 0, see {@link net.finmath.marketdata.products.SwapAnnuity#getSwapAnnuity(double, Schedule, DiscountCurve, AnalyticModel)}.
+	 *
+	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param forwardCurve The forward curve.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(final Schedule schedule, final ForwardCurve forwardCurve) {
+<span class="fc" id="L100">		final DiscountCurve discountCurve = new DiscountCurveFromForwardCurve(forwardCurve.getName());</span>
+<span class="fc" id="L101">		final double evaluationTime = 0.0;	// Consider only payment time &gt; 0</span>
+<span class="fc" id="L102">		return getSwapAnnuity(evaluationTime, schedule, discountCurve, new AnalyticModelFromCurvesAndVols( new Curve[] {forwardCurve, discountCurve} ));</span>
+	}
+
+	/**
+	 * Function to calculate an (idealized) swap annuity for a given schedule and discount curve.
+	 *
+	 * Note that, the value returned is divided by the discount factor at evaluation.
+	 * This matters, if the discount factor at evaluationTime is not equal to 1.0.
+	 *
+	 * @param evaluationTime The evaluation time as double. Cash flows prior and including this time are not considered.
+	 * @param schedule The schedule discretization, i.e., the period start and end dates. End dates are considered payment dates and start of the next period.
+	 * @param discountCurve The discount curve.
+	 * @param model The model, needed only in case the discount curve evaluation depends on an additional curve.
+	 * @return The swap annuity.
+	 */
+	public static double getSwapAnnuity(final double evaluationTime, final Schedule schedule, final DiscountCurve discountCurve, final AnalyticModel model) {
+<span class="fc" id="L118">		double value = 0.0;</span>
+<span class="fc bfc" id="L119" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods(); periodIndex++) {</span>
+<span class="fc" id="L120">			final double paymentDate		= schedule.getPayment(periodIndex);</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">			if(paymentDate &lt;= evaluationTime) {</span>
+<span class="nc" id="L122">				continue;</span>
+			}
+
+<span class="fc" id="L125">			final double periodLength		= schedule.getPeriodLength(periodIndex);</span>
+<span class="fc" id="L126">			final double discountFactor	= discountCurve.getDiscountFactor(model, paymentDate);</span>
+<span class="fc" id="L127">			value += periodLength * discountFactor;</span>
+		}
+<span class="fc" id="L129">		return value / discountCurve.getDiscountFactor(model, evaluationTime);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L134">		return &quot;SwapAnnuity [schedule=&quot; + schedule + &quot;, discountCurveName=&quot;</span>
+				+ discountCurveName + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,1357 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableDifferentiableAAD.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward</a> &gt; <span class="el_source">RandomVariableDifferentiableAAD.java</span></div><h1>RandomVariableDifferentiableAAD.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 17.06.2017
+ */
+package net.finmath.montecarlo.automaticdifferentiation.backward;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.montecarlo.automaticdifferentiation.backward.RandomVariableDifferentiableAADFactory.DiracDeltaApproximationMethod;
+import net.finmath.montecarlo.conditionalexpectation.LinearRegression;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Implementation of &lt;code&gt;RandomVariableDifferentiable&lt;/code&gt; using
+ * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
+ *
+ * This class implements the optimized stochastic ADD as it is described in
+ * &lt;a href=&quot;https://ssrn.com/abstract=2995695&quot;&gt;ssrn.com/abstract=2995695&lt;/a&gt;.
+ *
+ * The class implements the special treatment of the conditional expectation operator as it is described in
+ * &lt;a href=&quot;https://ssrn.com/abstract=3000822&quot;&gt;ssrn.com/abstract=3000822&lt;/a&gt;.
+ *
+ * The class implements the special treatment of indicator functions as it is described in
+ * &lt;a href=&quot;https://ssrn.com/abstract=3282667&quot;&gt;ssrn.com/abstract=3282667&lt;/a&gt;.
+ *
+ * For details see &lt;a href=&quot;http://christianfries.com/finmath/stochasticautodiff/&quot;&gt;http://christianfries.com/finmath/stochasticautodiff/&lt;/a&gt;.
+ *
+ * The class is serializable. Upon de-serialization the value of {@link #getID()} may be changed to ensure unique IDs in de-serialization context.
+ *
+ * @author Christian Fries
+ * @author Stefan Sedlmair
+ * @version 1.1
+ */
+public class RandomVariableDifferentiableAAD implements RandomVariableDifferentiable {
+
+	private static final long serialVersionUID = 2459373647785530657L;
+
+	private static final int typePriorityDefault = 3;
+
+<span class="fc" id="L60">	private static final RandomVariable one = new Scalar(1.0);</span>
+
+	private final int typePriority;
+
+<span class="fc" id="L64">	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);</span>
+
+<span class="fc" id="L66">	private enum OperatorType {</span>
+<span class="fc" id="L67">		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,</span>
+<span class="fc" id="L68">		ADDPRODUCT, ADDRATIO, SUBRATIO, CHOOSE, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,</span>
+<span class="fc" id="L69">		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,</span>
+<span class="fc" id="L70">		STDEV2, STDERROR2, CONDITIONAL_EXPECTATION</span>
+	}
+
+	/**
+	 * A node in the &lt;i&gt;operator tree&lt;/i&gt;. It
+	 * stores an id (the index m), the operator (the function f_m), and the arguments.
+	 * It also stores reference to the argument values, if required.
+	 *
+	 * @author Christian Fries
+	 */
+	private static class OperatorTreeNode implements Serializable {
+
+		private static final long serialVersionUID = -8428352552169568990L;
+
+		private final Long id;
+		private final OperatorType operatorType;
+		private final List&lt;OperatorTreeNode&gt; arguments;
+		private final List&lt;RandomVariable&gt; argumentValues;
+		private final Object operator;
+		private final RandomVariableDifferentiableAADFactory factory;
+
+<span class="fc" id="L91">		private static final RandomVariable zero = new Scalar(0.0);</span>
+<span class="fc" id="L92">		private static final RandomVariable one = new Scalar(1.0);</span>
+<span class="fc" id="L93">		private static final RandomVariable minusOne = new Scalar(-1.0);</span>
+
+		OperatorTreeNode(final OperatorType operatorType, final List&lt;OperatorTreeNode&gt; arguments, List&lt;RandomVariable&gt; argumentValues, final Object operator, final RandomVariableDifferentiableAADFactory factory) {
+<span class="fc" id="L96">			super();</span>
+<span class="fc" id="L97">			id = indexOfNextRandomVariable.getAndIncrement();</span>
+<span class="fc" id="L98">			this.operatorType = operatorType;</span>
+<span class="fc" id="L99">			this.arguments = arguments;</span>
+<span class="fc" id="L100">			this.operator = operator;</span>
+<span class="fc" id="L101">			this.factory = factory;</span>
+
+			/*
+			 * This is the simple modification which reduces memory requirements.
+			 */
+<span class="fc bfc" id="L106" title="All 6 branches covered.">			if(operatorType != null &amp;&amp; (operatorType.equals(OperatorType.ADD) || operatorType.equals(OperatorType.SUB))) {</span>
+				// Addition does not need to retain arguments
+<span class="fc" id="L108">				argumentValues = null;</span>
+			}
+<span class="fc bfc" id="L110" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.AVERAGE)) {</span>
+				// Average does not need to retain arguments
+<span class="fc" id="L112">				argumentValues = null;</span>
+			}
+<span class="fc bfc" id="L114" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.MULT)) {</span>
+				// Product only needs to retain factors on differentiables
+<span class="pc bpc" id="L116" title="1 of 2 branches missed.">				if(arguments.get(0) == null) {</span>
+<span class="nc" id="L117">					argumentValues.set(1, null);</span>
+				}
+<span class="fc bfc" id="L119" title="All 2 branches covered.">				if(arguments.get(1) == null) {</span>
+<span class="fc" id="L120">					argumentValues.set(0, null);</span>
+				}
+			}
+<span class="fc bfc" id="L123" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.DIV)) {</span>
+				// Division only needs to retain numerator if denominator is differentiable
+<span class="fc bfc" id="L125" title="All 2 branches covered.">				if(arguments.get(1) == null) {</span>
+<span class="fc" id="L126">					argumentValues.set(0, null);</span>
+				}
+			}
+<span class="fc bfc" id="L129" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.ADDPRODUCT)) {</span>
+				// Addition does not need to retain arguments
+<span class="fc" id="L131">				argumentValues.set(0, null);</span>
+				// Addition of product only needs to retain factors on differentiables
+<span class="fc bfc" id="L133" title="All 2 branches covered.">				if(arguments.get(1) == null) {</span>
+<span class="fc" id="L134">					argumentValues.set(2, null);</span>
+				}
+<span class="fc bfc" id="L136" title="All 2 branches covered.">				if(arguments.get(2) == null) {</span>
+<span class="fc" id="L137">					argumentValues.set(1, null);</span>
+				}
+			}
+<span class="fc bfc" id="L140" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.ACCRUE)) {</span>
+				// Addition of product only needs to retain factors on differentiables
+<span class="pc bpc" id="L142" title="3 of 4 branches missed.">				if(arguments.get(1) == null &amp;&amp; arguments.get(2) == null) {</span>
+<span class="nc" id="L143">					argumentValues.set(0, null);</span>
+				}
+<span class="pc bpc" id="L145" title="3 of 4 branches missed.">				if(arguments.get(0) == null &amp;&amp; arguments.get(1) == null) {</span>
+<span class="nc" id="L146">					argumentValues.set(1, null);</span>
+				}
+<span class="pc bpc" id="L148" title="3 of 4 branches missed.">				if(arguments.get(0) == null &amp;&amp; arguments.get(2) == null) {</span>
+<span class="nc" id="L149">					argumentValues.set(2, null);</span>
+				}
+			}
+<span class="fc bfc" id="L152" title="All 4 branches covered.">			else if(operatorType != null &amp;&amp; operatorType.equals(OperatorType.CHOOSE)) {</span>
+<span class="pc bpc" id="L153" title="1 of 2 branches missed.">				if(arguments.get(0) == null) {</span>
+<span class="nc" id="L154">					argumentValues.set(1, null);</span>
+<span class="nc" id="L155">					argumentValues.set(2, null);</span>
+				}
+			}
+
+<span class="fc" id="L159">			this.argumentValues = argumentValues;</span>
+<span class="fc" id="L160">		}</span>
+
+		/*
+		 * This implements the update rule D_i = D_i + Dm * d fm/dxi where i are the arguments of this node and m is this node.
+		 */
+		private void propagateDerivativesFromResultToArgument(final Map&lt;Long, RandomVariable&gt; derivatives) {
+<span class="pc bpc" id="L166" title="1 of 2 branches missed.">			if(arguments == null) {</span>
+				// The node has no arguments (it is a leaf node the tree). Do nothing.
+<span class="nc" id="L168">				return;</span>
+			}
+
+<span class="fc bfc" id="L171" title="All 2 branches covered.">			for(int argumentIndex = 0; argumentIndex &lt; arguments.size(); argumentIndex++) {</span>
+<span class="fc" id="L172">				final OperatorTreeNode argument = arguments.get(argumentIndex);</span>
+<span class="fc bfc" id="L173" title="All 2 branches covered.">				if(argument != null) {</span>
+<span class="fc" id="L174">					final Long argumentID = argument.id;</span>
+
+<span class="fc" id="L176">					final RandomVariable partialDerivative	= getPartialDerivative(argument, argumentIndex);</span>
+<span class="fc" id="L177">					RandomVariable derivative			= derivatives.get(id);</span>
+<span class="fc" id="L178">					RandomVariable argumentDerivative	= derivatives.get(argumentID);</span>
+
+					/*
+					 * Special treatment of some stochastic operators
+					 */
+<span class="fc bfc" id="L183" title="All 4 branches covered.">					switch(operatorType) {</span>
+					case AVERAGE:
+						// Implementation of AVERAGE (see https://ssrn.com/abstract=2995695 for details).
+<span class="fc" id="L186">						derivative = derivative.average();</span>
+<span class="fc" id="L187">						break;</span>
+					case CONDITIONAL_EXPECTATION:
+						// Implementation of CONDITIONAL_EXPECTATION (see https://ssrn.com/abstract=2995695 for details).
+<span class="fc" id="L190">						final ConditionalExpectationEstimator estimator = (ConditionalExpectationEstimator)operator;</span>
+<span class="fc" id="L191">						derivative = estimator.getConditionalExpectation(derivative);</span>
+<span class="fc" id="L192">						break;</span>
+					case CHOOSE:
+						// Implementation of CHOOSE (INDICATOR_FUNCTION)
+<span class="pc bpc" id="L195" title="1 of 6 branches missed.">						if(argumentIndex == 0 &amp;&amp; (factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DENSITY || factory.getDiracDeltaApproximationMethod() == DiracDeltaApproximationMethod.REGRESSION_ON_DISTRIBUITON)) {</span>
+<span class="fc" id="L196">							derivative = getDiracDeltaRegression(derivative, argumentValues.get(0));</span>
+						}
+						break;
+					default:
+						// Ordinary operator - nothing to do
+						break;
+					}
+
+					/*
+					 * Add the product of current nodes derivative and the vertex partialDerivative to the argument derivative
+					 */
+<span class="fc bfc" id="L207" title="All 2 branches covered.">					if(argumentDerivative == null) {</span>
+						// argumentDerivative is zero. Initialize value
+<span class="fc" id="L209">						argumentDerivative = derivative.mult(partialDerivative);</span>
+					}
+					else {
+						// Add product to given value
+<span class="fc" id="L213">						argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);</span>
+					}
+
+<span class="fc" id="L216">					derivatives.put(argumentID, argumentDerivative);</span>
+				}
+			}
+<span class="fc" id="L219">		}</span>
+
+		/**
+		 * Calculate the partial derivative of this node with respect to an argument node.
+		 * Since a function f may use an argument node X in multiple arguments, say f(X,X), we need to provide index
+		 * of the argument with respect to which the differentiation is performed (thanks to Vincent E. for pointing to this).
+		 *
+		 * @param differential The node of the argument.
+		 * @param differentialIndex The index of the argument in the functions argument list.
+		 * @return The value of the partial derivative.
+		 */
+		private RandomVariable getPartialDerivative(final OperatorTreeNode differential, final int differentialIndex) {
+
+<span class="pc bpc" id="L232" title="1 of 2 branches missed.">			if(!arguments.contains(differential)) {</span>
+<span class="nc" id="L233">				return zero;</span>
+			}
+
+<span class="pc bpc" id="L236" title="1 of 4 branches missed.">			final RandomVariable X = arguments.size() &gt; 0 &amp;&amp; argumentValues != null ? argumentValues.get(0) : null;</span>
+<span class="fc bfc" id="L237" title="All 4 branches covered.">			final RandomVariable Y = arguments.size() &gt; 1 &amp;&amp; argumentValues != null ? argumentValues.get(1) : null;</span>
+<span class="pc bpc" id="L238" title="1 of 4 branches missed.">			final RandomVariable Z = arguments.size() &gt; 2 &amp;&amp; argumentValues != null ? argumentValues.get(2) : null;</span>
+
+			RandomVariable derivative;
+
+<span class="pc bpc" id="L242" title="15 of 34 branches missed.">			switch(operatorType) {</span>
+			/* functions with one argument  */
+			case SQUARED:
+<span class="fc" id="L245">				derivative = X.mult(2.0);</span>
+<span class="fc" id="L246">				break;</span>
+			case SQRT:
+<span class="fc" id="L248">				derivative = X.sqrt().invert().mult(0.5);</span>
+<span class="fc" id="L249">				break;</span>
+			case EXP:
+<span class="fc" id="L251">				derivative = X.exp();</span>
+<span class="fc" id="L252">				break;</span>
+			case LOG:
+<span class="fc" id="L254">				derivative = X.invert();</span>
+<span class="fc" id="L255">				break;</span>
+			case SIN:
+<span class="nc" id="L257">				derivative = X.cos();</span>
+<span class="nc" id="L258">				break;</span>
+			case COS:
+<span class="nc" id="L260">				derivative = X.sin().mult(-1.0);</span>
+<span class="nc" id="L261">				break;</span>
+			case INVERT:
+<span class="fc" id="L263">				derivative = X.invert().squared().mult(-1);</span>
+<span class="fc" id="L264">				break;</span>
+			case AVERAGE:
+<span class="fc" id="L266">				derivative = one;</span>
+<span class="fc" id="L267">				break;</span>
+			case CONDITIONAL_EXPECTATION:
+<span class="fc" id="L269">				derivative = one;</span>
+<span class="fc" id="L270">				break;</span>
+			case VARIANCE:
+<span class="nc" id="L272">				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());</span>
+<span class="nc" id="L273">				break;</span>
+			case STDEV:
+<span class="nc" id="L275">				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));</span>
+<span class="nc" id="L276">				break;</span>
+			case MIN:
+<span class="nc" id="L278">				final double min = X.getMin();</span>
+<span class="nc" id="L279">				derivative = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L282" title="All 2 branches missed.">						return (x == min) ? 1.0 : 0.0;</span>
+					}
+				});
+<span class="nc" id="L285">				break;</span>
+			case MAX:
+<span class="nc" id="L287">				final double max = X.getMax();</span>
+<span class="nc" id="L288">				derivative = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L291" title="All 2 branches missed.">						return (x == max) ? 1.0 : 0.0;</span>
+					}
+				});
+<span class="nc" id="L294">				break;</span>
+			case ABS:
+<span class="fc" id="L296">				derivative = X.choose(one, minusOne);</span>
+<span class="fc" id="L297">				break;</span>
+			case STDERROR:
+<span class="nc" id="L299">				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));</span>
+<span class="nc" id="L300">				break;</span>
+			case SVARIANCE:
+<span class="nc" id="L302">				derivative = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));</span>
+<span class="nc" id="L303">				break;</span>
+			case ADD:
+<span class="fc" id="L305">				derivative = one;</span>
+<span class="fc" id="L306">				break;</span>
+			case SUB:
+<span class="fc bfc" id="L308" title="All 2 branches covered.">				derivative = differentialIndex == 0 ? one : minusOne;</span>
+<span class="fc" id="L309">				break;</span>
+			case MULT:
+<span class="fc bfc" id="L311" title="All 2 branches covered.">				derivative = differentialIndex == 0 ? Y : X;</span>
+<span class="fc" id="L312">				break;</span>
+			case DIV:
+<span class="fc bfc" id="L314" title="All 2 branches covered.">				derivative = differentialIndex == 0 ? Y.invert() : X.div(Y.squared()).mult(-1);</span>
+<span class="fc" id="L315">				break;</span>
+			case CAP:
+<span class="fc bfc" id="L317" title="All 2 branches covered.">				if(differentialIndex == 0) {</span>
+<span class="fc" id="L318">					derivative = X.sub(Y).choose(zero, one);</span>
+				}
+				else {
+<span class="fc" id="L321">					derivative = X.sub(Y).choose(one, zero);</span>
+				}
+<span class="fc" id="L323">				break;</span>
+			case FLOOR:
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="fc" id="L326">					derivative = X.sub(Y).choose(one, zero);</span>
+				}
+				else {
+<span class="nc" id="L329">					derivative = X.sub(Y).choose(zero, one);</span>
+				}
+<span class="nc" id="L331">				break;</span>
+			case AVERAGE2:
+<span class="nc bnc" id="L333" title="All 2 branches missed.">				derivative = differentialIndex == 0 ? Y : X;</span>
+<span class="nc" id="L334">				break;</span>
+			case VARIANCE2:
+<span class="nc bnc" id="L336" title="All 2 branches missed.">				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :</span>
+<span class="nc" id="L337">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));</span>
+<span class="nc" id="L338">				break;</span>
+			case STDEV2:
+<span class="nc bnc" id="L340" title="All 2 branches missed.">				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :</span>
+<span class="nc" id="L341">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));</span>
+<span class="nc" id="L342">				break;</span>
+			case STDERROR2:
+<span class="nc bnc" id="L344" title="All 2 branches missed.">				derivative = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :</span>
+<span class="nc" id="L345">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));</span>
+<span class="nc" id="L346">				break;</span>
+			case POW:
+				// second argument will always be deterministic and constant (currently pow does not exist with a random variable exponent)
+<span class="pc bpc" id="L349" title="1 of 2 branches missed.">				derivative = (differentialIndex == 0) ? X.pow(Y.doubleValue() - 1.0).mult(Y) : zero;</span>
+<span class="fc" id="L350">				break;</span>
+			case ADDPRODUCT:
+<span class="fc bfc" id="L352" title="All 2 branches covered.">				if(differentialIndex == 0) {</span>
+<span class="fc" id="L353">					derivative = one;</span>
+<span class="fc bfc" id="L354" title="All 2 branches covered.">				} else if(differentialIndex == 1) {</span>
+<span class="fc" id="L355">					derivative = Z;</span>
+				} else {
+<span class="fc" id="L357">					derivative = Y;</span>
+				}
+<span class="fc" id="L359">				break;</span>
+			case ADDRATIO:
+<span class="nc bnc" id="L361" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L362">					derivative = one;</span>
+<span class="nc bnc" id="L363" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L364">					derivative = Z.invert();</span>
+				} else {
+<span class="nc" id="L366">					derivative = Y.div(Z.squared()).mult(-1.0);</span>
+				}
+<span class="nc" id="L368">				break;</span>
+			case SUBRATIO:
+<span class="nc bnc" id="L370" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L371">					derivative = one;</span>
+<span class="nc bnc" id="L372" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L373">					derivative = Z.invert().mult(-1.0);</span>
+				} else {
+<span class="nc" id="L375">					derivative = Y.div(Z.squared());</span>
+				}
+<span class="nc" id="L377">				break;</span>
+			case ACCRUE:
+<span class="fc bfc" id="L379" title="All 2 branches covered.">				if(differentialIndex == 0) {</span>
+<span class="fc" id="L380">					derivative = Y.mult(Z).add(1.0);</span>
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="fc" id="L382">					derivative = X.mult(Z);</span>
+				} else {
+<span class="nc" id="L384">					derivative = X.mult(Y);</span>
+				}
+<span class="nc" id="L386">				break;</span>
+			case DISCOUNT:
+<span class="fc bfc" id="L388" title="All 2 branches covered.">				if(differentialIndex == 0) {</span>
+<span class="fc" id="L389">					derivative = Y.mult(Z).add(1.0).invert();</span>
+<span class="pc bpc" id="L390" title="1 of 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="fc" id="L391">					derivative = X.mult(Z).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);</span>
+				} else {
+<span class="nc" id="L393">					derivative = X.mult(Y).div(Y.mult(Z).add(1.0).squared()).mult(-1.0);</span>
+				}
+<span class="nc" id="L395">				break;</span>
+			case CHOOSE:
+<span class="fc bfc" id="L397" title="All 2 branches covered.">				if(differentialIndex == 0) {</span>
+<span class="pc bpc" id="L398" title="3 of 5 branches missed.">					switch(factory.getDiracDeltaApproximationMethod()) {</span>
+					case ONE:
+					{
+<span class="nc" id="L401">						derivative = Y.sub(Z);</span>
+<span class="nc" id="L402">						break;</span>
+					}
+					case ZERO:
+					{
+<span class="nc" id="L406">						derivative = zero;</span>
+<span class="nc" id="L407">						break;</span>
+					}
+					case DISCRETE_DELTA:
+					{
+						/*
+						 * Approximation via local finite difference
+						 * (see https://ssrn.com/abstract=2995695 for details).
+						 */
+<span class="fc" id="L415">						final double epsilon = factory.getDiracDeltaApproximationWidthPerStdDev()*X.getStandardDeviation();</span>
+<span class="fc bfc" id="L416" title="All 2 branches covered.">						if(Double.isInfinite(epsilon)) {</span>
+<span class="fc" id="L417">							derivative = Y.sub(Z);</span>
+						}
+<span class="fc bfc" id="L419" title="All 2 branches covered.">						else if(epsilon &gt; 0) {</span>
+<span class="fc" id="L420">							derivative = Y.sub(Z);</span>
+<span class="fc" id="L421">							derivative = derivative.mult(X.add(epsilon/2).choose(one, zero));</span>
+<span class="fc" id="L422">							derivative = derivative.mult(X.sub(epsilon/2).choose(zero, one));</span>
+<span class="fc" id="L423">							derivative = derivative.div(epsilon);</span>
+						}
+						else {
+<span class="fc" id="L426">							derivative = zero;</span>
+						}
+<span class="fc" id="L428">						break;</span>
+					}
+					case REGRESSION_ON_DENSITY:
+					case REGRESSION_ON_DISTRIBUITON:
+					{
+<span class="fc" id="L433">						derivative = Y.sub(Z);</span>
+<span class="fc" id="L434">						break;</span>
+					}
+					default:
+					{
+<span class="nc" id="L438">						throw new UnsupportedOperationException(&quot;Diract Delta Approximation Method &quot; + factory.getDiracDeltaApproximationMethod().name() + &quot; not supported.&quot;);</span>
+					}
+					}
+<span class="fc bfc" id="L441" title="All 2 branches covered.">				} else if(differentialIndex == 1) {</span>
+<span class="fc" id="L442">					derivative = X.choose(one, zero);</span>
+				} else {
+<span class="fc" id="L444">					derivative = X.choose(zero, one);</span>
+				}
+<span class="fc" id="L446">				break;</span>
+			default:
+<span class="nc" id="L448">				throw new IllegalArgumentException(&quot;Operation &quot; + operatorType.name() + &quot; not supported in differentiation.&quot;);</span>
+			}
+
+<span class="fc" id="L451">			return derivative;</span>
+		}
+
+		private RandomVariable getDiracDeltaRegression(RandomVariable derivative, final RandomVariable indicator) {
+<span class="fc" id="L455">			final double diracDeltaApproximationWidthPerStdDev = factory.getDiracDeltaApproximationWidthPerStdDev();</span>
+<span class="fc" id="L456">			final double epsilon = diracDeltaApproximationWidthPerStdDev*indicator.getStandardDeviation();</span>
+
+<span class="fc" id="L458">			final RandomVariable localizedOne = (indicator.add(epsilon/2).choose(one, zero)).mult(indicator.sub(epsilon/2).choose(zero, one));</span>
+
+<span class="fc" id="L460">			final boolean isDirectDeltaRegressionUseRegressionOnAdjointDerivative = false;	// currently disabled, was used in experiments</span>
+			if(isDirectDeltaRegressionUseRegressionOnAdjointDerivative) {
+				final RandomVariable localizedValue = indicator.mult(localizedOne);
+				final RandomVariable[] regressionBasisFunctions = new RandomVariable[] {
+						localizedOne,
+						localizedValue,
+						localizedValue.squared()
+				};
+				derivative = localizedOne.mult((new LinearRegression(regressionBasisFunctions)).getRegressionCoefficients(derivative)[0]).div(localizedOne.getAverage());
+			}
+			else {
+<span class="fc" id="L471">				derivative = derivative.mult(localizedOne).div(localizedOne.getAverage());</span>
+			}
+
+<span class="fc" id="L474">			return derivative.mult(getDensityRegression(indicator));</span>
+
+		}
+
+		private double getDensityRegression(final RandomVariable indicator) {
+<span class="fc" id="L479">			final double diracDeltaApproximationDensityRegressionWidthPerStdDev = factory.getDiracDeltaApproximationDensityRegressionWidthPerStdDev();</span>
+
+			/*
+			 * Density regression
+			 */
+<span class="fc" id="L484">			final double underlyingStdDev = indicator.getStandardDeviation();</span>
+<span class="fc" id="L485">			final int numberOfSamplePointsHalf = 50;			// @TODO numberOfSamplePoints should become a parameter.</span>
+<span class="fc" id="L486">			final double sampleIntervalWidthHalf = diracDeltaApproximationDensityRegressionWidthPerStdDev/2 * underlyingStdDev / numberOfSamplePointsHalf;</span>
+<span class="fc" id="L487">			final double[] samplePointX = new double[numberOfSamplePointsHalf*2];</span>
+<span class="fc" id="L488">			final double[] samplePointY = new double[numberOfSamplePointsHalf*2];</span>
+<span class="fc" id="L489">			double sampleInterval = sampleIntervalWidthHalf;</span>
+<span class="fc" id="L490">			final RandomVariable indicatorPositiveValues = indicator.choose(new Scalar(1.0), new Scalar(0.0));</span>
+<span class="fc" id="L491">			final RandomVariable indicatorNegativeValues = indicator.choose(new Scalar(0.0), new Scalar(1.0));</span>
+
+<span class="pc bpc" id="L493" title="2 of 3 branches missed.">			switch(factory.getDiracDeltaApproximationMethod()) {</span>
+			case REGRESSION_ON_DENSITY:
+			{
+<span class="nc bnc" id="L496" title="All 2 branches missed.">				for(int i=0; i&lt;numberOfSamplePointsHalf*2; i+=2) {</span>
+<span class="nc" id="L497">					sampleInterval += sampleIntervalWidthHalf;</span>
+
+<span class="nc" id="L499">					final RandomVariable indicatorOnNegValues = indicator.add(sampleInterval).choose(new Scalar(1.0), new Scalar(0.0)).mult(indicatorNegativeValues);</span>
+<span class="nc" id="L500">					final RandomVariable indicatorOnPosValues = indicator.sub(sampleInterval).choose(new Scalar(0.0), new Scalar(1.0)).mult(indicatorPositiveValues);</span>
+
+<span class="nc" id="L502">					samplePointX[i] = -sampleInterval;</span>
+<span class="nc" id="L503">					samplePointY[i] = indicatorOnNegValues.getAverage() / sampleInterval;</span>
+
+<span class="nc" id="L505">					samplePointX[i+1] = sampleInterval;</span>
+<span class="nc" id="L506">					samplePointY[i+1] = indicatorOnPosValues.getAverage() / sampleInterval;</span>
+				}
+
+<span class="nc" id="L509">				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);</span>
+<span class="nc" id="L510">				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);</span>
+
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX }).getRegressionCoefficients(densityValues);
+<span class="nc" id="L513">				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX.mult(0.0).add(1.0), densityX, densityX.squared() }).getRegressionCoefficients(densityValues);</span>
+<span class="nc" id="L514">				final double density = densityRegressionCoeff[0];</span>
+
+<span class="nc" id="L516">				return density;</span>
+			}
+			case REGRESSION_ON_DISTRIBUITON:
+			{
+<span class="fc bfc" id="L520" title="All 2 branches covered.">				for(int i=0; i&lt;numberOfSamplePointsHalf*2; i+=2) {</span>
+<span class="fc" id="L521">					sampleInterval += sampleIntervalWidthHalf;</span>
+
+<span class="fc" id="L523">					final RandomVariable indicatorOnNegValues = indicator.add(sampleInterval).choose(new Scalar(1.0), new Scalar(0.0)).mult(indicatorNegativeValues);</span>
+<span class="fc" id="L524">					final RandomVariable indicatorOnPosValues = indicator.sub(sampleInterval).choose(new Scalar(0.0), new Scalar(1.0)).mult(indicatorPositiveValues);</span>
+
+<span class="fc" id="L526">					samplePointX[i] = -sampleInterval;</span>
+<span class="fc" id="L527">					samplePointY[i] = -indicatorOnNegValues.getAverage();</span>
+
+<span class="fc" id="L529">					samplePointX[i+1] = sampleInterval;</span>
+<span class="fc" id="L530">					samplePointY[i+1] = indicatorOnPosValues.getAverage();</span>
+				}
+
+<span class="fc" id="L533">				final RandomVariable densityX = new RandomVariableFromDoubleArray(0.0, samplePointX);</span>
+<span class="fc" id="L534">				final RandomVariable densityValues = new RandomVariableFromDoubleArray(0.0, samplePointY);</span>
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared() }).getRegressionCoefficients(densityValues);
+<span class="fc" id="L536">				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);</span>
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0) }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX }).getRegressionCoefficients(densityValues);
+				//				final double[] densityRegressionCoeff = new LinearRegression(new RandomVariable[] { densityX, new Scalar(1.0), densityX.squared(), densityX.pow(3) }).getRegressionCoefficients(densityValues);
+<span class="fc" id="L540">				final double density = densityRegressionCoeff[0];</span>
+
+<span class="fc" id="L542">				return density;</span>
+			}
+			default:
+<span class="nc" id="L545">				throw new UnsupportedOperationException(&quot;Density regression method &quot; + factory.getDiracDeltaApproximationMethod().name() + &quot; not supported.&quot;);</span>
+			}
+		}
+
+		private static OperatorTreeNode of(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L550" title="1 of 4 branches missed.">			return (randomVariable != null &amp;&amp; randomVariable instanceof RandomVariableDifferentiableAAD) ? ((RandomVariableDifferentiableAAD)randomVariable).getOperatorTreeNode() : null;</span>
+		}
+
+		private static RandomVariable getValue(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L554" title="1 of 2 branches missed.">			return randomVariable != null ? randomVariable.getValues() : randomVariable;</span>
+		}
+
+		private static List&lt;OperatorTreeNode&gt; extractOperatorTreeNodes(final List&lt;RandomVariable&gt; arguments) {
+<span class="fc bfc" id="L558" title="All 2 branches covered.">			return arguments != null ? arguments.stream().map( OperatorTreeNode::of ).collect(Collectors.toList()) : null;</span>
+		}
+
+		private static List&lt;RandomVariable&gt; extractOperatorValues(final List&lt;RandomVariable&gt; arguments) {
+<span class="fc bfc" id="L562" title="All 2 branches covered.">			return arguments != null ? arguments.stream().map( OperatorTreeNode::getValue ).collect(Collectors.toList()) : null;</span>
+		}
+
+		private void readObject(final java.io.ObjectInputStream stream) throws IOException, ClassNotFoundException {
+<span class="nc" id="L566">			stream.defaultReadObject();</span>
+			// Reassign id
+			try {
+<span class="nc" id="L569">				final Field idField = this.getClass().getDeclaredField(&quot;id&quot;);</span>
+<span class="nc" id="L570">				idField.setAccessible(true);</span>
+<span class="nc" id="L571">				idField.set(this, indexOfNextRandomVariable.getAndIncrement());</span>
+<span class="nc" id="L572">				idField.setAccessible(false);</span>
+<span class="nc" id="L573">			} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {</span>
+<span class="nc" id="L574">				throw new RuntimeException(&quot;Unable to re-assing id of &quot; + this.getClass().getSimpleName() + &quot;.&quot;, e);</span>
+<span class="nc" id="L575">			}</span>
+<span class="nc" id="L576">		}</span>
+	}
+
+	/*
+	 * Data model. We maintain the underlying values and a link to the node in the operator tree.
+	 */
+	private RandomVariable values;
+	private final OperatorTreeNode operatorTreeNode;
+	private final RandomVariableDifferentiableAADFactory factory;
+
+	public RandomVariableDifferentiableAAD(final RandomVariable values, final List&lt;OperatorTreeNode&gt; argumentOperatorTreeNodes, final List&lt;RandomVariable&gt; argumentValues, final ConditionalExpectationEstimator estimator, final OperatorType operator, final RandomVariableDifferentiableAADFactory factory, final int methodArgumentTypePriority) {
+<span class="fc" id="L587">		super();</span>
+<span class="fc" id="L588">		this.values = values;</span>
+<span class="fc" id="L589">		operatorTreeNode = new OperatorTreeNode(operator, argumentOperatorTreeNodes, argumentValues, estimator, factory);</span>
+<span class="fc bfc" id="L590" title="All 2 branches covered.">		this.factory = factory != null ? factory : new RandomVariableDifferentiableAADFactory();</span>
+<span class="fc" id="L591">		typePriority = methodArgumentTypePriority;</span>
+<span class="fc" id="L592">	}</span>
+
+	public static RandomVariableDifferentiableAAD of(final double value) {
+<span class="nc" id="L595">		return new RandomVariableDifferentiableAAD(value);</span>
+	}
+
+	public static RandomVariableDifferentiableAAD of(final RandomVariable randomVariable) {
+<span class="nc" id="L599">		return new RandomVariableDifferentiableAAD(randomVariable);</span>
+	}
+
+	public RandomVariableDifferentiableAAD(final double value) {
+<span class="fc" id="L603">		this(new Scalar(value), null, null, null);</span>
+<span class="fc" id="L604">	}</span>
+
+	public RandomVariableDifferentiableAAD(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L607" title="1 of 2 branches missed.">		this(randomVariable, null, null, randomVariable instanceof RandomVariableDifferentiableAAD ? ((RandomVariableDifferentiableAAD)randomVariable).getFactory() : null);</span>
+<span class="fc" id="L608">	}</span>
+
+	public RandomVariableDifferentiableAAD(final RandomVariable values, final RandomVariableDifferentiableAADFactory factory) {
+<span class="fc" id="L611">		this(values, null, null, factory);</span>
+<span class="fc" id="L612">	}</span>
+
+	private RandomVariableDifferentiableAAD(final RandomVariable values, final List&lt;RandomVariable&gt; arguments, final OperatorType operator, final RandomVariableDifferentiableAADFactory factory) {
+<span class="fc" id="L615">		this(values, arguments, null, operator, factory);</span>
+<span class="fc" id="L616">	}</span>
+
+	public RandomVariableDifferentiableAAD(final RandomVariable values, final List&lt;RandomVariable&gt; arguments, final ConditionalExpectationEstimator estimator, final OperatorType operator, final RandomVariableDifferentiableAADFactory factory) {
+<span class="fc" id="L619">		this(values, arguments, estimator, operator, factory, typePriorityDefault);</span>
+<span class="fc" id="L620">	}</span>
+
+	public RandomVariableDifferentiableAAD(final RandomVariable values, final List&lt;RandomVariable&gt; arguments, final ConditionalExpectationEstimator estimator, final OperatorType operator, final RandomVariableDifferentiableAADFactory factory, final int methodArgumentTypePriority) {
+<span class="fc" id="L623">		this(values, OperatorTreeNode.extractOperatorTreeNodes(arguments), OperatorTreeNode.extractOperatorValues(arguments), estimator, operator, factory, methodArgumentTypePriority);</span>
+<span class="fc" id="L624">	}</span>
+
+	public OperatorTreeNode getOperatorTreeNode() {
+<span class="fc" id="L627">		return operatorTreeNode;</span>
+	}
+
+	/**
+	 * Returns the underlying values.
+	 *
+	 * @return The underling values.
+	 */
+	@Override
+	public RandomVariable getValues(){
+<span class="fc" id="L637">		return values;</span>
+	}
+
+	public RandomVariableDifferentiableAADFactory getFactory() {
+<span class="fc" id="L641">		return factory;</span>
+	}
+
+	@Override
+	public Long getID(){
+<span class="fc" id="L646">		return getOperatorTreeNode().id;</span>
+	}
+
+	/**
+	 * Returns the gradient of this random variable with respect to the given IDs.
+	 * The method calculates the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes &lt;code&gt;this&lt;/code&gt;.
+	 *
+	 * Performs a backward automatic differentiation.
+	 *
+	 * @param independentIDs {@link Set} of IDs of random variables \( v \) with respect to which the gradients \( \frac{d u}{d v} \) will be calculated. If null, derivatives w.r.t. all known independents are returned.
+	 * @return The gradient map.
+	 */
+	@Override
+	public Map&lt;Long, RandomVariable&gt; getGradient(final Set&lt;Long&gt; independentIDs) {
+
+		// The map maintaining the derivatives id -&gt; derivative
+<span class="fc" id="L662">		final Map&lt;Long, RandomVariable&gt; derivatives = new HashMap&lt;&gt;();</span>
+		// Put derivative of this node w.r.t. itself
+<span class="fc" id="L664">		derivatives.put(getID(), one);</span>
+
+		// The set maintaining the independents. Note: TreeMap is maintaining a sorting on the keys.
+<span class="fc" id="L667">		final TreeMap&lt;Long, OperatorTreeNode&gt; independents = new TreeMap&lt;&gt;();</span>
+		// Initialize with root node
+<span class="fc" id="L669">		independents.put(getID(), getOperatorTreeNode());</span>
+
+<span class="fc bfc" id="L671" title="All 2 branches covered.">		while(independents.size() &gt; 0) {</span>
+			// Get and remove node with the highest id in independents
+<span class="fc" id="L673">			final Map.Entry&lt;Long, OperatorTreeNode&gt; independentEntry = independents.pollLastEntry();</span>
+<span class="fc" id="L674">			final Long id = independentEntry.getKey();</span>
+<span class="fc" id="L675">			final OperatorTreeNode independent = independentEntry.getValue();</span>
+
+			// Process this node (node with highest id in independents)
+<span class="fc" id="L678">			final List&lt;OperatorTreeNode&gt; arguments = independent.arguments;</span>
+<span class="pc bpc" id="L679" title="1 of 4 branches missed.">			if(arguments != null &amp;&amp; arguments.size() &gt; 0) {</span>
+				// Node has arguments: Propagate derivative to arguments.
+<span class="fc" id="L681">				independent.propagateDerivativesFromResultToArgument(derivatives);</span>
+
+				// Remove id of this node from derivatives - keep only leaf nodes.
+<span class="fc bfc" id="L684" title="All 2 branches covered.">				if(isGradientRetainsLeafNodesOnly()) {</span>
+<span class="fc" id="L685">					derivatives.remove(id);</span>
+				}
+
+				// Add all non leaf node arguments to the list of independents
+<span class="fc bfc" id="L689" title="All 2 branches covered.">				for(final OperatorTreeNode argument : arguments) {</span>
+					// If an argument is null, it is a (non-differentiable) constant.
+<span class="fc bfc" id="L691" title="All 2 branches covered.">					if(argument != null) {</span>
+<span class="fc" id="L692">						independents.put(argument.id, argument);</span>
+					}
+<span class="fc" id="L694">				}</span>
+			}
+
+			// Filter out this node, if it is not in independentIDs
+<span class="pc bpc" id="L698" title="3 of 4 branches missed.">			if(independentIDs != null &amp;&amp; !independentIDs.contains(id)) {</span>
+<span class="nc" id="L699">				derivatives.remove(id);</span>
+			}
+<span class="fc" id="L701">		}</span>
+
+<span class="fc" id="L703">		return derivatives;</span>
+	}
+
+	private boolean isGradientRetainsLeafNodesOnly() {
+<span class="pc bpc" id="L707" title="1 of 4 branches missed.">		return getFactory() != null &amp;&amp; getFactory().isGradientRetainsLeafNodesOnly();</span>
+	}
+
+	@Override
+	public Map&lt;Long, RandomVariable&gt; getTangents(final Set&lt;Long&gt; dependentIDs) {
+<span class="nc" id="L712">		throw new UnsupportedOperationException();</span>
+	}
+
+	/*
+	 * The following methods are end points since they return &lt;code&gt;double&lt;/double&gt; values.
+	 * You cannot differentiate these results.
+	 */
+
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="fc" id="L722">		return getValues().equals(randomVariable);</span>
+	}
+
+	@Override
+	public double getFiltrationTime() {
+<span class="fc" id="L727">		return getValues().getFiltrationTime();</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="fc" id="L732">		return typePriority;</span>
+	}
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="fc" id="L737">		return getValues().get(pathOrState);</span>
+	}
+
+	@Override
+	public int size() {
+<span class="fc" id="L742">		return getValues().size();</span>
+	}
+
+	@Override
+	public boolean isDeterministic() {
+<span class="fc" id="L747">		return getValues().isDeterministic();</span>
+	}
+
+	@Override
+	public double[] getRealizations() {
+<span class="fc" id="L752">		return getValues().getRealizations();</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="fc" id="L757">		return getValues().doubleValue();</span>
+	}
+
+	@Override
+	public double getMin() {
+<span class="fc" id="L762">		return getValues().getMin();</span>
+	}
+
+	@Override
+	public double getMax() {
+<span class="fc" id="L767">		return getValues().getMax();</span>
+	}
+
+	@Override
+	public double getAverage() {
+<span class="fc" id="L772">		return getValues().getAverage();</span>
+	}
+
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc" id="L777">		return getValues().getAverage(probabilities);</span>
+	}
+
+	@Override
+	public double getVariance() {
+<span class="fc" id="L782">		return getValues().getVariance();</span>
+	}
+
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc" id="L787">		return getValues().getVariance(probabilities);</span>
+	}
+
+	@Override
+	public double getSampleVariance() {
+<span class="nc" id="L792">		return getValues().getSampleVariance();</span>
+	}
+
+	@Override
+	public double getStandardDeviation() {
+<span class="fc" id="L797">		return getValues().getStandardDeviation();</span>
+	}
+
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc" id="L802">		return getValues().getStandardDeviation(probabilities);</span>
+	}
+
+	@Override
+	public double getStandardError() {
+<span class="fc" id="L807">		return getValues().getStandardError();</span>
+	}
+
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc" id="L812">		return getValues().getStandardError(probabilities);</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="fc" id="L817">		return getValues().getQuantile(quantile);</span>
+	}
+
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc" id="L822">		return getValues().getQuantile(quantile, probabilities);</span>
+	}
+
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc" id="L827">		return getValues().getQuantileExpectation(quantileStart, quantileEnd);</span>
+	}
+
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="fc" id="L832">		return getValues().getHistogram(intervalPoints);</span>
+	}
+
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L837">		return getValues().getHistogram(numberOfPoints, standardDeviations);</span>
+	}
+
+	/*
+	 * The following methods are differentiable operations.
+	 */
+
+	@Override
+	public RandomVariable cache() {
+<span class="fc" id="L846">		values = values.cache();</span>
+<span class="fc" id="L847">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="fc" id="L852">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L853">				getValues().cap(cap),</span>
+<span class="fc" id="L854">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L855">				Arrays.asList(this.getValues(), new Scalar(cap)),</span>
+				null,
+				OperatorType.CAP,
+<span class="fc" id="L858">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="fc" id="L864">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L865">				getValues().floor(floor),</span>
+<span class="fc" id="L866">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L867">				Arrays.asList(this.getValues(), new Scalar(floor)),</span>
+				null,
+				OperatorType.FLOOR,
+<span class="fc" id="L870">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable add(final double value) {
+<span class="fc" id="L876">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L877">				getValues().add(value),</span>
+<span class="fc" id="L878">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L879">				Arrays.asList(null /* this */, null /* new RandomVariableFromDoubleArray(value) */),		// For ADD we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.ADD,
+<span class="fc" id="L882">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="fc" id="L888">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L889">				getValues().sub(value),</span>
+<span class="fc" id="L890">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L891">				Arrays.asList(null /* this */, null /* new RandomVariableFromDoubleArray(value) */),		// For SUB we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.SUB,
+<span class="fc" id="L894">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="fc" id="L900">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L901">				getValues().mult(value),</span>
+<span class="fc" id="L902">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L903">				Arrays.asList(null, new Scalar(value)),		// For MULT with constant we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.MULT,
+<span class="fc" id="L906">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable div(final double value) {
+<span class="fc" id="L912">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L913">				getValues().div(value),</span>
+<span class="fc" id="L914">				Arrays.asList(this.getOperatorTreeNode(), null),</span>
+<span class="fc" id="L915">				Arrays.asList(null, new Scalar(value)),		// For DIV with constant we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.DIV,
+<span class="fc" id="L918">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="fc" id="L924">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L925">				getValues().pow(exponent),</span>
+<span class="fc" id="L926">				Arrays.asList(this, new Scalar(exponent)),</span>
+				OperatorType.POW,
+<span class="fc" id="L928">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="fc" id="L933">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L934">				getValues().average(),</span>
+<span class="fc" id="L935">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.AVERAGE,
+<span class="fc" id="L937">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable getConditionalExpectation(final ConditionalExpectationEstimator estimator) {
+<span class="fc" id="L942">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L943">				getValues().getConditionalExpectation(estimator),</span>
+<span class="fc" id="L944">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				estimator,
+				OperatorType.CONDITIONAL_EXPECTATION,
+<span class="fc" id="L947">				getFactory());</span>
+
+	}
+
+	@Override
+	public RandomVariable squared() {
+<span class="fc" id="L953">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L954">				getValues().squared(),</span>
+<span class="fc" id="L955">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SQUARED,
+<span class="fc" id="L957">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable sqrt() {
+<span class="fc" id="L962">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L963">				getValues().sqrt(),</span>
+<span class="fc" id="L964">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SQRT,
+<span class="fc" id="L966">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable exp() {
+<span class="fc" id="L971">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L972">				getValues().exp(),</span>
+<span class="fc" id="L973">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.EXP,
+<span class="fc" id="L975">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable log() {
+<span class="fc" id="L980">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L981">				getValues().log(),</span>
+<span class="fc" id="L982">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.LOG,
+<span class="fc" id="L984">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L989">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L990">				getValues().sin(),</span>
+<span class="nc" id="L991">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SIN,
+<span class="nc" id="L993">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L998">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L999">				getValues().cos(),</span>
+<span class="nc" id="L1000">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.COS,
+<span class="nc" id="L1002">				getFactory());</span>
+	}
+
+	/*
+	 * Binary operators: checking for return type priority.
+	 */
+
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1011" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1013">			return randomVariable.add(this);</span>
+		}
+
+<span class="fc" id="L1016">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1017">				getValues().add(randomVariable.getValues()),</span>
+<span class="fc" id="L1018">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),</span>
+<span class="fc" id="L1019">				Arrays.asList(null /* this.getValues() */, null /* randomVariable.getValues() */),		// For ADD we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.ADD,
+<span class="fc" id="L1022">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1028" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1030">			return randomVariable.bus(this);</span>
+		}
+
+<span class="fc" id="L1033">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1034">				getValues().sub(randomVariable.getValues()),</span>
+<span class="fc" id="L1035">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),</span>
+<span class="fc" id="L1036">				Arrays.asList(null /* this.getValues() */, null /* randomVariable.getValues() */),		// For SUB we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.SUB,
+<span class="fc" id="L1039">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1045" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1047">			return randomVariable.sub(this);</span>
+		}
+
+<span class="fc" id="L1050">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1051">				getValues().bus(randomVariable.getValues()),</span>
+<span class="fc" id="L1052">				Arrays.asList(OperatorTreeNode.of(randomVariable), this.getOperatorTreeNode()),			// SUB with swapped arguments</span>
+<span class="fc" id="L1053">				Arrays.asList(null, null),																// For SUB we do not need all arguments to evaluate the differential</span>
+				null,
+				OperatorType.SUB,
+<span class="fc" id="L1056">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable mult(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1062" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1064">			return randomVariable.mult(this);</span>
+		}
+
+<span class="fc" id="L1067">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1068">				getValues().mult(randomVariable.getValues()),</span>
+<span class="fc" id="L1069">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),</span>
+<span class="fc" id="L1070">				Arrays.asList(this.getValues(), randomVariable.getValues()),</span>
+				null,
+				OperatorType.MULT,
+<span class="fc" id="L1073">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1079" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1081">			return randomVariable.vid(this);</span>
+		}
+
+<span class="fc" id="L1084">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1085">				getValues().div(randomVariable.getValues()),</span>
+<span class="fc" id="L1086">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(randomVariable)),</span>
+<span class="fc" id="L1087">				Arrays.asList(this.getValues(), randomVariable.getValues()),</span>
+				null,
+				OperatorType.DIV,
+<span class="fc" id="L1090">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc bnc" id="L1096" title="All 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1098">			return randomVariable.div(this);</span>
+		}
+
+<span class="nc" id="L1101">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1102">				getValues().vid(randomVariable.getValues()),</span>
+<span class="nc" id="L1103">				Arrays.asList(OperatorTreeNode.of(randomVariable), this.getOperatorTreeNode()),	// DIV with swapped arguments</span>
+<span class="nc" id="L1104">				Arrays.asList(randomVariable.getValues(), this.getValues()),					// DIV with swapped arguments</span>
+				null,
+				OperatorType.DIV,
+<span class="nc" id="L1107">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable randomVariable) {
+<span class="pc bpc" id="L1113" title="1 of 2 branches missed.">		if(randomVariable.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1115">			return randomVariable.cap(this);</span>
+		}
+
+<span class="fc" id="L1118">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1119">				getValues().cap(randomVariable.getValues()),</span>
+<span class="fc" id="L1120">				Arrays.asList(this, randomVariable),</span>
+				OperatorType.CAP,
+<span class="fc" id="L1122">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="pc bpc" id="L1127" title="1 of 2 branches missed.">		if(floor.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1129">			return floor.floor(this);</span>
+		}
+
+<span class="fc" id="L1132">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1133">				getValues().floor(floor.getValues()),</span>
+<span class="fc" id="L1134">				Arrays.asList(this, floor),</span>
+				OperatorType.FLOOR,
+<span class="fc" id="L1136">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="pc bpc" id="L1141" title="1 of 2 branches missed.">		if(rate.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1143">			return rate.mult(periodLength).add(1.0).mult(this);</span>
+		}
+
+<span class="fc" id="L1146">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1147">				getValues().accrue(rate.getValues(), periodLength),</span>
+<span class="fc" id="L1148">				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),</span>
+				OperatorType.ACCRUE,
+<span class="fc" id="L1150">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="pc bpc" id="L1155" title="1 of 2 branches missed.">		if(rate.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1157">			return rate.mult(periodLength).add(1.0).invert().mult(this);</span>
+		}
+
+<span class="fc" id="L1160">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1161">				getValues().discount(rate.getValues(), periodLength),</span>
+<span class="fc" id="L1162">				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),</span>
+				OperatorType.DISCOUNT,
+<span class="fc" id="L1164">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="fc" id="L1169">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1170">				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),</span>
+<span class="fc" id="L1171">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(valueIfTriggerNonNegative), OperatorTreeNode.of(valueIfTriggerNegative)),</span>
+<span class="fc" id="L1172">				Arrays.asList(this.getValues(), valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),</span>
+				null,
+				OperatorType.CHOOSE,
+<span class="fc" id="L1175">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="fc" id="L1181">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1182">				getValues().invert(),</span>
+<span class="fc" id="L1183">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.INVERT,
+<span class="fc" id="L1185">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="fc" id="L1190">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1191">				getValues().abs(),</span>
+<span class="fc" id="L1192">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.ABS,
+<span class="fc" id="L1194">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="pc bpc" id="L1199" title="1 of 2 branches missed.">		if(factor1.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1201">			return factor1.mult(factor2).add(this);</span>
+		}
+
+<span class="fc" id="L1204">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1205">				getValues().addProduct(factor1.getValues(), factor2),</span>
+<span class="fc" id="L1206">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(factor1), null),</span>
+<span class="fc" id="L1207">				Arrays.asList(this.getValues(), factor1.getValues(), new Scalar(factor2)),</span>
+				null,
+				OperatorType.ADDPRODUCT,
+<span class="fc" id="L1210">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="pc bpc" id="L1216" title="2 of 4 branches missed.">		if(factor1.getTypePriority() &gt; this.getTypePriority() || factor2.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1218">			return factor1.mult(factor2).add(this);</span>
+		}
+
+<span class="fc" id="L1221">		return new RandomVariableDifferentiableAAD(</span>
+<span class="fc" id="L1222">				getValues().addProduct(factor1.getValues(), factor2.getValues()),</span>
+<span class="fc" id="L1223">				Arrays.asList(this.getOperatorTreeNode(), OperatorTreeNode.of(factor1), OperatorTreeNode.of(factor2)),</span>
+<span class="fc" id="L1224">				Arrays.asList(this.getValues(), factor1.getValues(), factor2.getValues()),</span>
+				null,
+				OperatorType.ADDPRODUCT,
+<span class="fc" id="L1227">				getFactory(),</span>
+				typePriorityDefault);
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc bnc" id="L1233" title="All 4 branches missed.">		if(numerator.getTypePriority() &gt; this.getTypePriority() || denominator.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1235">			return numerator.div(denominator).add(this);</span>
+		}
+
+<span class="nc" id="L1238">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1239">				getValues().addRatio(numerator.getValues(), denominator.getValues()),</span>
+<span class="nc" id="L1240">				Arrays.asList(this, numerator, denominator),</span>
+				OperatorType.ADDRATIO,
+<span class="nc" id="L1242">				getFactory());</span>
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc bnc" id="L1247" title="All 4 branches missed.">		if(numerator.getTypePriority() &gt; this.getTypePriority() || denominator.getTypePriority() &gt; this.getTypePriority()) {</span>
+			// Check type priority
+<span class="nc" id="L1249">			return numerator.div(denominator).mult(-1).add(this);</span>
+		}
+
+<span class="nc" id="L1252">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1253">				getValues().subRatio(numerator.getValues(), denominator.getValues()),</span>
+<span class="nc" id="L1254">				Arrays.asList(this, numerator, denominator),</span>
+				OperatorType.SUBRATIO,
+<span class="nc" id="L1256">				getFactory());</span>
+	}
+
+	/*
+	 * The following methods are end points, the result is not differentiable.
+	 */
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="fc" id="L1265">		return getValues().isNaN();</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L1270">		return getValues().getOperator();</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L1275">		return getValues().getRealizationsStream();</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="fc" id="L1280">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="fc" id="L1285">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L1290">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	public RandomVariable getVarianceAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1295">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1296">				new RandomVariableFromDoubleArray(getVariance()),</span>
+<span class="nc" id="L1297">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.VARIANCE,
+<span class="nc" id="L1299">				getFactory());</span>
+	}
+
+	public RandomVariable getSampleVarianceAsRandomVariableAAD() {
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1304">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1305">				new RandomVariableFromDoubleArray(getSampleVariance()),</span>
+<span class="nc" id="L1306">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SVARIANCE,
+<span class="nc" id="L1308">				getFactory());</span>
+	}
+
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1313">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1314">				new RandomVariableFromDoubleArray(getStandardDeviation()),</span>
+<span class="nc" id="L1315">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.STDEV,
+<span class="nc" id="L1317">				getFactory());</span>
+	}
+
+	public RandomVariable getStandardErrorAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1322">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1323">				new RandomVariableFromDoubleArray(getStandardError()),</span>
+<span class="nc" id="L1324">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.STDERROR,
+<span class="nc" id="L1326">				getFactory());</span>
+	}
+
+	public RandomVariable 	getMinAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1331">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1332">				new RandomVariableFromDoubleArray(getMin()),</span>
+<span class="nc" id="L1333">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.MIN,
+<span class="nc" id="L1335">				getFactory());</span>
+	}
+
+	public RandomVariable 	getMaxAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L1340">		return new RandomVariableDifferentiableAAD(</span>
+<span class="nc" id="L1341">				new RandomVariableFromDoubleArray(getMax()),</span>
+<span class="nc" id="L1342">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.MAX,
+<span class="nc" id="L1344">				getFactory());</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L1349">		return &quot;RandomVariableDifferentiableAAD [values=&quot; + values + &quot;,\n ID=&quot; + getID() + &quot;]&quot;;</span>
+	}
+
+	@Override
+	public RandomVariableDifferentiable getCloneIndependent() {
+<span class="fc" id="L1354">		return new RandomVariableDifferentiableAAD(this.getValues());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

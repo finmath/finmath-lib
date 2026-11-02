@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloBlackScholesModel2.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation</a> &gt; <span class="el_source">MonteCarloBlackScholesModel2.java</span></div><h1>MonteCarloBlackScholesModel2.java</h1><pre class="source lang-java linenums">/*
+ * Created on 20.01.2004
+ */
+package net.finmath.montecarlo.templatemethoddesign.assetderivativevaluation;
+
+import java.time.LocalDateTime;
+import java.util.Map;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.templatemethoddesign.LogNormalProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Monte Carlo simulation of a simple Black-Scholes model for a stock generated discrete process
+ *
+ * @author Christian Fries
+ * @version 1.2
+ */
+public class MonteCarloBlackScholesModel2 extends LogNormalProcess implements AssetModelMonteCarloSimulationModel {
+
+	private final double initialValue;
+	private final double riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+	private final double volatility;
+
+<span class="nc" id="L27">	private final RandomVariable[]	initialValueVector	= new RandomVariable[1];</span>
+	private final RandomVariable	drift;
+	private final RandomVariable	volatilityOnPaths;
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param timeDiscretization The time discretization
+	 * @param numberOfPaths The number of Monte-Carlo path to be used
+	 * @param initialValue Spot value
+	 * @param riskFreeRate The risk free rate
+	 * @param volatility The log volatility
+	 */
+	public MonteCarloBlackScholesModel2(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility) {
+<span class="nc" id="L46">		super(timeDiscretization, 1 /* numberOfComponents */ , 1 /* numberOfFactors */, numberOfPaths, 3141 /* seed */);</span>
+
+<span class="nc" id="L48">		this.initialValue	= initialValue;</span>
+<span class="nc" id="L49">		this.riskFreeRate	= riskFreeRate;</span>
+<span class="nc" id="L50">		this.volatility		= volatility;</span>
+
+		/*
+		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
+		 * We construct the corresponding random variables here and will return (immutable) references to them.
+		 */
+<span class="nc" id="L56">		initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);</span>
+<span class="nc" id="L57">		drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);</span>
+<span class="nc" id="L58">		volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);</span>
+<span class="nc" id="L59">	}</span>
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param seed The seed for the random number generator.
+	 */
+	public MonteCarloBlackScholesModel2(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final int seed) {
+<span class="nc" id="L78">		super(timeDiscretization, 1 /* numberOfComponents */ , 1 /* numberOfFactors */, numberOfPaths, seed);</span>
+
+<span class="nc" id="L80">		this.initialValue	= initialValue;</span>
+<span class="nc" id="L81">		this.riskFreeRate	= riskFreeRate;</span>
+<span class="nc" id="L82">		this.volatility		= volatility;</span>
+
+		/*
+		 * The interface definition requires that we provide the drift and the volatility in terms of random variables.
+		 * We construct the corresponding random variables here and will return (immutable) references to them.
+		 */
+<span class="nc" id="L88">		initialValueVector[0]	= new RandomVariableFromDoubleArray(0.0, initialValue);</span>
+<span class="nc" id="L89">		drift					= new RandomVariableFromDoubleArray(0.0, riskFreeRate);</span>
+<span class="nc" id="L90">		volatilityOnPaths		= new RandomVariableFromDoubleArray(0.0, volatility);</span>
+<span class="nc" id="L91">	}</span>
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L95">		throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+	}
+
+	@Override
+	public int getNumberOfAssets() {
+<span class="nc" id="L100">		return 1;</span>
+	}
+
+	/**
+	 * @return Returns the initialValue.
+	 */
+	@Override
+	public RandomVariable[] getInitialValue() {
+<span class="nc" id="L108">		return initialValueVector;</span>
+	}
+
+	@Override
+	public RandomVariable getDrift(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="nc" id="L113">		return drift;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoading(final int timeIndex, final int factor, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L118">		return volatilityOnPaths;</span>
+	}
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getAssetValue(int, int)
+	 */
+	@Override
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) {
+<span class="nc" id="L127">		return getProcessValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final double time, final int assetIndex) {
+<span class="nc" id="L132">		return getAssetValue(getTimeIndex(time), assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) {
+<span class="nc" id="L137">		return getMonteCarloWeights(getTimeIndex(time));</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final int timeIndex)
+	{
+<span class="nc" id="L143">		final double time = getTime(timeIndex);</span>
+
+<span class="nc" id="L145">		return getNumeraire(time);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time)
+	{
+<span class="nc" id="L151">		final double numeraireValue = Math.exp(riskFreeRate * time);</span>
+
+<span class="nc" id="L153">		return new RandomVariableFromDoubleArray(time, numeraireValue);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L158">		return getBrownianMotion().getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L163">		return super.toString() + &quot;\n&quot; +</span>
+				&quot;MonteCarloBlackScholesModelByInheritance:\n&quot; +
+				&quot;  initial value...:&quot; + initialValue + &quot;\n&quot; +
+				&quot;  risk free rate..:&quot; + riskFreeRate + &quot;\n&quot; +
+				&quot;  volatiliy.......:&quot; + volatility;
+	}
+
+	/**
+	 * Returns the riskFreeRate.
+	 *
+	 * @return The riskFreeRate.
+	 */
+	public double getRiskFreeRate() {
+<span class="nc" id="L176">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * Returns the volatility.
+	 *
+	 * @return The volatility.
+	 */
+	public double getVolatility() {
+<span class="nc" id="L185">		return volatility;</span>
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L190">		return new MonteCarloBlackScholesModel2(this.getTimeDiscretization(), this.getNumberOfPaths(), this.getInitialValue()[0].get(0), this.getRiskFreeRate(), this.getVolatility(), seed);</span>
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="nc" id="L195">		throw new UnsupportedOperationException();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

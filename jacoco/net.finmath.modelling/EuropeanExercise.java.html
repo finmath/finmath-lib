@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanExercise.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling</a> &gt; <span class="el_source">EuropeanExercise.java</span></div><h1>EuropeanExercise.java</h1><pre class="source lang-java linenums">package net.finmath.modelling;
+
+import java.time.LocalDate;
+
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * European exercise: exercise only at maturity.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class EuropeanExercise extends AbstractExercise {
+
+	/**
+	 * Creates a European exercise from a maturity in running time.
+	 *
+	 * @param maturity The maturity.
+	 */
+	public EuropeanExercise(final double maturity) {
+<span class="fc" id="L20">		super(maturity, new double[] {maturity });</span>
+<span class="fc" id="L21">	}</span>
+
+	/**
+	 * Creates a European exercise from dates.
+	 *
+	 * @param referenceDate The reference date.
+	 * @param maturityDate The maturity date.
+	 */
+	public EuropeanExercise(final LocalDate referenceDate, final LocalDate maturityDate) {
+<span class="nc" id="L30">		this(FloatingpointDate.getFloatingPointDateFromDate(referenceDate, maturityDate));</span>
+<span class="nc" id="L31">	}</span>
+
+	@Override
+	public boolean isContinuousExercise() {
+<span class="nc" id="L35">		return false;</span>
+	}
+
+	@Override
+	public boolean isExerciseAllowed(final double time) {
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		return Math.abs(time - getMaturity()) &lt; TIME_TOLERANCE;</span>
+	}
+
+	@Override
+	public boolean isEuropean() {
+<span class="nc" id="L45">		return true;</span>
+	}
+
+	@Override
+	public boolean isAmerican() {
+<span class="fc" id="L50">		return false;</span>
+	}
+
+	@Override
+	public boolean isBermudan() {
+<span class="fc" id="L55">		return false;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterestRateMonteCarloProductFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.productfactory</a> &gt; <span class="el_source">InterestRateMonteCarloProductFactory.java</span></div><h1>InterestRateMonteCarloProductFactory.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.productfactory;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.function.DoubleFunction;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.InterestRateProductDescriptor;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwaptionProductDescriptor;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.SwapLeg;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.components.NotionalFromConstant;
+import net.finmath.montecarlo.interestrate.products.components.Option;
+import net.finmath.montecarlo.interestrate.products.indices.AbstractIndex;
+import net.finmath.montecarlo.interestrate.products.indices.LIBORIndex;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Schedule;
+
+/**
+ * Product factory of interest rate derivatives for use with a Monte-Carlo method based model.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
+public class InterestRateMonteCarloProductFactory implements ProductFactory&lt;InterestRateProductDescriptor&gt; {
+
+	private final LocalDate 						referenceDate;
+
+	//	private static final boolean						couponFlow = true;
+	//	private static final boolean						isNotionalAccruing = false;
+
+	/**
+	 * Initialize the factory with the given referenceDate.
+	 *
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
+	 */
+	public InterestRateMonteCarloProductFactory(final LocalDate referenceDate) {
+<span class="fc" id="L47">		super();</span>
+<span class="fc" id="L48">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L49">	}</span>
+
+	@Override
+	public DescribedProduct&lt;? extends InterestRateProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor descriptor) {
+
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {</span>
+<span class="fc" id="L55">			final InterestRateSwapLegProductDescriptor swapLeg 					= (InterestRateSwapLegProductDescriptor) descriptor;</span>
+<span class="fc" id="L56">			final DescribedProduct&lt;InterestRateSwapLegProductDescriptor&gt; product 	= new SwapLegMonteCarlo(swapLeg, referenceDate);</span>
+<span class="fc" id="L57">			return product;</span>
+
+		}
+<span class="nc bnc" id="L60" title="All 2 branches missed.">		else if(descriptor instanceof InterestRateSwapProductDescriptor){</span>
+<span class="nc" id="L61">			final InterestRateSwapProductDescriptor swap 							= (InterestRateSwapProductDescriptor) descriptor;</span>
+<span class="nc" id="L62">			final DescribedProduct&lt;InterestRateSwapProductDescriptor&gt; product		= new SwapMonteCarlo(swap, referenceDate);</span>
+<span class="nc" id="L63">			return product;</span>
+
+		}
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		else if(descriptor instanceof InterestRateSwaptionProductDescriptor) {</span>
+<span class="nc" id="L67">			final InterestRateSwaptionProductDescriptor swaption						= (InterestRateSwaptionProductDescriptor) descriptor;</span>
+<span class="nc" id="L68">			final DescribedProduct&lt;InterestRateSwaptionProductDescriptor&gt; product		= new SwaptionPhysicalMonteCarlo(swaption, referenceDate);</span>
+<span class="nc" id="L69">			return product;</span>
+
+		}
+		else {
+<span class="nc" id="L73">			final String name = descriptor.name();</span>
+<span class="nc" id="L74">			throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+		}
+	}
+
+
+
+
+	/**
+	 * Construct a Libor index for a given curve and schedule.
+	 *
+	 * @param forwardCurveName
+	 * @param schedule
+	 * @return The Libor index or null, if forwardCurveName is null.
+	 */
+	private static AbstractIndex constructLiborIndex(final String forwardCurveName, final Schedule schedule) {
+
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		if(forwardCurveName != null) {</span>
+
+			//determine average fixing offset and period length
+<span class="fc" id="L93">			double fixingOffset = 0;</span>
+<span class="fc" id="L94">			double periodLength = 0;</span>
+
+<span class="fc bfc" id="L96" title="All 2 branches covered.">			for(int i = 0; i &lt; schedule.getNumberOfPeriods(); i++) {</span>
+<span class="fc" id="L97">				fixingOffset *= ((double) i) / (i+1);</span>
+<span class="fc" id="L98">				fixingOffset += (schedule.getPeriodStart(i) - schedule.getFixing(i)) / (i+1);</span>
+
+<span class="fc" id="L100">				periodLength *= ((double) i) / (i+1);</span>
+<span class="fc" id="L101">				periodLength += schedule.getPeriodLength(i) / (i+1);</span>
+			}
+
+<span class="fc" id="L104">			return new LIBORIndex(forwardCurveName, fixingOffset, periodLength);</span>
+		} else {
+<span class="fc" id="L106">			return null;</span>
+		}
+	}
+
+	/**
+	 * Monte-Carlo method based implementation of a interest rate swap leg from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public static class SwapLegMonteCarlo extends SwapLeg implements DescribedProduct&lt;InterestRateSwapLegProductDescriptor&gt; {
+
+		private static final boolean						couponFlow = true;
+
+		private final InterestRateSwapLegProductDescriptor descriptor;
+
+		/**
+		 * Create product from descriptor.
+		 *
+		 * @param descriptor The descriptor of the product.
+		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+		 */
+		public SwapLegMonteCarlo(final InterestRateSwapLegProductDescriptor descriptor, final LocalDate referenceDate) {
+<span class="fc" id="L129">			super(descriptor.getLegScheduleDescriptor().getSchedule(referenceDate),</span>
+<span class="fc" id="L130">					Arrays.stream(descriptor.getNotionals()).mapToObj(new DoubleFunction&lt;NotionalFromConstant&gt;() {</span>
+						@Override
+						public NotionalFromConstant apply(final double x) {
+<span class="fc" id="L133">							return new NotionalFromConstant(x);</span>
+						}
+<span class="fc" id="L135">					}).toArray(NotionalFromConstant[]::new),</span>
+<span class="fc" id="L136">					constructLiborIndex(descriptor.getForwardCurveName(), descriptor.getLegScheduleDescriptor().getSchedule(referenceDate)),</span>
+<span class="fc" id="L137">					descriptor.getSpreads(),</span>
+					couponFlow,
+<span class="fc" id="L139">					descriptor.isNotionalExchanged());</span>
+
+<span class="fc" id="L141">			this.descriptor = descriptor;</span>
+<span class="fc" id="L142">		}</span>
+
+		@Override
+		public InterestRateSwapLegProductDescriptor getDescriptor() {
+<span class="nc" id="L146">			return descriptor;</span>
+		}
+	}
+
+	/**
+	 * Monte-Carlo method based implementation of a interest rate swap from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 */
+	public static class SwapMonteCarlo extends AbstractTermStructureMonteCarloProduct implements DescribedProduct&lt;InterestRateSwapProductDescriptor&gt; {
+
+		private final TermStructureMonteCarloProduct legReceiver;
+		private final TermStructureMonteCarloProduct legPayer;
+
+		/**
+		 * Create product from descriptor.
+		 *
+		 * @param descriptor The descriptor of the product.
+		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+		 */
+<span class="nc" id="L167">		public SwapMonteCarlo(final InterestRateSwapProductDescriptor descriptor, final LocalDate referenceDate) {</span>
+<span class="nc" id="L168">			final InterestRateMonteCarloProductFactory factory	= new InterestRateMonteCarloProductFactory(referenceDate);</span>
+<span class="nc" id="L169">			InterestRateProductDescriptor legDescriptor 	= descriptor.getLegReceiver();</span>
+<span class="nc" id="L170">			legReceiver 								= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);</span>
+<span class="nc" id="L171">			legDescriptor 									= descriptor.getLegPayer();</span>
+<span class="nc" id="L172">			legPayer 									= (TermStructureMonteCarloProduct) factory.getProductFromDescriptor(legDescriptor);</span>
+<span class="nc" id="L173">		}</span>
+
+		@Override
+		public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L177">			RandomVariable value = new RandomVariableFromDoubleArray(0);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">			if(legPayer != null) {</span>
+<span class="nc" id="L179">				value = value.add(legReceiver.getValue(evaluationTime, model));</span>
+			}
+<span class="nc bnc" id="L181" title="All 2 branches missed.">			if(legPayer != null) {</span>
+<span class="nc" id="L182">				value = value.sub(legPayer.getValue(evaluationTime, model));</span>
+			}
+<span class="nc" id="L184">			return value;</span>
+		}
+
+		@SuppressWarnings(&quot;unchecked&quot;)
+		@Override
+		public InterestRateSwapProductDescriptor getDescriptor() {
+<span class="nc bnc" id="L190" title="All 4 branches missed.">			if(!(legReceiver instanceof DescribedProduct&lt;?&gt;) || !(legPayer instanceof DescribedProduct&lt;?&gt;)) {</span>
+<span class="nc" id="L191">				throw new RuntimeException(&quot;One or both of the legs of this swap do not support extraction of a descriptor.&quot;);</span>
+			}
+<span class="nc" id="L193">			final InterestRateProductDescriptor receiverDescriptor = ((DescribedProduct&lt;InterestRateProductDescriptor&gt;) legReceiver).getDescriptor();</span>
+<span class="nc" id="L194">			final InterestRateProductDescriptor payerDescriptor = ((DescribedProduct&lt;InterestRateProductDescriptor&gt;) legPayer).getDescriptor();</span>
+<span class="nc" id="L195">			return new  InterestRateSwapProductDescriptor(receiverDescriptor, payerDescriptor);</span>
+		}
+	}
+
+	/**
+	 * Monte-Carlo method based implementation of a physically settled interest rate swaption from a product descriptor.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	public static class SwaptionPhysicalMonteCarlo extends AbstractTermStructureMonteCarloProduct
+	implements DescribedProduct&lt;InterestRateSwaptionProductDescriptor&gt; {
+
+		private final InterestRateSwaptionProductDescriptor descriptor;
+
+		private final Option swaption;
+
+		/**
+		 * Create product from descriptor.
+		 *
+		 * @param descriptor The descriptor of the product.
+		 * @param referenceDate The reference date of the data for the valuation, used to convert absolute date to relative dates in double representation.
+		 */
+		public SwaptionPhysicalMonteCarlo(final InterestRateSwaptionProductDescriptor descriptor, final LocalDate referenceDate) {
+<span class="nc" id="L220">			super();</span>
+<span class="nc" id="L221">			this.descriptor = descriptor;</span>
+<span class="nc" id="L222">			final double excercise = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, descriptor.getExcerciseDate());</span>
+<span class="nc" id="L223">			final AbstractTermStructureMonteCarloProduct swap = (AbstractTermStructureMonteCarloProduct)</span>
+<span class="nc" id="L224">					new InterestRateMonteCarloProductFactory(referenceDate).getProductFromDescriptor(descriptor.getUnderlyingSwap());</span>
+<span class="nc" id="L225">			swaption = new Option(excercise, descriptor.getStrikeRate(), swap);</span>
+<span class="nc" id="L226">		}</span>
+
+		@Override
+		public InterestRateSwaptionProductDescriptor getDescriptor() {
+
+<span class="nc" id="L231">			return descriptor;</span>
+		}
+
+		@Override
+		public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model)
+				throws CalculationException {
+<span class="nc" id="L237">			return swaption.getValue(evaluationTime, model);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

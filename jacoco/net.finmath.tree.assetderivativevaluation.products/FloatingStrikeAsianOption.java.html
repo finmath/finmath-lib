@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FloatingStrikeAsianOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.products</a> &gt; <span class="el_source">FloatingStrikeAsianOption.java</span></div><h1>FloatingStrikeAsianOption.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.products;
+
+/**
+ * Floating-strike Asian option (CALL) on a full non-recombining tree (exponential growth).
+ *
+ * Payoff at maturity:
+ * &lt;pre&gt;
+ *     max(S(T) - A, 0)
+ * &lt;/pre&gt;
+ * where A is the arithmetic average of the spot over the fixingTimeIndices.
+ *
+ * State variables:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;state[0] = running sum of fixing spots&lt;/li&gt;
+ * 	&lt;li&gt;state[1] = fixing count&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * No recombination / compression:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;Number of nodes at step j is B^j (B = branching factor of the model).&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class FloatingStrikeAsianOption extends AbstractPathDependentProduct {
+
+	/**
+	 * @param maturity Maturity in model time units.
+	 * @param fixingTimeIndices Subset of model time indices included in the average.
+	 */
+	public FloatingStrikeAsianOption(
+			final double maturity,
+			final int[] fixingTimeIndices) {
+<span class="nc" id="L34">		super(maturity, fixingTimeIndices);</span>
+<span class="nc" id="L35">	}</span>
+
+	@Override
+	protected int getNumberOfStateVariables() {
+<span class="nc" id="L39">		return 2; // running sum, fixing count</span>
+	}
+
+	@Override
+	protected void initializeState(
+			final double spotAtNode,
+			final int timeIndex,
+			final boolean isFixing,
+			final double[] stateOut) {
+
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		stateOut[0] = isFixing ? spotAtNode : 0.0; // sum</span>
+<span class="nc bnc" id="L50" title="All 2 branches missed.">		stateOut[1] = isFixing ? 1.0 : 0.0;        // count (stored as double)</span>
+<span class="nc" id="L51">	}</span>
+
+	@Override
+	protected void evolveState(
+			final double[] parentState,
+			final double spotAtChild,
+			final int timeIndexChild,
+			final boolean isFixingChild,
+			final double[] childStateOut) {
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">		childStateOut[0] = parentState[0] + (isFixingChild ? spotAtChild : 0.0);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		childStateOut[1] = parentState[1] + (isFixingChild ? 1.0 : 0.0);</span>
+<span class="nc" id="L63">	}</span>
+
+	@Override
+	protected double payoff(
+			final double[] terminalState,
+			final double spotAtMaturity) {
+
+<span class="nc" id="L70">		final double sum = terminalState[0];</span>
+<span class="nc" id="L71">		final double cnt = terminalState[1];</span>
+
+		// Defensive guard: empty fixing set.
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		final double average = (cnt &gt; 0.0) ? (sum / cnt) : 0.0;</span>
+
+		// Floating-strike CALL payoff.
+<span class="nc" id="L77">		return Math.max(spotAtMaturity - average, 0.0);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

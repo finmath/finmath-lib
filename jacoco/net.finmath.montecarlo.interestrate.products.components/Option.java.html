@@ -1,0 +1,350 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Option.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">Option.java</span></div><h1>Option.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 22.11.2009
+ */
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.conditionalexpectation.RegressionBasisFunctionsProvider;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
+import net.finmath.stochastic.ConditionalExpectationEstimator;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * An option.
+ *
+ * Implements the function &lt;code&gt;max(underlying(t)-strike,0)&lt;/code&gt; for any &lt;code&gt;underlying&lt;/code&gt; object
+ * implementing an {@link net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct}.
+ *
+ * The strike may be a fixed constant value or an object implementing
+ * {@link net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct}
+ * (resulting in a stochastic strike or exchange option).
+ *
+ * More precise, the &lt;code&gt;getVaue&lt;/code&gt; method returns the value
+ * \[
+ * 	\left\{
+ * 		\begin{array}{ll}
+ * 			U(t)-S(t) &amp;amp; \text{if E(t) &amp;gt; 0} \\
+ * 			U(t)-S(t) &amp;amp; \text{else.}
+ * 		\end{array}
+ * 	\right.
+ * \]
+ * where \( E \) is an estimator for the expectation of \( U(t)-S(t) \) and \( U \) is the value
+ * returned by the call to &lt;code&gt;getValue&lt;/code&gt; of the underlying product, which may return a
+ * sum on discounted futures cash-flows / values (i.e. not yet performing the expectation) and
+ * \( S \) is the strike (which may be a fixed value or another underlying product).
+ *
+ * @author Christian Fries
+ * @version 1.2
+ * @see net.finmath.montecarlo.interestrate.products.AbstractTermStructureMonteCarloProduct
+ */
+public class Option extends AbstractProductComponent implements RegressionBasisFunctionsProvider {
+
+	private static final long serialVersionUID = 2987369289230532162L;
+
+	private final double							exerciseDate;
+	private final double							strikePrice;
+	private final AbstractTermStructureMonteCarloProduct	underlying;
+	private final TermStructureMonteCarloProduct	strikeProduct;
+	private final boolean							isCall;
+
+	private final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider;
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &amp;lt; strikePrice ? underlying : strikePrice.
+	 * @param underlying The underlying.
+	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
+	 */
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractTermStructureMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+<span class="fc" id="L73">		super();</span>
+<span class="fc" id="L74">		this.exerciseDate	= exerciseDate;</span>
+<span class="fc" id="L75">		this.strikePrice	= strikePrice;</span>
+<span class="fc" id="L76">		this.underlying		= underlying;</span>
+<span class="fc" id="L77">		this.isCall			= isCall;</span>
+<span class="fc" id="L78">		strikeProduct	= null;</span>
+<span class="fc" id="L79">		this.regressionBasisFunctionsProvider = regressionBasisFunctionsProvider;</span>
+<span class="fc" id="L80">	}</span>
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; strikeProduct ? underlying : strikeProduct
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &amp;lt; strikePrice ? underlying : strikePrice.
+	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
+	 * @param underlying The underlying.
+	 * @param regressionBasisFunctionsProvider Used to determine the regression basis functions for the conditional expectation operator.
+	 */
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractTermStructureMonteCarloProduct underlying, final RegressionBasisFunctionsProvider	regressionBasisFunctionsProvider) {
+<span class="nc" id="L92">		super();</span>
+<span class="nc" id="L93">		this.exerciseDate	= exerciseDate;</span>
+<span class="nc" id="L94">		strikePrice	= Double.NaN;</span>
+<span class="nc" id="L95">		this.strikeProduct	= strikeProduct;</span>
+<span class="nc" id="L96">		this.underlying		= underlying;</span>
+<span class="nc" id="L97">		this.isCall			= isCall;</span>
+<span class="nc" id="L98">		this.regressionBasisFunctionsProvider = regressionBasisFunctionsProvider;</span>
+<span class="nc" id="L99">	}</span>
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; strikeProduct ? underlying : strikeProduct
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &amp;lt; strikePrice ? underlying : strikePrice.
+	 * @param strikeProduct The strike (can be a general AbstractLIBORMonteCarloProduct).
+	 * @param underlying The underlying.
+	 */
+	public Option(final double exerciseDate, final boolean isCall,  final TermStructureMonteCarloProduct strikeProduct, final AbstractTermStructureMonteCarloProduct underlying) {
+<span class="nc" id="L110">		this(exerciseDate, isCall, strikeProduct, underlying, null);</span>
+<span class="nc" id="L111">	}</span>
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param isCall If true, the function implements is underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice. Otherwise it is underlying(exerciseDate) &amp;lt; strikePrice ? underlying : strikePrice.
+	 * @param underlying The underlying.
+	 */
+	public Option(final double exerciseDate, final double strikePrice, final boolean isCall, final AbstractTermStructureMonteCarloProduct underlying) {
+<span class="fc" id="L122">		this(exerciseDate, strikePrice, isCall, underlying, null);</span>
+<span class="fc" id="L123">	}</span>
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; strikePrice ? underlying : strikePrice
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param strikePrice The strike price.
+	 * @param underlying The underlying.
+	 */
+	public Option(final double exerciseDate, final double strikePrice, final AbstractTermStructureMonteCarloProduct underlying) {
+<span class="fc" id="L133">		this(exerciseDate, strikePrice, true, underlying);</span>
+<span class="fc" id="L134">	}</span>
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; 0 ? underlying : 0
+	 *
+	 * @param exerciseDate The exercise date of the option (given as a double).
+	 * @param underlying The underlying.
+	 */
+	public Option(final double exerciseDate, final AbstractTermStructureMonteCarloProduct underlying) {
+<span class="fc" id="L143">		this(exerciseDate, 0.0, underlying);</span>
+<span class="fc" id="L144">	}</span>
+
+	@Override
+	public String getCurrency() {
+<span class="nc" id="L148">		return underlying.getCurrency();</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L153">		Set&lt;String&gt; underlyingNames = null;</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">		for(final TermStructureMonteCarloProduct product : new TermStructureMonteCarloProduct[] {underlying, strikeProduct}) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">			if(product instanceof AbstractProductComponent) {</span>
+<span class="nc" id="L156">				final Set&lt;String&gt; productUnderlyingNames = ((AbstractProductComponent)product).queryUnderlyings();</span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">				if(productUnderlyingNames != null) {</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">					if(underlyingNames == null) {</span>
+<span class="nc" id="L159">						underlyingNames = productUnderlyingNames;</span>
+					} else {
+<span class="nc" id="L161">						underlyingNames.addAll(productUnderlyingNames);</span>
+					}
+				}
+				else {
+<span class="nc" id="L165">					throw new IllegalArgumentException(&quot;Underlying cannot be queried for underlyings.&quot;);</span>
+				}
+			}
+		}
+<span class="nc" id="L169">		return underlyingNames;</span>
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L185">		final RandomVariable one	= model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L186">		final RandomVariable zero	= model.getRandomVariableForConstant(0.0);</span>
+
+		// TODO &gt;=? -
+<span class="pc bpc" id="L189" title="1 of 2 branches missed.">		if(evaluationTime &gt; exerciseDate) {</span>
+<span class="nc" id="L190">			return zero;</span>
+		}
+
+<span class="fc" id="L193">		RandomVariable values = underlying.getValue(exerciseDate, model);</span>
+		RandomVariable strike;
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">		if(strikeProduct != null) {</span>
+<span class="nc" id="L196">			strike = strikeProduct.getValue(exerciseDate, model);</span>
+		} else {
+<span class="fc" id="L198">			strike = model.getRandomVariableForConstant(strikePrice);</span>
+		}
+
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">		RandomVariable exerciseTrigger = values.sub(strike).mult(isCall ? 1.0 : -1.0);</span>
+
+<span class="fc bfc" id="L203" title="All 2 branches covered.">		if(exerciseTrigger.getFiltrationTime() &gt; exerciseDate) {</span>
+<span class="fc" id="L204">			final RandomVariable filterNaN = exerciseTrigger.isNaN().sub(1.0).mult(-1.0);</span>
+<span class="fc" id="L205">			final RandomVariable exerciseTriggerFiltered = exerciseTrigger.mult(filterNaN);</span>
+
+			/*
+			 * Cut off two standard deviations from regression
+			 */
+<span class="fc" id="L210">			final double exerciseTriggerMean		= exerciseTriggerFiltered.getAverage();</span>
+<span class="fc" id="L211">			final double exerciseTriggerStdDev	= exerciseTriggerFiltered.getStandardDeviation();</span>
+<span class="fc" id="L212">			final double exerciseTriggerFloor		= exerciseTriggerMean*(1.0-Math.signum(exerciseTriggerMean)*1E-5)-3.0*exerciseTriggerStdDev;</span>
+<span class="fc" id="L213">			final double exerciseTriggerCap		= exerciseTriggerMean*(1.0+Math.signum(exerciseTriggerMean)*1E-5)+3.0*exerciseTriggerStdDev;</span>
+<span class="fc" id="L214">			RandomVariable filter = exerciseTrigger.sub(exerciseTriggerFloor).choose(one, zero)</span>
+<span class="fc" id="L215">					.mult(exerciseTrigger.sub(exerciseTriggerCap).mult(-1.0).choose(one, zero));</span>
+<span class="fc" id="L216">			filter = filter.mult(filterNaN);</span>
+			// Filter exerciseTrigger and regressionBasisFunctions
+<span class="fc" id="L218">			exerciseTrigger = exerciseTrigger.mult(filter);</span>
+
+<span class="pc bpc" id="L220" title="1 of 2 branches missed.">			final RandomVariable[] regressionBasisFunctions			= regressionBasisFunctionsProvider != null ? regressionBasisFunctionsProvider.getBasisFunctions(evaluationTime, model) : getBasisFunctions(exerciseDate, model);</span>
+<span class="fc" id="L221">			final RandomVariable[] filteredRegressionBasisFunctions	= new RandomVariable[regressionBasisFunctions.length];</span>
+<span class="fc bfc" id="L222" title="All 2 branches covered.">			for(int i=0; i&lt;regressionBasisFunctions.length; i++) {</span>
+<span class="fc" id="L223">				filteredRegressionBasisFunctions[i] = regressionBasisFunctions[i].mult(filter);</span>
+			}
+
+			// Remove foresight through conditional expectation
+<span class="fc" id="L227">			final ConditionalExpectationEstimator conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(filteredRegressionBasisFunctions, regressionBasisFunctions);</span>
+
+			// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
+<span class="fc" id="L230">			exerciseTrigger         = exerciseTrigger.getConditionalExpectation(conditionalExpectationOperator);</span>
+		}
+
+		// Apply exercise criteria
+<span class="pc bpc" id="L234" title="1 of 2 branches missed.">		if(strikeProduct != null) {</span>
+<span class="nc" id="L235">			values = exerciseTrigger.choose(values, strikeProduct.getValue(exerciseDate, model));</span>
+		} else {
+<span class="fc" id="L237">			values = exerciseTrigger.choose(values, new Scalar(strikePrice));</span>
+		}
+
+		// Discount to evaluation time
+<span class="pc bpc" id="L241" title="1 of 2 branches missed.">		if(evaluationTime != exerciseDate) {</span>
+<span class="fc" id="L242">			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L243">			final RandomVariable	numeraire				= model.getNumeraire(exerciseDate);</span>
+<span class="fc" id="L244">			values = values.div(numeraire).mult(numeraireAtEval);</span>
+		}
+
+		// Return values
+<span class="fc" id="L248">		return values;</span>
+	}
+
+	@Override
+	public RandomVariable[] getBasisFunctions(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">		if(model instanceof LIBORModelMonteCarloSimulationModel) {</span>
+<span class="fc" id="L254">			return getBasisFunctions(evaluationTime, (LIBORModelMonteCarloSimulationModel)model);</span>
+		}
+		else {
+<span class="nc" id="L257">			throw new IllegalArgumentException(&quot;getBasisFunctions requires an model of type LIBORModelMonteCarloSimulationModel.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Return the regression basis functions.
+	 *
+	 * @param exerciseDate The date w.r.t. which the basis functions should be measurable.
+	 * @param model The model.
+	 * @return Array of random variables.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public RandomVariable[] getBasisFunctions(final double exerciseDate, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L271">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+		RandomVariable basisFunction;
+
+		// Constant
+<span class="fc" id="L276">		basisFunction = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L277">		basisFunctions.add(basisFunction);</span>
+
+		// LIBORs
+		int liborPeriodIndex, liborPeriodIndexEnd;
+		RandomVariable rate;
+
+		// 1 Period
+<span class="fc" id="L284">		basisFunction = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L285">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="pc bpc" id="L286" title="1 of 2 branches missed.">		if(liborPeriodIndex &lt; 0) {</span>
+<span class="nc" id="L287">			liborPeriodIndex = -liborPeriodIndex-1;</span>
+		}
+<span class="fc" id="L289">		liborPeriodIndexEnd = liborPeriodIndex+1;</span>
+<span class="fc" id="L290">		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="fc" id="L292">		rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="fc" id="L293">		basisFunction = basisFunction.discount(rate, periodLength1);</span>
+<span class="fc" id="L294">		basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));</span>
+
+<span class="fc" id="L296">		basisFunction = basisFunction.discount(rate, periodLength1);</span>
+<span class="fc" id="L297">		basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));</span>
+
+		// n/2 Period
+<span class="fc" id="L300">		basisFunction = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L301">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="pc bpc" id="L302" title="1 of 2 branches missed.">		if(liborPeriodIndex &lt; 0) {</span>
+<span class="nc" id="L303">			liborPeriodIndex = -liborPeriodIndex-1;</span>
+		}
+<span class="fc" id="L305">		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;</span>
+
+<span class="fc" id="L307">		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="pc bpc" id="L309" title="1 of 2 branches missed.">		if(periodLength2 != periodLength1) {</span>
+<span class="fc" id="L310">			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="fc" id="L311">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+<span class="fc" id="L312">			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));</span>
+
+<span class="fc" id="L314">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+
+<span class="fc" id="L317">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+		}
+
+
+		// n Period
+<span class="fc" id="L323">		basisFunction = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L324">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="pc bpc" id="L325" title="1 of 2 branches missed.">		if(liborPeriodIndex &lt; 0) {</span>
+<span class="nc" id="L326">			liborPeriodIndex = -liborPeriodIndex-1;</span>
+		}
+<span class="fc" id="L328">		liborPeriodIndexEnd = model.getNumberOfLibors();</span>
+<span class="fc" id="L329">		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="pc bpc" id="L331" title="2 of 4 branches missed.">		if(periodLength3 != periodLength1 &amp;&amp; periodLength3 != periodLength2) {</span>
+<span class="fc" id="L332">			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="fc" id="L333">			basisFunction = basisFunction.discount(rate, periodLength3);</span>
+<span class="fc" id="L334">			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));</span>
+
+<span class="fc" id="L336">			basisFunction = basisFunction.discount(rate, periodLength3);</span>
+			//			basisFunctions.add(basisFunction);//.div(Math.sqrt(basisFunction.mult(basisFunction).getAverage())));
+		}
+
+<span class="fc" id="L340">		return basisFunctions.toArray(new RandomVariable[0]);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L345">		return &quot;Option [exerciseDate=&quot; + exerciseDate + &quot;, strikePrice=&quot;</span>
+				+ strikePrice + &quot;, underlying=&quot; + underlying + &quot;, isCall=&quot;
+<span class="nc" id="L347">				+ isCall + &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

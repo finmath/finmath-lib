@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BoyleTrinomial.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.models</a> &gt; <span class="el_source">BoyleTrinomial.java</span></div><h1>BoyleTrinomial.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.models;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.assetderivativevaluation.AbstractRecombiningTreeModel;
+
+/**
+ * This class is used in order to construct a trinomial model. The trinomial model is a discrete model
+ * for a stochastic process S, such that every time n we have
+ * S(n+1)=S(n)*M(n),
+ * where M(n) can take values u, 1 or 1/u with probabilities q_u, q_m and q_d, respectively.
+ * This is done under a martingale measure: it can be seen (see notes) that there exists infinitely many
+ * martingale measures once one fixed q_u.
+ * For any time index i, all possible value of the process are computed starting from the biggest one.
+ *
+ * @author Andrea Mazzon
+ * @version  1.0
+ */
+
+public class BoyleTrinomial extends AbstractRecombiningTreeModel {
+
+	/** Specific parameters */
+	private final double dt;
+	private final double r;
+	private final double u;
+	private final double d;
+	private final double pu, pm, pd;
+
+	/**
+	 * It constructs an object which represents the approximation of a Black-Scholes model via the Jarrow-Rudd model.
+	 *
+	 * @param spotPrice, the spot price of the asset modeled by the process
+	 * @param riskFreeRate, the number r such that the value of a risk-free bond at time T is e^(rT)
+	 * @param volatility, the log-volatility of the Black-Scholes model
+	 * @param lastTime, the last time T in the time discretization {@code 0=t_0&lt;t_1&lt;..&lt;t_n=T}
+	 * @param timeStep, the length t_k-t_{k-1} of the equally spaced time steps that we take for the approximating
+	 * time discretization {@code 0=t_0&lt;t_1&lt;..&lt;t_n=T}
+	 */
+
+	public BoyleTrinomial(double spotPrice, double riskFreeRate, double volatility, double lastTime, double timeStep) {
+<span class="fc" id="L41">		super(spotPrice, riskFreeRate, volatility, lastTime, timeStep);</span>
+<span class="fc" id="L42">		this.dt = getTimeStep();</span>
+<span class="fc" id="L43">		this.r  = Math.exp(getRiskFreeRate() * dt);</span>
+<span class="fc" id="L44">		this.u  = Math.exp(getVolatility() * Math.sqrt(2.0 * dt));</span>
+<span class="fc" id="L45">		this.d  = 1.0 / u;</span>
+
+<span class="fc" id="L47">		final double M2 = Math.exp(2.0 * getRiskFreeRate() * dt + Math.pow(getVolatility(), 2) * dt);</span>
+
+<span class="fc" id="L49">		final double b1 = r  - 1.0;</span>
+<span class="fc" id="L50">		final double b2 = M2 - 1.0;</span>
+
+<span class="fc" id="L52">		final double A11 = (u - 1.0);</span>
+<span class="fc" id="L53">		final double A12 = (d - 1.0);</span>
+<span class="fc" id="L54">		final double A21 = (u*u - 1.0);</span>
+<span class="fc" id="L55">		final double A22 = (d*d - 1.0);</span>
+
+<span class="fc" id="L57">		final double det = A11*A22 - A12*A21;</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">		if(Math.abs(det) &lt; 1e-14) {</span>
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;Degenerate system for trinomial probabilities (det≈0).&quot;);</span>
+		}
+
+<span class="fc" id="L62">		final double puTmp = ( b1*A22 - b2*A12 ) / det;</span>
+<span class="fc" id="L63">		final double pdTmp = ( A11*b2 - A21*b1 ) / det;</span>
+<span class="fc" id="L64">		final double pmTmp = 1.0 - puTmp - pdTmp;</span>
+
+<span class="fc" id="L66">		final double puC = Math.max(0.0, Math.min(1.0, puTmp));</span>
+<span class="fc" id="L67">		final double pmC = Math.max(0.0, Math.min(1.0, pmTmp));</span>
+<span class="fc" id="L68">		final double pdC = Math.max(0.0, Math.min(1.0, pdTmp));</span>
+<span class="fc" id="L69">		final double sum = puC + pmC + pdC;</span>
+<span class="pc bpc" id="L70" title="1 of 2 branches missed.">		if(sum &lt;= 0.0) {</span>
+<span class="nc" id="L71">			throw new IllegalArgumentException(&quot;Invalid probabilities in Boyle trinomial.&quot;);</span>
+		}
+<span class="fc" id="L73">		this.pu = puC / sum;</span>
+<span class="fc" id="L74">		this.pm = pmC / sum;</span>
+<span class="fc" id="L75">		this.pd = pdC / sum;</span>
+<span class="fc" id="L76">	}</span>
+	/**
+	 * It constructs an object which represents the approximation of a Black-Scholes model via the Jarrow-Rudd model.
+	 *
+	 * @param spotPrice, the spot price of the asset modeled by the process
+	 * @param riskFreeRate, the number r such that the value of a risk-free bond at time T is e^(rT)
+	 * @param volatility, the log-volatility of the Black-Scholes model
+	 * @param lastTime, the last time T in the time discretization {@code 0=t_0&lt;t_1&lt;..&lt;t_n=T}
+	 * @param numberOfTimes, the number of times in the equally spaced time steps that we take for the approximating
+	 * time discretization {@code 0=t_0&lt;t_1&lt;..&lt;t_n=T}
+	 */
+
+	public BoyleTrinomial(double spotPrice, double riskFreeRate, double volatility, double lastTime, int numberOfTimes) {
+<span class="fc" id="L89">		this(spotPrice, riskFreeRate, volatility, lastTime, lastTime/(numberOfTimes-1.0));</span>
+<span class="fc" id="L90">	}</span>
+
+	/** Return number of states at k level (trinomial: 2k+1)
+	 * @param  k level of depth */
+	@Override
+	public int statesAt(int k) {
+<span class="nc" id="L96">		return 2*k + 1;</span>
+	}
+
+	/** Builds all the realizations S_k[i]
+	 * @param  k level of depth  */
+	@Override
+	protected RandomVariable buildSpotLevel(int k) {
+<span class="fc" id="L103">		final double[] level = new double[2*k + 1];</span>
+<span class="fc" id="L104">		final double S0 = getSpot();</span>
+<span class="fc bfc" id="L105" title="All 2 branches covered.">		for(int j=-k; j&lt;=k; j++) {</span>
+<span class="fc" id="L106">			final int idx = j + k;</span>
+<span class="fc" id="L107">			final int upCount   = Math.max( j, 0);</span>
+<span class="fc" id="L108">			final int downCount = Math.max(-j, 0);</span>
+<span class="fc" id="L109">			level[idx] = S0 * Math.pow(u, upCount) * Math.pow(d, downCount);</span>
+		}
+<span class="fc" id="L111">		final double time = k * dt;</span>
+<span class="fc" id="L112">		return new RandomVariableFromDoubleArray(time, level);</span>
+	}
+
+	/**
+	 * Backward induction step: V_k(j) = (pu*V_{k+1}(j+1) + pm*V_{k+1}(j) + pd*V_{k+1}(j-1)) / R.
+	 * vNext has dimension 2(k+1)+1 = 2k+3 (j = -(k+1)..(k+1)).
+	 */
+	@Override
+	protected RandomVariable conditionalExpectation(RandomVariable vNext, int k) {
+<span class="fc" id="L121">		final double[] next = vNext.getRealizations();</span>
+<span class="fc" id="L122">		final int expectedLen = 2*(k+1) + 1; // = 2k+3</span>
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">		if(next.length != expectedLen) {</span>
+<span class="nc" id="L124">			throw new IllegalArgumentException(&quot;vNext length &quot;+next.length+&quot; != expected &quot;+expectedLen+&quot; for level k=&quot;+k);</span>
+		}
+
+<span class="fc" id="L127">		final double[] now = new double[2*k + 1];</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">		for(int j=-k; j&lt;=k; j++) {</span>
+<span class="fc" id="L129">			final int idxNow = j + k;</span>
+
+<span class="fc" id="L131">			final double up   = next[j + k + 2];</span>
+<span class="fc" id="L132">			final double mid  = next[j + k + 1];</span>
+<span class="fc" id="L133">			final double down = next[j + k    ];</span>
+
+<span class="fc" id="L135">			now[idxNow] = (pu * up + pm * mid + pd * down) / r;</span>
+		}
+
+<span class="fc" id="L138">		final double time = k * dt;</span>
+<span class="fc" id="L139">		return new RandomVariableFromDoubleArray(time, now);</span>
+	}
+
+	@Override
+	public int getNumberOfBranches(int timeIndex, int stateIndex) {
+<span class="nc" id="L144">		return 3;</span>
+	}
+
+	@Override
+	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		// Convention: 0 = up, 1 = middle, 2 = down
+<span class="nc bnc" id="L150" title="All 4 branches missed.">		switch(branchIndex) {</span>
+<span class="nc" id="L151">		case 0: return pu;</span>
+<span class="nc" id="L152">		case 1: return pm;</span>
+<span class="nc" id="L153">		case 2: return pd;</span>
+<span class="nc" id="L154">		default: throw new IllegalArgumentException(&quot;Invalid branchIndex &quot; + branchIndex + &quot; for trinomial model.&quot;);</span>
+		}
+	}
+
+	@Override
+	public int[] getChildStateIndexShift() {
+		// Convention: childIndex = parentIndex + shift[branchIndex]
+		// children at next level correspond to indices stateIndex + {0,1,2} for {up, mid, down}.
+<span class="nc" id="L162">		return new int[] { 0, 1, 2};</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractAssetMonteCarloProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">AbstractAssetMonteCarloProduct.java</span></div><h1>AbstractAssetMonteCarloProduct.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 17.02.2013
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractMonteCarloProduct;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Base class for products requiring an AssetModelMonteCarloSimulationModel for valuation.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractAssetMonteCarloProduct extends AbstractMonteCarloProduct implements AssetMonteCarloProduct {
+
+	/**
+	 *
+	 */
+	public AbstractAssetMonteCarloProduct() {
+<span class="fc" id="L26">		super();</span>
+<span class="fc" id="L27">	}</span>
+
+	@Override
+	public abstract RandomVariable getValue(double evaluationTime, AssetModelMonteCarloSimulationModel model) throws CalculationException;
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
+		// This product requires an AssetModelMonteCarloSimulationModel model, otherwise there will be a class cast exception
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">		if(model instanceof AssetModelMonteCarloSimulationModel) {</span>
+<span class="fc" id="L36">			return getValue(evaluationTime, (AssetModelMonteCarloSimulationModel)model);</span>
+		}
+		else {
+<span class="nc" id="L39">			throw new IllegalArgumentException(&quot;The product &quot; + this.getClass()</span>
+<span class="nc" id="L40">			+ &quot; cannot be valued against a model &quot; + model.getClass() + &quot;.&quot;</span>
+			+ &quot;It requires a model of type &quot; + AssetModelMonteCarloSimulationModel.class + &quot;.&quot;);
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

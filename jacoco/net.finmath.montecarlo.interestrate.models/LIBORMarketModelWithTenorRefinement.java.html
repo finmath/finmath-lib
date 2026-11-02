@@ -1,0 +1,750 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORMarketModelWithTenorRefinement.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models</a> &gt; <span class="el_source">LIBORMarketModelWithTenorRefinement.java</span></div><h1>LIBORMarketModelWithTenorRefinement.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate.models;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.interestrate.CalibrationProduct;
+import net.finmath.montecarlo.interestrate.TermStructureModel;
+import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModel;
+import net.finmath.montecarlo.interestrate.models.covariance.TermStructureCovarianceModelParametric;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * Implements a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see
+ * &lt;a href=&quot;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&quot;&gt;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&lt;/a&gt;.
+ *
+ * &lt;br&gt;&lt;br&gt;
+ * In its default case the class specifies a multi-factor LIBOR market model, that is
+ * \( L_{j} = \frac{1}{T_{j+1}-T_{j}} ( exp(Y_{j}) - 1 ) \), where
+ * \[
+ * 		dY_{j} = \mu_{j} dt + \lambda_{1,j} dW_{1} + \ldots + \lambda_{m,j} dW_{m}
+ * \]
+ * &lt;br&gt;
+ * The model uses an &lt;code&gt;AbstractLIBORCovarianceModel&lt;/code&gt; for the specification of
+ * &lt;i&gt;(&amp;lambda;&lt;sub&gt;1,j&lt;/sub&gt;,...,&amp;lambda;&lt;sub&gt;m,j&lt;/sub&gt;)&lt;/i&gt; as a covariance model.
+ * See {@link net.finmath.montecarlo.model.ProcessModel} for details on the implemented interface
+ * &lt;br&gt;&lt;br&gt;
+ * The model uses an &lt;code&gt;AbstractLIBORCovarianceModel&lt;/code&gt; as a covariance model.
+ * If the covariance model is of type &lt;code&gt;AbstractLIBORCovarianceModelParametric&lt;/code&gt;
+ * a calibration to swaptions can be performed.
+ * &lt;br&gt;
+ * Note that &amp;lambda; may still depend on &lt;i&gt;L&lt;/i&gt; (through a local volatility model).
+ * &lt;br&gt;
+ * The simulation is performed under spot measure, that is, the numeraire
+ * 	is \( N(T_{i}) = \prod_{j=0}^{i-1} (1 + L(T_{j},T_{j+1};T_{j}) (T_{j+1}-T_{j})) \).
+ *
+ * The map &lt;code&gt;properties&lt;/code&gt; allows to configure the model. The following keys may be used:
+ * &lt;ul&gt;
+ * 		&lt;li&gt;
+ * 			&lt;code&gt;liborCap&lt;/code&gt;: An optional &lt;code&gt;Double&lt;/code&gt; value applied as a cap to the LIBOR rates.
+ * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+ * 			numerical problems. To disable the cap, set &lt;code&gt;liborCap&lt;/code&gt; to &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;.
+ *		&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;br&gt;
+ *
+ * The main task of this class is to calculate the risk-neutral drift and the
+ * corresponding numeraire given the covariance model.
+ *
+ * The calibration of the covariance structure is not part of this class.
+ *
+ * @author Christian Fries
+ * @version 1.2
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @see &lt;a href=&quot;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&quot;&gt;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&lt;/a&gt;
+ */
+public class LIBORMarketModelWithTenorRefinement extends AbstractProcessModel implements TermStructureModel {
+
+<span class="nc" id="L76">	public enum Driftapproximation	{ EULER, LINE_INTEGRAL, PREDICTOR_CORRECTOR }</span>
+
+	private final TimeDiscretization[]		liborPeriodDiscretizations;
+	private final Integer[]					numberOfDiscretizationIntervals;
+
+	private final AnalyticModel			curveModel;
+	private final ForwardCurve			forwardRateCurve;
+	private final DiscountCurve			discountCurve;
+
+<span class="fc" id="L85">	private final RandomVariableFactory	randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+
+	private TermStructureCovarianceModel	covarianceModel;
+
+	// Cache for the numeraires, needs to be invalidated if process changes
+	private final ConcurrentHashMap&lt;Integer, RandomVariable&gt;	numeraires;
+<span class="fc" id="L91">	private MonteCarloProcess									numerairesProcess = null;</span>
+
+	/**
+	 * Creates a model for given covariance.
+	 *
+	 * Creates a discretized Heath-Jarrow-Morton model / LIBOR market model with dynamic tenor refinement, see
+	 * &lt;a href=&quot;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&quot;&gt;https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2884699&lt;/a&gt;.
+	 * &lt;br&gt;
+	 * If calibrationItems in non-empty and the covariance model is a parametric model,
+	 * the covariance will be replaced by a calibrate version of the same model, i.e.,
+	 * the LIBOR Market Model will be calibrated.
+	 * &lt;br&gt;
+	 * The map &lt;code&gt;properties&lt;/code&gt; allows to configure the model. The following keys may be used:
+	 * &lt;ul&gt;
+	 * 		&lt;li&gt;
+	 * 			&lt;code&gt;liborCap&lt;/code&gt;: An optional &lt;code&gt;Double&lt;/code&gt; value applied as a cap to the LIBOR rates.
+	 * 			May be used to limit the simulated valued to prevent values attaining POSITIVE_INFINITY and
+	 * 			numerical problems. To disable the cap, set &lt;code&gt;liborCap&lt;/code&gt; to &lt;code&gt;Double.POSITIVE_INFINITY&lt;/code&gt;.
+	 *		&lt;/li&gt;
+	 * 		&lt;li&gt;
+	 * 			&lt;code&gt;calibrationParameters&lt;/code&gt;: Possible values:
+	 * 			&lt;ul&gt;
+	 * 				&lt;li&gt;
+	 * 					&lt;code&gt;Map&amp;lt;String,Object&amp;gt;&lt;/code&gt; a parameter map with the following key/value pairs:
+	 * 					&lt;ul&gt;
+	 *				 		&lt;li&gt;
+	 * 							&lt;code&gt;accuracy&lt;/code&gt;: &lt;code&gt;Double&lt;/code&gt; specifying the required solver accuracy.
+	 * 						&lt;/li&gt;
+	 *				 		&lt;li&gt;
+	 * 							&lt;code&gt;maxIterations&lt;/code&gt;: &lt;code&gt;Integer&lt;/code&gt; specifying the maximum iterations for the solver.
+	 * 						&lt;/li&gt;
+	 *					&lt;/ul&gt;
+	 *				&lt;/li&gt;
+	 *			&lt;/ul&gt;
+	 *		&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param liborPeriodDiscretizations A vector of tenor discretizations of the interest rate curve into forward rates (tenor structure), finest first.
+	 * @param numberOfDiscretizationIntervals A vector of number of periods to be taken from the liborPeriodDiscretizations.
+	 * @param analyticModel The associated analytic model of this model (containing the associated market data objects like curve).
+	 * @param forwardRateCurve The initial values for the forward rates.
+	 * @param discountCurve The discount curve to use. This will create an LMM model with a deterministic zero-spread discounting adjustment.
+	 * @param covarianceModel The covariance model to use.
+	 * @param calibrationProducts The vector of calibration items (a union of a product, target value and weight) for the objective function sum weight(i) * (modelValue(i)-targetValue(i).
+	 * @param properties Key value map specifying properties like &lt;code&gt;measure&lt;/code&gt; and &lt;code&gt;stateSpace&lt;/code&gt;.
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public LIBORMarketModelWithTenorRefinement(
+			final TimeDiscretization[]		liborPeriodDiscretizations,
+			final Integer[]							numberOfDiscretizationIntervals,
+			final AnalyticModel				analyticModel,
+			final ForwardCurve				forwardRateCurve,
+			final DiscountCurve				discountCurve,
+			final TermStructureCovarianceModel	covarianceModel,
+			final CalibrationProduct[]					calibrationProducts,
+			final Map&lt;String, ?&gt;						properties
+<span class="fc" id="L147">			) throws CalculationException {</span>
+
+<span class="fc" id="L149">		Map&lt;String,Object&gt; calibrationParameters = null;</span>
+<span class="pc bpc" id="L150" title="1 of 4 branches missed.">		if(properties != null &amp;&amp; properties.containsKey(&quot;calibrationParameters&quot;)) {</span>
+			@SuppressWarnings(&quot;unchecked&quot;)
+			final
+<span class="fc" id="L153">			Map&lt;String, Object&gt; calibrationParametersProperty	= (Map&lt;String, Object&gt;)properties.get(&quot;calibrationParameters&quot;);</span>
+<span class="fc" id="L154">			calibrationParameters = calibrationParametersProperty;</span>
+		}
+
+<span class="fc" id="L157">		this.liborPeriodDiscretizations	= liborPeriodDiscretizations;</span>
+<span class="fc" id="L158">		this.numberOfDiscretizationIntervals = numberOfDiscretizationIntervals;</span>
+<span class="fc" id="L159">		curveModel					= analyticModel;</span>
+<span class="fc" id="L160">		this.forwardRateCurve	= forwardRateCurve;</span>
+<span class="fc" id="L161">		this.discountCurve		= discountCurve;</span>
+<span class="fc" id="L162">		this.covarianceModel	= covarianceModel;</span>
+
+		// Perform calibration, if data is given
+<span class="pc bpc" id="L165" title="1 of 4 branches missed.">		if(calibrationProducts != null &amp;&amp; calibrationProducts.length &gt; 0) {</span>
+<span class="fc" id="L166">			TermStructureCovarianceModelParametric covarianceModelParametric = null;</span>
+			try {
+<span class="fc" id="L168">				covarianceModelParametric = (TermStructureCovarianceModelParametric)covarianceModel;</span>
+			}
+<span class="nc" id="L170">			catch(final Exception e) {</span>
+<span class="nc" id="L171">				throw new ClassCastException(&quot;Calibration is currently restricted to parametric covariance models (TermStructureCovarianceModelParametricInterface).&quot;);</span>
+<span class="fc" id="L172">			}</span>
+
+<span class="fc" id="L174">			this.covarianceModel    = covarianceModelParametric.getCloneCalibrated(this, calibrationProducts, calibrationParameters);</span>
+		}
+
+<span class="fc" id="L177">		numeraires = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L178">	}</span>
+
+	/**
+	 * Return the numeraire at a given time.
+	 *
+	 * The numeraire is provided for interpolated points. If requested on points which are not
+	 * part of the tenor discretization, the numeraire uses a linear interpolation of the reciprocal
+	 * value. See ISBN 0470047224 for details.
+	 *
+	 * @param time Time time &lt;i&gt;t&lt;/i&gt; for which the numeraire should be returned &lt;i&gt;N(t)&lt;/i&gt;.
+	 * @return The numeraire at the specified time as &lt;code&gt;RandomVariable&lt;/code&gt;
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getNumeraire(final MonteCarloProcess process, final double time) throws CalculationException {
+<span class="fc" id="L193">		final int timeIndex = liborPeriodDiscretizations[0].getTimeIndex(time);</span>
+<span class="fc" id="L194">		final TimeDiscretization liborPeriodDiscretization = liborPeriodDiscretizations[0];</span>
+<span class="pc bpc" id="L195" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+			// Interpolation of Numeraire: log linear interpolation.
+<span class="nc" id="L197">			final int upperIndex = -timeIndex-1;</span>
+<span class="nc" id="L198">			final int lowerIndex = upperIndex-1;</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">			if(lowerIndex &lt; 0) {</span>
+<span class="nc" id="L200">				throw new IllegalArgumentException(&quot;Numeraire requested for time &quot; + time + &quot;. Unsupported&quot;);</span>
+			}
+
+<span class="nc" id="L203">			final double alpha = (time-liborPeriodDiscretization.getTime(lowerIndex)) / (liborPeriodDiscretization.getTime(upperIndex) - liborPeriodDiscretization.getTime(lowerIndex));</span>
+<span class="nc" id="L204">			RandomVariable numeraire = getNumeraire(process, liborPeriodDiscretization.getTime(upperIndex)).log().mult(alpha).add(getNumeraire(process, liborPeriodDiscretization.getTime(lowerIndex)).log().mult(1.0-alpha)).exp();</span>
+
+			/*
+			 * Adjust for discounting, i.e. funding or collateralization
+			 */
+<span class="nc bnc" id="L209" title="All 2 branches missed.">			if(discountCurve != null) {</span>
+				// This includes a control for zero bonds
+<span class="nc" id="L211">				final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);</span>
+<span class="nc" id="L212">				numeraire = numeraire.mult(deterministicNumeraireAdjustment);</span>
+			}
+
+<span class="nc" id="L215">			return numeraire;</span>
+		}
+
+		/*
+		 * Calculate the numeraire, when time is part of liborPeriodDiscretization
+		 */
+
+		/*
+		 * Check if numeraire cache is values (i.e. process did not change)
+		 */
+<span class="fc bfc" id="L225" title="All 2 branches covered.">		if(process != numerairesProcess) {</span>
+<span class="fc" id="L226">			numeraires.clear();</span>
+<span class="fc" id="L227">			numerairesProcess = process;</span>
+		}
+
+		/*
+		 * Check if numeraire is part of the cache
+		 */
+<span class="fc" id="L233">		RandomVariable numeraire = numeraires.get(timeIndex);</span>
+<span class="fc bfc" id="L234" title="All 2 branches covered.">		if(numeraire == null) {</span>
+			/*
+			 * Calculate the numeraire for timeIndex
+			 */
+<span class="fc bfc" id="L238" title="All 2 branches covered.">			if(timeIndex == 0) {</span>
+<span class="fc" id="L239">				numeraire = process.getStochasticDriver().getRandomVariableForConstant(1.0);</span>
+			}
+			else {
+				// Initialize to previous numeraire
+<span class="fc" id="L243">				numeraire = getNumeraire(process, liborPeriodDiscretizations[0].getTime(timeIndex-1));</span>
+
+<span class="fc" id="L245">				final double periodStart	= liborPeriodDiscretizations[0].getTime(timeIndex-1);</span>
+<span class="fc" id="L246">				final double periodEnd	= liborPeriodDiscretizations[0].getTime(timeIndex);</span>
+<span class="fc" id="L247">				final RandomVariable libor = getForwardRate(process, periodStart, periodStart, periodEnd);</span>
+
+<span class="fc" id="L249">				numeraire = numeraire.accrue(libor, periodEnd-periodStart);</span>
+			}
+
+			// Cache the numeraire
+<span class="fc" id="L253">			numeraires.put(timeIndex, numeraire);</span>
+		}
+
+		/*
+		 * Adjust for discounting, i.e. funding or collateralization
+		 */
+<span class="pc bpc" id="L259" title="1 of 2 branches missed.">		if(discountCurve != null) {</span>
+			// This includes a control for zero bonds
+<span class="fc" id="L261">			final double deterministicNumeraireAdjustment = numeraire.invert().getAverage() / discountCurve.getDiscountFactor(curveModel, time);</span>
+<span class="fc" id="L262">			numeraire = numeraire.mult(deterministicNumeraireAdjustment);</span>
+		}
+
+<span class="fc" id="L265">		return numeraire;</span>
+	}
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="fc" id="L270">		final RandomVariable[] initialStateRandomVariable = new RandomVariable[getNumberOfComponents()];</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;getNumberOfComponents(); componentIndex++) {</span>
+<span class="fc" id="L272">			initialStateRandomVariable[componentIndex] = process.getStochasticDriver().getRandomVariableForConstant(0.0);</span>
+		}
+<span class="fc" id="L274">		return initialStateRandomVariable;</span>
+	}
+
+	/**
+	 * Return the complete vector of the drift for the time index timeIndex, given that current state is realizationAtTimeIndex.
+	 * The drift will be zero for rates being already fixed.
+	 *
+	 * The method currently provides the drift for either &lt;code&gt;Measure.SPOT&lt;/code&gt; or &lt;code&gt;Measure.TERMINAL&lt;/code&gt; - depending how the
+	 * model object was constructed. For &lt;code&gt;Measure.TERMINAL&lt;/code&gt; the j-th entry of the return value is the random variable
+	 * \[
+	 * \mu_{j}^{\mathbb{Q}^{P(T_{n})}}(t) \ = \ - \mathop{\sum_{l\geq j+1}}_{l\leq n-1} \frac{\delta_{l}}{1+\delta_{l} L_{l}(t)} (\lambda_{j}(t) \cdot \lambda_{l}(t))
+	 * \]
+	 * and for &lt;code&gt;Measure.SPOT&lt;/code&gt; the j-th entry of the return value is the random variable
+	 * \[
+	 * \mu_{j}^{\mathbb{Q}^{N}}(t) \ = \ \sum_{m(t) &amp;lt; l\leq j} \frac{\delta_{l}}{1+\delta_{l} L_{l}(t)} (\lambda_{j}(t) \cdot \lambda_{l}(t))
+	 * \]
+	 * where \( \lambda_{j} \) is the vector for factor loadings for the j-th component of the stochastic process (that is, the diffusion part is
+	 * \( \sum_{k=1}^m \lambda_{j,k} \mathrm{d}W_{k} \)).
+	 *
+	 * Note: The scalar product of the factor loadings determines the instantaneous covariance. If the model is written in log-coordinates (using exp as a state space transform), we find
+	 * \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = \sigma_{j} \sigma_{l} \rho_{j,l} \).
+	 * If the model is written without a state space transformation (in its orignial coordinates) then \(\lambda_{j} \cdot \lambda_{l} = \sum_{k=1}^m \lambda_{j,k} \lambda_{l,k} = L_{j} L_{l} \sigma_{j} \sigma_{l} \rho_{j,l} \).
+	 *
+	 *
+	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelWithTenorRefinement#getNumeraire(MonteCarloProcess, double) The calculation of the drift is consistent with the calculation of the numeraire in &lt;code&gt;getNumeraire&lt;/code&gt;.
+	 * @see net.finmath.montecarlo.interestrate.models.LIBORMarketModelWithTenorRefinement#getFactorLoading(MonteCarloProcess, int, int, RandomVariable[]) The factor loading \( \lambda_{j,k} \).
+	 *
+	 * @param process The discretization process generating this model. The process provides call backs for TimeDiscretization and allows calls to getProcessValue for timeIndices less or equal the given one.
+	 * @param timeIndex Time index &lt;i&gt;i&lt;/i&gt; for which the drift should be returned &lt;i&gt;&amp;mu;(t&lt;sub&gt;i&lt;/sub&gt;)&lt;/i&gt;.
+	 * @param realizationAtTimeIndex Time current forward rate vector at time index &lt;i&gt;i&lt;/i&gt; which should be used in the calculation.
+	 * @return The drift vector &amp;mu;(t&lt;sub&gt;i&lt;/sub&gt;) as &lt;code&gt;RandomVariableFromDoubleArray[]&lt;/code&gt;
+	 */
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+
+<span class="fc" id="L309">		final double	time				= process.getTime(timeIndex);</span>
+<span class="fc" id="L310">		final double	timeStep			= process.getTimeDiscretization().getTimeStep(timeIndex);</span>
+<span class="fc" id="L311">		final double	timeNext			= process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L313">		final RandomVariable		zero	= process.getStochasticDriver().getRandomVariableForConstant(0.0);</span>
+
+		// Allocate drift vector and initialize to zero (will be used to sum up drift components)
+<span class="fc" id="L316">		final RandomVariable[]	drift = new RandomVariable[getNumberOfComponents()];</span>
+<span class="fc bfc" id="L317" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;getNumberOfComponents(); componentIndex++) {</span>
+<span class="fc" id="L318">			drift[componentIndex] = null;</span>
+		}
+
+<span class="fc" id="L321">		final RandomVariable[]	variances	= new RandomVariable[getNumberOfComponents()];</span>
+<span class="fc bfc" id="L322" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;getNumberOfComponents(); componentIndex++) {</span>
+<span class="fc" id="L323">			variances[componentIndex] = zero;</span>
+		}
+
+<span class="fc" id="L326">		final RandomVariable[]	covarianceFactorSums	= new RandomVariable[getNumberOfFactors()];</span>
+<span class="fc bfc" id="L327" title="All 2 branches covered.">		for(int factorIndex=0; factorIndex&lt;covarianceFactorSums.length; factorIndex++) {</span>
+<span class="fc" id="L328">			covarianceFactorSums[factorIndex] = zero;</span>
+		}
+
+		/*
+		 * Standard HJM drift part of log-forward-bond
+		 */
+<span class="fc" id="L334">		final TimeDiscretization liborPeriodDiscretization = getLiborPeriodDiscretization(timeNext);</span>
+		// Calculate drift for the component componentIndex (starting at firstLiborIndex, others are zero)
+<span class="fc bfc" id="L336" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {</span>
+<span class="fc" id="L337">			drift[componentIndex] = zero;</span>
+
+<span class="fc" id="L339">			final double						periodStart		= liborPeriodDiscretization.getTime(componentIndex);</span>
+<span class="fc" id="L340">			final double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);</span>
+<span class="fc" id="L341">			final double						periodEnd		= periodStart + periodLength;</span>
+<span class="fc" id="L342">			final double						tenorTime		= covarianceModel.getScaledTenorTime(periodStart, periodEnd);</span>
+
+			// @TODO Document that factorLoading componentIndexing is on time discretization of t+1 for interval (t,t+1)
+<span class="fc" id="L345">			final RandomVariable[]	factorLoading   	= getFactorLoading(process, timeIndex, componentIndex, realizationAtTimeIndex);</span>
+<span class="fc" id="L346">			final double weight = getWeightForTenorRefinement(periodStart,periodStart,periodStart,periodEnd);</span>
+<span class="fc bfc" id="L347" title="All 2 branches covered.">			for(int factorIndex=0; factorIndex&lt;factorLoading.length; factorIndex++) {</span>
+<span class="fc" id="L348">				drift[componentIndex] = drift[componentIndex].addProduct(covarianceFactorSums[factorIndex].addProduct(factorLoading[factorIndex], weight),factorLoading[factorIndex]);</span>
+<span class="fc" id="L349">				variances[componentIndex] = variances[componentIndex].addProduct(factorLoading[factorIndex], factorLoading[factorIndex]);</span>
+<span class="fc" id="L350">				covarianceFactorSums[factorIndex] = covarianceFactorSums[factorIndex].addProduct(factorLoading[factorIndex],tenorTime);</span>
+			}
+		}
+
+		/*
+		 * Change of tenor discretization - impact on log-forward-bond
+		 */
+<span class="fc" id="L357">		final TimeDiscretization liborPeriodDiscretizationPrevious = getLiborPeriodDiscretization(time);</span>
+<span class="fc bfc" id="L358" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {</span>
+<span class="fc" id="L359">			final double						periodStart		= liborPeriodDiscretization.getTime(componentIndex);</span>
+<span class="fc" id="L360">			final double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);</span>
+<span class="fc" id="L361">			final double						periodEnd		= periodStart + periodLength;</span>
+
+<span class="fc" id="L363">			final double						periodStartPrevious		= liborPeriodDiscretizationPrevious.getTime(componentIndex);</span>
+<span class="fc" id="L364">			final double						periodLengthPrevious	= liborPeriodDiscretizationPrevious.getTimeStep(componentIndex);</span>
+<span class="fc" id="L365">			final double						periodEndPrevious		= periodStartPrevious + periodLengthPrevious;</span>
+
+<span class="pc bpc" id="L367" title="1 of 4 branches missed.">			if(periodStartPrevious == periodStart &amp;&amp; periodEndPrevious == periodEnd) {</span>
+<span class="fc" id="L368">				continue;</span>
+			}
+
+<span class="fc" id="L371">			final RandomVariable		stateVariablePrevious	= getStateVariable(process, timeIndex, periodStartPrevious,	periodEndPrevious);</span>
+<span class="fc" id="L372">			final RandomVariable		stateVariable			= getStateVariable(process, timeIndex, periodStart, 			periodEnd);</span>
+
+<span class="pc bpc" id="L374" title="2 of 4 branches missed.">			if(Double.isNaN(stateVariable.getAverage()) || Double.isNaN(stateVariablePrevious.getAverage())) {</span>
+<span class="nc" id="L375">				throw new IllegalArgumentException(&quot;The model parameters resulted in a state variable becoming NaN (not a number).&quot;);</span>
+			}
+
+			// Shift in indexing and/or tenor refinement
+<span class="fc" id="L379">			drift[componentIndex] = drift[componentIndex].add(stateVariable.sub(stateVariablePrevious).div(timeStep));</span>
+		}
+
+		/*
+		 * Integrated variance - drift part
+		 */
+<span class="fc bfc" id="L385" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {</span>
+<span class="fc" id="L386">			drift[getNumberOfLibors()+componentIndex] = variances[componentIndex];</span>
+		}
+
+		/*
+		 * Change of tenor discretization - impact on integrated variance
+		 */
+<span class="fc bfc" id="L392" title="All 2 branches covered.">		for(int componentIndex=0; componentIndex&lt;liborPeriodDiscretization.getNumberOfTimeSteps(); componentIndex++) {</span>
+<span class="fc" id="L393">			final double						periodStart		= liborPeriodDiscretization.getTime(componentIndex);</span>
+<span class="fc" id="L394">			final double						periodLength	= liborPeriodDiscretization.getTimeStep(componentIndex);</span>
+<span class="fc" id="L395">			final double						periodEnd		= periodStart + periodLength;</span>
+
+<span class="fc" id="L397">			final double						periodStartPrevious		= liborPeriodDiscretizationPrevious.getTime(componentIndex);</span>
+<span class="fc" id="L398">			final double						periodLengthPrevious	= liborPeriodDiscretizationPrevious.getTimeStep(componentIndex);</span>
+<span class="fc" id="L399">			final double						periodEndPrevious		= periodStartPrevious + periodLengthPrevious;</span>
+
+<span class="pc bpc" id="L401" title="1 of 4 branches missed.">			if(periodStartPrevious == periodStart &amp;&amp; periodEndPrevious == periodEnd) {</span>
+<span class="fc" id="L402">				continue;</span>
+			}
+
+<span class="fc" id="L405">			final RandomVariable		stateVariablePrevious	= getIntegratedVariance(process, timeIndex, periodStartPrevious, periodEndPrevious);</span>
+<span class="fc" id="L406">			final RandomVariable		stateVariable			= getIntegratedVariance(process, timeIndex, periodStart, 		periodEnd);</span>
+
+<span class="pc bpc" id="L408" title="2 of 4 branches missed.">			if(Double.isNaN(stateVariable.getAverage()) || Double.isNaN(stateVariablePrevious.getAverage())) {</span>
+<span class="nc" id="L409">				throw new IllegalArgumentException(&quot;The model parameters resulted in a state variable becoming NaN (not a number).&quot;);</span>
+			}
+
+			// Shift in indexing
+<span class="fc" id="L413">			drift[getNumberOfLibors()+componentIndex] = drift[getNumberOfLibors()+componentIndex].add(stateVariable.sub(stateVariablePrevious).div(timeStep));</span>
+		}
+
+<span class="fc" id="L416">		return drift;</span>
+	}
+
+
+	/**
+	 * @param timeIndex
+	 * @param periodStart
+	 * @param periodEnd
+	 * @return
+	 */
+	private RandomVariable getIntegratedVariance(final MonteCarloProcess process, final int timeIndex, final double periodStart, final double periodEnd) {
+<span class="fc" id="L427">		final TimeDiscretization liborPeriodTiscretization = getLiborPeriodDiscretization(process.getTime(timeIndex));</span>
+
+<span class="fc" id="L429">		int periodStartIndex = liborPeriodTiscretization.getTimeIndex(periodStart);</span>
+<span class="fc" id="L430">		int perirodEndIndex = liborPeriodTiscretization.getTimeIndex(periodEnd);</span>
+
+<span class="fc bfc" id="L432" title="All 2 branches covered.">		if(periodStartIndex &lt; 0) {</span>
+<span class="fc" id="L433">			periodStartIndex = -periodStartIndex-1-1;</span>
+		}
+<span class="fc bfc" id="L435" title="All 2 branches covered.">		if(perirodEndIndex &lt; 0) {</span>
+<span class="fc" id="L436">			perirodEndIndex = -perirodEndIndex-1;</span>
+		}
+
+<span class="pc bpc" id="L439" title="1 of 2 branches missed.">		if(perirodEndIndex != periodStartIndex+1) {</span>
+<span class="nc" id="L440">			throw new IllegalArgumentException();</span>
+		}
+
+<span class="fc" id="L443">		RandomVariable integratedVariance = null;</span>
+		try {
+<span class="fc" id="L445">			integratedVariance = process.getProcessValue(timeIndex, getNumberOfLibors()+periodStartIndex);</span>
+<span class="nc" id="L446">		} catch (final CalculationException e) {</span>
+<span class="fc" id="L447">		}</span>
+
+<span class="fc" id="L449">		return integratedVariance;</span>
+	}
+
+	/**
+	 * @param periodStartPrevious
+	 * @param periodEndPrevious
+	 * @param periodStart
+	 * @param periodEnd
+	 * @return
+	 */
+	private double getWeightForTenorRefinement(final double periodStartPrevious, final double periodEndPrevious, final double periodStart, final double periodEnd) {
+<span class="fc" id="L460">		final TimeDiscretization numeriareDiscretization = liborPeriodDiscretizations[0];</span>
+
+<span class="fc" id="L462">		final int periodStartPreviousIndex = numeriareDiscretization.getTimeIndex(periodStartPrevious);</span>
+<span class="fc" id="L463">		final int periodEndPreviousIndex = numeriareDiscretization.getTimeIndex(periodEndPrevious);</span>
+<span class="fc" id="L464">		int periodStartIndex = numeriareDiscretization.getTimeIndex(periodStart);</span>
+<span class="fc" id="L465">		int periodEndIndex = numeriareDiscretization.getTimeIndex(periodEnd);</span>
+
+		/// @TODO Need to improve LIBOR interpolation if required
+<span class="pc bpc" id="L468" title="1 of 2 branches missed.">		if(periodStartIndex &lt; 0) {</span>
+<span class="nc" id="L469">			periodStartIndex = -periodStartIndex-1;</span>
+		}
+<span class="pc bpc" id="L471" title="1 of 2 branches missed.">		if(periodEndIndex &lt; 0) {</span>
+<span class="nc" id="L472">			periodEndIndex = -periodEndIndex-1-1;</span>
+		}
+
+<span class="fc" id="L475">		double weight1 = 0.0;</span>
+<span class="fc bfc" id="L476" title="All 2 branches covered.">		for(int periodIndex = periodStartPreviousIndex; periodIndex&lt;periodEndPreviousIndex; periodIndex++) {</span>
+<span class="fc" id="L477">			final double deltaT = covarianceModel.getScaledTenorTime(numeriareDiscretization.getTime(periodIndex), numeriareDiscretization.getTime(periodIndex+1));</span>
+<span class="fc" id="L478">			final double deltaTSum = covarianceModel.getScaledTenorTime(periodStartPrevious, numeriareDiscretization.getTime(periodIndex+1));</span>
+<span class="fc" id="L479">			weight1 +=  deltaT * deltaTSum;</span>
+		}
+
+<span class="fc" id="L482">		double weight2 = 0.0;</span>
+<span class="fc bfc" id="L483" title="All 2 branches covered.">		for(int periodIndex = periodStartIndex; periodIndex&lt;periodEndIndex; periodIndex++) {</span>
+<span class="fc" id="L484">			final double deltaT = covarianceModel.getScaledTenorTime(numeriareDiscretization.getTime(periodIndex), numeriareDiscretization.getTime(periodIndex+1));</span>
+<span class="fc" id="L485">			final double deltaTSum = covarianceModel.getScaledTenorTime(periodStartPrevious, numeriareDiscretization.getTime(periodIndex+1));</span>
+<span class="fc" id="L486">			weight2 +=  deltaT * deltaTSum;</span>
+		}
+
+<span class="fc bfc" id="L489" title="All 2 branches covered.">		if(weight1 &gt; 0) {</span>
+<span class="fc" id="L490">			return weight2 / covarianceModel.getScaledTenorTime(periodStart, periodEnd) - weight1 / covarianceModel.getScaledTenorTime(periodStartPrevious, periodEndPrevious);</span>
+		} else {
+<span class="fc" id="L492">			return weight2 / covarianceModel.getScaledTenorTime(periodStart, periodEnd);</span>
+		}
+	}
+
+	@Override
+	public	RandomVariable[]	getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex)
+	{
+<span class="fc" id="L499">		final RandomVariable zero = process.getStochasticDriver().getRandomVariableForConstant(0.0);</span>
+
+<span class="fc bfc" id="L501" title="All 2 branches covered.">		if(componentIndex &lt; getNumberOfLibors()) {</span>
+<span class="fc" id="L502">			final TimeDiscretization liborPeriodDiscretization = getLiborPeriodDiscretization(process.getTime(timeIndex));</span>
+<span class="fc" id="L503">			final TimeDiscretization liborPeriodDiscretizationNext = getLiborPeriodDiscretization(process.getTime(timeIndex+1));</span>
+<span class="fc" id="L504">			final double						periodStart	= liborPeriodDiscretizationNext.getTime(componentIndex);</span>
+<span class="fc" id="L505">			final double						periodEnd	= liborPeriodDiscretizationNext.getTime(componentIndex+1);</span>
+<span class="fc" id="L506">			final RandomVariable[] factorLoadingVector = covarianceModel.getFactorLoading(process.getTime(timeIndex), periodStart,  periodEnd, liborPeriodDiscretization, realizationAtTimeIndex, this);</span>
+
+<span class="fc" id="L508">			return factorLoadingVector;</span>
+		}
+		else {
+<span class="fc" id="L511">			final RandomVariable[] zeros = new RandomVariable[process.getStochasticDriver().getNumberOfFactors()];</span>
+<span class="fc" id="L512">			Arrays.fill(zeros, zero);</span>
+<span class="fc" id="L513">			return zeros;</span>
+		}
+
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L520">		return randomVariable;</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L525">		return randomVariable;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L530">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	private TimeDiscretization getLiborPeriodDiscretization(final double time) {
+<span class="fc" id="L534">		final ArrayList&lt;Double&gt; tenorTimes = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L535">		final double firstTime	= liborPeriodDiscretizations[0].getTime(liborPeriodDiscretizations[0].getTimeIndexNearestLessOrEqual(time));</span>
+<span class="fc" id="L536">		double lastTime		= firstTime;</span>
+<span class="fc" id="L537">		tenorTimes.add(firstTime);</span>
+<span class="fc bfc" id="L538" title="All 2 branches covered.">		for(int discretizationLevelIndex = 0; discretizationLevelIndex&lt;liborPeriodDiscretizations.length; discretizationLevelIndex++) {</span>
+<span class="fc" id="L539">			final int tentorIntervalStartIndex = liborPeriodDiscretizations[discretizationLevelIndex].getTimeIndexNearestLessOrEqual(lastTime)+1;</span>
+<span class="fc bfc" id="L540" title="All 2 branches covered.">			for(int tenorInterval=0; tenorInterval&lt;numberOfDiscretizationIntervals[discretizationLevelIndex]; tenorInterval++) {</span>
+<span class="fc bfc" id="L541" title="All 2 branches covered.">				if(tentorIntervalStartIndex+tenorInterval &gt;= liborPeriodDiscretizations[discretizationLevelIndex].getNumberOfTimes()) {</span>
+<span class="fc" id="L542">					break;</span>
+				}
+<span class="fc" id="L544">				lastTime = liborPeriodDiscretizations[discretizationLevelIndex].getTime(tentorIntervalStartIndex+tenorInterval);</span>
+				// round to liborPeriodDiscretizations[0]
+<span class="fc" id="L546">				lastTime = liborPeriodDiscretizations[0].getTime(liborPeriodDiscretizations[0].getTimeIndexNearestLessOrEqual(lastTime));</span>
+<span class="fc" id="L547">				tenorTimes.add(lastTime);</span>
+			}
+		}
+
+<span class="fc" id="L551">		return new TimeDiscretizationFromArray(tenorTimes);</span>
+	}
+
+	public RandomVariable getStateVariableForPeriod(final TimeDiscretization liborPeriodDiscretization, final RandomVariable[] stateVariables, final double periodStart, final double periodEnd) {
+
+<span class="nc" id="L556">		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);</span>
+<span class="nc" id="L557">		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);</span>
+
+<span class="nc" id="L559">		RandomVariable stateVariableSum = randomVariableFactory.createRandomVariable(0.0);</span>
+
+<span class="nc bnc" id="L561" title="All 2 branches missed.">		if(periodStartIndex &lt; 0) {</span>
+<span class="nc" id="L562">			periodStartIndex = -periodStartIndex-1;</span>
+<span class="nc bnc" id="L563" title="All 2 branches missed.">			if(periodStartIndex &gt;= liborPeriodDiscretization.getNumberOfTimes()) {</span>
+<span class="nc" id="L564">				throw new IllegalArgumentException();</span>
+			}
+<span class="nc" id="L566">			final RandomVariable stateVariable = stateVariables[periodStartIndex-1];</span>
+<span class="nc" id="L567">			final double shortPeriodEnd = liborPeriodDiscretization.getTime(periodStartIndex);</span>
+<span class="nc" id="L568">			final double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretization.getTime(periodStartIndex-1), shortPeriodEnd, periodStart, shortPeriodEnd);</span>
+<span class="nc" id="L569">			final RandomVariable integratedVariance = stateVariables[getNumberOfLibors()+periodStartIndex-1];</span>
+
+<span class="nc" id="L571">			final double tenor = covarianceModel.getScaledTenorTime(periodStart, shortPeriodEnd);</span>
+<span class="nc" id="L572">			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);</span>
+		}
+
+<span class="nc bnc" id="L575" title="All 2 branches missed.">		if(periodEndIndex &lt; 0) {</span>
+<span class="nc" id="L576">			periodEndIndex = -periodEndIndex-1;</span>
+<span class="nc" id="L577">			final RandomVariable stateVariable = stateVariables[periodEndIndex-1];</span>
+<span class="nc" id="L578">			final double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);</span>
+<span class="nc" id="L579">			final double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);</span>
+<span class="nc" id="L580">			final RandomVariable integratedVariance = stateVariables[getNumberOfLibors()+periodEndIndex-1];</span>
+
+<span class="nc" id="L582">			final double tenor = covarianceModel.getScaledTenorTime(shortPeriodStart, periodEnd);</span>
+<span class="nc" id="L583">			stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), tenor);</span>
+<span class="nc" id="L584">			periodEndIndex--;</span>
+		}
+
+<span class="nc bnc" id="L587" title="All 2 branches missed.">		for(int periodIndex = periodStartIndex; periodIndex&lt;periodEndIndex; periodIndex++) {</span>
+<span class="nc" id="L588">			final RandomVariable stateVariable = stateVariables[periodIndex];</span>
+
+<span class="nc" id="L590">			final double tenor = covarianceModel.getScaledTenorTime(liborPeriodDiscretization.getTime(periodIndex), liborPeriodDiscretization.getTime(periodIndex+1));</span>
+<span class="nc" id="L591">			stateVariableSum = stateVariableSum.addProduct(stateVariable, tenor);</span>
+		}
+<span class="nc" id="L593">		final double tenor = covarianceModel.getScaledTenorTime(periodStart, periodEnd);</span>
+<span class="nc" id="L594">		stateVariableSum = stateVariableSum.div(tenor);</span>
+
+<span class="nc" id="L596">		return stateVariableSum;</span>
+	}
+
+	public RandomVariable getLIBORForStateVariable(final TimeDiscretization liborPeriodDiscretization, final RandomVariable[] stateVariables, final double periodStart, final double periodEnd) {
+<span class="nc" id="L600">		RandomVariable stateVariable = getStateVariableForPeriod(liborPeriodDiscretization, stateVariables, periodStart, periodEnd);</span>
+<span class="nc" id="L601">		stateVariable = stateVariable.mult(periodEnd-periodStart).add(Math.log(1+forwardRateCurve.getForward(null, periodStart)*(periodEnd-periodStart)));</span>
+<span class="nc" id="L602">		final RandomVariable libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);</span>
+
+<span class="nc" id="L604">		return libor;</span>
+	}
+
+	public RandomVariable getStateVariable(final MonteCarloProcess process, final int timeIndex, final double periodStart, final double periodEnd)
+	{
+		// @TODO Make getLiborPeriodDiscretization to use timeIndex
+<span class="fc" id="L610">		final double time = process.getTimeDiscretization().getTime(timeIndex);</span>
+<span class="fc" id="L611">		final TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization(time);</span>
+		//		return getStateVariableForPeriod(liborPeriodDiscretization, stateVariables, periodStart, periodEnd);
+
+<span class="fc" id="L614">		int periodStartIndex = liborPeriodDiscretization.getTimeIndex(periodStart);</span>
+<span class="fc" id="L615">		int periodEndIndex = liborPeriodDiscretization.getTimeIndex(periodEnd);</span>
+
+<span class="fc" id="L617">		RandomVariable stateVariableSum = null;</span>
+		try {
+<span class="fc" id="L619">			stateVariableSum = process.getStochasticDriver().getRandomVariableForConstant(0.0);</span>
+
+<span class="fc bfc" id="L621" title="All 2 branches covered.">			if(periodStartIndex &lt; 0) {</span>
+<span class="fc" id="L622">				periodStartIndex = -periodStartIndex-1;</span>
+<span class="fc bfc" id="L623" title="All 2 branches covered.">				if(periodStartIndex &gt;= liborPeriodDiscretization.getNumberOfTimes()) {</span>
+<span class="fc" id="L624">					throw new IllegalArgumentException();</span>
+				}
+<span class="fc" id="L626">				final RandomVariable stateVariable = process.getProcessValue(timeIndex, periodStartIndex-1);</span>
+<span class="fc" id="L627">				final double shortPeriodEnd = liborPeriodDiscretization.getTime(periodStartIndex);</span>
+<span class="fc" id="L628">				final double tenorRefinementWeight = getWeightForTenorRefinement(liborPeriodDiscretization.getTime(periodStartIndex-1), shortPeriodEnd, periodStart, shortPeriodEnd);</span>
+<span class="fc" id="L629">				final RandomVariable integratedVariance = getIntegratedVariance(process, timeIndex, liborPeriodDiscretization.getTime(periodStartIndex-1), liborPeriodDiscretization.getTime(periodStartIndex));</span>
+
+<span class="fc" id="L631">				stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), covarianceModel.getScaledTenorTime(periodStart, shortPeriodEnd));</span>
+			}
+
+<span class="fc bfc" id="L634" title="All 2 branches covered.">			if(periodEndIndex &lt; 0) {</span>
+<span class="fc" id="L635">				periodEndIndex = -periodEndIndex-1;</span>
+<span class="fc" id="L636">				final RandomVariable stateVariable = process.getProcessValue(timeIndex, periodEndIndex-1);</span>
+<span class="fc" id="L637">				final double shortPeriodStart = liborPeriodDiscretization.getTime(periodEndIndex-1);</span>
+<span class="fc" id="L638">				final double tenorRefinementWeight = getWeightForTenorRefinement(shortPeriodStart, liborPeriodDiscretization.getTime(periodEndIndex), shortPeriodStart, periodEnd);</span>
+<span class="fc" id="L639">				final RandomVariable integratedVariance = getIntegratedVariance(process, timeIndex, liborPeriodDiscretization.getTime(periodEndIndex-1), liborPeriodDiscretization.getTime(periodEndIndex));</span>
+
+<span class="fc" id="L641">				stateVariableSum = stateVariableSum.addProduct(stateVariable.addProduct(integratedVariance, tenorRefinementWeight), covarianceModel.getScaledTenorTime(shortPeriodStart,periodEnd));</span>
+<span class="fc" id="L642">				periodEndIndex--;</span>
+			}
+
+<span class="fc bfc" id="L645" title="All 2 branches covered.">			for(int periodIndex = periodStartIndex; periodIndex&lt;periodEndIndex; periodIndex++) {</span>
+<span class="fc" id="L646">				final RandomVariable stateVariable = process.getProcessValue(timeIndex, periodIndex);</span>
+
+<span class="fc" id="L648">				stateVariableSum = stateVariableSum.addProduct(stateVariable, covarianceModel.getScaledTenorTime(liborPeriodDiscretization.getTime(periodIndex), liborPeriodDiscretization.getTime(periodIndex+1)));</span>
+			}
+<span class="fc" id="L650">			stateVariableSum = stateVariableSum.div(covarianceModel.getScaledTenorTime(periodStart,periodEnd));</span>
+<span class="nc" id="L651">		} catch (final CalculationException e) {</span>
+<span class="fc" id="L652">		}</span>
+
+<span class="fc" id="L654">		return stateVariableSum;</span>
+	}
+
+
+	@Override
+	public RandomVariable getForwardRate(final MonteCarloProcess process, final double time, final double periodStart, final double periodEnd) {
+<span class="fc" id="L660">		int timeIndex = process.getTimeIndex(time);</span>
+		// @TODO Improve interpolation in simulation time here, if required.
+<span class="pc bpc" id="L662" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L663">			timeIndex = -timeIndex-1-1;</span>
+		}
+
+<span class="fc" id="L666">		return getLIBOR(process, timeIndex, periodStart, periodEnd);</span>
+	}
+
+	public RandomVariable getLIBOR(final MonteCarloProcess process, final int timeIndex, final double periodStart, final double periodEnd)
+	{
+<span class="fc" id="L671">		RandomVariable stateVariable = getStateVariable(process, timeIndex, periodStart, periodEnd);</span>
+<span class="fc" id="L672">		final double initialValue = Math.log(1+forwardRateCurve.getForward(curveModel, periodStart)*(forwardRateCurve.getPaymentOffset(periodStart))) / forwardRateCurve.getPaymentOffset(periodStart);</span>
+<span class="fc" id="L673">		final double tenorTime = covarianceModel.getScaledTenorTime(periodStart, periodEnd);</span>
+
+<span class="fc" id="L675">		stateVariable = stateVariable.mult(tenorTime).add(initialValue*(periodEnd-periodStart));</span>
+<span class="fc" id="L676">		final RandomVariable libor = stateVariable.exp().sub(1.0).div(periodEnd-periodStart);</span>
+
+<span class="fc" id="L678">		return libor;</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L683">		return 2 * this.getLiborPeriodDiscretization(0.0).getNumberOfTimeSteps();</span>
+	}
+
+	@Override
+	public int getNumberOfFactors()
+	{
+<span class="fc" id="L689">		return covarianceModel.getNumberOfFactors();</span>
+	}
+
+	public int getNumberOfLibors()
+	{
+<span class="fc" id="L694">		return this.getLiborPeriodDiscretization(0.0).getNumberOfTimeSteps();</span>
+	}
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L699">		throw new UnsupportedOperationException();</span>
+		/*
+		try {
+			Map&lt;String, Object&gt; properties = new HashMap&lt;String, Object&gt;();
+			properties.put(&quot;measure&quot;,		measure.name());
+			properties.put(&quot;stateSpace&quot;,	stateSpace.name());
+			return new LIBORMarketModelWithTenorRefinement(getLiborPeriodDiscretization(), getForwardRateCurve(), getDiscountCurve(), covarianceModel, new CalibrationProduct[0], properties);
+		} catch (CalculationException e) {
+			return null;
+		}
+		 */
+	}
+
+	@Override
+	public AnalyticModel getAnalyticModel() {
+<span class="fc" id="L714">		return curveModel;</span>
+	}
+
+	@Override
+	public DiscountCurve getDiscountCurve() {
+<span class="fc" id="L719">		return discountCurve;</span>
+	}
+
+	@Override
+	public ForwardCurve getForwardRateCurve() {
+<span class="fc" id="L724">		return forwardRateCurve;</span>
+	}
+
+	@Override
+	public TermStructureModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) throws CalculationException {
+<span class="fc" id="L729">		final CalibrationProduct[] calibrationItems = null;</span>
+<span class="fc" id="L730">		final Map&lt;String, ?&gt; properties = null;</span>
+
+<span class="fc" id="L732">		TermStructureCovarianceModel covarianceModel = this.covarianceModel;</span>
+<span class="pc bpc" id="L733" title="1 of 2 branches missed.">		if(dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="fc" id="L734">			covarianceModel = (TermStructureCovarianceModel)dataModified.get(&quot;covarianceModel&quot;);</span>
+		}
+
+<span class="fc" id="L737">		return new LIBORMarketModelWithTenorRefinement(liborPeriodDiscretizations, numberOfDiscretizationIntervals, curveModel, forwardRateCurve, discountCurve, covarianceModel, calibrationItems, properties);</span>
+	}
+
+	/**
+	 * Returns the term structure covariance model.
+	 *
+	 * @return the term structure covariance model.
+	 */
+	public TermStructureCovarianceModel getCovarianceModel() {
+<span class="fc" id="L746">		return covarianceModel;</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

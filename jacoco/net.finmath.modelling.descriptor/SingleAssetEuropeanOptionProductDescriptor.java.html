@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SingleAssetEuropeanOptionProductDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">SingleAssetEuropeanOptionProductDescriptor.java</span></div><h1>SingleAssetEuropeanOptionProductDescriptor.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2018
+ */
+
+package net.finmath.modelling.descriptor;
+
+import java.time.LocalDate;
+
+import net.finmath.modelling.SingleAssetProductDescriptor;
+
+/**
+ * Describes a European option.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SingleAssetEuropeanOptionProductDescriptor implements SingleAssetProductDescriptor {
+
+	private static final String productName = &quot;Single asset European option&quot;;
+
+	private final String 	underlyingName;
+	private final LocalDate maturity;
+	private final double 	strike;
+
+	public SingleAssetEuropeanOptionProductDescriptor(final String underlyingName, final LocalDate maturity, final double strike) {
+<span class="fc" id="L28">		super();</span>
+<span class="fc" id="L29">		this.underlyingName = underlyingName;</span>
+<span class="fc" id="L30">		this.maturity = maturity;</span>
+<span class="fc" id="L31">		this.strike = strike;</span>
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	public Integer version() {
+<span class="nc" id="L36">		return 1;</span>
+	}
+
+	@Override
+	public String name() {
+<span class="nc" id="L41">		return productName;</span>
+	}
+
+	/**
+	 * @return Name of the underlying.
+	 */
+	public String getUnderlyingName() {
+<span class="fc" id="L48">		return underlyingName;</span>
+	}
+
+	/**
+	 * @return Maturity as double.
+	 */
+	public LocalDate getMaturity() {
+<span class="fc" id="L55">		return maturity;</span>
+	}
+
+	/**
+	 * @return Strike
+	 */
+	public Double getStrike() {
+<span class="fc" id="L62">		return strike;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

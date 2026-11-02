@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EulerSchemeFromProcessModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.process</a> &gt; <span class="el_source">EulerSchemeFromProcessModel.java</span></div><h1>EulerSchemeFromProcessModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 18.11.2012
+ */
+package net.finmath.montecarlo.process;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import net.finmath.concurrency.FutureWrapper;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements some numerical schemes for multi-dimensional multi-factor Ito process.
+ *
+ * &lt;p&gt;
+ * It features the standard Euler scheme and the standard predictor-corrector Euler scheme
+ * for &lt;i&gt;Y&lt;/i&gt;, then applies the &lt;i&gt;state space transform&lt;/i&gt; \( X = f(Y) \).
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For the standard Euler scheme the process \( Y = (Y_{1},\ldots,Y_{d}) \) is discretized as
+ * \[
+ * 	Y_{j}(t_{i+1}) = Y_{j}(t_{i}) + \mu_{j}(t_{i}) \Delta t_{i} + \lambda_{1,j}(t_{i}) \Delta W_{1}(t_{i}) + \ldots + \lambda_{m,j} \Delta W_{m} \text{.}
+ * \]
+ * &lt;/p&gt;
+ *
+ * The parameters have to be provided by a {@link net.finmath.montecarlo.model.ProcessModel}:
+ * &lt;ul&gt;
+ * 	&lt;li&gt; \( f \) - &lt;code&gt;applyStateSpaceTransform&lt;/code&gt; &lt;/li&gt;
+ * 	&lt;li&gt; \( Y(t_{0}) \) - &lt;code&gt;getInitialState&lt;/code&gt; &lt;/li&gt;
+ * 	&lt;li&gt; \( \mu \) - &lt;code&gt;getDrift&lt;/code&gt; &lt;/li&gt;
+ * 	&lt;li&gt; \( \lambda_{j} \) - &lt;code&gt;getFactorLoading&lt;/code&gt; &lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Using the &lt;i&gt;state space transform&lt;/i&gt; \( (t,x) \mapsto \exp(x) \), it is possible to create a log-Euler scheme, i.e.,
+ * \[
+ * 	X(t_{i+1}) = X(t_{i}) \cdot \exp\left( (r(t_{i}) - \frac{1}{2} \sigma(t_{i})^2) \Delta t_{i} + \sigma(t_{i}) \Delta W(t_{i}) \right) \text{.}
+ * \]
+ * for a process \( \mathrm{d} X = r X \mathrm{d}t + \sigma X \mathrm{d}W \).
+ * &lt;/p&gt;
+ *
+ * The dimension \( d \) is called &lt;code&gt;numberOfComponents&lt;/code&gt; here.
+ * The value \( m \) is called &lt;code&gt;numberOfFactors&lt;/code&gt; here.
+ * The default for &lt;code&gt;numberOfFactors&lt;/code&gt; is 1.
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.model.ProcessModel The interface definition contains more details.
+ * @version 1.4
+ */
+public class EulerSchemeFromProcessModel extends MonteCarloProcessFromProcessModel {
+
+	private static boolean isUseMultiThreadding;
+	static {
+		// Default value is true
+<span class="fc" id="L65">		isUseMultiThreadding = Boolean.parseBoolean(System.getProperty(&quot;net.finmath.montecarlo.process.EulerSchemeFromProcessModel.isUseMultiThreadding&quot;,&quot;true&quot;));</span>
+<span class="fc" id="L66">	}</span>
+
+<span class="fc" id="L68">	public enum Scheme {</span>
+<span class="fc" id="L69">		EULER,</span>
+<span class="fc" id="L70">		PREDICTOR_CORRECTOR,</span>
+<span class="fc" id="L71">		EULER_FUNCTIONAL,</span>
+<span class="fc" id="L72">		PREDICTOR_CORRECTOR_FUNCTIONAL</span>
+	}
+
+	private final IndependentIncrements stochasticDriver;
+
+	private final Scheme scheme;
+
+	// Used locally for multi-threadded calculation.
+	private ExecutorService executor;
+
+	/*
+	 * The storage of the simulated stochastic process.
+	 */
+<span class="fc" id="L85">	private transient RandomVariable[][]	discreteProcess = null;</span>
+	private transient RandomVariable[]		discreteProcessWeights;
+
+
+	/**
+	 * Create an Euler discretization scheme.
+	 *
+	 * @param model The model (the SDE specifcation) used to generate the (sampling of the) stochastic process.
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
+	 * @param scheme The scheme to use. See {@link Scheme}.
+	 */
+	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver, final Scheme scheme) {
+<span class="fc" id="L97">		super(stochasticDriver.getTimeDiscretization(), model);</span>
+<span class="fc" id="L98">		this.stochasticDriver = stochasticDriver;</span>
+<span class="fc" id="L99">		this.scheme = scheme;</span>
+<span class="fc" id="L100">	}</span>
+
+	/**
+	 * Create an Euler discretization scheme.
+	 *
+	 * @param model The model (the SDE specification) used to generate the (sampling of the) stochastic process.
+	 * @param stochasticDriver The stochastic driver of the process (e.g. a Brownian motion).
+	 */
+	public EulerSchemeFromProcessModel(final ProcessModel model, final IndependentIncrements stochasticDriver) {
+<span class="fc" id="L109">		super(stochasticDriver.getTimeDiscretization(), model);</span>
+<span class="fc" id="L110">		this.stochasticDriver = stochasticDriver;</span>
+
+<span class="fc" id="L112">		Scheme scheme = Scheme.EULER_FUNCTIONAL; // Default, unless applyStateSpaceTransformInverse is not provided</span>
+		try {
+<span class="fc" id="L114">			model.applyStateSpaceTransformInverse(null, 0, 0, null);</span>
+		}
+<span class="nc" id="L116">		catch(final UnsupportedOperationException e) {</span>
+			// If the inverse is not specified we cannot perform the function EULER
+<span class="nc" id="L118">			scheme = Scheme.EULER;</span>
+		}
+<span class="pc" id="L120">		catch(final Exception e) {}</span>
+
+<span class="fc" id="L122">		this.scheme = scheme;</span>
+<span class="fc" id="L123">	}</span>
+
+	/**
+	 * This method returns the realization of the process at a certain time index.
+	 *
+	 * @param timeIndex Time index at which the process should be observed
+	 * @return A vector of process realizations (on path)
+	 */
+	@Override
+	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex) {
+		// Thread safe lazy initialization
+<span class="fc" id="L134">		synchronized(this) {</span>
+<span class="pc bpc" id="L135" title="1 of 4 branches missed.">			if (discreteProcess == null || discreteProcess.length == 0) {</span>
+<span class="fc" id="L136">				doPrecalculateProcess();</span>
+			}
+<span class="fc" id="L138">		}</span>
+
+<span class="pc bpc" id="L140" title="1 of 2 branches missed.">		if(discreteProcess[timeIndex][componentIndex] == null) {</span>
+<span class="nc" id="L141">			throw new NullPointerException(&quot;Generation of process component &quot; + componentIndex + &quot; at time index &quot; + timeIndex + &quot; failed. Likely due to out of memory&quot;);</span>
+		}
+
+		// Return value of process
+<span class="fc" id="L145">		return discreteProcess[timeIndex][componentIndex];</span>
+	}
+
+	/**
+	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
+	 *
+	 * @param timeIndex Time index at which the process should be observed
+	 * @return A vector of positive weights
+	 */
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) {
+		// Thread safe lazy initialization
+<span class="fc" id="L157">		synchronized(this) {</span>
+<span class="pc bpc" id="L158" title="2 of 4 branches missed.">			if (discreteProcessWeights == null || discreteProcessWeights.length == 0) {</span>
+<span class="nc" id="L159">				doPrecalculateProcess();</span>
+			}
+<span class="fc" id="L161">		}</span>
+
+		// Return value of process
+<span class="fc" id="L164">		return discreteProcessWeights[timeIndex];</span>
+	}
+
+	/**
+	 * Calculates the whole (discrete) process.
+	 */
+	private void doPrecalculateProcess() {
+<span class="pc bpc" id="L171" title="3 of 4 branches missed.">		if (discreteProcess != null &amp;&amp; discreteProcess.length != 0) {</span>
+<span class="nc" id="L172">			return;</span>
+		}
+
+<span class="fc" id="L175">		final int numberOfPaths			= this.getNumberOfPaths();</span>
+<span class="fc" id="L176">		final int numberOfFactors		= this.getNumberOfFactors();</span>
+<span class="fc" id="L177">		final int numberOfComponents	= this.getNumberOfComponents();</span>
+
+		// Allocate Memory
+<span class="fc" id="L180">		discreteProcess			= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps() + 1][getNumberOfComponents()];</span>
+<span class="fc" id="L181">		discreteProcessWeights	= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps() + 1];</span>
+
+		// Set initial Monte-Carlo weights
+<span class="fc" id="L184">		discreteProcessWeights[0] = stochasticDriver.getRandomVariableForConstant(1.0 / numberOfPaths);</span>
+
+		// Set initial value
+<span class="fc" id="L187">		final RandomVariable[] initialState = getInitialState();</span>
+<span class="fc" id="L188">		final RandomVariable[] currentState = new RandomVariable[numberOfComponents];</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">		for (int componentIndex = 0; componentIndex &lt; numberOfComponents; componentIndex++) {</span>
+<span class="fc" id="L190">			currentState[componentIndex] = initialState[componentIndex];</span>
+<span class="fc" id="L191">			discreteProcess[0][componentIndex] = applyStateSpaceTransform(0, componentIndex, currentState[componentIndex]);</span>
+		}
+
+		/*
+		 * Evolve the process using an Euler scheme.
+		 * The evolution is performed multi-threadded.
+		 * Each component of the vector runs in its own thread.
+		 */
+<span class="fc" id="L199">		executor = Executors.newCachedThreadPool();</span>
+
+		// Evolve process
+<span class="fc bfc" id="L202" title="All 2 branches covered.">		for (int timeIndex2 = 1; timeIndex2 &lt; getTimeDiscretization().getNumberOfTimeSteps()+1; timeIndex2++) {</span>
+<span class="fc" id="L203">			final int timeIndex = timeIndex2;</span>
+			// Generate process from timeIndex-1 to timeIndex
+<span class="fc" id="L205">			final double deltaT = getTime(timeIndex) - getTime(timeIndex - 1);</span>
+
+			// Fetch drift vector
+			final RandomVariable[] drift;
+			try {
+<span class="fc" id="L210">				drift = getDrift(timeIndex - 1, discreteProcess[timeIndex - 1], null);</span>
+			}
+<span class="nc" id="L212">			catch(final Exception e) {</span>
+<span class="nc" id="L213">				throw new RuntimeException(e + &quot; - drift calculaton failed at time index &quot; + timeIndex + &quot; (time=&quot; + getTime(timeIndex - 1) + &quot;) . See cause of this exception for details.&quot;, e);</span>
+<span class="fc" id="L214">			}</span>
+
+			// Fetch brownianIncrement vector
+<span class="fc" id="L217">			final RandomVariable[] brownianIncrement	= stochasticDriver.getIncrement(timeIndex - 1);</span>
+
+			// Calculate new realization
+<span class="fc" id="L220">			final ArrayList&lt;Future&lt;RandomVariable&gt;&gt; discreteProcessAtCurrentTimeIndex = new ArrayList&lt;&gt;(numberOfComponents);</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">			for (int componentIndex2 = 0; componentIndex2 &lt; numberOfComponents; componentIndex2++) {</span>
+<span class="fc" id="L222">				final int componentIndex = componentIndex2;</span>
+
+<span class="fc" id="L224">				final RandomVariable	driftOfComponent	= drift[componentIndex];</span>
+
+				// Check if the component process has stopped to evolve
+<span class="fc bfc" id="L227" title="All 2 branches covered.">				if (driftOfComponent == null) {</span>
+<span class="fc" id="L228">					discreteProcessAtCurrentTimeIndex.add(componentIndex, null);</span>
+<span class="fc" id="L229">					continue;</span>
+				}
+
+<span class="fc" id="L232">				final Callable&lt;RandomVariable&gt; worker = new  Callable&lt;RandomVariable&gt;() {</span>
+					@Override
+					public RandomVariable call() {
+<span class="pc bpc" id="L235" title="1 of 4 branches missed.">						if(scheme == Scheme.EULER_FUNCTIONAL || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {</span>
+<span class="fc" id="L236">							currentState[componentIndex] = applyStateSpaceTransformInverse(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1][componentIndex]);</span>
+						}
+
+<span class="fc" id="L239">						final RandomVariable[]	factorLoadings		= getFactorLoading(timeIndex - 1, componentIndex, discreteProcess[timeIndex - 1]);</span>
+
+						// Check if the component process has stopped to evolve
+<span class="pc bpc" id="L242" title="1 of 2 branches missed.">						if (factorLoadings == null) {</span>
+<span class="nc" id="L243">							return null;</span>
+						}
+
+						// Apply drift
+<span class="pc bpc" id="L247" title="1 of 2 branches missed.">						if(driftOfComponent != null) {</span>
+<span class="fc" id="L248">							currentState[componentIndex] = currentState[componentIndex].addProduct(driftOfComponent, deltaT); // mu DeltaT</span>
+						}
+
+						// Apply diffusion
+<span class="fc" id="L252">						currentState[componentIndex] = currentState[componentIndex].addSumProduct(factorLoadings, brownianIncrement); // sigma DeltaW</span>
+
+						// Transform the state space to the value space and return it.
+<span class="fc" id="L255">						return applyStateSpaceTransform(timeIndex, componentIndex, currentState[componentIndex]);</span>
+					}
+				};
+
+
+				/*
+				 * Optional multi-threadding (asynchronous calculation of the components)
+				 */
+<span class="fc" id="L263">				Future&lt;RandomVariable&gt; result = null;</span>
+				try {
+<span class="pc bpc" id="L265" title="1 of 2 branches missed.">					if(isUseMultiThreadding) {</span>
+<span class="fc" id="L266">						result = executor.submit(worker);</span>
+					} else {
+<span class="nc" id="L268">						result = new FutureWrapper&lt;&gt;(worker.call());</span>
+					}
+<span class="nc" id="L270">				} catch (final Exception e) {</span>
+<span class="nc" id="L271">					throw new RuntimeException(&quot;Euler step failed at time index &quot; + timeIndex + &quot; (time=&quot; + getTime(timeIndex) + &quot;). See cause of this exception for details.&quot;, e);</span>
+<span class="fc" id="L272">				}</span>
+
+				// The following line will add the result of the calculation to the vector discreteProcessAtCurrentTimeIndex
+<span class="fc" id="L275">				discreteProcessAtCurrentTimeIndex.add(componentIndex, result);</span>
+			}
+
+			// Fetch results and move to discreteProcess[timeIndex]
+<span class="fc bfc" id="L279" title="All 2 branches covered.">			for (int componentIndex = 0; componentIndex &lt; numberOfComponents; componentIndex++) {</span>
+				try {
+<span class="fc" id="L281">					final Future&lt;RandomVariable&gt; discreteProcessAtCurrentTimeIndexAndComponent = discreteProcessAtCurrentTimeIndex.get(componentIndex);</span>
+<span class="fc bfc" id="L282" title="All 2 branches covered.">					if(discreteProcessAtCurrentTimeIndexAndComponent != null) {</span>
+<span class="fc" id="L283">						discreteProcess[timeIndex][componentIndex] = discreteProcessAtCurrentTimeIndexAndComponent.get().cache();</span>
+					} else {
+<span class="fc" id="L285">						discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];</span>
+					}
+<span class="nc" id="L287">				} catch (final InterruptedException | ExecutionException e) {</span>
+<span class="nc" id="L288">					throw new RuntimeException(&quot;Euler step failed at time index &quot; + timeIndex + &quot; (time=&quot; + getTime(timeIndex) + &quot;). See cause of this exception for details.&quot;, e.getCause());</span>
+<span class="fc" id="L289">				}</span>
+			}
+
+<span class="pc bpc" id="L292" title="1 of 4 branches missed.">			if (scheme == Scheme.PREDICTOR_CORRECTOR || scheme == Scheme.PREDICTOR_CORRECTOR_FUNCTIONAL) {</span>
+				// Apply corrector step to realizations at next time step
+
+<span class="fc" id="L295">				final RandomVariable[] driftWithPredictor = getDrift(timeIndex - 1, discreteProcess[timeIndex], null);</span>
+
+<span class="fc bfc" id="L297" title="All 2 branches covered.">				for (int componentIndex = 0; componentIndex &lt; getNumberOfComponents(); componentIndex++) {</span>
+<span class="fc" id="L298">					final RandomVariable driftWithPredictorOfComponent		= driftWithPredictor[componentIndex];</span>
+<span class="fc" id="L299">					final RandomVariable driftWithoutPredictorOfComponent	= drift[componentIndex];</span>
+
+<span class="pc bpc" id="L301" title="1 of 4 branches missed.">					if (driftWithPredictorOfComponent == null || driftWithoutPredictorOfComponent == null) {</span>
+<span class="nc" id="L302">						continue;</span>
+					}
+
+					// Calculated the predictor corrector drift adjustment
+<span class="fc" id="L306">					final RandomVariable driftAdjustment = driftWithPredictorOfComponent.sub(driftWithoutPredictorOfComponent).div(2.0).mult(deltaT);</span>
+
+					// Add drift adjustment
+<span class="fc" id="L309">					currentState[componentIndex] = currentState[componentIndex].add(driftAdjustment);</span>
+
+					// Re-apply state space transform
+<span class="fc" id="L312">					discreteProcess[timeIndex][componentIndex] = applyStateSpaceTransform(timeIndex, componentIndex, currentState[componentIndex]);</span>
+				} // End for(componentIndex)
+			} // End if(scheme == Scheme.PREDICTOR_CORRECTOR)
+
+			// Set Monte-Carlo weights
+<span class="fc" id="L317">			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex - 1];</span>
+		} // End for(timeIndex)
+
+		try {
+<span class="fc" id="L321">			executor.shutdown();</span>
+		}
+<span class="nc" id="L323">		catch(final SecurityException e) {</span>
+			// @TODO Improve exception handling here
+<span class="fc" id="L325">		}</span>
+<span class="fc" id="L326">	}</span>
+
+	/**
+	 * @return Returns the numberOfPaths.
+	 */
+	@Override
+	public int getNumberOfPaths() {
+<span class="fc" id="L333">		return stochasticDriver.getNumberOfPaths();</span>
+	}
+
+	/**
+	 * @return Returns the numberOfFactors.
+	 */
+	@Override
+	public int getNumberOfFactors() {
+<span class="fc" id="L341">		return stochasticDriver.getNumberOfFactors();</span>
+	}
+
+	/**
+	 * @return Returns the independent increments interface used in the generation of the process
+	 */
+	@Override
+	public IndependentIncrements getStochasticDriver() {
+<span class="fc" id="L349">		return stochasticDriver;</span>
+	}
+
+	/**
+	 * @return Returns the scheme.
+	 */
+	public Scheme getScheme() {
+<span class="nc" id="L356">		return scheme;</span>
+	}
+
+	@Override
+	public EulerSchemeFromProcessModel clone() {
+<span class="nc" id="L361">		return new EulerSchemeFromProcessModel(getModel(), getStochasticDriver(), scheme);</span>
+	}
+
+	@Override
+	public MonteCarloProcess getCloneWithModifiedModel(ProcessModel model) {
+<span class="nc" id="L366">		return new EulerSchemeFromProcessModel(model, getStochasticDriver(), scheme);</span>
+	}
+
+	@Override
+	public MonteCarloProcess getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+<span class="fc" id="L371">		final ProcessModel newModel = (ProcessModel) dataModified.getOrDefault(&quot;model&quot;, getModel());</span>
+
+<span class="pc bpc" id="L373" title="1 of 4 branches missed.">		if(dataModified.containsKey(&quot;seed&quot;) &amp;&amp; dataModified.containsKey(&quot;stochasticDriver&quot;)) {</span>
+<span class="nc" id="L374">			throw new IllegalArgumentException(&quot;Simultaneous specification of stochasticDriver and seed.&quot;);</span>
+		}
+
+		final IndependentIncrements newStochasticDriver;
+<span class="fc bfc" id="L378" title="All 2 branches covered.">		if(dataModified.containsKey(&quot;seed&quot;)) {</span>
+<span class="fc" id="L379">			newStochasticDriver = getStochasticDriver().getCloneWithModifiedSeed((int)dataModified.get(&quot;seed&quot;));</span>
+		}
+<span class="pc bpc" id="L381" title="1 of 2 branches missed.">		else if(dataModified.containsKey(&quot;stochasticDriver&quot;)) {</span>
+<span class="nc" id="L382">			newStochasticDriver = (IndependentIncrements) dataModified.getOrDefault(&quot;stochasticDriver&quot;, stochasticDriver);</span>
+		}
+		else {
+<span class="fc" id="L385">			newStochasticDriver = stochasticDriver;</span>
+		}
+
+<span class="fc" id="L388">		final Scheme newScheme = (Scheme) dataModified.getOrDefault(&quot;scheme&quot;, scheme);</span>
+
+<span class="fc" id="L390">		return new EulerSchemeFromProcessModel(newModel, newStochasticDriver, newScheme);</span>
+	}
+
+	@Override
+	public Object getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L395">		return new EulerSchemeFromProcessModel(getModel(), getStochasticDriver().getCloneWithModifiedSeed(seed));</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L400">		return &quot;EulerSchemeFromProcessModel [stochasticDriver=&quot; + stochasticDriver + &quot;, scheme=&quot; + scheme + &quot;, executor=&quot;</span>
+				+ executor + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

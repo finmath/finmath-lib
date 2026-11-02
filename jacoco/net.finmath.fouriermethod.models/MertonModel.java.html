@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MertonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.models</a> &gt; <span class="el_source">MertonModel.java</span></div><h1>MertonModel.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.models;
+
+import java.time.LocalDate;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * Implements the characteristic function of a Merton jump diffusion model.
+ *
+ * The model is
+ * \[
+ * 	dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
+ *
+ * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
+ * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
+ * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
+ *
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class MertonModel implements CharacteristicFunctionModel{
+
+	private final LocalDate referenceDate;
+
+	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final double volatility;
+	private final double jumpIntensity;
+	private final double jumpSizeMean;
+	private final double jumpSizeStdDev;
+
+	/**
+	 * Construct a Merton jump diffusion model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 */
+	public MertonModel(final LocalDate referenceDate, final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double volatility, final double jumpIntensity,
+			final double jumpSizeMean, final double jumpSizeStdDev) {
+<span class="fc" id="L63">		super();</span>
+<span class="fc" id="L64">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L65">		this.initialValue = initialValue;</span>
+<span class="fc" id="L66">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L67">		riskFreeRate = Double.NaN;</span>
+<span class="fc" id="L68">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L69">		discountRate = Double.NaN;</span>
+<span class="fc" id="L70">		this.volatility = volatility;</span>
+<span class="fc" id="L71">		this.jumpIntensity = jumpIntensity;</span>
+<span class="fc" id="L72">		this.jumpSizeMean = jumpSizeMean;</span>
+<span class="fc" id="L73">		this.jumpSizeStdDev = jumpSizeStdDev;</span>
+<span class="fc" id="L74">	}</span>
+
+	/**
+	 * Construct a Merton jump diffusion model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
+	 * @param discountRate The constant rate used for discounting.
+	 */
+	public MertonModel(final double initialValue, final double riskFreeRate,
+			final double discountRate,
+			final double volatility, final double jumpIntensity, final double jumpSizeMean,
+			final double jumpSizeStdDev) {
+<span class="fc" id="L91">		super();</span>
+<span class="fc" id="L92">		referenceDate = null;</span>
+<span class="fc" id="L93">		this.initialValue = initialValue;</span>
+<span class="fc" id="L94">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L95">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L96">		this.volatility = volatility;</span>
+<span class="fc" id="L97">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L98">		this.discountRate = discountRate;</span>
+<span class="fc" id="L99">		this.jumpIntensity = jumpIntensity;</span>
+<span class="fc" id="L100">		this.jumpSizeMean = jumpSizeMean;</span>
+<span class="fc" id="L101">		this.jumpSizeStdDev = jumpSizeStdDev;</span>
+<span class="fc" id="L102">	}</span>
+
+	/**
+	 * Construct a single curve Merton jump diffusion model.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying). It is also used for discounting.
+	 * @param volatility \( \sigma \) the initial volatility level
+	 * @param jumpIntensity Coefficients of for the jump intensity.
+	 * @param jumpSizeMean Jump size mean
+	 * @param jumpSizeStdDev Jump size variance.
+	 */
+	public MertonModel(final double initialValue, final double riskFreeRate, final double volatility,
+			final double jumpIntensity, final double jumpSizeMean, final double jumpSizeStdDev) {
+<span class="fc" id="L116">		this(initialValue,riskFreeRate,riskFreeRate,volatility,jumpIntensity,jumpSizeMean,jumpSizeStdDev);</span>
+<span class="fc" id="L117">	}</span>
+
+	@Override
+	public CharacteristicFunction apply(final double time) {
+<span class="fc" id="L121">		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);</span>
+<span class="fc" id="L122">		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);</span>
+<span class="fc" id="L123">		final double transformedMean =  jumpSizeMean - 0.5 * jumpSizeStdDev*jumpSizeStdDev;</span>
+<span class="fc" id="L124">		return new CharacteristicFunction() {</span>
+			@Override
+			public Complex apply(final Complex argument) {
+<span class="fc" id="L127">				final Complex iargument = argument.multiply(Complex.I);</span>
+
+<span class="fc" id="L129">				final Complex exponent = (iargument.multiply(transformedMean))</span>
+<span class="fc" id="L130">						.add(iargument.multiply(iargument.multiply(jumpSizeStdDev*jumpSizeStdDev/2.0)));</span>
+
+<span class="fc" id="L132">				final Complex jumpTransform = ((exponent.exp()).subtract(1.0)).multiply(jumpIntensity*time);</span>
+
+<span class="fc" id="L134">				final double jumpTransformCompensator = jumpIntensity*time*(Math.exp(transformedMean+jumpSizeStdDev*jumpSizeStdDev/2.0)-1.0);</span>
+
+<span class="fc" id="L136">				return	iargument</span>
+<span class="fc" id="L137">						.multiply(</span>
+								iargument
+<span class="fc" id="L139">								.multiply(0.5*volatility*volatility*time)</span>
+<span class="fc" id="L140">								.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))</span>
+<span class="fc" id="L141">						.add(logDiscountFactorForDiscounting).add(jumpTransform.subtract(jumpTransformCompensator))</span>
+<span class="fc" id="L142">						.exp();</span>
+			}
+		};
+
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(final double time) {
+<span class="fc bfc" id="L155" title="All 2 branches covered.">		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(final double time) {
+<span class="fc bfc" id="L165" title="All 2 branches covered.">		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L173">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	@Override
+	public double getInitialValue() {
+<span class="nc" id="L181">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L189">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	@Override
+	public double getRiskFreeRate() {
+<span class="nc" id="L197">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L205">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	@Override
+	public double getDiscountRate() {
+<span class="nc" id="L213">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+<span class="nc" id="L220">		return volatility;</span>
+	}
+
+	/**
+	 * @return the jumpIntensity
+	 */
+	public double getJumpIntensity() {
+<span class="nc" id="L227">		return jumpIntensity;</span>
+	}
+
+	/**
+	 * @return the jumpSizeMean
+	 */
+	public double getJumpSizeMean() {
+<span class="nc" id="L234">		return jumpSizeMean;</span>
+	}
+
+	/**
+	 * @return the jumpSizeStdDev
+	 */
+	public double getJumpSizeStdDev() {
+<span class="nc" id="L241">		return jumpSizeStdDev;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L246">		return &quot;MertonModel [initialValue=&quot; + initialValue + &quot;, discountCurveForForwardRate=&quot;</span>
+				+ discountCurveForForwardRate + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, discountCurveForDiscountRate=&quot;
+				+ discountCurveForDiscountRate + &quot;, discountRate=&quot; + discountRate + &quot;, volatility=&quot; + volatility
+				+ &quot;, jumpIntensity=&quot; + jumpIntensity + &quot;, jumpSizeMean=&quot; + jumpSizeMean + &quot;, jumpSizeStdDev=&quot;
+				+ jumpSizeStdDev + &quot;]&quot;;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

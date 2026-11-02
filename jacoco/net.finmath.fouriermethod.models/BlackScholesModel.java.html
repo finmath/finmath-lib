@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlackScholesModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.models</a> &gt; <span class="el_source">BlackScholesModel.java</span></div><h1>BlackScholesModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+
+package net.finmath.fouriermethod.models;
+
+import java.time.LocalDate;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * Implements the characteristic function of a Black Scholes model.
+ *
+ * @author Christian Fries
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class BlackScholesModel implements CharacteristicFunctionModel {
+
+	private final LocalDate referenceDate;
+
+	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final double riskFreeRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final double discountRate;	// Constant rate, used if discountCurveForForwardRate is null
+
+	private final double volatility;
+
+
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 *
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
+	public BlackScholesModel(final LocalDate referenceDate, final double initialValue,
+			final DiscountCurve discountCurveForForwardRate, final DiscountCurve discountCurveForDiscountRate, final double volatility) {
+<span class="fc" id="L49">		super();</span>
+<span class="fc" id="L50">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L51">		this.initialValue = initialValue;</span>
+<span class="fc" id="L52">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L53">		riskFreeRate = Double.NaN;</span>
+<span class="fc" id="L54">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L55">		discountRate = Double.NaN;</span>
+<span class="fc" id="L56">		this.volatility = volatility;</span>
+<span class="fc" id="L57">	}</span>
+
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param discountRate \( r^{\text{d}} \) - the discount rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
+	public BlackScholesModel(final double initialValue, final double riskFreeRate, final double discountRate, final double volatility) {
+<span class="fc" id="L68">		super();</span>
+<span class="fc" id="L69">		referenceDate = null;</span>
+<span class="fc" id="L70">		this.initialValue = initialValue;</span>
+<span class="fc" id="L71">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L72">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L73">		this.volatility = volatility;</span>
+<span class="fc" id="L74">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L75">		this.discountRate = discountRate;</span>
+<span class="fc" id="L76">	}</span>
+
+	/**
+	 * Create a Black Scholes model (characteristic function)
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate \( r^{\text{c}} \) - the risk free rate
+	 * @param volatility \( \sigma \) the volatility level
+	 */
+	public BlackScholesModel(final double initialValue, final double riskFreeRate, final double volatility) {
+<span class="fc" id="L86">		this(initialValue, riskFreeRate, riskFreeRate, volatility);</span>
+<span class="fc" id="L87">	}</span>
+
+	@Override
+	public CharacteristicFunction apply(final double time) {
+<span class="fc" id="L91">		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);</span>
+<span class="fc" id="L92">		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);</span>
+
+<span class="fc" id="L94">		return new CharacteristicFunction() {</span>
+			@Override
+			public Complex apply(final Complex argument) {
+<span class="fc" id="L97">				final Complex iargument = argument.multiply(Complex.I);</span>
+<span class="fc" id="L98">				return	iargument</span>
+<span class="fc" id="L99">						.multiply(</span>
+								iargument
+<span class="fc" id="L101">								.multiply(0.5*volatility*volatility*time)</span>
+<span class="fc" id="L102">								.add(Math.log(initialValue)-0.5*volatility*volatility*time-logDiscountFactorForForward))</span>
+<span class="fc" id="L103">						.add(logDiscountFactorForDiscounting)</span>
+<span class="fc" id="L104">						.exp();</span>
+			}
+		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(final double time) {
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(final double time) {
+<span class="fc bfc" id="L126" title="All 2 branches covered.">		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L134">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	@Override
+	public double getInitialValue() {
+<span class="fc" id="L142">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L150">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	@Override
+	public double getRiskFreeRate() {
+<span class="nc" id="L158">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="fc" id="L166">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	@Override
+	public double getDiscountRate() {
+<span class="fc" id="L174">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double getVolatility() {
+<span class="nc" id="L181">		return volatility;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L189">		return &quot;BlackScholesModel [initialValue=&quot; + initialValue + &quot;, discountCurveForForwardRate=&quot;</span>
+				+ discountCurveForForwardRate + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, discountCurveForDiscountRate=&quot;
+				+ discountCurveForDiscountRate + &quot;, discountRate=&quot; + discountRate + &quot;, volatility=&quot; + volatility + &quot;]&quot;;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OneDimensionalRiskFactorTreeModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree</a> &gt; <span class="el_source">OneDimensionalRiskFactorTreeModel.java</span></div><h1>OneDimensionalRiskFactorTreeModel.java</h1><pre class="source lang-java linenums">package net.finmath.tree;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This abstract class encapsulates the logic of one-dimensional trees for the simulation of a risk factor.
+ * At this level, the class could be used for equities or interest rates (e.g. the Hull-White short rate model).
+ *
+ * @author Carlo Andrea Tramentozzi
+ * @author Alessandro Gnoatto
+ */
+<span class="fc" id="L17">public abstract class OneDimensionalRiskFactorTreeModel implements TreeModel {</span>
+
+	/** Cache of level spot S_k. */
+<span class="fc" id="L20">	private final List&lt;RandomVariable&gt; riskFactorLevels = new ArrayList&lt;&gt;();</span>
+
+	/**
+	 * Returns the number of states at level {@code k} (binomial: {@code k + 1}; trinomial: {@code 2k + 1}).
+	 *
+	 * @param k The level index.
+	 * @return The number of states at level {@code k}.
+	 */
+	public abstract int statesAt(int k);
+
+	/**
+	 * Builds all the realizations {@code X_k[i]}.
+	 *
+	 * @param k The level index.
+	 * @return The spot (risk factor) values at level {@code k}.
+	 */
+	protected abstract RandomVariable buildSpotLevel(int k);
+
+	/**
+	 * Discounted conditional expectation: from {@code v_{k+1}} to {@code v_k}.
+	 *
+	 * @param vNext The values at the next level.
+	 * @param k The current level index.
+	 * @return The conditional expectation.
+	 */
+	protected abstract RandomVariable conditionalExpectation(RandomVariable vNext, int k);
+
+	/**
+	 * Builds (if missing) and returns {@code X_k} using the cache.
+	 *
+	 * @param k The level index.
+	 * @return The risk factor at level {@code k}.
+	 */
+	protected final RandomVariable ensureRiskFactorLevelArray(int k) {
+<span class="fc bfc" id="L54" title="All 2 branches covered.">		while(riskFactorLevels.size() &lt;= k) {</span>
+<span class="fc" id="L55">			final int next = riskFactorLevels.size();</span>
+<span class="fc" id="L56">			riskFactorLevels.add(buildSpotLevel(next));</span>
+<span class="fc" id="L57">		}</span>
+<span class="fc" id="L58">		return riskFactorLevels.get(k);</span>
+	}
+
+	@Override
+	public RandomVariable getTransformedValuesAtGivenTimeRV(final double time, final DoubleUnaryOperator transformFunction) {
+<span class="fc" id="L63">		int k = (int) Math.round(time / getTimeStep());</span>
+
+		// Checking param to avoid out of bound exception.
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">		if(k &lt; 0) {</span>
+<span class="nc" id="L67">			k = 0;</span>
+		}
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">		if(k &gt; getNumberOfTimes() - 1) {</span>
+<span class="nc" id="L70">			k = getNumberOfTimes() - 1;</span>
+		}
+
+<span class="fc" id="L73">		final RandomVariable sRV = ensureRiskFactorLevelArray(k);</span>
+<span class="fc" id="L74">		final double[] s = sRV.getRealizations();</span>
+<span class="fc" id="L75">		final double[] v = new double[s.length];</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">		for(int i = 0; i &lt; s.length; i++) {</span>
+<span class="fc" id="L77">			v[i] = transformFunction.applyAsDouble(s[i]);</span>
+		}
+<span class="fc" id="L79">		return new RandomVariableFromDoubleArray(k * getTimeStep(), v);</span>
+	}
+
+	@Override
+	public RandomVariable getConditionalExpectationRV(final RandomVariable vNext, final int k) {
+<span class="fc" id="L84">		final RandomVariable vK = conditionalExpectation(vNext, k); // hook</span>
+<span class="fc" id="L85">		return new RandomVariableFromDoubleArray(k * getTimeStep(), vK.getRealizations());</span>
+	}
+
+	@Override
+	public RandomVariable getSpotAtGivenTimeIndexRV(final int k) {
+<span class="fc" id="L90">		final RandomVariable sRV = ensureRiskFactorLevelArray(k);</span>
+<span class="fc" id="L91">		return new RandomVariableFromDoubleArray(k * getTimeStep(), sRV.getRealizations());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

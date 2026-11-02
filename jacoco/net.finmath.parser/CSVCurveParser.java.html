@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CSVCurveParser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.parser</a> &gt; <span class="el_source">CSVCurveParser.java</span></div><h1>CSVCurveParser.java</h1><pre class="source lang-java linenums">package net.finmath.parser;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Provides options to parse curves.
+ *
+ * @author Roland Bachl
+ */
+public class CSVCurveParser {
+
+	private InterpolationMethod interpolationMethod;
+	private ExtrapolationMethod extrapolationMethod;
+	private InterpolationEntity interpolationEntity;
+
+	/**
+	 * Set up the parser with default interpolation.
+	 * &lt;ul&gt;
+	 * &lt;li&gt;&lt;code&gt;InterpolationMethod.LINEAR&lt;/code&gt;&lt;/li&gt;
+	 * &lt;li&gt;&lt;code&gt;ExtrapolationMethod.CONSTANT&lt;/code&gt;&lt;/li&gt;
+	 * &lt;li&gt;&lt;code&gt;InterpolationEntity.LOG_OF_VALUE_PER_TIME&lt;/code&gt;&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 */
+	public CSVCurveParser() {
+<span class="nc" id="L45">		this(InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.LOG_OF_VALUE_PER_TIME);</span>
+<span class="nc" id="L46">	}</span>
+
+	/**
+	 * Set up the parser with given interpolation.
+	 *
+	 * @param interpolationMethod The interpolation method.
+	 * @param extrapolationMethod The extrapolation method.
+	 * @param interpolationEntity The interpolation entity.
+	 */
+	public CSVCurveParser(final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
+<span class="nc" id="L56">		super();</span>
+<span class="nc" id="L57">		this.interpolationMethod = interpolationMethod;</span>
+<span class="nc" id="L58">		this.extrapolationMethod = extrapolationMethod;</span>
+<span class="nc" id="L59">		this.interpolationEntity = interpolationEntity;</span>
+<span class="nc" id="L60">	}</span>
+
+	/**
+	 * Extract a single discount curve from a csv file.
+	 *
+	 * @param file The file to be parsed.
+	 * @param currency The currency of the curve.
+	 * @param index The index of the curve.
+	 * @return The discount curve.
+	 *
+	 * @throws IOException Thrown upon an exception related to File.
+	 */
+	public DiscountCurve parseCSV(final File file, final String currency, final String index) throws IOException {
+
+<span class="nc" id="L74">		try(InputStream stream = new FileInputStream(file)) {</span>
+<span class="nc" id="L75">			return parseStream(stream, currency, index);</span>
+		}
+	}
+
+	/**
+	 * Extract an arry of discount curves from a zip archive.
+	 *
+	 * @param file The archive to be parsed.
+	 * @param currency The currency of the curves.
+	 * @param index The index of the curves.
+	 * @return The array of discount curves.
+	 *
+	 * @throws IOException Thrown upon an exception related to File.
+	 */
+	public DiscountCurve[] parseZIP(final File file, final String currency, final String index) throws IOException {
+
+<span class="nc" id="L91">		final List&lt;DiscountCurve&gt; curves = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L92">		try(ZipFile zip = new ZipFile(file)) {</span>
+
+<span class="nc" id="L94">			final Enumeration&lt;? extends ZipEntry&gt; entries = zip.entries();</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">			while(entries.hasMoreElements()) {</span>
+<span class="nc" id="L97">				try(InputStream inputStream = zip.getInputStream(entries.nextElement())) {</span>
+<span class="nc" id="L98">					curves.add(parseStream(inputStream, currency, index));</span>
+				}
+			}
+		}
+
+<span class="nc" id="L103">		return curves.toArray(new DiscountCurve[curves.size()]);</span>
+	}
+
+	/**
+	 * Set interpolation method for parsed curves.
+	 *
+	 * @param interpolationMethod The interpolation method.
+	 * @param extrapolationMethod The extrapolation method.
+	 * @param interpolationEntity The interpolation entity.
+	 */
+	public void setInterpolation(final InterpolationMethod interpolationMethod, final ExtrapolationMethod extrapolationMethod, final InterpolationEntity interpolationEntity) {
+<span class="nc" id="L114">		this.interpolationMethod = interpolationMethod;</span>
+<span class="nc" id="L115">		this.extrapolationMethod = extrapolationMethod;</span>
+<span class="nc" id="L116">		this.interpolationEntity = interpolationEntity;</span>
+<span class="nc" id="L117">	}</span>
+
+	/**
+	 * Extract the reference date of each curve in an array.
+	 *
+	 * @param curves The array of curves.
+	 * @return Array of the respective reference dates.
+	 */
+	public static LocalDate[] getReferenceDates(final Curve[] curves) {
+<span class="nc" id="L126">		return Arrays.stream(curves).map(Curve::getReferenceDate).toArray(LocalDate[]::new);</span>
+	}
+
+	/**
+	 * Parse a discount curve from an input stream.
+	 *
+	 * @param stream
+	 * @param currency
+	 * @param index
+	 * @return
+	 * @throws IOException
+	 */
+	private DiscountCurve parseStream(final InputStream stream, final String currency, final String index) throws IOException {
+		LocalDate referenceDate;
+<span class="nc" id="L140">		final List&lt;Double&gt; times = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L141">		final List&lt;Double&gt; rates = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L143">		final String		csvSplitBy	= &quot;;&quot;;</span>
+<span class="nc" id="L144">		final BufferedReader reader	= new BufferedReader(new InputStreamReader(stream));</span>
+		String	line;
+
+		//Get reference date. Located in A3.
+<span class="nc" id="L148">		readNonEmptyLine(reader);</span>
+<span class="nc" id="L149">		readNonEmptyLine(reader);</span>
+<span class="nc" id="L150">		referenceDate = LocalDate.parse(readNonEmptyLine(reader).replaceFirst(&quot;\\D+&quot;, &quot;&quot;), DateTimeFormatter.ofPattern(&quot;d/MM/yy&quot;));</span>
+
+<span class="nc bnc" id="L152" title="All 2 branches missed.">		while((line = readNonEmptyLine(reader)) != null) {</span>
+<span class="nc" id="L153">			final String[] inputs = line.split(csvSplitBy);</span>
+
+			//Eliminate unnecessary lines.
+<span class="nc bnc" id="L156" title="All 4 branches missed.">			if(! (inputs[0].equalsIgnoreCase(currency) &amp;&amp; inputs[1].equalsIgnoreCase(index))) {</span>
+<span class="nc" id="L157">				continue;</span>
+			}
+
+			//Extract time and zero rate.
+<span class="nc" id="L161">			times.add(Double.parseDouble(inputs[4]) /365);</span>
+<span class="nc" id="L162">			rates.add(Double.parseDouble(inputs[5]) /100);</span>
+<span class="nc" id="L163">		}</span>
+
+<span class="nc" id="L165">		reader.close();</span>
+
+<span class="nc" id="L167">		return DiscountCurveInterpolation.createDiscountCurveFromZeroRates(currency+&quot;_&quot;+index, referenceDate, times.stream().mapToDouble(Double::doubleValue).toArray(),</span>
+<span class="nc" id="L168">				rates.stream().mapToDouble(Double::doubleValue).toArray(), interpolationMethod, extrapolationMethod, interpolationEntity);</span>
+	}
+
+	/**
+	 * Returns the next line of the reader that is not empty.
+	 *
+	 * @param reader The reader to be read from.
+	 * @return The next non empty line.
+	 *
+	 * @throws IOException
+	 */
+	private static String readNonEmptyLine(final BufferedReader reader) throws IOException {
+<span class="nc" id="L180">		String line = &quot;&quot;;</span>
+<span class="nc bnc" id="L181" title="All 2 branches missed.">		while(line.equals(&quot;&quot;)) {</span>
+<span class="nc" id="L182">			line = reader.readLine();</span>
+<span class="nc bnc" id="L183" title="All 2 branches missed.">			if(line == null) {</span>
+<span class="nc" id="L184">				return null;</span>
+			}
+		}
+<span class="nc" id="L187">		return line;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

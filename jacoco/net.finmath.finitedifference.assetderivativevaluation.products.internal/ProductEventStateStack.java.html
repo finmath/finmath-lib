@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ProductEventStateStack.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products.internal</a> &gt; <span class="el_source">ProductEventStateStack.java</span></div><h1>ProductEventStateStack.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products.internal;
+
+import java.util.ArrayDeque;
+
+/**
+ * Thread-local stack for temporary product valuation state.
+ *
+ * &lt;p&gt;
+ * This class is intended for product-local state that is needed only during a
+ * finite-difference valuation, for example event-condition state used by
+ * discretely monitored products. The state is stored in a {@link ThreadLocal}
+ * stack so that concurrent valuations of the same product instance and nested
+ * valuations within the same thread do not overwrite each other.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * State is pushed by calling {@link #push(Object)}. The returned {@link Scope}
+ * should be closed when the state is no longer needed, preferably by using a
+ * try-with-resources block. Closing the scope removes the most recently pushed
+ * state from the current thread's stack and clears the thread-local storage
+ * when the stack becomes empty.
+ * &lt;/p&gt;
+ *
+ * @param &lt;T&gt; The type of valuation state stored in the stack.
+ * @author Alessandro Gnoatto
+ */
+<span class="nc" id="L27">public final class ProductEventStateStack&lt;T&gt; {</span>
+
+	/**
+	 * The stack.
+	 */
+	private transient ThreadLocal&lt;ArrayDeque&lt;T&gt;&gt; stack;
+
+	/**
+	 * Pushes a state object onto the current thread's stack.
+	 *
+	 * &lt;p&gt;
+	 * The returned {@link Scope} closes over the pushed state. Calling
+	 * {@link Scope#close()} pops the state again. This allows callers to use
+	 * the
+	 * following pattern:
+	 * &lt;/p&gt;
+	 *
+	 * &lt;pre&gt;
+	 * try(ProductEventStateStack.Scope ignored = stack.push(state)) {
+	 *     // perform valuation using state
+	 * }
+	 * &lt;/pre&gt;
+	 *
+	 * @param state The state to push.
+	 * @return A scope whose {@link Scope#close()} method pops the pushed state.
+	 * @throws IllegalArgumentException Thrown if {@code state} is {@code null}.
+	 */
+	public Scope push(final T state) {
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		if (state == null) {</span>
+<span class="nc" id="L56">			throw new IllegalArgumentException(&quot;state must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L59">		getStack().get().push(state);</span>
+
+<span class="nc" id="L61">		return this::pop;</span>
+	}
+
+	/**
+	 * Returns the current state for the calling thread.
+	 *
+	 * @return The state at the top of the current thread's stack, or
+	 *         {@code null} if the stack is empty.
+	 */
+	public T currentOrNull() {
+<span class="nc" id="L71">		final ArrayDeque&lt;T&gt; currentStack = getStack().get();</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">		return currentStack.isEmpty() ? null : currentStack.peek();</span>
+	}
+
+	/**
+	 * Pops the current state from the calling thread's stack.
+	 *
+	 * &lt;p&gt;
+	 * If the stack becomes empty after the pop operation, the thread-local
+	 * value
+	 * is removed.
+	 * &lt;/p&gt;
+	 *
+	 * @throws IllegalStateException Thrown if the current thread's stack is
+	 *         empty.
+	 */
+	private void pop() {
+<span class="nc" id="L88">		final ArrayDeque&lt;T&gt; currentStack = getStack().get();</span>
+
+<span class="nc bnc" id="L90" title="All 2 branches missed.">		if (currentStack.isEmpty()) {</span>
+<span class="nc" id="L91">			throw new IllegalStateException(&quot;No product event state to pop.&quot;);</span>
+		}
+
+<span class="nc" id="L94">		currentStack.pop();</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (currentStack.isEmpty()) {</span>
+<span class="nc" id="L97">			getStack().remove();</span>
+		}
+<span class="nc" id="L99">	}</span>
+
+	/**
+	 * Returns the current thread-local stack, creating it lazily if necessary.
+	 *
+	 * @return The thread-local stack.
+	 */
+	private ThreadLocal&lt;ArrayDeque&lt;T&gt;&gt; getStack() {
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (stack == null) {</span>
+<span class="nc" id="L108">			stack = ThreadLocal.withInitial(ArrayDeque::new);</span>
+		}
+
+<span class="nc" id="L111">		return stack;</span>
+	}
+
+	/**
+	 * Scope object used to release a pushed product event state.
+	 *
+	 * &lt;p&gt;
+	 * Instances are returned by {@link #push(Object)} and are intended for use
+	 * with try-with-resources. Closing a scope pops the corresponding state
+	 * from
+	 * the current thread's stack.
+	 * &lt;/p&gt;
+	 */
+	@FunctionalInterface
+	public interface Scope extends AutoCloseable {
+
+		/**
+		 * Pops the state associated with this scope.
+		 */
+		@Override
+		void close();
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

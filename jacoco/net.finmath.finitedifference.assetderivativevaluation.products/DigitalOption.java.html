@@ -1,0 +1,604 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">DigitalOption.java</span></div><h1>DigitalOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBachelierModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMBlackScholesModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DigitalPayoffType;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Digital option supporting cash-or-nothing and asset-or-nothing payoffs.
+ *
+ * &lt;p&gt;
+ * The class supports multiple exercise styles through the generic
+ * {@link Exercise} field. European exercise is the default when no explicit
+ * exercise object is provided.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For one-dimensional models, the terminal payoff is initialized using
+ * cell-averaged values in order to reduce grid bias caused by the payoff
+ * discontinuity at the strike.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For Bermudan and American exercise in one-dimensional models, the maturity
+ * layer remains cell-averaged, while exercise projection remains pointwise.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For the current two-dimensional models, the payoff is initialized pointwise
+ * on the first state variable, that is, on the asset dimension.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put sign.
+	 */
+	private final CallOrPut callOrPutSign;
+	/**
+	 * The digital payoff type.
+	 */
+	private final DigitalPayoffType digitalPayoffType;
+	/**
+	 * The cash payoff.
+	 */
+	private final double cashPayoff;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Creates a digital option with explicit exercise specification.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign Call or put flag.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 * @param exercise Exercise specification.
+	 */
+	public DigitalOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff,
+<span class="nc" id="L96">			final Exercise exercise) {</span>
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (callOrPutSign == null) {</span>
+<span class="nc" id="L99">			throw new IllegalArgumentException(&quot;Option type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L101" title="All 2 branches missed.">		if (digitalPayoffType == null) {</span>
+<span class="nc" id="L102">			throw new IllegalArgumentException(&quot;Digital payoff type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L104" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L105">			throw new IllegalArgumentException(&quot;Exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;Maturity must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L110" title="All 4 branches missed.">		if (digitalPayoffType == DigitalPayoffType.CASH_OR_NOTHING &amp;&amp; cashPayoff &lt; 0.0) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;Cash payoff must be non-negative.&quot;);</span>
+		}
+
+<span class="nc" id="L114">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L115">		this.maturity = maturity;</span>
+<span class="nc" id="L116">		this.strike = strike;</span>
+<span class="nc" id="L117">		this.callOrPutSign = callOrPutSign;</span>
+<span class="nc" id="L118">		this.digitalPayoffType = digitalPayoffType;</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		this.cashPayoff = digitalPayoffType == DigitalPayoffType.CASH_OR_NOTHING ? cashPayoff : Double.NaN;</span>
+<span class="nc" id="L120">		this.exercise = exercise;</span>
+<span class="nc" id="L121">	}</span>
+
+	/**
+	 * Creates a European digital option.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign Call or put flag.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 */
+	public DigitalOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff) {
+<span class="nc" id="L140">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+				callOrPutSign,
+				digitalPayoffType,
+				cashPayoff,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L149">	}</span>
+
+	/**
+	 * Creates a digital option with explicit exercise specification.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign Call or put flag.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 * @param exercise Exercise specification.
+	 */
+	public DigitalOption(
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff,
+			final Exercise exercise) {
+<span class="nc" id="L168">		this(null, maturity, strike, callOrPutSign, digitalPayoffType, cashPayoff, exercise);</span>
+<span class="nc" id="L169">	}</span>
+
+	/**
+	 * Creates a European digital option.
+	 *
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign Call or put flag.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 */
+	public DigitalOption(
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff) {
+<span class="nc" id="L186">		this(null, maturity, strike, callOrPutSign, digitalPayoffType, cashPayoff, new EuropeanExercise(maturity));</span>
+<span class="nc" id="L187">	}</span>
+
+	/**
+	 * Creates a digital option with explicit exercise specification.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign +1 for call, -1 for put.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 * @param exercise Exercise specification.
+	 */
+	public DigitalOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff,
+			final Exercise exercise) {
+<span class="nc" id="L208">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+<span class="nc" id="L212">				mapCallOrPut(callOrPutSign),</span>
+				digitalPayoffType,
+				cashPayoff,
+				exercise
+				);
+<span class="nc" id="L217">	}</span>
+
+	/**
+	 * Creates a European digital option.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Option maturity.
+	 * @param strike Option strike.
+	 * @param callOrPutSign +1 for call, -1 for put.
+	 * @param digitalPayoffType Type of digital payoff.
+	 * @param cashPayoff Cash payoff for cash-or-nothing products.
+	 */
+	public DigitalOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double callOrPutSign,
+			final DigitalPayoffType digitalPayoffType,
+			final double cashPayoff) {
+<span class="nc" id="L236">		this(</span>
+				underlyingName,
+				maturity,
+				strike,
+<span class="nc" id="L240">				mapCallOrPut(callOrPutSign),</span>
+				digitalPayoffType,
+				cashPayoff,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L245">	}</span>
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L250">		final SpaceTimeDiscretization discretization = getEffectiveSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L251">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, discretization, exercise);</span>
+
+<span class="nc bnc" id="L253" title="All 2 branches missed.">		if (isOneDimensionalModel(model)) {</span>
+<span class="nc" id="L254">			final double[] terminalValues = buildCellAveragedTerminalValues(discretization);</span>
+
+<span class="nc bnc" id="L256" title="All 2 branches missed.">			if (exercise.isEuropean()) {</span>
+<span class="nc" id="L257">				return solver.getValue(evaluationTime, maturity, terminalValues);</span>
+			} else {
+<span class="nc" id="L259">				return solver.getValue(</span>
+						evaluationTime,
+						maturity,
+						terminalValues,
+<span class="nc" id="L263">						getExercisePayoffFunction()</span>
+						);
+			}
+		}
+
+<span class="nc" id="L268">		return solver.getValue(evaluationTime, maturity, getExercisePayoffFunction());</span>
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L274">		final SpaceTimeDiscretization discretization = getEffectiveSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L275">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, discretization, exercise);</span>
+
+<span class="nc bnc" id="L277" title="All 2 branches missed.">		if (isOneDimensionalModel(model)) {</span>
+<span class="nc" id="L278">			final double[] terminalValues = buildCellAveragedTerminalValues(discretization);</span>
+
+<span class="nc bnc" id="L280" title="All 2 branches missed.">			if (exercise.isEuropean()) {</span>
+<span class="nc" id="L281">				return solver.getValues(maturity, terminalValues);</span>
+			} else {
+<span class="nc" id="L283">				return solver.getValues(</span>
+						maturity,
+						terminalValues,
+<span class="nc" id="L286">						getExercisePayoffFunction()</span>
+						);
+			}
+		}
+
+<span class="nc" id="L291">		return solver.getValues(maturity, getExercisePayoffFunction());</span>
+	}
+
+	/**
+	 * Returns the effective space-time discretization.
+	 *
+	 * &lt;p&gt;
+	 * Bermudan exercise dates are inserted exactly into the time
+	 * discretization.
+	 * European and American exercise keep the model discretization unchanged.
+	 * &lt;/p&gt;
+	 *
+	 * @param model The finite-difference model.
+	 * @return The effective space-time discretization.
+	 */
+	private SpaceTimeDiscretization getEffectiveSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L308">		final SpaceTimeDiscretization base = model.getSpaceTimeDiscretization();</span>
+
+<span class="nc bnc" id="L310" title="All 2 branches missed.">		if (!exercise.isBermudan()) {</span>
+<span class="nc" id="L311">			return base;</span>
+		}
+
+<span class="nc" id="L314">		final TimeDiscretization refinedTimeDiscretization =</span>
+<span class="nc" id="L315">				FiniteDifferenceExerciseUtil.refineTimeDiscretization(</span>
+<span class="nc" id="L316">						base.getTimeDiscretization(),</span>
+						exercise
+						);
+
+<span class="nc bnc" id="L320" title="All 2 branches missed.">		if (base.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L321">			return new SpaceTimeDiscretization(</span>
+<span class="nc" id="L322">					base.getSpaceGrid(0),</span>
+					refinedTimeDiscretization,
+<span class="nc" id="L324">					base.getTheta(),</span>
+<span class="nc" id="L325">					new double[] {base.getCenter(0) }</span>
+					);
+		}
+
+<span class="nc" id="L329">		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L330">		final Grid[] spaceGrids = new Grid[numberOfSpaceGrids];</span>
+<span class="nc" id="L331">		final double[] center = new double[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L333" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L334">			spaceGrids[i] = base.getSpaceGrid(i);</span>
+<span class="nc" id="L335">			center[i] = base.getCenter(i);</span>
+		}
+
+<span class="nc" id="L338">		return new SpaceTimeDiscretization(</span>
+				spaceGrids,
+				refinedTimeDiscretization,
+<span class="nc" id="L341">				base.getTheta(),</span>
+				center
+				);
+	}
+
+	/**
+	 * Builds the cell-averaged terminal values on the one-dimensional spot
+	 * grid.
+	 *
+	 * @param discretization The effective discretization.
+	 * @return Terminal values on the spot grid.
+	 */
+	private double[] buildCellAveragedTerminalValues(final SpaceTimeDiscretization discretization) {
+
+<span class="nc" id="L355">		final double[] sGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L356">		final double[] terminalValues = new double[sGrid.length];</span>
+
+<span class="nc bnc" id="L358" title="All 2 branches missed.">		for (int i = 0; i &lt; sGrid.length; i++) {</span>
+<span class="nc" id="L359">			final double leftEdge = getLeftDualCellEdge(sGrid, i);</span>
+<span class="nc" id="L360">			final double rightEdge = getRightDualCellEdge(sGrid, i);</span>
+<span class="nc" id="L361">			terminalValues[i] = cellAveragedPayoff(leftEdge, rightEdge);</span>
+		}
+
+<span class="nc" id="L364">		return terminalValues;</span>
+	}
+
+	/**
+	 * Returns the payoff function used for exercise projection.
+	 *
+	 * &lt;p&gt;
+	 * This payoff is pointwise and uses strict inequalities at the strike
+	 * in order to avoid a one-node bias exactly at the discontinuity.
+	 * &lt;/p&gt;
+	 *
+	 * @return Pointwise exercise payoff function.
+	 */
+	private DoubleUnaryOperator getExercisePayoffFunction() {
+<span class="nc" id="L378">		return this::pointwisePayoff;</span>
+	}
+
+	/**
+	 * Pointwise digital payoff used for exercise decisions.
+	 *
+	 * @param assetValue Underlying value.
+	 * @return Pointwise payoff.
+	 */
+	private double pointwisePayoff(final double assetValue) {
+
+		final boolean inTheMoney =
+<span class="nc bnc" id="L390" title="All 2 branches missed.">				callOrPutSign == CallOrPut.CALL</span>
+<span class="nc bnc" id="L391" title="All 2 branches missed.">				? assetValue &gt; strike</span>
+<span class="nc bnc" id="L392" title="All 2 branches missed.">						: assetValue &lt; strike;</span>
+
+<span class="nc bnc" id="L394" title="All 2 branches missed.">				if (!inTheMoney) {</span>
+<span class="nc" id="L395">					return 0.0;</span>
+				}
+
+<span class="nc bnc" id="L398" title="All 3 branches missed.">				switch (digitalPayoffType) {</span>
+				case CASH_OR_NOTHING:
+<span class="nc" id="L400">					return cashPayoff;</span>
+				case ASSET_OR_NOTHING:
+<span class="nc" id="L402">					return assetValue;</span>
+				default:
+<span class="nc" id="L404">					throw new IllegalStateException(&quot;Unsupported digital payoff type.&quot;);</span>
+				}
+	}
+
+	/**
+	 * Returns the payoff averaged over a cell.
+	 *
+	 * @param leftEdge Left cell edge.
+	 * @param rightEdge Right cell edge.
+	 * @return Cell-averaged payoff.
+	 */
+	private double cellAveragedPayoff(final double leftEdge, final double rightEdge) {
+
+<span class="nc bnc" id="L417" title="All 2 branches missed.">		if (!(leftEdge &lt; rightEdge)) {</span>
+<span class="nc" id="L418">			throw new IllegalArgumentException(&quot;Require leftEdge &lt; rightEdge.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L421" title="All 3 branches missed.">		switch (digitalPayoffType) {</span>
+		case CASH_OR_NOTHING:
+<span class="nc" id="L423">			return cellAveragedCashDigital(leftEdge, rightEdge);</span>
+		case ASSET_OR_NOTHING:
+<span class="nc" id="L425">			return cellAveragedAssetDigital(leftEdge, rightEdge);</span>
+		default:
+<span class="nc" id="L427">			throw new IllegalStateException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Cell average for a cash-or-nothing digital payoff.
+	 *
+	 * @param leftEdge Left cell edge.
+	 * @param rightEdge Right cell edge.
+	 * @return Cell-averaged payoff.
+	 */
+	private double cellAveragedCashDigital(final double leftEdge, final double rightEdge) {
+
+<span class="nc" id="L440">		final double cellLength = rightEdge - leftEdge;</span>
+
+<span class="nc bnc" id="L442" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc bnc" id="L443" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L444">				return 0.0;</span>
+			}
+<span class="nc bnc" id="L446" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L447">				return cashPayoff;</span>
+			}
+<span class="nc" id="L449">			return cashPayoff * (rightEdge - strike) / cellLength;</span>
+		} else {
+<span class="nc bnc" id="L451" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L452">				return cashPayoff;</span>
+			}
+<span class="nc bnc" id="L454" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L455">				return 0.0;</span>
+			}
+<span class="nc" id="L457">			return cashPayoff * (strike - leftEdge) / cellLength;</span>
+		}
+	}
+
+	/**
+	 * Cell average for an asset-or-nothing digital payoff.
+	 *
+	 * @param leftEdge Left cell edge.
+	 * @param rightEdge Right cell edge.
+	 * @return Cell-averaged payoff.
+	 */
+	private double cellAveragedAssetDigital(final double leftEdge, final double rightEdge) {
+
+<span class="nc" id="L470">		final double cellLength = rightEdge - leftEdge;</span>
+
+<span class="nc bnc" id="L472" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc bnc" id="L473" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L474">				return 0.0;</span>
+			}
+<span class="nc bnc" id="L476" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L477">				return 0.5 * (leftEdge + rightEdge);</span>
+			}
+<span class="nc" id="L479">			return (rightEdge * rightEdge - strike * strike) / (2.0 * cellLength);</span>
+		} else {
+<span class="nc bnc" id="L481" title="All 2 branches missed.">			if (rightEdge &lt;= strike) {</span>
+<span class="nc" id="L482">				return 0.5 * (leftEdge + rightEdge);</span>
+			}
+<span class="nc bnc" id="L484" title="All 2 branches missed.">			if (leftEdge &gt;= strike) {</span>
+<span class="nc" id="L485">				return 0.0;</span>
+			}
+<span class="nc" id="L487">			return (strike * strike - leftEdge * leftEdge) / (2.0 * cellLength);</span>
+		}
+	}
+
+	/**
+	 * Returns the left edge of the dual cell around node i.
+	 *
+	 * @param grid Spot grid.
+	 * @param i Node index.
+	 * @return Left dual-cell edge.
+	 */
+	private double getLeftDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L499" title="All 2 branches missed.">		if (i == 0) {</span>
+<span class="nc" id="L500">			return grid[0];</span>
+		}
+<span class="nc" id="L502">		return 0.5 * (grid[i - 1] + grid[i]);</span>
+	}
+
+	/**
+	 * Returns the right edge of the dual cell around node i.
+	 *
+	 * @param grid Spot grid.
+	 * @param i Node index.
+	 * @return Right dual-cell edge.
+	 */
+	private double getRightDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L513" title="All 2 branches missed.">		if (i == grid.length - 1) {</span>
+<span class="nc" id="L514">			return grid[grid.length - 1];</span>
+		}
+<span class="nc" id="L516">		return 0.5 * (grid[i] + grid[i + 1]);</span>
+	}
+
+	/**
+	 * Checks whether the model is one-dimensional.
+	 *
+	 * @param model The model.
+	 * @return True if the model is one-dimensional.
+	 */
+	private boolean isOneDimensionalModel(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L526" title="All 6 branches missed.">		return model instanceof FDMBlackScholesModel</span>
+				|| model instanceof FDMCevModel
+				|| model instanceof FDMBachelierModel;
+	}
+
+	private static CallOrPut mapCallOrPut(final double callOrPutSign) {
+<span class="nc bnc" id="L532" title="All 2 branches missed.">		if (callOrPutSign == 1.0) {</span>
+<span class="nc" id="L533">			return CallOrPut.CALL;</span>
+		}
+<span class="nc bnc" id="L535" title="All 2 branches missed.">		if (callOrPutSign == -1.0) {</span>
+<span class="nc" id="L536">			return CallOrPut.PUT;</span>
+		}
+<span class="nc" id="L538">		throw new IllegalArgumentException(&quot;Unknown option type.&quot;);</span>
+	}
+
+	/**
+	 * Returns the underlying name.
+	 *
+	 * @return The underlying name.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L547">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L556">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L565">		return strike;</span>
+	}
+
+	/**
+	 * Returns call/put type.
+	 *
+	 * @return The option type.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L574">		return callOrPutSign;</span>
+	}
+
+	/**
+	 * Returns the digital payoff type.
+	 *
+	 * @return The digital payoff type.
+	 */
+	public DigitalPayoffType getDigitalPayoffType() {
+<span class="nc" id="L583">		return digitalPayoffType;</span>
+	}
+
+	/**
+	 * Returns the cash payoff amount.
+	 *
+	 * @return The cash payoff amount.
+	 */
+	public double getCashPayoff() {
+<span class="nc" id="L592">		return cashPayoff;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L601">		return exercise;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

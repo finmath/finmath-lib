@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlendedLocalVolatilityModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">BlendedLocalVolatilityModel.java</span></div><h1>BlendedLocalVolatilityModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.05.2013
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Blended model (or displaced diffusion model) build on top of a standard covariance model.
+ *
+ * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+ * \[
+ * 	( a + (1-a) L_{i}(t) ) F_{i}(t) \text{,}
+ * \]
+ * or
+ * \[
+ * 	( a L_{i,0} + (1-a) L_{i}(t) ) F_{i}(t) \text{,}
+ * \]
+ * if an initial forward curve \( i \mapsto L_{i,0} \) is given,
+ * where &lt;i&gt;a&lt;/i&gt; is the displacement or blending parameter and &lt;i&gt;L&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+ * the realization of the &lt;i&gt;i&lt;/i&gt;-th component of the stochastic process and
+ * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+ *
+ * If a forward curve is provided, the deterministic value L&lt;sub&gt;i,0&lt;/sub&gt; is
+ * calculated form this curve (using fixing in &lt;i&gt;T&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt;),
+ * otherwise it is replaced by 1.
+ *
+ * The parameter of this model is a joint parameter vector, consisting
+ * of the parameter vector of the given base covariance model and
+ * appending the displacement parameter at the end.
+ *
+ * If this model is not calibrateable, its parameter vector is that of the
+ * covariance model, i.e., only the displacement parameter will be not
+ * part of the calibration.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class BlendedLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = -5042461187735524974L;
+
+	private RandomVariableFactory randomVariableFactory;
+	private AbstractLIBORCovarianceModelParametric covarianceModel;
+	private RandomVariable displacement;
+
+	private final ForwardCurve forwardCurve;
+
+<span class="fc" id="L58">	private boolean isCalibrateable = false;</span>
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 * The model constructed is &lt;i&gt;(a L&lt;sub&gt;0&lt;/sub&gt; + (1-a)L) F&lt;/i&gt; where &lt;i&gt;a&lt;/i&gt; is
+	 * the displacement and &lt;i&gt;L&lt;/i&gt; is
+	 * the component of the stochastic process and &lt;i&gt;F&lt;/i&gt; is the factor loading
+	 * from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param forwardCurve The given forward curve L&lt;sub&gt;0&lt;/sub&gt;
+	 * @param displacement The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final ForwardCurve forwardCurve, final RandomVariable displacement, final boolean isCalibrateable) {
+<span class="fc" id="L80">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="fc" id="L82">		this.covarianceModel	= covarianceModel;</span>
+<span class="fc" id="L83">		this.forwardCurve		= forwardCurve;</span>
+<span class="fc" id="L84">		this.displacement		= displacement;</span>
+<span class="fc" id="L85">		this.isCalibrateable	= isCalibrateable;</span>
+<span class="fc" id="L86">	}</span>
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 * The model constructed is &lt;i&gt;(a L&lt;sub&gt;0&lt;/sub&gt; + (1-a)L) F&lt;/i&gt; where &lt;i&gt;a&lt;/i&gt; is
+	 * the displacement and &lt;i&gt;L&lt;/i&gt; is
+	 * the component of the stochastic process and &lt;i&gt;F&lt;/i&gt; is the factor loading
+	 * from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param forwardCurve The given forward curve L&lt;sub&gt;0&lt;/sub&gt;
+	 * @param displacement The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final ForwardCurve forwardCurve, final double displacement, final boolean isCalibrateable) {
+<span class="fc" id="L109">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+
+<span class="pc bpc" id="L111" title="1 of 2 branches missed.">		this.randomVariableFactory = randomVariableFactory != null ? randomVariableFactory : new RandomVariableFromArrayFactory();</span>
+<span class="fc" id="L112">		this.covarianceModel	= covarianceModel;</span>
+<span class="fc" id="L113">		this.forwardCurve		= forwardCurve;</span>
+<span class="fc" id="L114">		this.displacement		= this.randomVariableFactory.createRandomVariable(displacement);</span>
+<span class="fc" id="L115">		this.isCalibrateable	= isCalibrateable;</span>
+<span class="fc" id="L116">	}</span>
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 *
+	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
+	 *
+	 * The model constructed is &lt;i&gt;(a + (1-a)L) F&lt;/i&gt; where &lt;i&gt;a&lt;/i&gt; is
+	 * the displacement and &lt;i&gt;L&lt;/i&gt; is
+	 * the component of the stochastic process and &lt;i&gt;F&lt;/i&gt; is the factor loading
+	 * loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param randomVariableFactory The factory used to create RandomVariable objects from constants.
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param displacement The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final double displacement, final boolean isCalibrateable) {
+<span class="fc" id="L141">		this(randomVariableFactory, covarianceModel, null, displacement, isCalibrateable);</span>
+<span class="fc" id="L142">	}</span>
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 * The model constructed is &lt;i&gt;(a L&lt;sub&gt;0&lt;/sub&gt; + (1-a)L) F&lt;/i&gt; where &lt;i&gt;a&lt;/i&gt; is
+	 * the displacement and &lt;i&gt;L&lt;/i&gt; is
+	 * the component of the stochastic process and &lt;i&gt;F&lt;/i&gt; is the factor loading
+	 * from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param forwardCurve The given forward curve L&lt;sub&gt;0&lt;/sub&gt;
+	 * @param displacement The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final ForwardCurve forwardCurve, final double displacement, final boolean isCalibrateable) {
+<span class="nc" id="L164">		this(new RandomVariableFromArrayFactory(), covarianceModel, forwardCurve, displacement, isCalibrateable);</span>
+<span class="nc" id="L165">	}</span>
+
+	/**
+	 * Displaced diffusion model build on top of a standard covariance model.
+	 *
+	 * The model performs a linear interpolation of a log-normal model (a = 0) and a normal model (a = 1).
+	 *
+	 * The model constructed is &lt;i&gt;(a + (1-a)L) F&lt;/i&gt; where &lt;i&gt;a&lt;/i&gt; is
+	 * the displacement and &lt;i&gt;L&lt;/i&gt; is
+	 * the component of the stochastic process and &lt;i&gt;F&lt;/i&gt; is the factor loading
+	 * loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, where the first
+	 * entry is the displacement and the remaining entries are the parameter vector
+	 * of the given base covariance model.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * covariance model.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param displacement The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public BlendedLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final double displacement, final boolean isCalibrateable) {
+<span class="fc" id="L189">		this(new RandomVariableFromArrayFactory(), covarianceModel, displacement, isCalibrateable);</span>
+<span class="fc" id="L190">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="fc" id="L194">		return new BlendedLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), forwardCurve, displacement.doubleValue(), isCalibrateable);</span>
+	}
+
+	/**
+	 * Returns the base covariance model, i.e., the model providing the factor loading &lt;i&gt;F&lt;/i&gt;
+	 * such that this model's &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;(a L&lt;sub&gt;i,0&lt;/sub&gt; + (1-a)L&lt;sub&gt;i&lt;/sub&gt;(t)) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;a&lt;/i&gt; is the displacement and &lt;i&gt;L&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+	 * the realization of the &lt;i&gt;i&lt;/i&gt;-th component of the stochastic process and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading loading from the given covariance model.
+	 *
+	 * @return The base covariance model.
+	 */
+	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {
+<span class="nc" id="L208">		return covarianceModel;</span>
+	}
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="pc bpc" id="L213" title="1 of 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="fc" id="L214">			return covarianceModel.getParameter();</span>
+		}
+
+<span class="nc" id="L217">		final RandomVariable[] covarianceParameters = covarianceModel.getParameter();</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">		if(covarianceParameters == null) {</span>
+<span class="nc" id="L219">			return new RandomVariable[] { displacement };</span>
+		}
+
+		// Append displacement to the end of covarianceParameters
+<span class="nc" id="L223">		final RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];</span>
+<span class="nc" id="L224">		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);</span>
+<span class="nc" id="L225">		jointParameters[covarianceParameters.length] = displacement;</span>
+
+<span class="nc" id="L227">		return jointParameters;</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L232">		final RandomVariable[] parameters = getParameter();</span>
+<span class="nc" id="L233">		final double[] parametersAsDouble = new double[parameters.length];</span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="nc" id="L235">			parametersAsDouble[i] = parameters[i].doubleValue();</span>
+		}
+<span class="nc" id="L237">		return parametersAsDouble;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="pc bpc" id="L242" title="2 of 4 branches missed.">		if(parameters == null || parameters.length == 0) {</span>
+<span class="nc" id="L243">			return this;</span>
+		}
+
+<span class="pc bpc" id="L246" title="1 of 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="fc" id="L247">			covarianceModel = covarianceModel.getCloneWithModifiedParameters(parameters);</span>
+<span class="fc" id="L248">			return new BlendedLocalVolatilityModel(covarianceModel, forwardCurve, displacement, isCalibrateable);</span>
+		}
+
+<span class="nc" id="L251">		final RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];</span>
+<span class="nc" id="L252">		System.arraycopy(parameters, 0, covarianceParameters, 0, covarianceParameters.length);</span>
+
+<span class="nc" id="L254">		covarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);</span>
+<span class="nc" id="L255">		displacement = parameters[covarianceParameters.length];</span>
+<span class="nc" id="L256">		return new BlendedLocalVolatilityModel(covarianceModel, forwardCurve, displacement, isCalibrateable);</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="nc" id="L261">		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L266">		final RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+
+<span class="fc" id="L268">		double forward = 1.0;</span>
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">		if(forwardCurve != null) {</span>
+<span class="nc" id="L270">			final double timeToMaturity = getLiborPeriodDiscretization().getTime(component) - getTimeDiscretization().getTime(timeIndex);</span>
+			// @TODO Consider using a model context here
+<span class="nc" id="L272">			forward = forwardCurve.getForward(null, Math.max(timeToMaturity, 0.0));</span>
+		}
+
+<span class="pc bpc" id="L275" title="2 of 4 branches missed.">		if(realizationAtTimeIndex != null &amp;&amp; realizationAtTimeIndex[component] != null) {</span>
+<span class="fc" id="L276">			final RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].sub(realizationAtTimeIndex[component].mult(displacement)).add(displacement.mult(forward));</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">			for (int factorIndex = 0; factorIndex &lt; factorLoading.length; factorIndex++) {</span>
+<span class="fc" id="L278">				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);</span>
+			}
+		}
+
+<span class="fc" id="L282">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L287">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L293">		RandomVariableFactory randomVariableFactory = this.randomVariableFactory;</span>
+<span class="nc" id="L294">		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;</span>
+<span class="nc" id="L295">		ForwardCurve forwardCurve = this.forwardCurve;</span>
+<span class="nc" id="L296">		double displacement = this.displacement.doubleValue();</span>
+<span class="nc" id="L297">		boolean isCalibrateable = this.isCalibrateable;</span>
+
+<span class="nc bnc" id="L299" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L300" title="All 2 branches missed.">			if (!dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="nc" id="L301">				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);</span>
+			}
+
+			// Explicitly passed covarianceModel has priority
+<span class="nc" id="L305">			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault(&quot;covarianceModel&quot;, covarianceModel);</span>
+<span class="nc" id="L306">			isCalibrateable = (boolean)dataModified.getOrDefault(&quot;isCalibrateable&quot;, isCalibrateable);</span>
+<span class="nc" id="L307">			randomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault(&quot;randomVariableFactory&quot;, randomVariableFactory);</span>
+<span class="nc" id="L308">			forwardCurve = (ForwardCurve)dataModified.getOrDefault(&quot;forwardCurve&quot;, forwardCurve);</span>
+
+			// Explicitly passed RVFactory has priority (consistency)
+<span class="nc bnc" id="L311" title="All 2 branches missed.">			if((dataModified.getOrDefault(&quot;displacement&quot;, displacement) instanceof RandomVariable)) {</span>
+<span class="nc" id="L312">				displacement = ((RandomVariable)dataModified.get(&quot;displacement&quot;)).doubleValue();</span>
+			}else {
+<span class="nc" id="L314">				displacement = (double)dataModified.getOrDefault(&quot;displacement&quot;, displacement);</span>
+			}
+		}
+
+<span class="nc" id="L318">		final AbstractLIBORCovarianceModelParametric newModel = new DisplacedLocalVolatilityModel(covarianceModel, displacement, isCalibrateable);</span>
+<span class="nc" id="L319">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

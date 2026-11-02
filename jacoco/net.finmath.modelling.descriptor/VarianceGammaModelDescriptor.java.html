@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VarianceGammaModelDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">VarianceGammaModelDescriptor.java</span></div><h1>VarianceGammaModelDescriptor.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * @author Alessandro Gnoatto
+ *
+ * @version 1.0
+ */
+public class VarianceGammaModelDescriptor implements AssetModelDescriptor {
+
+	private final LocalDate referenceDate;
+
+	private final Double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final DiscountCurve discountCurveForDiscountRate;
+
+	private final double sigma;
+	private final double theta;
+	private final double nu;
+
+	/**
+	 * @param referenceDate The date corresponding to the floating point date t=0.
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 */
+	public VarianceGammaModelDescriptor(LocalDate referenceDate, Double initialValue,
+			DiscountCurve discountCurveForForwardRate, DiscountCurve discountCurveForDiscountRate, double sigma,
+			double theta, double nu) {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L39">		this.initialValue = initialValue;</span>
+<span class="fc" id="L40">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L41">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L42">		this.sigma = sigma;</span>
+<span class="fc" id="L43">		this.theta = theta;</span>
+<span class="fc" id="L44">		this.nu = nu;</span>
+<span class="fc" id="L45">	}</span>
+
+	@Override
+	public Integer version() {
+<span class="nc" id="L49">		return 1;</span>
+	}
+
+	@Override
+	public String name() {
+<span class="nc" id="L54">		return &quot;Single asset Variance Gamma model&quot;;</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L61">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return the initialValue
+	 */
+	public Double getInitialValue() {
+<span class="fc" id="L68">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="fc" id="L75">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="fc" id="L82">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public double getSigma() {
+<span class="fc" id="L89">		return sigma;</span>
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public double getTheta() {
+<span class="fc" id="L96">		return theta;</span>
+	}
+
+	/**
+	 * @return the nu
+	 */
+	public double getNu() {
+<span class="fc" id="L103">		return nu;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

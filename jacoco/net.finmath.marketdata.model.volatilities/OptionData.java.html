@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OptionData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">OptionData.java</span></div><h1>OptionData.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatilities;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+
+/**
+ * An Equity option quote is a function of strike and maturity. The quote can be represented in terms of prices or volatilities.
+ * Concerning the strike: being a double, one might decide to store there a moneyness instead of a price, i.e. a relative strike where ATM = 0.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class OptionData {
+
+	private final String underlying;
+	private final LocalDate referenceDate;
+	private final double strike;
+	private final double maturity;
+	private final double value;
+	private final QuotingConvention convention;
+
+	public OptionData(final String underlying, final LocalDate referenceDate, final double strike, final double maturity, final double value, final QuotingConvention convention) {
+<span class="fc" id="L23">		super();</span>
+<span class="fc" id="L24">		this.underlying = underlying;</span>
+<span class="fc" id="L25">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L26">		this.strike = strike;</span>
+<span class="fc" id="L27">		this.maturity = maturity;</span>
+<span class="fc" id="L28">		this.value = value;</span>
+<span class="fc" id="L29">		this.convention = convention;</span>
+<span class="fc" id="L30">	}</span>
+
+	public String getUnderlying() {
+<span class="nc" id="L33">		return underlying;</span>
+	}
+
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L37">		return referenceDate;</span>
+	}
+
+	public double getStrike() {
+<span class="nc" id="L41">		return strike;</span>
+	}
+
+	public double getMaturity() {
+<span class="nc" id="L45">		return maturity;</span>
+	}
+
+	public double getValue() {
+<span class="fc" id="L49">		return value;</span>
+	}
+
+	public QuotingConvention getConvention() {
+<span class="fc" id="L53">		return convention;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L58">		return &quot;EquityOptionQuote [underlying=&quot; + underlying + &quot;, referenceDate=&quot; + referenceDate + &quot;, strike=&quot;</span>
+				+ strike + &quot;, maturity=&quot; + maturity + &quot;, value=&quot; + value + &quot;, convention=&quot; + convention + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

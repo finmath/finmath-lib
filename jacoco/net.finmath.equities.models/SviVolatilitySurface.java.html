@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SviVolatilitySurface.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.models</a> &gt; <span class="el_source">SviVolatilitySurface.java</span></div><h1>SviVolatilitySurface.java</h1><pre class="source lang-java linenums">package net.finmath.equities.models;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import net.finmath.equities.marketdata.VolatilityPoint;
+import net.finmath.interpolation.RationalFunctionInterpolation;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.SolverException;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Class that implements an SVI volatility surface according to Gatheral's 2013 paper.
+ * The smile-specific parts (i.e. for strikes at a single option expiry) are implemented
+ * in a separate class SviVolatilitySmile.
+ * The surface supports sticky-strike as well as sticky-moneyness of volatility.
+ * The calibration is currently done smile by smile, and does not guarantee absence of arbitrage.
+ *
+ * @author Andreas Grotz
+ */
+
+<span class="fc" id="L27">public class SviVolatilitySurface implements VolatilitySurface, ShiftedVolatilitySurface {</span>
+
+	private final DayCountConvention dayCounter;
+	private final boolean useStickyStrike;
+	private LocalDate valuationDate;
+	private EquityForwardStructure forwardStructure;
+<span class="fc" id="L33">	private SviVolatilitySmile[] smiles = new SviVolatilitySmile[0];</span>
+<span class="fc" id="L34">	private double[] smileTimes = new double[0];</span>
+<span class="fc" id="L35">	private boolean isCalibrated = false;</span>
+	private final double volShift;
+
+	public SviVolatilitySurface(DayCountConvention dayCounter, boolean useStickyStrike)
+<span class="fc" id="L39">	{</span>
+<span class="fc" id="L40">		this.dayCounter = dayCounter;</span>
+<span class="fc" id="L41">		this.useStickyStrike = useStickyStrike;</span>
+<span class="fc" id="L42">		this.volShift = 0.0;</span>
+<span class="fc" id="L43">	}</span>
+
+	public SviVolatilitySurface(
+			LocalDate valuationDate,
+			DayCountConvention dayCounter,
+			EquityForwardStructure forwardStructure,
+			SviVolatilitySmile[] smiles,
+			boolean useStickyStrike)
+	{
+<span class="fc" id="L52">		this(valuationDate,</span>
+				dayCounter,
+				forwardStructure,
+				smiles,
+				useStickyStrike,
+				0.0);
+<span class="fc" id="L58">	}</span>
+
+	private SviVolatilitySurface(
+			LocalDate valuationDate,
+			DayCountConvention dayCounter,
+			EquityForwardStructure forwardStructure,
+			SviVolatilitySmile[] smiles,
+			boolean useStickyStrike,
+			double volShift)
+<span class="fc" id="L67">	{</span>
+<span class="fc" id="L68">		this.dayCounter = dayCounter;</span>
+<span class="fc" id="L69">		setForwardStructure(forwardStructure);</span>
+<span class="fc" id="L70">		this.smiles = smiles;</span>
+<span class="fc" id="L71">		this.useStickyStrike = useStickyStrike;</span>
+<span class="fc" id="L72">		this.volShift = volShift;</span>
+
+<span class="fc" id="L74">		final List&lt;SviVolatilitySmile&gt; sortedSmiles = Arrays.asList(smiles);</span>
+<span class="fc" id="L75">		sortedSmiles.sort(Comparator.comparing(pt -&gt; pt.getSmileDate()));</span>
+<span class="fc" id="L76">		smileTimes = new double[sortedSmiles.size() + 1];</span>
+<span class="fc" id="L77">		smileTimes[0] = 0.0;</span>
+<span class="fc bfc" id="L78" title="All 2 branches covered.">		for (int i = 0; i &lt; sortedSmiles.size(); i++) {</span>
+<span class="fc" id="L79">			smileTimes[i+1] = dayCounter.getDaycountFraction(valuationDate, sortedSmiles.get(i).getSmileDate());</span>
+		}
+
+<span class="fc" id="L82">		isCalibrated = true;</span>
+<span class="fc" id="L83">	}</span>
+
+	@Override
+	public SviVolatilitySurface getShiftedSurface(double shift)
+	{
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		assert volShift == 0.0 : &quot;Surface is already shifted&quot;;</span>
+<span class="nc" id="L89">		return new SviVolatilitySurface(</span>
+				this.valuationDate,
+				this.dayCounter,
+				this.forwardStructure,
+				this.smiles,
+				this.useStickyStrike,
+				this.volShift);
+	}
+
+	@Override
+	public double getShift()
+	{
+<span class="nc" id="L101">		return volShift;</span>
+	}
+
+	public SviVolatilitySmile[] getSmiles()
+	{
+<span class="fc" id="L106">		return smiles;</span>
+	}
+
+	private void setForwardStructure(EquityForwardStructure forwardStructure)
+	{
+<span class="fc" id="L111">		this.forwardStructure = forwardStructure;</span>
+<span class="fc" id="L112">		valuationDate = forwardStructure.getValuationDate();</span>
+<span class="fc" id="L113">	}</span>
+
+	@Override
+	public double getVolatility(
+			double strike,
+			LocalDate expiryDate,
+			EquityForwardStructure currentForwardStructure)
+	{
+<span class="fc" id="L121">		final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);</span>
+<span class="fc" id="L122">		return 	getVolatility(strike, timeToMaturity, currentForwardStructure);</span>
+	}
+
+	@Override
+	public double getVolatility(
+			double strike,
+			double timeToMaturity,
+			EquityForwardStructure currentForwardStructure)
+	{
+		// sticky moneyness
+<span class="pc bpc" id="L132" title="1 of 2 branches missed.">		assert isCalibrated : &quot;Surface is not calibrated yet&quot;;</span>
+		double logStrike;
+<span class="fc bfc" id="L134" title="All 2 branches covered.">		if(useStickyStrike) {</span>
+<span class="fc" id="L135">			logStrike = forwardStructure.getLogMoneyness(strike, timeToMaturity);</span>
+		} else {
+<span class="fc" id="L137">			logStrike = currentForwardStructure.getLogMoneyness(strike, timeToMaturity);</span>
+		}
+<span class="fc" id="L139">		return interpolateVolatility(logStrike, timeToMaturity);</span>
+	}
+
+	@Override
+	public double getLocalVolatility(
+			double strike,
+			LocalDate expiryDate,
+			EquityForwardStructure currentForwardStructure,
+			double strikeShift,
+			double timeShift)
+	{
+<span class="pc bpc" id="L150" title="1 of 2 branches missed.">		assert isCalibrated : &quot;Surface is not calibrated yet&quot;;</span>
+<span class="fc" id="L151">		final double logStrike = currentForwardStructure.getLogMoneyness(strike, expiryDate);</span>
+<span class="fc" id="L152">		final double timeToMaturity = dayCounter.getDaycountFraction(valuationDate, expiryDate);</span>
+<span class="fc" id="L153">		return getLocalVolatility(logStrike, timeToMaturity, currentForwardStructure, strikeShift, timeShift);</span>
+	}
+
+	@Override
+	public double getLocalVolatility(
+			double logStrike,
+			double timeToMaturity,
+			EquityForwardStructure currentForwardStructure,
+			double strikeShift,
+			double timeShift)
+	{
+<span class="pc bpc" id="L164" title="1 of 2 branches missed.">		assert isCalibrated : &quot;Surface is not calibrated yet&quot;;</span>
+		// Log-strike is provided w.r.t. current forward structure.
+		// When using sticky strike, we need to transform
+		// to log-strike w.r.t. forward structure prevailing during surface calbration
+<span class="fc bfc" id="L168" title="All 2 branches covered.">		if (useStickyStrike)</span>
+		{
+<span class="fc" id="L170">			final double expiryTimeAsofCalib = timeToMaturity + dayCounter.getDaycountFraction(</span>
+<span class="fc" id="L171">					valuationDate, currentForwardStructure.getValuationDate());</span>
+<span class="fc" id="L172">			logStrike += Math.log(currentForwardStructure.getForward(timeToMaturity)</span>
+<span class="fc" id="L173">					/ forwardStructure.getForward(expiryTimeAsofCalib));</span>
+		}
+
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">		if (timeToMaturity &gt;= 1e-16)</span>
+		{
+<span class="fc" id="L178">			final double f = interpolateTotalVariance(logStrike, timeToMaturity);</span>
+<span class="fc" id="L179">			double f_t = interpolateTotalVariance(logStrike, timeToMaturity + timeShift);</span>
+<span class="fc" id="L180">			f_t = (f_t - f) / timeShift;</span>
+<span class="fc" id="L181">			final double f_plu = interpolateTotalVariance(logStrike + strikeShift, timeToMaturity);</span>
+<span class="fc" id="L182">			final double f_min = interpolateTotalVariance(logStrike - strikeShift, timeToMaturity);</span>
+<span class="fc" id="L183">			final double f_x = 0.5 * (f_plu - f_min) / strikeShift;</span>
+<span class="fc" id="L184">			final double f_xx = (f_plu + f_min - 2 * f) / strikeShift / strikeShift;</span>
+<span class="fc" id="L185">			double lv = 0.5 * f_x * logStrike / f - 1.0;</span>
+<span class="fc" id="L186">			lv *= lv;</span>
+<span class="fc" id="L187">			lv += 0.5 * f_xx - 0.25 * (0.25 + 1.0 / f) * f_x * f_x;</span>
+<span class="fc" id="L188">			return Math.sqrt(f_t / lv);</span>
+		}
+<span class="nc bnc" id="L190" title="All 2 branches missed.">		else if (timeToMaturity &gt;= 0.0) {</span>
+<span class="nc" id="L191">			return getLocalVolatility(logStrike, 1e-16, currentForwardStructure, strikeShift, timeShift);</span>
+		} else {
+<span class="nc" id="L193">			return 0.0;</span>
+		}
+	}
+
+	private double interpolateVolatility(double logStrike, double timeToMaturity)
+	{
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">		if (timeToMaturity &gt;= 1e-16) {</span>
+<span class="fc" id="L200">			return Math.sqrt(interpolateTotalVariance(logStrike, timeToMaturity) / timeToMaturity);</span>
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		} else if (timeToMaturity &gt;= 0.0) {</span>
+<span class="nc" id="L202">			return interpolateVolatility(logStrike, 1e-16);</span>
+		} else {
+<span class="nc" id="L204">			return 0.0;</span>
+		}
+	}
+
+	private double interpolateTotalVariance(double logStrike, double timeToMaturity)
+	{
+<span class="fc" id="L210">		final int len = smileTimes.length;</span>
+<span class="fc" id="L211">		final double[] totalVariances = new double[len];</span>
+<span class="fc" id="L212">		totalVariances[0] = 0.0;</span>
+<span class="fc bfc" id="L213" title="All 2 branches covered.">		for (int i = 1; i&lt; len; i++) {</span>
+<span class="fc" id="L214">			totalVariances[i] = smiles[i-1].getTotalVariance(logStrike);</span>
+		}
+
+<span class="fc" id="L217">		final RationalFunctionInterpolation interpolator = new RationalFunctionInterpolation(</span>
+				smileTimes,
+				totalVariances,
+				RationalFunctionInterpolation.InterpolationMethod.LINEAR,
+				RationalFunctionInterpolation.ExtrapolationMethod.LINEAR);
+<span class="fc" id="L222">		final double totalVariance = interpolator.getValue(timeToMaturity);</span>
+
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">		if (volShift == 0.0) {</span>
+<span class="fc" id="L225">			return totalVariance;</span>
+		} else {
+<span class="nc" id="L227">			return totalVariance + volShift * (2 * Math.sqrt(totalVariance * timeToMaturity) + volShift * timeToMaturity);</span>
+		}
+	}
+
+
+	@Override
+	public void calibrate(
+			EquityForwardStructure forwardStructure,
+			List&lt;VolatilityPoint&gt; volaPoints)
+	{
+		/*TODO The current calibration is smile by smile. It does not ensure absence of arbitrage.
+		 * An improved calibration would use optimization constraints obtained from
+		 * the density formula from Gatheral's 2013 paper to remove butterfly arbitrage,
+		 * as well as monotonicity of total variances to remove calendar arbitrage.
+		 * A natural initial guess would then be a globally calibrated SSVI surface as described
+		 * in Gatheral's 2013 paper.*/
+
+<span class="pc bpc" id="L244" title="1 of 2 branches missed.">		assert volShift == 0.0 : &quot;A shifted SVI surface cannot be calibrated&quot;;</span>
+<span class="fc" id="L245">		setForwardStructure(forwardStructure);</span>
+
+<span class="fc" id="L247">		final Map&lt;LocalDate, java.util.List&lt;VolatilityPoint&gt;&gt; groupedPoints =</span>
+<span class="fc" id="L248">				volaPoints.stream().collect(Collectors.groupingBy(VolatilityPoint::getDate));</span>
+<span class="fc" id="L249">		final List&lt;LocalDate&gt; sortedSmileDates = Arrays.asList(groupedPoints.keySet().toArray(new LocalDate[0]));</span>
+<span class="fc" id="L250">		sortedSmileDates.sort(Comparator.comparing(pt -&gt; pt));</span>
+<span class="fc" id="L251">		smileTimes = new double[sortedSmileDates.size() + 1];</span>
+<span class="fc" id="L252">		smileTimes[0] = 0.0;</span>
+<span class="fc" id="L253">		smiles = new SviVolatilitySmile[sortedSmileDates.size()];</span>
+<span class="fc bfc" id="L254" title="All 2 branches covered.">		for (int i = 0; i &lt; sortedSmileDates.size(); i++)</span>
+		{
+<span class="fc" id="L256">			final LocalDate date = sortedSmileDates.get(i);</span>
+<span class="fc" id="L257">			final List&lt;VolatilityPoint&gt; thisPoints = groupedPoints.get(date);</span>
+<span class="fc" id="L258">			thisPoints.sort(Comparator.comparing(pt -&gt; pt.getStrike()));</span>
+<span class="fc" id="L259">			final double forward = forwardStructure.getDividendAdjustedStrike(forwardStructure.getForward(date), date) ;</span>
+<span class="fc" id="L260">			final double ttm = dayCounter.getDaycountFraction(valuationDate, date);</span>
+<span class="fc" id="L261">			final List&lt;Double&gt; logStrikes = new ArrayList&lt;Double&gt;();</span>
+<span class="fc" id="L262">			final List&lt;Double&gt; totalVariances = new ArrayList&lt;Double&gt;();</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">			for (final VolatilityPoint pt : thisPoints)</span>
+			{
+<span class="fc" id="L265">				totalVariances.add(ttm * pt.getVolatility() * pt.getVolatility());</span>
+<span class="fc" id="L266">				logStrikes.add(Math.log(forwardStructure.getDividendAdjustedStrike(pt.getStrike(), date) / forward));</span>
+<span class="fc" id="L267">			}</span>
+
+			double[] thisSviParams;
+			try
+			{
+<span class="fc" id="L272">				thisSviParams = calibrateSviSmile(ttm, logStrikes, totalVariances);</span>
+			}
+<span class="nc" id="L274">			catch (final SolverException se)</span>
+			{
+<span class="nc" id="L276">				continue;</span>
+<span class="fc" id="L277">			}</span>
+<span class="fc" id="L278">			smileTimes[i+1] = ttm;</span>
+<span class="fc" id="L279">			smiles[i] = new SviVolatilitySmile(date, thisSviParams[0], thisSviParams[1], thisSviParams[2], thisSviParams[3], thisSviParams[4]);</span>
+
+		}
+<span class="fc" id="L282">		isCalibrated = true;</span>
+<span class="fc" id="L283">	}</span>
+
+	private static double[] calibrateSviSmile(double ttm, List&lt;Double&gt; logStrikes, List&lt;Double&gt; totalVariances) throws SolverException
+	{
+<span class="fc" id="L287">		final LevenbergMarquardt optimizer = new LevenbergMarquardt() {</span>
+			private static final long serialVersionUID = -2542034123359128169L;
+
+			@Override
+			public void setValues(final double[] parameters, final double[] values) {
+<span class="fc bfc" id="L292" title="All 2 branches covered.">				for(int i = 0; i &lt; logStrikes.size(); i++)</span>
+				{
+<span class="fc" id="L294">					values[i] = SviVolatilitySmile.sviTotalVariance(</span>
+<span class="fc" id="L295">							logStrikes.get(i),</span>
+							parameters[0],
+							parameters[1],
+							parameters[2],
+							parameters[3],
+							parameters[4]);
+				}
+<span class="fc" id="L302">			}</span>
+		};
+<span class="fc" id="L304">		final double[] initialGuess = SviVolatilitySmile.sviInitialGuess(logStrikes, totalVariances);</span>
+<span class="fc" id="L305">		final double[] weights = new double[logStrikes.size()];</span>
+<span class="fc" id="L306">		final double[] targetValues = new double[logStrikes.size()];</span>
+<span class="fc bfc" id="L307" title="All 2 branches covered.">		for (int i = 0; i &lt; logStrikes.size(); i++)</span>
+		{
+<span class="fc" id="L309">			weights[i] = 1.0;</span>
+<span class="fc" id="L310">			targetValues[i] = totalVariances.get(i);</span>
+		}
+<span class="fc" id="L312">		optimizer.setInitialParameters(initialGuess);</span>
+<span class="fc" id="L313">		optimizer.setWeights(weights);</span>
+<span class="fc" id="L314">		optimizer.setMaxIteration(100);</span>
+<span class="fc" id="L315">		optimizer.setTargetValues(targetValues);</span>
+<span class="fc" id="L316">		optimizer.run();</span>
+
+<span class="fc" id="L318">		return optimizer.getBestFitParameters();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

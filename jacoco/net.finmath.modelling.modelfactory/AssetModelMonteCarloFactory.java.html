@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetModelMonteCarloFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.modelfactory</a> &gt; <span class="el_source">AssetModelMonteCarloFactory.java</span></div><h1>AssetModelMonteCarloFactory.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.modelfactory;
+
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.AssetModelDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel;
+import net.finmath.montecarlo.assetderivativevaluation.models.HestonModel.Scheme;
+
+/**
+ * Constructs asset models, which evaluate products via Monte-Carlo method.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class AssetModelMonteCarloFactory implements ModelFactory&lt;AssetModelDescriptor&gt; {
+
+	private final HestonModel.Scheme scheme;
+	private final RandomVariableFactory randomVariableFactory;
+	private final IndependentIncrements stochasticDriver;
+
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param stochasticDriver The stochastic driver of the process.
+	 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients. (Optional parameter, only required by Heston Model).
+	 */
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
+			final IndependentIncrements stochasticDriver, final Scheme scheme) {
+<span class="fc" id="L44">		super();</span>
+<span class="fc" id="L45">		this.scheme = scheme;</span>
+<span class="fc" id="L46">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L47">		this.stochasticDriver = stochasticDriver;</span>
+<span class="fc" id="L48">	}</span>
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory,
+			IndependentIncrements stochasticDriver) {
+<span class="nc" id="L58">		super();</span>
+<span class="nc" id="L59">		this.scheme = null;</span>
+<span class="nc" id="L60">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="nc" id="L61">		this.stochasticDriver = stochasticDriver;</span>
+<span class="nc" id="L62">	}</span>
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param stochasticDriver The stochastic driver of the process.
+	 */
+	public AssetModelMonteCarloFactory(IndependentIncrements stochasticDriver) {
+<span class="fc" id="L70">		super();</span>
+<span class="fc" id="L71">		this.scheme = null;</span>
+<span class="fc" id="L72">		this.randomVariableFactory =  new RandomVariableFromArrayFactory();</span>
+<span class="fc" id="L73">		this.stochasticDriver = stochasticDriver;</span>
+<span class="fc" id="L74">	}</span>
+
+	@Override
+	public DescribedModel&lt;? extends AssetModelDescriptor&gt; getModelFromDescriptor(final AssetModelDescriptor descriptor) {
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">		if(descriptor instanceof BlackScholesModelDescriptor) {</span>
+<span class="fc" id="L80">			final DescribedModel&lt;BlackScholesModelDescriptor&gt; model = new BlackScholesModelMonteCarlo((BlackScholesModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);</span>
+<span class="fc" id="L81">			return model;</span>
+		}
+<span class="fc bfc" id="L83" title="All 2 branches covered.">		else if(descriptor instanceof HestonModelDescriptor) {</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">			if(scheme == null) {</span>
+<span class="nc" id="L85">				throw new RuntimeException(&quot;Need to provide truncation scheme to factory in order to be able to build a Heston Model&quot;);</span>
+			}
+<span class="fc" id="L87">			final DescribedModel&lt;HestonModelDescriptor&gt; model = new HestonModelMonteCarlo((HestonModelDescriptor) descriptor, scheme, randomVariableFactory, stochasticDriver);</span>
+<span class="fc" id="L88">			return model;</span>
+		}
+<span class="fc bfc" id="L90" title="All 2 branches covered.">		else if(descriptor instanceof MertonModelDescriptor) {</span>
+<span class="fc" id="L91">			final DescribedModel&lt;MertonModelDescriptor&gt; model = new MertonModelMonteCarlo((MertonModelDescriptor) descriptor, randomVariableFactory, stochasticDriver);</span>
+<span class="fc" id="L92">			return model;</span>
+		}
+<span class="pc bpc" id="L94" title="1 of 2 branches missed.">		else if(descriptor instanceof VarianceGammaModelDescriptor) {</span>
+<span class="fc" id="L95">			final DescribedModel&lt;VarianceGammaModelDescriptor&gt; model = new VarianceGammaModelMonteCarlo((VarianceGammaModelDescriptor) descriptor, stochasticDriver);</span>
+<span class="fc" id="L96">			return model;</span>
+		}
+		else {
+<span class="nc" id="L99">			final String name = descriptor.name();</span>
+<span class="nc" id="L100">			throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+		}
+	}
+
+
+
+	/**
+	 * A described Black-Scholes model using Monte Carlo method for evaluation.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class BlackScholesModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel&lt;BlackScholesModelDescriptor&gt; {
+
+		private final BlackScholesModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		/**
+		 * Create the described model.
+		 *
+		 * @param descriptor The descriptor of the model.
+		 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+		 * @param stochasticDriver The stochastic driver of the process.
+		 */
+		private BlackScholesModelMonteCarlo(final BlackScholesModelDescriptor descriptor, final RandomVariableFactory randomVariableFactory,
+				final IndependentIncrements stochasticDriver) {
+<span class="fc" id="L128">			super(new BlackScholesModelWithCurves(</span>
+<span class="fc" id="L129">					descriptor.getInitialValue(),</span>
+<span class="fc" id="L130">					descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L131">					descriptor.getVolatility(),</span>
+<span class="fc" id="L132">					descriptor.getDiscountCurveForDiscountRate(),</span>
+					randomVariableFactory),
+					stochasticDriver);
+<span class="fc" id="L135">			this.descriptor 	= descriptor;</span>
+<span class="fc" id="L136">			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L137">		}</span>
+
+		@Override
+		public BlackScholesModelDescriptor getDescriptor() {
+<span class="nc" id="L141">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="fc" id="L146">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+
+	/**
+	 * A described Heston model using Monte Carlo method for evaluation.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class HestonModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel&lt;HestonModelDescriptor&gt; {
+
+		private final HestonModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		/**
+		 * Create the described model.
+		 *
+		 * @param descriptor The descriptor of the model.
+		 * @param scheme Truncation scheme to be used by the model in the calculation of drift and diffusion coefficients.
+		 * @param randomVariableFactory The factory to be used by the models to construct random variables.
+		 * @param stochasticDriver The stochastic driver of the process.
+		 */
+		private HestonModelMonteCarlo(final HestonModelDescriptor descriptor, final Scheme scheme, final RandomVariableFactory randomVariableFactory,
+				final IndependentIncrements stochasticDriver) {
+<span class="fc" id="L173">			super(new net.finmath.montecarlo.assetderivativevaluation.models.HestonModel(descriptor, scheme, randomVariableFactory),</span>
+					stochasticDriver);
+<span class="fc" id="L175">			this.descriptor 	= descriptor;</span>
+<span class="fc" id="L176">			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L177">		}</span>
+
+		@Override
+		public HestonModelDescriptor getDescriptor() {
+<span class="nc" id="L181">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="fc" id="L186">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+
+	/**
+	 * A described Merton model using Monte Carlo method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class MertonModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel&lt;MertonModelDescriptor&gt;{
+
+		private final MertonModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		private MertonModelMonteCarlo(final MertonModelDescriptor descriptor, final RandomVariableFactory randomVariableFactory,
+				final IndependentIncrements stochasticDriver) {
+<span class="fc" id="L204">			super(new net.finmath.montecarlo.assetderivativevaluation.models.MertonModel(descriptor),</span>
+					stochasticDriver);
+<span class="fc" id="L206">			this.descriptor = descriptor;</span>
+<span class="fc" id="L207">			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L208">		}</span>
+
+		@Override
+		public MertonModelDescriptor getDescriptor() {
+<span class="nc" id="L212">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="fc" id="L217">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+
+	/**
+	 * A described Variance Gamma model using Monte Carlo method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class VarianceGammaModelMonteCarlo extends MonteCarloAssetModel implements DescribedModel&lt;VarianceGammaModelDescriptor&gt;{
+
+		private final VarianceGammaModelDescriptor descriptor;
+
+		private final SingleAssetMonteCarloProductFactory productFactory;
+
+		private VarianceGammaModelMonteCarlo(VarianceGammaModelDescriptor descriptor, IndependentIncrements stochasticDriver) {
+<span class="fc" id="L234">			super(new net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel(descriptor),</span>
+					stochasticDriver);
+<span class="fc" id="L236">			this.descriptor = descriptor;</span>
+<span class="fc" id="L237">			productFactory = new SingleAssetMonteCarloProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L238">		}</span>
+
+		@Override
+		public VarianceGammaModelDescriptor getDescriptor() {
+<span class="nc" id="L242">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+				ProductDescriptor productDescriptor) {
+<span class="fc" id="L248">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusinessdayCalendarExcludingGivenSetOfHolidays.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.businessdaycalendar</a> &gt; <span class="el_source">BusinessdayCalendarExcludingGivenSetOfHolidays.java</span></div><h1>BusinessdayCalendarExcludingGivenSetOfHolidays.java</h1><pre class="source lang-java linenums">package net.finmath.time.businessdaycalendar;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+/**
+ * A class for a business day calendar, where every day is a business day, except
+ * weekends days provided by a &lt;code&gt;Set&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class BusinessdayCalendarExcludingGivenSetOfHolidays extends BusinessdayCalendarExcludingGivenHolidays {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -485496533316101770L;
+	private final Set&lt;LocalDate&gt; holidays;
+
+	public BusinessdayCalendarExcludingGivenSetOfHolidays(final String name, final BusinessdayCalendar baseCalendar, final boolean isExcludeWeekends, final Set&lt;LocalDate&gt; holidays) {
+<span class="nc" id="L22">		super(name, baseCalendar, isExcludeWeekends);</span>
+<span class="nc" id="L23">		this.holidays = holidays;</span>
+<span class="nc" id="L24">	}</span>
+
+	public BusinessdayCalendarExcludingGivenSetOfHolidays(final String name, final boolean isExcludeWeekends, final Set&lt;LocalDate&gt; holidays) {
+<span class="nc" id="L27">		this(name, null, isExcludeWeekends, holidays);</span>
+<span class="nc" id="L28">	}</span>
+
+	/**
+	 * @return A set of (additional) holidays.
+	 */
+	@Override
+<span class="nc" id="L34">	public Set&lt;LocalDate&gt; getHolidays() { return holidays; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

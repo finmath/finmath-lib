@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ModelFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.hybridassetinterestrate</a> &gt; <span class="el_source">ModelFactory.java</span></div><h1>ModelFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 05.04.2015
+ */
+
+package net.finmath.montecarlo.hybridassetinterestrate;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloMultiAssetBlackScholesModel;
+import net.finmath.montecarlo.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.optimizer.LevenbergMarquardt;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.SolverException;
+
+/**
+ * Helper factory to create a simple equity hybrid LIBOR market model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ModelFactory {
+
+	private static ModelFactory modelFactory;
+
+	/**
+	 * Private constructor.
+	 */
+	private ModelFactory() {
+		// TODO Auto-generated constructor stub
+	}
+
+	public static synchronized ModelFactory getInstance() {
+<span class="nc bnc" id="L39" title="All 2 branches missed.">		if(modelFactory == null) {</span>
+<span class="nc" id="L40">			modelFactory = new ModelFactory();</span>
+		}
+
+<span class="nc" id="L43">		return modelFactory;</span>
+	}
+
+	/**
+	 * Create a simple equity hybrid LIBOR market model with a calibration of the equity processes
+	 * to a given Black-Scholes implied volatility.
+	 *
+	 * @param baseModel LIBOR model providing the stochastic numeraire.
+	 * @param brownianMotion {@link BrownianMotion} for the asset process.
+	 * @param initialValues Initial value of the asset process.
+	 * @param riskFreeRate Not used (internally used to generate paths, will be later adjusted)
+	 * @param correlations Correlation of the asset processes.
+	 * @param maturities Maturities of the options (one for each asset process).
+	 * @param strikes Strikes of the options (one for each asset process).
+	 * @param volatilities Implied volatilities of the options (one for each asset process).
+	 * @param discountCurve Discount curve used for the final hybrid model (not used in calibration).
+	 * @return An object implementing {@link HybridAssetLIBORModelMonteCarloSimulation}, where each asset process is calibrated to a given option.
+	 * @throws CalculationException Thrown if calibration fails.
+	 */
+	public HybridAssetLIBORModelMonteCarloSimulation getHybridAssetLIBORModel(
+			final LIBORModelMonteCarloSimulationModel baseModel,
+			final BrownianMotion brownianMotion,
+			final double[] initialValues,
+			final double riskFreeRate,
+			final double[][] correlations,
+			final double[] maturities,
+			final double[] strikes,
+			final double[] volatilities,
+			final DiscountCurve discountCurve) throws CalculationException {
+
+<span class="nc" id="L73">		final Optimizer optimizer = new LevenbergMarquardt(volatilities /*initialParameters*/, volatilities /*targetValues*/, 100 /*maxIteration*/, 1 /*numberOfThreads*/) {</span>
+			private static final long serialVersionUID = -9199565564991442848L;
+
+			@Override
+			public void setValues(final double[] parameters, final double[] values) throws SolverException {
+<span class="nc" id="L78">				final AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, parameters, correlations);</span>
+<span class="nc" id="L79">				final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model);</span>
+
+				try {
+<span class="nc bnc" id="L82" title="All 2 branches missed.">					for(int assetIndex=0; assetIndex&lt;values.length; assetIndex++) {</span>
+<span class="nc" id="L83">						final double df = hybridModel.getNumeraire(maturities[assetIndex]).invert().getAverage();</span>
+<span class="nc" id="L84">						final double spot = hybridModel.getAssetValue(0.0, assetIndex).getAverage();</span>
+<span class="nc" id="L85">						final EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);</span>
+<span class="nc" id="L86">						final double valueOptoin = option.getValue(hybridModel);</span>
+<span class="nc" id="L87">						final double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);</span>
+<span class="nc" id="L88">						values[assetIndex] = impliedVol;</span>
+					}
+<span class="nc" id="L90">				} catch (final CalculationException e) {</span>
+<span class="nc" id="L91">					throw new SolverException(e);</span>
+<span class="nc" id="L92">				}</span>
+<span class="nc" id="L93">			}</span>
+		};
+
+		try {
+<span class="nc" id="L97">			optimizer.run();</span>
+<span class="nc" id="L98">		} catch (final SolverException e) {</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">			if(e.getCause() instanceof CalculationException) {</span>
+<span class="nc" id="L100">				throw (CalculationException)e.getCause();</span>
+			} else {
+<span class="nc" id="L102">				throw new CalculationException(e);</span>
+			}
+<span class="nc" id="L104">		}</span>
+
+<span class="nc" id="L106">		final AssetModelMonteCarloSimulationModel model = new MonteCarloMultiAssetBlackScholesModel(brownianMotion, initialValues, riskFreeRate, optimizer.getBestFitParameters(), correlations);</span>
+
+		/*
+		 * Test calibration
+		 */
+<span class="nc" id="L111">		final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModelWithoutDiscountAdjustment = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, null);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		for(int assetIndex=0; assetIndex&lt;volatilities.length; assetIndex++) {</span>
+<span class="nc" id="L113">			final double df = hybridModelWithoutDiscountAdjustment.getNumeraire(maturities[assetIndex]).invert().getAverage();</span>
+<span class="nc" id="L114">			final double spot = hybridModelWithoutDiscountAdjustment.getAssetValue(0.0, assetIndex).getAverage();</span>
+<span class="nc" id="L115">			final EuropeanOption option = new EuropeanOption(maturities[assetIndex], strikes[assetIndex], assetIndex);</span>
+<span class="nc" id="L116">			final double valueOptoin = option.getValue(hybridModelWithoutDiscountAdjustment);</span>
+<span class="nc" id="L117">			final double impliedVol = AnalyticFormulas.blackScholesOptionImpliedVolatility(spot/df, maturities[assetIndex]/*optionMaturity*/, strikes[assetIndex]/*optionStrike*/, df /*payoffUnit*/, valueOptoin);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">			if(Math.abs(impliedVol - volatilities[assetIndex]) &gt; 0.01) {</span>
+<span class="nc" id="L119">				throw new CalculationException(&quot;Calibration failed&quot;);</span>
+			}
+		}
+
+		/*
+		 * Construct model with discounting (options will then use the discounting spread adjustment).
+		 */
+<span class="nc" id="L126">		final HybridAssetLIBORModelMonteCarloSimulationFromModels hybridModel = new HybridAssetLIBORModelMonteCarloSimulationFromModels(baseModel, model, discountCurve);</span>
+<span class="nc" id="L127">		return hybridModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

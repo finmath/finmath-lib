@@ -1,0 +1,803 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMThetaMethod1D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">FDMThetaMethod1D.java</span></div><h1>FDMThetaMethod1D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.FiniteDifferenceModel;
+import net.finmath.finitedifference.FiniteDifferenceProduct;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityEventProduct;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceInternalStateConstraint;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.interestrate.models.FiniteDifferenceInterestRateModel;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+import net.finmath.modelling.Exercise;
+
+/**
+ * Theta-method solver for a one-dimensional PDE in state-variable form.
+ *
+ * &lt;p&gt;
+ * The solver supports:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;pointwise terminal payoff initialization,&lt;/li&gt;
+ *   &lt;li&gt;direct terminal-vector initialization,&lt;/li&gt;
+ * &lt;li&gt;direct terminal-vector initialization with separate pointwise exercise
+ * payoff,&lt;/li&gt;
+ * &lt;li&gt;direct terminal-vector initialization with a continuous time-dependent
+ * obstacle,&lt;/li&gt;
+ * &lt;li&gt;vector-level event conditions applied on the value vector at prescribed
+ * event times.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The third case is useful for Bermudan and American digitals, where the
+ * maturity
+ * layer should be cell-averaged, while early-exercise projection should remain
+ * pointwise.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The fourth case is useful for shout-style problems, where the solution is
+ * constrained
+ * by a time- and state-dependent continuation floor {@code V &gt;= V*(t,x)} at
+ * every time step.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * If the product is a {@link FiniteDifferenceInterestRateProduct} or a
+ * {@link FiniteDifferenceEquityEventProduct}, then at every event time {@code
+ * t}
+ * the solver applies the vector-level jump condition
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * V(t^{-},x) = J_t(V(t^{+},x),x).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Event times are required to be part of the solver time discretization.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ * @author Ralph Rudd
+ * @author Christian Fries
+ * @author Jorg Kienitz
+ */
+public class FDMThetaMethod1D implements FDMSolver {
+
+	/**
+	 * The safe time epsilon.
+	 */
+	private static final double SAFE_TIME_EPSILON = 1E-6;
+	/**
+	 * The event time tolerance.
+	 */
+	private static final double EVENT_TIME_TOLERANCE = 1E-12;
+	/**
+	 * The local discount bond epsilon.
+	 */
+	private static final double LOCAL_DISCOUNT_BOND_EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceModel model;
+	/**
+	 * The product.
+	 */
+	private final FiniteDifferenceProduct&lt;? extends FiniteDifferenceModel&gt; product;
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	private static final class ModelCoefficients {
+
+		/**
+		 * The drift.
+		 */
+		private final double[] drift;
+		/**
+		 * The variance.
+		 */
+		private final double[] variance;
+		/**
+		 * The local discount rate.
+		 */
+		private final double[] localDiscountRate;
+
+		private ModelCoefficients(
+				final double[] drift,
+				final double[] variance,
+<span class="fc" id="L122">				final double[] localDiscountRate) {</span>
+<span class="fc" id="L123">			this.drift = drift;</span>
+<span class="fc" id="L124">			this.variance = variance;</span>
+<span class="fc" id="L125">			this.localDiscountRate = localDiscountRate;</span>
+<span class="fc" id="L126">		}</span>
+
+		private double[] getDrift() {
+<span class="fc" id="L129">			return drift;</span>
+		}
+
+		private double[] getVariance() {
+<span class="fc" id="L133">			return variance;</span>
+		}
+
+		private double[] getLocalDiscountRate() {
+<span class="fc" id="L137">			return localDiscountRate;</span>
+		}
+	}
+
+	/**
+	 * Creates a theta-method finite-difference solver for a one-dimensional
+	 * backward PDE.
+	 *
+	 * @param model The finite-difference equity model providing PDE
+	 *     coefficients and boundary conditions.
+	 * @param product The equity product to be valued.
+	 * @param spaceTimeDiscretization The joint space-time discretization.
+	 * @param exercise The exercise specification.
+	 */
+	public FDMThetaMethod1D(
+			final FiniteDifferenceEquityModel model,
+			final FiniteDifferenceEquityProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+<span class="fc" id="L156">		this((FiniteDifferenceModel) model, product, spaceTimeDiscretization, exercise);</span>
+<span class="fc" id="L157">	}</span>
+
+	/**
+	 * Creates a theta-method finite-difference solver for a one-dimensional
+	 * backward PDE.
+	 *
+	 * @param model The finite-difference interest-rate model providing PDE
+	 *     coefficients and boundary conditions.
+	 * @param product The interest-rate product to be valued.
+	 * @param spaceTimeDiscretization The joint space-time discretization.
+	 * @param exercise The exercise specification.
+	 */
+	public FDMThetaMethod1D(
+			final FiniteDifferenceInterestRateModel model,
+			final FiniteDifferenceInterestRateProduct product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+			final Exercise exercise) {
+<span class="nc" id="L174">		this((FiniteDifferenceModel) model, product, spaceTimeDiscretization, exercise);</span>
+<span class="nc" id="L175">	}</span>
+
+	/**
+	 * Creates a theta-method finite-difference solver for a one-dimensional
+	 * backward PDE.
+	 *
+	 * @param model The finite-difference model providing PDE coefficients and
+	 *     boundary conditions.
+	 * @param product The product to be valued.
+	 * @param spaceTimeDiscretization The joint space-time discretization.
+	 * @param exercise The exercise specification.
+	 */
+	public FDMThetaMethod1D(
+			final FiniteDifferenceModel model,
+			final FiniteDifferenceProduct&lt;? extends FiniteDifferenceModel&gt; product,
+			final SpaceTimeDiscretization spaceTimeDiscretization,
+<span class="fc" id="L191">			final Exercise exercise) {</span>
+
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L194">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">		if (product == null) {</span>
+<span class="nc" id="L197">			throw new IllegalArgumentException(&quot;product must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L199" title="1 of 2 branches missed.">		if (spaceTimeDiscretization == null) {</span>
+<span class="nc" id="L200">			throw new IllegalArgumentException(&quot;spaceTimeDiscretization must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L202" title="1 of 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L203">			throw new IllegalArgumentException(&quot;exercise must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">		if (spaceTimeDiscretization.getNumberOfSpaceGrids() != 1) {</span>
+<span class="nc" id="L206">			throw new IllegalArgumentException(&quot;FDMThetaMethod1D requires a one-dimensional space discretization.&quot;);</span>
+		}
+
+<span class="fc" id="L209">		this.model = model;</span>
+<span class="fc" id="L210">		this.product = product;</span>
+<span class="fc" id="L211">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L212">		this.exercise = exercise;</span>
+
+<span class="fc" id="L214">		validateModelProductCompatibility();</span>
+<span class="fc" id="L215">		validateProductEventTimesInGrid();</span>
+<span class="fc" id="L216">	}</span>
+
+	@Override
+	public double[][] getValues(final double time, final DoubleUnaryOperator valueAtMaturity) {
+
+<span class="fc" id="L221">		final double[] xGrid = spaceTimeDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="fc" id="L222">		final double[] terminalValues = new double[xGrid.length];</span>
+
+<span class="fc bfc" id="L224" title="All 2 branches covered.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="fc" id="L225">			terminalValues[i] = valueAtMaturity.applyAsDouble(xGrid[i]);</span>
+		}
+
+<span class="fc" id="L228">		return getValuesInternal(time, terminalValues, valueAtMaturity, null);</span>
+	}
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final DoubleUnaryOperator valueAtMaturity) {
+
+<span class="fc" id="L237">		final double[][] values = getValues(time, valueAtMaturity);</span>
+<span class="fc" id="L238">		return extractTimeSlice(values, time, evaluationTime);</span>
+	}
+
+	@Override
+	public double[][] getValues(final double time, final double[] terminalValues) {
+<span class="nc" id="L243">		return getValuesInternal(time, terminalValues, null, null);</span>
+	}
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final double[] terminalValues) {
+
+<span class="nc" id="L252">		final double[][] values = getValues(time, terminalValues);</span>
+<span class="nc" id="L253">		return extractTimeSlice(values, time, evaluationTime);</span>
+	}
+
+	@Override
+	public double[][] getValues(
+			final double time,
+			final double[] terminalValues,
+			final DoubleUnaryOperator exerciseValue) {
+<span class="nc" id="L261">		return getValuesInternal(time, terminalValues, exerciseValue, null);</span>
+	}
+
+	@Override
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final double[] terminalValues,
+			final DoubleUnaryOperator exerciseValue) {
+
+<span class="nc" id="L271">		final double[][] values = getValues(time, terminalValues, exerciseValue);</span>
+<span class="nc" id="L272">		return extractTimeSlice(values, time, evaluationTime);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param time The value.
+	 * @param terminalValues The value.
+	 * @param continuousObstacleValue The value.
+	 * @return The value.
+	 */
+	public double[][] getValues(
+			final double time,
+			final double[] terminalValues,
+			final DoubleBinaryOperator continuousObstacleValue) {
+<span class="nc" id="L287">		return getValuesInternal(time, terminalValues, null, continuousObstacleValue);</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @param evaluationTime The value.
+	 * @param time The value.
+	 * @param terminalValues The value.
+	 * @param continuousObstacleValue The value.
+	 * @return The value.
+	 */
+	public double[] getValue(
+			final double evaluationTime,
+			final double time,
+			final double[] terminalValues,
+			final DoubleBinaryOperator continuousObstacleValue) {
+
+<span class="nc" id="L305">		final double[][] values = getValues(time, terminalValues, continuousObstacleValue);</span>
+<span class="nc" id="L306">		return extractTimeSlice(values, time, evaluationTime);</span>
+	}
+
+	private double[] extractTimeSlice(
+			final double[][] values,
+			final double time,
+			final double evaluationTime) {
+
+<span class="fc" id="L314">		final double tau = time - evaluationTime;</span>
+<span class="fc" id="L315">		final int timeIndex = spaceTimeDiscretization.getTimeDiscretization().getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="fc" id="L317">		final double[] column = new double[values.length];</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="fc" id="L319">			column[i] = values[i][timeIndex];</span>
+		}
+<span class="fc" id="L321">		return column;</span>
+	}
+
+	private double[][] getValuesInternal(
+			final double time,
+			final double[] terminalValues,
+			final DoubleUnaryOperator exerciseValue,
+			final DoubleBinaryOperator continuousObstacleValue) {
+
+<span class="fc" id="L330">		final double[] xGrid = spaceTimeDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="fc" id="L331">		final int numberOfGridPoints = xGrid.length;</span>
+
+<span class="pc bpc" id="L333" title="1 of 2 branches missed.">		if (terminalValues == null) {</span>
+<span class="nc" id="L334">			throw new IllegalArgumentException(&quot;terminalValues must not be null.&quot;);</span>
+		}
+<span class="pc bpc" id="L336" title="1 of 2 branches missed.">		if (terminalValues.length != numberOfGridPoints) {</span>
+<span class="nc" id="L337">			throw new IllegalArgumentException(&quot;terminalValues length does not match spatial grid length.&quot;);</span>
+		}
+<span class="pc bpc" id="L339" title="2 of 4 branches missed.">		if (exerciseValue != null &amp;&amp; continuousObstacleValue != null) {</span>
+<span class="nc" id="L340">			throw new IllegalArgumentException(</span>
+					&quot;Provide either a discrete exercise payoff or a continuous obstacle, not both.&quot;);
+		}
+<span class="pc bpc" id="L343" title="6 of 8 branches missed.">		if ((exercise.isBermudan() || exercise.isAmerican())</span>
+				&amp;&amp; exerciseValue == null
+				&amp;&amp; continuousObstacleValue == null) {
+<span class="nc" id="L346">			throw new IllegalArgumentException(</span>
+					&quot;Non-European exercise requires a pointwise exercise payoff function.&quot;);
+		}
+
+<span class="fc" id="L350">		final double theta = spaceTimeDiscretization.getTheta();</span>
+<span class="fc" id="L351">		final int timeLength = spaceTimeDiscretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+<span class="fc" id="L352">		final int numberOfTimeSteps = spaceTimeDiscretization.getTimeDiscretization().getNumberOfTimeSteps();</span>
+<span class="fc" id="L353">		final double horizon = spaceTimeDiscretization.getTimeDiscretization().getLastTime();</span>
+
+<span class="fc" id="L355">		double[] u = terminalValues.clone();</span>
+<span class="fc" id="L356">		final double[][] z = new double[numberOfGridPoints][timeLength];</span>
+
+<span class="fc" id="L358">		final BoundaryCondition lowerTerminalCondition = getLowerBoundaryCondition(horizon, xGrid[0]);</span>
+<span class="fc" id="L359">		final BoundaryCondition upperTerminalCondition = getUpperBoundaryCondition(horizon, xGrid[numberOfGridPoints - 1]);</span>
+
+<span class="fc" id="L361">		reimposeInternalConstraints(u, xGrid, horizon);</span>
+<span class="fc" id="L362">		reimposeBoundaryValues(u, lowerTerminalCondition, upperTerminalCondition);</span>
+<span class="fc" id="L363">		u = applyProductEventConditionIfNeeded(horizon, u);</span>
+<span class="fc" id="L364">		reimposeInternalConstraints(u, xGrid, horizon);</span>
+<span class="fc" id="L365">		reimposeBoundaryValues(u, lowerTerminalCondition, upperTerminalCondition);</span>
+
+<span class="fc bfc" id="L367" title="All 2 branches covered.">		for (int i = 0; i &lt; numberOfGridPoints; i++) {</span>
+<span class="fc" id="L368">			z[i][0] = u[i];</span>
+		}
+
+<span class="fc bfc" id="L371" title="All 2 branches covered.">		for (int m = 0; m &lt; numberOfTimeSteps; m++) {</span>
+
+<span class="fc" id="L373">			final double deltaTau = spaceTimeDiscretization.getTimeDiscretization().getTimeStep(m);</span>
+
+<span class="fc" id="L375">			final double tm = spaceTimeDiscretization.getTimeDiscretization().getTime(numberOfTimeSteps - m);</span>
+<span class="fc" id="L376">			final double tmp1 = spaceTimeDiscretization.getTimeDiscretization().getTime(numberOfTimeSteps - (m + 1));</span>
+
+<span class="fc" id="L378">			final ModelCoefficients coefficientsAtCurrentTime = buildModelCoefficients(xGrid, tm);</span>
+<span class="fc" id="L379">			final ModelCoefficients coefficientsAtNextTime = buildModelCoefficients(xGrid, tmp1);</span>
+
+<span class="fc" id="L381">			final TridiagonalMatrix lhs = new TridiagonalMatrix(numberOfGridPoints);</span>
+<span class="fc" id="L382">			final TridiagonalMatrix rhsOperator = new TridiagonalMatrix(numberOfGridPoints);</span>
+
+<span class="fc" id="L384">			ThetaMethod1DAssembly.buildThetaLeftHandSide(</span>
+					lhs,
+					xGrid,
+<span class="fc" id="L387">					coefficientsAtNextTime.getDrift(),</span>
+<span class="fc" id="L388">					coefficientsAtNextTime.getVariance(),</span>
+<span class="fc" id="L389">					coefficientsAtNextTime.getLocalDiscountRate(),</span>
+					deltaTau,
+					theta
+					);
+
+<span class="fc" id="L394">			ThetaMethod1DAssembly.buildThetaRightHandSide(</span>
+					rhsOperator,
+					xGrid,
+<span class="fc" id="L397">					coefficientsAtCurrentTime.getDrift(),</span>
+<span class="fc" id="L398">					coefficientsAtCurrentTime.getVariance(),</span>
+<span class="fc" id="L399">					coefficientsAtCurrentTime.getLocalDiscountRate(),</span>
+					deltaTau,
+					theta
+					);
+
+<span class="fc" id="L404">			final double[] rhs = ThetaMethod1DAssembly.apply(rhsOperator, u);</span>
+
+<span class="fc" id="L406">			final double tauMp1 = spaceTimeDiscretization.getTimeDiscretization().getTime(m + 1);</span>
+<span class="fc" id="L407">			final double boundaryTime = horizon - tauMp1;</span>
+
+<span class="fc" id="L409">			final BoundaryCondition lowerCondition = getLowerBoundaryCondition(boundaryTime, xGrid[0]);</span>
+<span class="fc" id="L410">			final BoundaryCondition upperCondition = getUpperBoundaryCondition(boundaryTime, xGrid[numberOfGridPoints - 1]);</span>
+
+<span class="pc bpc" id="L412" title="1 of 2 branches missed.">			if (lowerCondition.isDirichlet()) {</span>
+<span class="fc" id="L413">				ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, 0, lowerCondition.getValue());</span>
+			}
+
+<span class="pc bpc" id="L416" title="1 of 2 branches missed.">			if (upperCondition.isDirichlet()) {</span>
+<span class="fc" id="L417">				ThetaMethod1DAssembly.overwriteAsDirichlet(lhs, rhs, numberOfGridPoints - 1, upperCondition.getValue());</span>
+			}
+
+<span class="fc bfc" id="L420" title="All 2 branches covered.">			for (int i = 1; i &lt; numberOfGridPoints - 1; i++) {</span>
+<span class="fc" id="L421">				final double x = xGrid[i];</span>
+<span class="pc bpc" id="L422" title="1 of 2 branches missed.">				if (isInternalConstraintActive(boundaryTime, x)) {</span>
+<span class="nc" id="L423">					ThetaMethod1DAssembly.overwriteAsDirichlet(</span>
+							lhs,
+							rhs,
+							i,
+<span class="nc" id="L427">							getInternalConstrainedValue(boundaryTime, x)</span>
+							);
+				}
+			}
+
+<span class="fc" id="L432">			final boolean isExerciseDate =</span>
+<span class="fc" id="L433">					FiniteDifferenceExerciseUtil.isExerciseAllowedAtTimeToMaturity(tauMp1, exercise);</span>
+
+			final double[] nextU;
+
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">			if (continuousObstacleValue != null) {</span>
+<span class="nc" id="L438">				final double[] obstacle = buildContinuousObstacleVector(</span>
+						xGrid,
+						boundaryTime,
+						continuousObstacleValue,
+						lowerCondition,
+						upperCondition
+						);
+
+<span class="nc" id="L446">				nextU = ProjectedTridiagonalSOR.solve(</span>
+						lhs,
+						rhs,
+						obstacle,
+						u,
+						1.2,
+						500,
+						1E-10
+						);
+
+<span class="nc" id="L456">				reimposeInternalConstraints(nextU, xGrid, boundaryTime);</span>
+<span class="nc" id="L457">				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);</span>
+<span class="pc bpc" id="L458" title="3 of 4 branches missed.">			} else if (exercise.isAmerican() &amp;&amp; isExerciseDate) {</span>
+
+<span class="nc" id="L460">				final double[] obstacle = buildObstacleVector(</span>
+						xGrid,
+						boundaryTime,
+						exerciseValue,
+						lowerCondition,
+						upperCondition
+						);
+
+<span class="nc" id="L468">				nextU = ProjectedTridiagonalSOR.solve(</span>
+						lhs,
+						rhs,
+						obstacle,
+						u,
+						1.2,
+						500,
+						1E-10
+						);
+
+<span class="nc" id="L478">				reimposeInternalConstraints(nextU, xGrid, boundaryTime);</span>
+<span class="nc" id="L479">				reimposeBoundaryValues(nextU, lowerCondition, upperCondition);</span>
+<span class="nc" id="L480">			} else {</span>
+<span class="fc" id="L481">				nextU = ThomasSolver.solve(lhs.getLowerDiagonal(), lhs.getMainDiagonal(), lhs.getUpperDiagonal(), rhs);</span>
+
+<span class="pc bpc" id="L483" title="5 of 6 branches missed.">				if (isExerciseDate &amp;&amp; (exercise.isBermudan() || exercise.isAmerican())) {</span>
+<span class="nc" id="L484">					applyExerciseProjection(</span>
+							nextU,
+							xGrid,
+							boundaryTime,
+							exerciseValue,
+							lowerCondition,
+							upperCondition
+							);
+				} else {
+<span class="fc" id="L493">					reimposeInternalConstraints(nextU, xGrid, boundaryTime);</span>
+<span class="fc" id="L494">					reimposeBoundaryValues(nextU, lowerCondition, upperCondition);</span>
+				}
+			}
+
+<span class="fc" id="L498">			u = applyProductEventConditionIfNeeded(boundaryTime, nextU);</span>
+<span class="fc" id="L499">			reimposeInternalConstraints(u, xGrid, boundaryTime);</span>
+<span class="fc" id="L500">			reimposeBoundaryValues(u, lowerCondition, upperCondition);</span>
+
+<span class="fc bfc" id="L502" title="All 2 branches covered.">			for (int i = 0; i &lt; numberOfGridPoints; i++) {</span>
+<span class="fc" id="L503">				z[i][m + 1] = u[i];</span>
+			}
+		}
+
+<span class="fc" id="L507">		return z;</span>
+	}
+
+	private void validateModelProductCompatibility() {
+<span class="pc bpc" id="L511" title="2 of 4 branches missed.">		if (model instanceof FiniteDifferenceEquityModel &amp;&amp; !(product instanceof FiniteDifferenceEquityProduct)) {</span>
+<span class="nc" id="L512">			throw new IllegalArgumentException(</span>
+					&quot;An equity finite-difference model requires a FiniteDifferenceEquityProduct.&quot;);
+		}
+<span class="pc bpc" id="L515" title="3 of 4 branches missed.">		if (model instanceof FiniteDifferenceInterestRateModel &amp;&amp; !(product instanceof FiniteDifferenceInterestRateProduct)) {</span>
+<span class="nc" id="L516">			throw new IllegalArgumentException(</span>
+					&quot;An interest-rate finite-difference model requires a FiniteDifferenceInterestRateProduct.&quot;);
+		}
+<span class="pc bpc" id="L519" title="3 of 4 branches missed.">		if (!(model instanceof FiniteDifferenceEquityModel) &amp;&amp; !(model instanceof FiniteDifferenceInterestRateModel)) {</span>
+<span class="nc" id="L520">			throw new IllegalArgumentException(</span>
+					&quot;FDMThetaMethod1D currently supports only FiniteDifferenceEquityModel and FiniteDifferenceInterestRateModel.&quot;);
+		}
+<span class="fc" id="L523">	}</span>
+
+	private void validateProductEventTimesInGrid() {
+
+<span class="pc bpc" id="L527" title="1 of 2 branches missed.">		if (product instanceof FiniteDifferenceInterestRateProduct) {</span>
+<span class="nc" id="L528">			validateEventTimesInGrid(((FiniteDifferenceInterestRateProduct) product).getEventTimes());</span>
+<span class="nc" id="L529">			return;</span>
+		}
+
+<span class="pc bpc" id="L532" title="1 of 2 branches missed.">		if (product instanceof FiniteDifferenceEquityEventProduct) {</span>
+<span class="nc" id="L533">			validateEventTimesInGrid(((FiniteDifferenceEquityEventProduct) product).getEventTimes());</span>
+		}
+<span class="fc" id="L535">	}</span>
+
+	private void validateEventTimesInGrid(final double[] eventTimes) {
+
+<span class="nc" id="L539">		final double horizon = spaceTimeDiscretization.getTimeDiscretization().getLastTime();</span>
+
+<span class="nc bnc" id="L541" title="All 2 branches missed.">		for (final double eventTime : eventTimes) {</span>
+
+<span class="nc bnc" id="L543" title="All 4 branches missed.">			if (eventTime &lt; -EVENT_TIME_TOLERANCE || eventTime &gt; horizon + EVENT_TIME_TOLERANCE) {</span>
+<span class="nc" id="L544">				throw new IllegalArgumentException(</span>
+						&quot;Event time &quot; + eventTime
+						+ &quot; lies outside the solver time horizon [0,&quot; + horizon + &quot;].&quot;);
+			}
+
+<span class="nc" id="L549">			final double tau = horizon - eventTime;</span>
+<span class="nc" id="L550">			final int timeIndex = spaceTimeDiscretization.getTimeDiscretization().getTimeIndex(tau);</span>
+
+<span class="nc bnc" id="L552" title="All 2 branches missed.">			if (timeIndex &lt; 0) {</span>
+<span class="nc" id="L553">				throw new IllegalArgumentException(</span>
+						&quot;Event time &quot; + eventTime
+						+ &quot; is not contained in the solver time discretization. &quot;
+						+ &quot;Please refine the time grid so that all event times are grid points.&quot;);
+			}
+		}
+<span class="nc" id="L559">	}</span>
+
+	private boolean isProductEventTime(final double time) {
+
+		final double[] eventTimes;
+
+<span class="pc bpc" id="L565" title="1 of 2 branches missed.">		if (product instanceof FiniteDifferenceInterestRateProduct) {</span>
+<span class="nc" id="L566">			eventTimes = ((FiniteDifferenceInterestRateProduct) product).getEventTimes();</span>
+<span class="pc bpc" id="L567" title="1 of 2 branches missed.">		} else if (product instanceof FiniteDifferenceEquityEventProduct) {</span>
+<span class="nc" id="L568">			eventTimes = ((FiniteDifferenceEquityEventProduct) product).getEventTimes();</span>
+		} else {
+<span class="fc" id="L570">			return false;</span>
+		}
+
+<span class="nc bnc" id="L573" title="All 2 branches missed.">		for (final double eventTime : eventTimes) {</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">			if (Math.abs(eventTime - time) &lt;= EVENT_TIME_TOLERANCE) {</span>
+<span class="nc" id="L575">				return true;</span>
+			}
+		}
+
+<span class="nc" id="L579">		return false;</span>
+	}
+
+	private double[] applyProductEventConditionIfNeeded(
+			final double time,
+			final double[] valuesAfterEvent) {
+
+<span class="pc bpc" id="L586" title="1 of 2 branches missed.">		if (!isProductEventTime(time)) {</span>
+<span class="fc" id="L587">			return valuesAfterEvent;</span>
+		}
+
+<span class="nc bnc" id="L590" title="All 2 branches missed.">		if (product instanceof FiniteDifferenceInterestRateProduct) {</span>
+<span class="nc" id="L591">			return ((FiniteDifferenceInterestRateProduct) product).applyEventCondition(</span>
+					time,
+					valuesAfterEvent,
+					(FiniteDifferenceInterestRateModel) model
+					);
+		}
+
+<span class="nc bnc" id="L598" title="All 2 branches missed.">		if (product instanceof FiniteDifferenceEquityEventProduct) {</span>
+<span class="nc" id="L599">			return ((FiniteDifferenceEquityEventProduct) product).applyEventCondition(</span>
+					time,
+					valuesAfterEvent,
+					(FiniteDifferenceEquityModel) model
+					);
+		}
+
+<span class="nc" id="L606">		return valuesAfterEvent;</span>
+	}
+
+	private ModelCoefficients buildModelCoefficients(
+			final double[] xGrid,
+			final double time) {
+
+<span class="fc" id="L613">		final int numberOfGridPoints = xGrid.length;</span>
+
+<span class="fc" id="L615">		final double[] drift = new double[numberOfGridPoints];</span>
+<span class="fc" id="L616">		final double[] variance = new double[numberOfGridPoints];</span>
+<span class="fc" id="L617">		final double[] localDiscountRate = new double[numberOfGridPoints];</span>
+
+<span class="fc bfc" id="L619" title="All 2 branches covered.">		for (int i = 0; i &lt; numberOfGridPoints; i++) {</span>
+<span class="fc" id="L620">			final double x = xGrid[i];</span>
+
+<span class="fc" id="L622">			drift[i] = getDriftAt(time, x);</span>
+
+<span class="fc" id="L624">			final double[][] factorLoading = getFactorLoadingAt(time, x);</span>
+
+<span class="fc" id="L626">			double localVariance = 0.0;</span>
+<span class="fc bfc" id="L627" title="All 2 branches covered.">			for (int factor = 0; factor &lt; factorLoading[0].length; factor++) {</span>
+<span class="fc" id="L628">				final double b = factorLoading[0][factor];</span>
+<span class="fc" id="L629">				localVariance += b * b;</span>
+			}
+<span class="fc" id="L631">			variance[i] = localVariance;</span>
+
+<span class="fc" id="L633">			localDiscountRate[i] = getLocalShortRateAt(time, x);</span>
+		}
+
+<span class="fc" id="L636">		return new ModelCoefficients(drift, variance, localDiscountRate);</span>
+	}
+
+	private double getDriftAt(final double time, final double x) {
+<span class="pc bpc" id="L640" title="1 of 2 branches missed.">		if (model instanceof FiniteDifferenceEquityModel) {</span>
+<span class="fc" id="L641">			return ((FiniteDifferenceEquityModel) model).getDrift(time, x)[0];</span>
+<span class="nc bnc" id="L642" title="All 2 branches missed.">		} else if (model instanceof FiniteDifferenceInterestRateModel) {</span>
+<span class="nc" id="L643">			return ((FiniteDifferenceInterestRateModel) model).getDrift(time, x)[0];</span>
+		} else {
+<span class="nc" id="L645">			throw new IllegalStateException(&quot;Unsupported model type.&quot;);</span>
+		}
+	}
+
+	private double[][] getFactorLoadingAt(final double time, final double x) {
+<span class="pc bpc" id="L650" title="1 of 2 branches missed.">		if (model instanceof FiniteDifferenceEquityModel) {</span>
+<span class="fc" id="L651">			return ((FiniteDifferenceEquityModel) model).getFactorLoading(time, x);</span>
+<span class="nc bnc" id="L652" title="All 2 branches missed.">		} else if (model instanceof FiniteDifferenceInterestRateModel) {</span>
+<span class="nc" id="L653">			return ((FiniteDifferenceInterestRateModel) model).getFactorLoading(time, x);</span>
+		} else {
+<span class="nc" id="L655">			throw new IllegalStateException(&quot;Unsupported model type.&quot;);</span>
+		}
+	}
+
+	private double getLocalShortRateAt(final double time, final double x) {
+<span class="pc bpc" id="L660" title="1 of 2 branches missed.">		if (model instanceof FiniteDifferenceEquityModel) {</span>
+<span class="fc bfc" id="L661" title="All 2 branches covered.">			final double safeTime = time == 0.0 ? SAFE_TIME_EPSILON : Math.max(time, SAFE_TIME_EPSILON);</span>
+<span class="fc" id="L662">			return -Math.log(((FiniteDifferenceEquityModel) model).getRiskFreeCurve().getDiscountFactor(safeTime)) / safeTime;</span>
+<span class="nc bnc" id="L663" title="All 2 branches missed.">		} else if (model instanceof FiniteDifferenceInterestRateModel) {</span>
+<span class="nc" id="L664">			final FiniteDifferenceInterestRateModel interestRateModel =</span>
+					(FiniteDifferenceInterestRateModel) model;
+
+<span class="nc" id="L667">			final double maturity = time + LOCAL_DISCOUNT_BOND_EPSILON;</span>
+<span class="nc" id="L668">			final double discountBond = interestRateModel.getDiscountBond(time, maturity, x);</span>
+
+<span class="nc" id="L670">			return -Math.log(discountBond) / LOCAL_DISCOUNT_BOND_EPSILON;</span>
+		} else {
+<span class="nc" id="L672">			throw new IllegalStateException(&quot;Unsupported model type.&quot;);</span>
+		}
+	}
+
+	private BoundaryCondition getLowerBoundaryCondition(final double time, final double x) {
+<span class="pc bpc" id="L677" title="1 of 2 branches missed.">		if (model instanceof FiniteDifferenceEquityModel) {</span>
+<span class="fc" id="L678">			return ((FiniteDifferenceEquityModel) model)</span>
+<span class="fc" id="L679">					.getBoundaryConditionsAtLowerBoundary((FiniteDifferenceEquityProduct) product, time, x)[0];</span>
+<span class="nc bnc" id="L680" title="All 2 branches missed.">		} else if (model instanceof FiniteDifferenceInterestRateModel) {</span>
+<span class="nc" id="L681">			return ((FiniteDifferenceInterestRateModel) model)</span>
+<span class="nc" id="L682">					.getBoundaryConditionsAtLowerBoundary((FiniteDifferenceInterestRateProduct) product, time, x)[0];</span>
+		} else {
+<span class="nc" id="L684">			throw new IllegalStateException(&quot;Unsupported model type.&quot;);</span>
+		}
+	}
+
+	private BoundaryCondition getUpperBoundaryCondition(final double time, final double x) {
+<span class="pc bpc" id="L689" title="1 of 2 branches missed.">		if (model instanceof FiniteDifferenceEquityModel) {</span>
+<span class="fc" id="L690">			return ((FiniteDifferenceEquityModel) model)</span>
+<span class="fc" id="L691">					.getBoundaryConditionsAtUpperBoundary((FiniteDifferenceEquityProduct) product, time, x)[0];</span>
+<span class="nc bnc" id="L692" title="All 2 branches missed.">		} else if (model instanceof FiniteDifferenceInterestRateModel) {</span>
+<span class="nc" id="L693">			return ((FiniteDifferenceInterestRateModel) model)</span>
+<span class="nc" id="L694">					.getBoundaryConditionsAtUpperBoundary((FiniteDifferenceInterestRateProduct) product, time, x)[0];</span>
+		} else {
+<span class="nc" id="L696">			throw new IllegalStateException(&quot;Unsupported model type.&quot;);</span>
+		}
+	}
+
+	private double[] buildObstacleVector(
+			final double[] xGrid,
+			final double boundaryTime,
+			final DoubleUnaryOperator exerciseValue,
+			final BoundaryCondition lowerCondition,
+			final BoundaryCondition upperCondition) {
+
+<span class="nc" id="L707">		final double[] obstacle = new double[xGrid.length];</span>
+<span class="nc bnc" id="L708" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc bnc" id="L709" title="All 4 branches missed.">			if (i == 0 &amp;&amp; lowerCondition.isDirichlet()) {</span>
+<span class="nc" id="L710">				obstacle[i] = lowerCondition.getValue();</span>
+<span class="nc bnc" id="L711" title="All 4 branches missed.">			} else if (i == xGrid.length - 1 &amp;&amp; upperCondition.isDirichlet()) {</span>
+<span class="nc" id="L712">				obstacle[i] = upperCondition.getValue();</span>
+<span class="nc bnc" id="L713" title="All 2 branches missed.">			} else if (isInternalConstraintActive(boundaryTime, xGrid[i])) {</span>
+<span class="nc" id="L714">				obstacle[i] = getInternalConstrainedValue(boundaryTime, xGrid[i]);</span>
+			} else {
+<span class="nc" id="L716">				obstacle[i] = exerciseValue.applyAsDouble(xGrid[i]);</span>
+			}
+		}
+<span class="nc" id="L719">		return obstacle;</span>
+	}
+
+	private double[] buildContinuousObstacleVector(
+			final double[] xGrid,
+			final double boundaryTime,
+			final DoubleBinaryOperator continuousObstacleValue,
+			final BoundaryCondition lowerCondition,
+			final BoundaryCondition upperCondition) {
+
+<span class="nc" id="L729">		final double[] obstacle = new double[xGrid.length];</span>
+
+<span class="nc bnc" id="L731" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc bnc" id="L732" title="All 4 branches missed.">			if (i == 0 &amp;&amp; lowerCondition.isDirichlet()) {</span>
+<span class="nc" id="L733">				obstacle[i] = lowerCondition.getValue();</span>
+<span class="nc bnc" id="L734" title="All 4 branches missed.">			} else if (i == xGrid.length - 1 &amp;&amp; upperCondition.isDirichlet()) {</span>
+<span class="nc" id="L735">				obstacle[i] = upperCondition.getValue();</span>
+<span class="nc bnc" id="L736" title="All 2 branches missed.">			} else if (isInternalConstraintActive(boundaryTime, xGrid[i])) {</span>
+<span class="nc" id="L737">				obstacle[i] = getInternalConstrainedValue(boundaryTime, xGrid[i]);</span>
+			} else {
+<span class="nc" id="L739">				obstacle[i] = continuousObstacleValue.applyAsDouble(boundaryTime, xGrid[i]);</span>
+			}
+		}
+
+<span class="nc" id="L743">		return obstacle;</span>
+	}
+
+	private void applyExerciseProjection(
+			final double[] u,
+			final double[] xGrid,
+			final double boundaryTime,
+			final DoubleUnaryOperator exerciseValue,
+			final BoundaryCondition lowerCondition,
+			final BoundaryCondition upperCondition) {
+
+<span class="nc bnc" id="L754" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc bnc" id="L755" title="All 4 branches missed.">			if (i == 0 &amp;&amp; lowerCondition.isDirichlet()) {</span>
+<span class="nc" id="L756">				u[i] = lowerCondition.getValue();</span>
+<span class="nc bnc" id="L757" title="All 4 branches missed.">			} else if (i == xGrid.length - 1 &amp;&amp; upperCondition.isDirichlet()) {</span>
+<span class="nc" id="L758">				u[i] = upperCondition.getValue();</span>
+<span class="nc bnc" id="L759" title="All 2 branches missed.">			} else if (isInternalConstraintActive(boundaryTime, xGrid[i])) {</span>
+<span class="nc" id="L760">				u[i] = getInternalConstrainedValue(boundaryTime, xGrid[i]);</span>
+			} else {
+<span class="nc" id="L762">				u[i] = Math.max(u[i], exerciseValue.applyAsDouble(xGrid[i]));</span>
+			}
+		}
+<span class="nc" id="L765">	}</span>
+
+	private void reimposeInternalConstraints(
+			final double[] u,
+			final double[] xGrid,
+			final double boundaryTime) {
+
+<span class="fc bfc" id="L772" title="All 2 branches covered.">		for (int i = 1; i &lt; xGrid.length - 1; i++) {</span>
+<span class="pc bpc" id="L773" title="1 of 2 branches missed.">			if (isInternalConstraintActive(boundaryTime, xGrid[i])) {</span>
+<span class="nc" id="L774">				u[i] = getInternalConstrainedValue(boundaryTime, xGrid[i]);</span>
+			}
+		}
+<span class="fc" id="L777">	}</span>
+
+	private void reimposeBoundaryValues(
+			final double[] u,
+			final BoundaryCondition lowerCondition,
+			final BoundaryCondition upperCondition) {
+
+<span class="pc bpc" id="L784" title="1 of 2 branches missed.">		if (lowerCondition.isDirichlet()) {</span>
+<span class="fc" id="L785">			u[0] = lowerCondition.getValue();</span>
+		}
+<span class="pc bpc" id="L787" title="1 of 2 branches missed.">		if (upperCondition.isDirichlet()) {</span>
+<span class="fc" id="L788">			u[u.length - 1] = upperCondition.getValue();</span>
+		}
+<span class="fc" id="L790">	}</span>
+
+	private boolean isInternalConstraintActive(final double time, final double x) {
+<span class="pc bpc" id="L793" title="1 of 2 branches missed.">		if (product instanceof FiniteDifferenceInternalStateConstraint) {</span>
+<span class="nc" id="L794">			return ((FiniteDifferenceInternalStateConstraint) product).isConstraintActive(time, x);</span>
+		}
+<span class="fc" id="L796">		return false;</span>
+	}
+
+	private double getInternalConstrainedValue(final double time, final double x) {
+<span class="nc" id="L800">		return ((FiniteDifferenceInternalStateConstraint) product).getConstrainedValue(time, x);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterestRateAnalyticProductFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.productfactory</a> &gt; <span class="el_source">InterestRateAnalyticProductFactory.java</span></div><h1>InterestRateAnalyticProductFactory.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.productfactory;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.products.AnalyticProduct;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapLeg;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.InterestRateProductDescriptor;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.ProductFactory;
+import net.finmath.modelling.descriptor.InterestRateSwapLegProductDescriptor;
+import net.finmath.modelling.descriptor.InterestRateSwapProductDescriptor;
+
+/**
+ * Product factory of interest rate derivatives for use with an analytic model.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
+public class InterestRateAnalyticProductFactory implements ProductFactory&lt;InterestRateProductDescriptor&gt; {
+
+	private final LocalDate 						referenceDate;
+
+
+	/**
+	 * Initialize the factory with the given referenceDate.
+	 *
+	 * @param referenceDate To be used when converting absolute dates to relative dates in double.
+	 */
+	public InterestRateAnalyticProductFactory(final LocalDate referenceDate) {
+<span class="fc" id="L32">		super();</span>
+<span class="fc" id="L33">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L34">	}</span>
+
+	@Override
+	public DescribedProduct&lt;? extends InterestRateProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor descriptor) {
+<span class="pc bpc" id="L38" title="1 of 2 branches missed.">		if(descriptor instanceof InterestRateSwapLegProductDescriptor) {</span>
+<span class="fc" id="L39">			final InterestRateSwapLegProductDescriptor swapLeg = (InterestRateSwapLegProductDescriptor) descriptor;</span>
+<span class="fc" id="L40">			final DescribedProduct&lt;InterestRateSwapLegProductDescriptor&gt; product = new SwapLeg(swapLeg.getLegScheduleDescriptor().getSchedule(referenceDate),</span>
+<span class="fc" id="L41">					swapLeg.getForwardCurveName(), swapLeg.getNotionals(), swapLeg.getSpreads(), swapLeg.getDiscountCurveName(),</span>
+<span class="fc" id="L42">					swapLeg.isNotionalExchanged());</span>
+<span class="fc" id="L43">			return product;</span>
+		}
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		else if(descriptor instanceof InterestRateSwapProductDescriptor){</span>
+<span class="nc" id="L46">			final InterestRateSwapProductDescriptor swap = (InterestRateSwapProductDescriptor) descriptor;</span>
+<span class="nc" id="L47">			InterestRateProductDescriptor legDescriptor = swap.getLegReceiver();</span>
+<span class="nc" id="L48">			final AnalyticProduct legReceiver =  (AnalyticProduct) getProductFromDescriptor(legDescriptor);</span>
+<span class="nc" id="L49">			legDescriptor = swap.getLegPayer();</span>
+<span class="nc" id="L50">			final AnalyticProduct legPayer = (AnalyticProduct) getProductFromDescriptor(legDescriptor);</span>
+<span class="nc" id="L51">			final DescribedProduct&lt;InterestRateSwapProductDescriptor&gt; product = new Swap(legReceiver, legPayer);</span>
+<span class="nc" id="L52">			return product;</span>
+		}
+		else {
+<span class="nc" id="L55">			final String name = descriptor.name();</span>
+<span class="nc" id="L56">			throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BatesModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.models</a> &gt; <span class="el_source">BatesModel.java</span></div><h1>BatesModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.03.2014
+ */
+package net.finmath.fouriermethod.models;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+
+import org.apache.commons.math3.complex.Complex;
+
+import net.finmath.fouriermethod.CharacteristicFunction;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+
+/**
+ * Implements the characteristic function of a Bates model.
+ *
+ * The Bates model for an underlying \( S \) is given by
+ * \[
+ * 	dS(t) = r^{\text{c}} S(t) dt + \sqrt{V(t)} S(t) dW_{1}(t) + S dJ, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dV(t) = \kappa ( \theta - V(t) ) dt + \xi \sqrt{V(t)} dW_{2}(t), \quad V(0) = \sigma^2,
+ * \]
+ * \[
+ * 	dW_{1} dW_{2} = \rho dt
+ * \]
+ * \[
+ * 	dN(t) = r^{\text{d}} N(t) dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
+ *
+ * The free parameters of this model are:
+ * &lt;dl&gt;
+ * 	&lt;dt&gt;\( S_{0} \)&lt;/dt&gt; &lt;dd&gt;spot - initial value of S&lt;/dd&gt;
+ * 	&lt;dt&gt;\( r \)&lt;/dt&gt; &lt;dd&gt;the risk free rate&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \sigma \)&lt;/dt&gt; &lt;dd&gt;the initial volatility level&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \xi \)&lt;/dt&gt; &lt;dd&gt;the volatility of volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \theta \)&lt;/dt&gt; &lt;dd&gt;the mean reversion level of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \kappa \)&lt;/dt&gt; &lt;dd&gt;the mean reversion speed of the stochastic volatility&lt;/dd&gt;
+ * 	&lt;dt&gt;\( \rho \)&lt;/dt&gt; &lt;dd&gt;the correlation of the Brownian drivers&lt;/dd&gt;
+ * 	&lt;dt&gt;\( a \)&lt;/dt&gt; &lt;dd&gt;the jump size mean&lt;/dd&gt;
+ * 	&lt;dt&gt;\( b \)&lt;/dt&gt; &lt;dd&gt;the jump size standard deviation&lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
+ * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
+ * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
+ *
+ *  The model can be rewritten as \( S = \exp(X) \), where
+ * \[
+ * 	dX = \mu dt + \sqrt{V(t)} dW + dJ^{X}, \quad X(0) = \log(S_{0}),
+ * \]
+ * with
+ * \[
+ * 	J^{X}(t) = \sum_{i=1}^{N(t)} \log(Y_{i})
+ * \]
+ * with \( \mu = r - \frac{1}{2} \sigma^2 - (exp(a)-1) \lambda \).
+ *
+ *
+ * @author Christian Fries
+ * @author Andy Graf
+ * @author Lorenzo Toricelli
+ * @version 1.0
+ */
+public class BatesModel implements CharacteristicFunctionModel {
+
+	private final LocalDate referenceDate;
+
+	private final double initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final double riskFreeRate; // Actually the same as the drift (which is not stochastic)
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final double discountRate;
+
+	private final double[] volatility;
+
+	private final double[] alpha;
+	private final double[] beta;
+	private final double[] sigma;
+	private final double[] rho;
+
+	private final double[] lambda; //3 constants
+	private final double k;
+	private final double delta;
+
+	private final int numberOfFactors;
+
+	/**
+	 * Create a two factor Bates model.
+	 *
+	 * @param referenceDate The date representing the time t = 0. All other double times are following {@link net.finmath.time.FloatingpointDate}.
+	 * @param initialValue Initial value of S.
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambda Coefficients of for the jump intensity.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			final LocalDate referenceDate,
+			final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k, final double delta
+			) {
+<span class="nc" id="L121">		super();</span>
+<span class="nc" id="L122">		this.referenceDate =  referenceDate;</span>
+<span class="nc" id="L123">		this.initialValue	= initialValue;</span>
+<span class="nc" id="L124">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="nc" id="L125">		riskFreeRate	= Double.NaN;</span>
+<span class="nc" id="L126">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="nc" id="L127">		discountRate	= Double.NaN;</span>
+<span class="nc" id="L128">		this.volatility		= volatility;</span>
+<span class="nc" id="L129">		this.alpha			= alpha;</span>
+<span class="nc" id="L130">		this.beta			= beta;</span>
+<span class="nc" id="L131">		this.sigma			= sigma;</span>
+<span class="nc" id="L132">		this.rho			= rho;</span>
+<span class="nc" id="L133">		this.lambda			= lambda;</span>
+<span class="nc" id="L134">		this.k				= k;</span>
+<span class="nc" id="L135">		this.delta			= delta;</span>
+
+<span class="nc" id="L137">		numberOfFactors = alpha.length;</span>
+<span class="nc" id="L138">	}</span>
+
+	/**
+	 * Create a two factor Bates model.
+	 *
+	 * @param initialValue Initial value of S.
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambda Coefficients of for the jump intensity.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			final double initialValue,
+			final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k, final double delta
+			) {
+<span class="nc" id="L167">		this(null, initialValue, discountCurveForForwardRate, discountCurveForDiscountRate,</span>
+				volatility,alpha,beta,sigma,rho,lambda,k,delta);
+<span class="nc" id="L169">	}</span>
+
+	/**
+	 * Create a two factor Bates model.
+	 *
+	 * @param initialValue Initial value of S.
+	 * @param riskFreeRate Risk free rate.
+	 * @param discountRate The rate used for discounting.
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambda Coefficients of for the jump intensity.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double discountRate,
+			final double[] volatility,
+			final double[] alpha,
+			final double[] beta,
+			final double[] sigma,
+			final double[] rho,
+			final double[] lambda,
+			final double k,
+			final double delta
+<span class="nc" id="L198">			) {</span>
+<span class="nc" id="L199">		referenceDate = null;</span>
+<span class="nc" id="L200">		this.initialValue = initialValue;</span>
+<span class="nc" id="L201">		discountCurveForForwardRate = null;</span>
+<span class="nc" id="L202">		this.riskFreeRate = riskFreeRate;</span>
+<span class="nc" id="L203">		discountCurveForDiscountRate = null;</span>
+<span class="nc" id="L204">		this.discountRate = discountRate;</span>
+<span class="nc" id="L205">		this.volatility		= volatility;</span>
+<span class="nc" id="L206">		this.alpha			= alpha;</span>
+<span class="nc" id="L207">		this.beta			= beta;</span>
+<span class="nc" id="L208">		this.sigma			= sigma;</span>
+<span class="nc" id="L209">		this.rho			= rho;</span>
+<span class="nc" id="L210">		this.lambda			= lambda;</span>
+<span class="nc" id="L211">		this.k				= k;</span>
+<span class="nc" id="L212">		this.delta			= delta;</span>
+
+<span class="nc" id="L214">		numberOfFactors = alpha.length;</span>
+<span class="nc" id="L215">	}</span>
+
+	/**
+	 * Create a one factor Bates model.
+	 *
+	 * @param initialValue Initial value of S.
+	 * @param riskFreeRate Risk free rate.
+	 * @param volatility Square root of initial value of the stochastic variance process V.
+	 * @param alpha The parameter alpha/beta is the mean reversion level of the variance process V.
+	 * @param beta Mean reversion speed of variance process V.
+	 * @param sigma Volatility of volatility.
+	 * @param rho Correlations of the Brownian drives (underlying, variance).
+	 * @param lambdaZero Constant part of the jump intensity.
+	 * @param lambdaOne Coefficients of the jump intensity, linear in variance.
+	 * @param k Jump size mean.
+	 * @param delta Jump size variance.
+	 */
+	public BatesModel(
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double alpha,
+			final double beta,
+			final double sigma,
+			final double rho,
+			final double lambdaZero,
+			final double lambdaOne,
+			final double k,
+			final double delta
+			) {
+<span class="nc" id="L245">		this(initialValue, riskFreeRate,riskFreeRate,</span>
+				new double[]{ volatility },
+				new double[]{ alpha },
+				new double[]{ beta },
+				new double[]{ sigma },
+				new double[]{ rho },
+				new double[]{ lambdaZero, lambdaOne },
+				k,
+				delta
+				);
+<span class="nc" id="L255">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.fouriermethod.models.ProcessCharacteristicFunctionInterface#apply(double)
+	 */
+	@Override
+	public CharacteristicFunction apply(final double time) {
+
+<span class="nc" id="L263">		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);</span>
+<span class="nc" id="L264">		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);</span>
+
+<span class="nc" id="L266">		return new CharacteristicFunction() {</span>
+			@Override
+			public Complex apply(final Complex argument) {
+
+<span class="nc" id="L270">				final Complex iargument = argument.multiply(Complex.I);</span>
+
+<span class="nc" id="L272">				final Complex c = iargument</span>
+<span class="nc" id="L273">						.multiply(iargument)</span>
+<span class="nc" id="L274">						.add(iargument.multiply(-1))</span>
+<span class="nc" id="L275">						.multiply(0.5*delta*delta)</span>
+<span class="nc" id="L276">						.exp()</span>
+<span class="nc" id="L277">						.multiply(new Complex(1+k).pow(iargument))</span>
+<span class="nc" id="L278">						.add(-1)</span>
+<span class="nc" id="L279">						.add(iargument.multiply(-k));</span>
+
+<span class="nc" id="L281">				final Complex[] gamma = new Complex[numberOfFactors];</span>
+<span class="nc" id="L282">				final Complex[] a = new Complex[numberOfFactors];</span>
+<span class="nc" id="L283">				final Complex[] b = new Complex[numberOfFactors];</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">				for(int i = 0; i &lt; numberOfFactors; i++) {</span>
+<span class="nc" id="L285">					gamma[i] = iargument</span>
+<span class="nc" id="L286">							.multiply(rho[i]*sigma[i])</span>
+<span class="nc" id="L287">							.subtract(beta[i])</span>
+<span class="nc" id="L288">							.pow(2)</span>
+<span class="nc" id="L289">							.subtract(</span>
+<span class="nc" id="L290">									iargument.multiply(iargument)</span>
+<span class="nc" id="L291">									.add(iargument.multiply(-1))</span>
+<span class="nc" id="L292">									.multiply(0.5)</span>
+<span class="nc" id="L293">									.add(c.multiply(lambda[i+1]))</span>
+<span class="nc" id="L294">									.multiply(2*sigma[i]*sigma[i])</span>
+									)
+<span class="nc" id="L296">							.sqrt()</span>
+							;
+
+
+<span class="nc" id="L300">					a[i] =</span>
+							iargument
+<span class="nc" id="L302">							.multiply(rho[i] * sigma[i])</span>
+<span class="nc" id="L303">							.subtract(beta[i])</span>
+<span class="nc" id="L304">							.subtract(gamma[i])</span>
+<span class="nc" id="L305">							.multiply((-alpha[i]*time)/(sigma[i]*sigma[i]))</span>
+<span class="nc" id="L306">							.subtract(iargument</span>
+<span class="nc" id="L307">									.multiply(rho[i]*sigma[i])</span>
+<span class="nc" id="L308">									.subtract(beta[i])</span>
+<span class="nc" id="L309">									.subtract(gamma[i])</span>
+<span class="nc" id="L310">									.multiply(new Complex(1).divide(gamma[i].multiply(time).exp())</span>
+<span class="nc" id="L311">											.subtract(1)</span>
+<span class="nc" id="L312">											.divide(gamma[i])</span>
+											)
+<span class="nc" id="L314">									.multiply(0.5)</span>
+<span class="nc" id="L315">									.add(new Complex(1).divide(gamma[i].multiply(time).exp()))</span>
+<span class="nc" id="L316">									.log()</span>
+<span class="nc" id="L317">									.add(gamma[i].multiply(time))</span>
+<span class="nc" id="L318">									.multiply((2*alpha[i])/(sigma[i]*sigma[i]))</span>
+									)
+							;
+
+<span class="nc" id="L322">					b[i] = iargument</span>
+<span class="nc" id="L323">							.multiply(iargument)</span>
+<span class="nc" id="L324">							.add(iargument.multiply(-1))</span>
+<span class="nc" id="L325">							.multiply(0.5)</span>
+<span class="nc" id="L326">							.add(c.multiply(lambda[i+1]))</span>
+<span class="nc" id="L327">							.multiply(-2)</span>
+<span class="nc" id="L328">							.divide(iargument</span>
+<span class="nc" id="L329">									.multiply(rho[i] * sigma[i])</span>
+<span class="nc" id="L330">									.subtract(beta[i])</span>
+<span class="nc" id="L331">									.add(gamma[i]</span>
+<span class="nc" id="L332">											.multiply(new Complex(1).divide(gamma[i].multiply(time).exp())</span>
+<span class="nc" id="L333">													.add(1)</span>
+<span class="nc" id="L334">													.divide(new Complex(1).divide(gamma[i].multiply(time).exp())</span>
+<span class="nc" id="L335">															.subtract(1)</span>
+															)
+													)
+											)
+									)
+							;
+
+				}
+
+<span class="nc" id="L344">				Complex characteristicFunction =</span>
+						a[0]
+<span class="nc" id="L346">								.add(b[0].multiply(volatility[0]))</span>
+<span class="nc" id="L347">								.add(c.multiply(time*lambda[0]))</span>
+<span class="nc" id="L348">								.add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward))</span>
+<span class="nc" id="L349">								.add(logDiscountFactorForDiscounting);</span>
+
+<span class="nc bnc" id="L351" title="All 2 branches missed.">				if(numberOfFactors == 2) {</span>
+<span class="nc" id="L352">					characteristicFunction = characteristicFunction</span>
+<span class="nc" id="L353">							.add(a[1])</span>
+<span class="nc" id="L354">							.add(b[1].multiply(volatility[1]));</span>
+				}
+
+<span class="nc" id="L357">				characteristicFunction = characteristicFunction.exp();</span>
+
+<span class="nc" id="L359">				return characteristicFunction;</span>
+			}
+		};
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForForward(final double time) {
+<span class="nc bnc" id="L371" title="All 2 branches missed.">		return discountCurveForForwardRate == null ? -riskFreeRate * time : Math.log(discountCurveForForwardRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * Small helper to calculate rate off the curve or use constant.
+	 *
+	 * @param time Maturity.
+	 * @return The log of the discount factor, i.e., - rate * time.
+	 */
+	private double getLogDiscountFactorForDiscounting(final double time) {
+<span class="nc bnc" id="L381" title="All 2 branches missed.">		return discountCurveForDiscountRate == null ? -discountRate * time : Math.log(discountCurveForDiscountRate.getDiscountFactor(null, time));</span>
+	}
+
+	/**
+	 * @return the referenceDate
+	 */
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L389">		return referenceDate;</span>
+	}
+	/**
+	 * @return the initialValue
+	 */
+	@Override
+	public double getInitialValue() {
+<span class="nc" id="L396">		return initialValue;</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L404">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	@Override
+	public double getRiskFreeRate() {
+<span class="nc" id="L412">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	@Override
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L420">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the volatility
+	 */
+	public double[] getVolatility() {
+<span class="nc" id="L427">		return volatility;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	@Override
+	public double getDiscountRate() {
+<span class="nc" id="L435">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the alpha
+	 */
+	public double[] getAlpha() {
+<span class="nc" id="L442">		return alpha;</span>
+	}
+
+	/**
+	 * @return the beta
+	 */
+	public double[] getBeta() {
+<span class="nc" id="L449">		return beta;</span>
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public double[] getSigma() {
+<span class="nc" id="L456">		return sigma;</span>
+	}
+
+	/**
+	 * @return the rho
+	 */
+	public double[] getRho() {
+<span class="nc" id="L463">		return rho;</span>
+	}
+
+	/**
+	 * @return the lambda
+	 */
+	public double[] getLambda() {
+<span class="nc" id="L470">		return lambda;</span>
+	}
+
+	/**
+	 * @return the k
+	 */
+	public double getK() {
+<span class="nc" id="L477">		return k;</span>
+	}
+
+	/**
+	 * @return the delta
+	 */
+	public double getDelta() {
+<span class="nc" id="L484">		return delta;</span>
+	}
+
+	/**
+	 * @return the numberOfFactors
+	 */
+	public int getNumberOfFactors() {
+<span class="nc" id="L491">		return numberOfFactors;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L499">		return &quot;BatesModel [initialValue=&quot; + initialValue + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, volatility=&quot;</span>
+<span class="nc" id="L500">				+ Arrays.toString(volatility) + &quot;, discountRate=&quot; + discountRate + &quot;, alpha=&quot; + Arrays.toString(alpha)</span>
+<span class="nc" id="L501">				+ &quot;, beta=&quot; + Arrays.toString(beta) + &quot;, sigma=&quot; + Arrays.toString(sigma) + &quot;, rho=&quot;</span>
+<span class="nc" id="L502">				+ Arrays.toString(rho) + &quot;, lambda=&quot; + Arrays.toString(lambda) + &quot;, k=&quot; + k + &quot;, delta=&quot; + delta</span>
+				+ &quot;, numberOfFactors=&quot; + numberOfFactors + &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

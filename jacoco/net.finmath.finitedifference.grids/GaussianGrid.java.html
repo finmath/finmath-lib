@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GaussianGrid.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.grids</a> &gt; <span class="el_source">GaussianGrid.java</span></div><h1>GaussianGrid.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.grids;
+
+import net.finmath.functions.NormalDistribution;
+
+/**
+ * Non-uniform grid based on the Gaussian (normal) distribution between
+ * {@code minimumValue} and {@code maximumValue}.
+ *
+ * &lt;p&gt;
+ * The grid points are distributed according to the cumulative distribution
+ * function (CDF) of a normal distribution with mean {@code centering} and
+ * standard deviation {@code sigma}. This results in a higher density of
+ * points near the {@code centering} value and sparser points further away.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The grid is constructed by mapping uniformly spaced probabilities between
+ * the CDF values at {@code minimumValue} and {@code maximumValue} back to
+ * the original domain using the inverse CDF (quantile function).
+ * &lt;/p&gt;
+ *
+ * @author Michela Birtele
+ */
+public class GaussianGrid extends AbstractGrid {
+
+	/**
+	 * The number of steps.
+	 */
+	private final int numberOfSteps;
+	/**
+	 * The minimum value.
+	 */
+	private final double minimumValue;
+	/**
+	 * The maximum value.
+	 */
+	private final double maximumValue;
+
+	/**
+	 * The centering.
+	 */
+	private final double centering;
+	/**
+	 * The sigma.
+	 */
+	private final double sigma;
+
+	/**
+	 * The grid.
+	 */
+	private double[] grid;
+	/**
+	 * The delta.
+	 */
+	private double[] delta;
+
+	/**
+	 * Constructs a Gaussian-distributed grid.
+	 *
+	 * @param numberOfSteps The number of intervals in the grid.
+	 * @param minimumValue  The lower bound of the grid.
+	 * @param maximumValue  The upper bound of the grid.
+	 * @param centering     The mean (center) of the Gaussian distribution.
+	 * @param sigma         The standard deviation controlling the spread
+	 *                      around the centering.
+	 */
+	public GaussianGrid(
+			final int numberOfSteps,
+			final double minimumValue,
+			final double maximumValue,
+			final double centering,
+			final double sigma) {
+
+<span class="nc" id="L74">		super();</span>
+<span class="nc" id="L75">		this.numberOfSteps = numberOfSteps;</span>
+<span class="nc" id="L76">		this.minimumValue = minimumValue;</span>
+<span class="nc" id="L77">		this.maximumValue = maximumValue;</span>
+<span class="nc" id="L78">		this.centering = centering;</span>
+<span class="nc" id="L79">		this.sigma = sigma;</span>
+<span class="nc" id="L80">	}</span>
+
+	/**
+	 * Generates the grid points distributed according to the Gaussian distribution.
+	 */
+	private void generateGrid() {
+
+<span class="nc" id="L87">		grid = new double[numberOfSteps + 1];</span>
+
+<span class="nc" id="L89">		final double pMin =</span>
+<span class="nc" id="L90">				NormalDistribution.cumulativeDistribution(</span>
+						(minimumValue - centering) / sigma);
+<span class="nc" id="L92">		final double pMax =</span>
+<span class="nc" id="L93">				NormalDistribution.cumulativeDistribution(</span>
+						(maximumValue - centering) / sigma);
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		for (int i = 0; i &lt;= numberOfSteps; i++) {</span>
+<span class="nc" id="L97">			final double p =</span>
+					pMin + (i / (double) numberOfSteps) * (pMax - pMin);
+<span class="nc" id="L99">			grid[i] =</span>
+					centering + sigma
+<span class="nc" id="L101">					* NormalDistribution.inverseCumulativeDistribution(p);</span>
+		}
+
+<span class="nc" id="L104">		grid[0] = minimumValue;</span>
+<span class="nc" id="L105">		grid[numberOfSteps] = maximumValue;</span>
+<span class="nc" id="L106">	}</span>
+
+	/**
+	 * Computes the differences (delta) between consecutive grid points.
+	 *
+	 * @param vector Array of values at grid points (typically the grid itself).
+	 */
+	private void generateDelta(final double[] vector) {
+
+<span class="nc" id="L115">		delta = new double[numberOfSteps];</span>
+
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		for (int i = 0; i &lt; vector.length - 1; i++) {</span>
+<span class="nc" id="L118">			delta[i] = vector[i + 1] - vector[i];</span>
+		}
+<span class="nc" id="L120">	}</span>
+
+	/**
+	 * Returns the generated grid points, generating them if necessary.
+	 *
+	 * @return The grid points distributed via Gaussian quantiles.
+	 */
+	@Override
+	public double[] getGrid() {
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">		if (grid == null) {</span>
+<span class="nc" id="L131">			generateGrid();</span>
+		}
+
+<span class="nc" id="L134">		return grid;</span>
+	}
+
+	/**
+	 * Returns the spacing (delta) between consecutive grid points,
+	 * generating it if necessary.
+	 *
+	 * @param vector Array of values at grid points (usually the grid itself).
+	 * @return The spacing between adjacent grid points.
+	 */
+	@Override
+	public double[] getDelta(final double[] vector) {
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if (delta == null) {</span>
+<span class="nc" id="L148">			generateDelta(vector);</span>
+		}
+
+<span class="nc" id="L151">		return delta;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

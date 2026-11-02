@@ -1,0 +1,476 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PdeOptionValuation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.pricer</a> &gt; <span class="el_source">PdeOptionValuation.java</span></div><h1>PdeOptionValuation.java</h1><pre class="source lang-java linenums">package net.finmath.equities.pricer;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
+
+import net.finmath.equities.marketdata.YieldCurve;
+import net.finmath.equities.models.EquityForwardStructure;
+import net.finmath.equities.models.FlatVolatilitySurface;
+import net.finmath.equities.models.VolatilitySurface;
+import net.finmath.equities.pricer.EquityValuationRequest.CalculationRequestType;
+import net.finmath.equities.products.EuropeanOption;
+import net.finmath.equities.products.Option;
+import net.finmath.rootfinder.BisectionSearch;
+import net.finmath.rootfinder.SecantMethod;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * This class implements a finite difference pricer under a Black-Scholes process or a
+ * local volatility process in the presence of Buehler dividends.
+ * It supports European and American options. Greeks are calculated inside the grid to the extent possible.
+ * The implementation uses a Crank-Nicolson scheme.
+ * Payoffs are smoothed using the modified timestepping from Rannacher's 1984 paper.
+ * The American exercise feature is priced using the penalty approach from Forsyth's 2001 paper.
+ *
+ * TODO The linear algebra framework used (apache.commons.math3) is not optimized for the discretized PDE.
+ * More performant linear algebra algorithms should be used that take account of
+ * the tridiagonal matrix structure of the problem, e.g. direct diagonal operations instead of full-blown
+ * matrix multiplication, and the Thomas algorithm instead of LU decomposition for solving equations.
+ *
+ * @author Andreas Grotz
+ */
+<span class="fc" id="L43">public class PdeOptionValuation implements OptionValuation {</span>
+
+	private final int timeStepsPerYear;
+	private final double spaceMinForwardMultiple;
+	private final double spaceMaxForwardMultiple;
+	private final int spaceNbOfSteps;
+	private final double spaceStepSize;
+	private final List&lt;Double&gt; spots;
+	private final int spotIndex;
+	private final DayCountConvention dayCounter;
+	private final boolean isLvPricer;
+	private final boolean includeDividendDatesInGrid;
+
+	public PdeOptionValuation(
+			double spaceMinForwardMultiple,
+			double spaceMaxForwardMultiple,
+			int spaceNbPoints,
+			final int timeStepsPerYear,
+			DayCountConvention dcc,
+			final boolean isLvPricer,
+<span class="fc" id="L63">			final boolean includeDividendDatesInGrid) {</span>
+
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		assert spaceMinForwardMultiple &lt; 1.0 : &quot;min multiple of forward must be below 1.0&quot;;</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">		assert spaceMaxForwardMultiple &gt; 1.0 : &quot;max multiple of forward must be below 1.0&quot;;</span>
+
+<span class="fc" id="L68">		this.timeStepsPerYear = timeStepsPerYear;</span>
+<span class="fc" id="L69">		this.dayCounter = dcc;</span>
+<span class="fc" id="L70">		this.isLvPricer = isLvPricer;</span>
+<span class="fc" id="L71">		this.includeDividendDatesInGrid = includeDividendDatesInGrid;</span>
+
+		// Set up the space grid for the pure volatility process
+<span class="fc" id="L74">		double tmpSpaceStepSize = (spaceMaxForwardMultiple - spaceMinForwardMultiple) / spaceNbPoints;</span>
+<span class="fc" id="L75">		int tmpSpaceNbPoints = spaceNbPoints;</span>
+<span class="fc" id="L76">		List&lt;Double&gt; tmpSpots = new ArrayList&lt;Double&gt;();</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">		for(int i = 0; i &lt; tmpSpaceNbPoints; i++) {</span>
+<span class="fc" id="L78">			tmpSpots.add(spaceMinForwardMultiple + tmpSpaceStepSize * i);</span>
+		}
+
+		// The space grid needs to include the forward level 1.0 for the pure volatility process.
+		// Hence if necessary, we increase the step size slightly to include it.
+<span class="fc" id="L83">		final int lowerBound = Math.abs(Collections.binarySearch(tmpSpots, 1.0)) - 2;</span>
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">		if(!(tmpSpots.get(lowerBound) == 1.0)) {</span>
+<span class="fc" id="L85">			tmpSpaceStepSize += (1.0 - tmpSpots.get(lowerBound)) / lowerBound;</span>
+<span class="fc" id="L86">			tmpSpots = new ArrayList&lt;Double&gt;();</span>
+<span class="fc" id="L87">			tmpSpaceNbPoints = 0;</span>
+<span class="fc" id="L88">			double tmpSpot = 0.0;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			while(tmpSpot &lt; spaceMaxForwardMultiple) {</span>
+<span class="fc" id="L90">				tmpSpot = spaceMinForwardMultiple + tmpSpaceStepSize * tmpSpaceNbPoints;</span>
+<span class="fc" id="L91">				tmpSpots.add(tmpSpot);</span>
+<span class="fc" id="L92">				tmpSpaceNbPoints++;</span>
+			}
+		}
+
+<span class="fc" id="L96">		this.spaceMinForwardMultiple = spaceMinForwardMultiple;</span>
+<span class="fc" id="L97">		this.spaceMaxForwardMultiple = tmpSpots.get(tmpSpots.size() - 1);</span>
+<span class="fc" id="L98">		this.spaceNbOfSteps = tmpSpaceNbPoints;</span>
+<span class="fc" id="L99">		spots = tmpSpots;</span>
+<span class="fc" id="L100">		spaceStepSize = tmpSpaceStepSize;</span>
+<span class="fc" id="L101">		spotIndex = lowerBound;</span>
+<span class="fc" id="L102">	}</span>
+
+	@Override
+	public EquityValuationResult calculate(
+			EquityValuationRequest request,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volaSurface) {
+
+<span class="nc" id="L111">		final Map&lt;CalculationRequestType, Double&gt; results = new HashMap&lt;CalculationRequestType, Double&gt;();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		if(request.getCalcsRequested().isEmpty()) {</span>
+<span class="nc" id="L113">			return new EquityValuationResult(request, results);</span>
+		}
+
+<span class="nc" id="L116">		double price = 0.0;</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">		if(request.getCalcsRequested().contains(CalculationRequestType.EqDelta)</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">				|| request.getCalcsRequested().contains(CalculationRequestType.EqGamma)) {</span>
+
+<span class="nc" id="L120">			final double[] spotSensis = getPdeSensis(request.getOption(), forwardStructure, discountCurve, volaSurface);</span>
+<span class="nc" id="L121">			price = spotSensis[0];</span>
+
+<span class="nc bnc" id="L123" title="All 2 branches missed.">			if(request.getCalcsRequested().contains(CalculationRequestType.EqDelta)) {</span>
+<span class="nc" id="L124">				results.put(CalculationRequestType.EqDelta, spotSensis[1]);</span>
+			}
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			if(request.getCalcsRequested().contains(CalculationRequestType.EqGamma)) {</span>
+<span class="nc" id="L127">				results.put(CalculationRequestType.EqGamma, spotSensis[2]);</span>
+			}
+<span class="nc" id="L129">		}</span>
+		else {
+<span class="nc" id="L131">			price = getPrice(request.getOption(), forwardStructure, discountCurve, volaSurface);</span>
+		}
+
+<span class="nc bnc" id="L134" title="All 2 branches missed.">		if(request.getCalcsRequested().contains(CalculationRequestType.Price)) {</span>
+<span class="nc" id="L135">			results.put(CalculationRequestType.Price, price);</span>
+		}
+
+<span class="nc bnc" id="L138" title="All 2 branches missed.">		if(request.getCalcsRequested().contains(CalculationRequestType.EqVega)) {</span>
+<span class="nc" id="L139">			final double volShift = 0.0001; // TODO Make part of class members</span>
+<span class="nc" id="L140">			final double priceShifted = getPrice(</span>
+<span class="nc" id="L141">					request.getOption(),</span>
+					forwardStructure,
+					discountCurve,
+<span class="nc" id="L144">					volaSurface.getShiftedSurface(volShift));</span>
+<span class="nc" id="L145">			results.put(CalculationRequestType.EqVega, (priceShifted - price) / volShift);</span>
+		}
+
+<span class="nc" id="L148">		return new EquityValuationResult(request, results);</span>
+	}
+
+	public double getPrice(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volSurface) {
+<span class="fc" id="L156">		return evolvePde(option, forwardStructure, discountCurve, volSurface, false)[0];</span>
+	}
+
+	public double[] getPdeSensis(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volSurface) {
+<span class="fc" id="L164">		return evolvePde(option, forwardStructure, discountCurve, volSurface, true);</span>
+	}
+
+	public double getVega(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volSurface,
+			double basePrice,
+			double volShift) {
+
+<span class="fc" id="L175">		final double shiftedPrice = getPrice(</span>
+				option,
+				forwardStructure,
+				discountCurve,
+<span class="fc" id="L179">				volSurface.getShiftedSurface(volShift));</span>
+<span class="fc" id="L180">		return (shiftedPrice - basePrice) / volShift;</span>
+	}
+
+	public double getTheta(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volSurface,
+			double basePrice) {
+
+<span class="nc" id="L190">		final LocalDate valDate = forwardStructure.getValuationDate();</span>
+<span class="nc" id="L191">		final LocalDate thetaDate = valDate.plusDays(1);</span>
+<span class="nc" id="L192">		final double thetaSpot = forwardStructure.getForward(thetaDate);</span>
+<span class="nc" id="L193">		final EquityForwardStructure shiftedFwdStructure = forwardStructure.cloneWithNewSpot(thetaSpot).cloneWithNewDate(thetaDate);</span>
+<span class="nc" id="L194">		final double shiftedPrice = getPrice(option, shiftedFwdStructure, discountCurve, volSurface);</span>
+<span class="nc" id="L195">		return (shiftedPrice - basePrice) / dayCounter.getDaycountFraction(valDate, thetaDate);</span>
+	}
+
+	private double[] evolvePde(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			VolatilitySurface volSurface,
+			boolean calculateSensis) {
+
+		// Get data
+<span class="fc" id="L206">		final LocalDate valDate = forwardStructure.getValuationDate();</span>
+<span class="fc" id="L207">		final LocalDate expiryDate = option.getExpiryDate();</span>
+<span class="fc" id="L208">		final double expiryTime = dayCounter.getDaycountFraction(valDate, expiryDate);</span>
+
+<span class="pc bpc" id="L210" title="1 of 2 branches missed.">		assert !forwardStructure.getValuationDate().isAfter(expiryDate)</span>
+		: &quot;Valuation date must not be after option expiry&quot;;
+
+<span class="fc" id="L213">		final double impliedVol = volSurface.getVolatility(option.getStrike(), expiryDate, forwardStructure);</span>
+<span class="fc" id="L214">		double forward = forwardStructure.getForward(expiryDate);</span>
+<span class="fc" id="L215">		double fdf = forwardStructure.getFutureDividendFactor(expiryDate);</span>
+
+		// Build matrices
+<span class="fc" id="L218">		final RealMatrix idMatrix = MatrixUtils.createRealIdentityMatrix(spaceNbOfSteps);</span>
+<span class="fc" id="L219">		final RealMatrix tridiagMatrix = MatrixUtils.createRealMatrix(spaceNbOfSteps, spaceNbOfSteps);</span>
+<span class="fc" id="L220">		final double spaceStepSq = spaceStepSize * spaceStepSize;</span>
+
+<span class="fc bfc" id="L222" title="All 2 branches covered.">		for(int i = 0; i &lt; spaceNbOfSteps; i++) {</span>
+<span class="fc bfc" id="L223" title="All 2 branches covered.">			for(int j = 0; j &lt; spaceNbOfSteps; j++) {</span>
+<span class="fc bfc" id="L224" title="All 2 branches covered.">				if(i == j) {</span>
+<span class="fc" id="L225">					tridiagMatrix.setEntry(i, j, Math.pow(spots.get(i), 2) / spaceStepSq);</span>
+				}
+<span class="fc bfc" id="L227" title="All 4 branches covered.">				else if(i == j - 1 || i == j + 1) {</span>
+<span class="fc" id="L228">					tridiagMatrix.setEntry(i, j, -0.5 * Math.pow(spots.get(i), 2) / spaceStepSq);</span>
+				}
+				else {
+<span class="fc" id="L231">					tridiagMatrix.setEntry(i, j, 0);</span>
+				}
+			}
+		}
+
+		// Set initial values
+<span class="fc" id="L237">		RealVector prices = MatrixUtils.createRealVector(new double[spaceNbOfSteps]);</span>
+<span class="fc bfc" id="L238" title="All 2 branches covered.">		for(int i = 0; i &lt; spaceNbOfSteps; i++) {</span>
+<span class="fc" id="L239">			prices.setEntry(i, option.getPayoff((forward - fdf) * spots.get(i) + fdf));</span>
+		}
+
+		// Set time intervals to evolve the PDE (i.e. from dividend to dividend)
+<span class="fc" id="L243">		final List&lt;LocalDate&gt; diviDates = forwardStructure.getDividendStream().getDividendDates();</span>
+<span class="fc" id="L244">		final List&lt;Double&gt; anchorTimes = new ArrayList&lt;Double&gt;();</span>
+<span class="fc" id="L245">		anchorTimes.add(0.0);</span>
+
+<span class="fc bfc" id="L247" title="All 2 branches covered.">		if(includeDividendDatesInGrid) {</span>
+<span class="fc bfc" id="L248" title="All 2 branches covered.">			for(final LocalDate date : diviDates) {</span>
+<span class="pc bpc" id="L249" title="2 of 4 branches missed.">				if(date.isAfter(valDate) &amp;&amp; date.isBefore(expiryDate)) {</span>
+<span class="fc" id="L250">					anchorTimes.add(dayCounter.getDaycountFraction(valDate, date));</span>
+				}
+<span class="fc" id="L252">			}</span>
+		}
+
+<span class="fc" id="L255">		anchorTimes.add(expiryTime);</span>
+<span class="fc" id="L256">		anchorTimes.sort(Comparator.comparing(pt -&gt; pt));</span>
+
+<span class="fc" id="L258">		double lastAtmPrice = 0.0;</span>
+<span class="fc" id="L259">		double dt = 0.0;</span>
+
+		// Evolve PDE
+<span class="fc bfc" id="L262" title="All 2 branches covered.">		for(int a = anchorTimes.size() - 1; a &gt; 0; a--) {</span>
+
+			// Set time steps
+<span class="fc" id="L265">			final double timeInterval = anchorTimes.get(a) - anchorTimes.get(a - 1);</span>
+			int timeNbOfSteps;
+			double timeStepSize;
+
+<span class="pc bpc" id="L269" title="1 of 2 branches missed.">			if(timeStepsPerYear == 0) {</span>
+				// Use optimal ratio of time and space step size
+<span class="nc" id="L271">				timeNbOfSteps = (int) Math.ceil(2 * impliedVol * Math.pow(timeInterval, 1.5) / spaceStepSize);</span>
+<span class="nc" id="L272">				timeStepSize = timeInterval / timeNbOfSteps;</span>
+			}
+			else {
+				// Use time step size provided externally
+<span class="fc" id="L276">				timeNbOfSteps = (int) Math.floor(timeInterval * timeStepsPerYear);</span>
+<span class="fc" id="L277">				timeStepSize = timeInterval / timeNbOfSteps;</span>
+			}
+
+<span class="fc" id="L280">			final List&lt;Double&gt; times = new ArrayList&lt;Double&gt;();</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">			for(int i = 0; i &lt;= 4; i++) {</span>
+<span class="fc" id="L282">				times.add(anchorTimes.get(a) - i * 0.25 * timeStepSize);</span>
+			}
+<span class="fc bfc" id="L284" title="All 2 branches covered.">			for(int i = timeNbOfSteps - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L285">				times.add(anchorTimes.get(a - 1) + i * timeStepSize);</span>
+			}
+
+			// Evolve PDE in current time interval
+<span class="fc bfc" id="L289" title="All 2 branches covered.">			for(int i = 1; i &lt; times.size(); i++) {</span>
+
+<span class="fc" id="L291">				lastAtmPrice = prices.getEntry(spotIndex);</span>
+<span class="fc" id="L292">				dt = times.get(i - 1) - times.get(i);</span>
+
+<span class="fc" id="L294">				double theta = 0.5;</span>
+<span class="fc bfc" id="L295" title="All 2 branches covered.">				if(i &lt;= 4) {</span>
+<span class="fc" id="L296">					theta = 1.0;</span>
+				}
+<span class="fc" id="L298">				final double theta1 = 1.0 - theta;</span>
+<span class="fc" id="L299">				final double volSq = impliedVol * impliedVol;</span>
+
+				RealMatrix implicitMatrix;
+				RealMatrix explicitMatrix;
+
+<span class="fc bfc" id="L304" title="All 2 branches covered.">				if(isLvPricer) {</span>
+<span class="fc" id="L305">					implicitMatrix = tridiagMatrix.scalarMultiply(theta * dt);</span>
+<span class="fc" id="L306">					explicitMatrix = tridiagMatrix.scalarMultiply(-theta1 * dt);</span>
+
+<span class="fc" id="L308">					final double[] localVol = new double[spaceNbOfSteps];</span>
+<span class="fc bfc" id="L309" title="All 2 branches covered.">					for(int s = 0; s &lt; spaceNbOfSteps; s++) {</span>
+<span class="fc" id="L310">						final double lv = volSurface.getLocalVolatility(</span>
+<span class="fc" id="L311">								Math.log(spots.get(s)),</span>
+<span class="fc" id="L312">								times.get(i - 1),</span>
+								forwardStructure,
+								spaceStepSize,
+								dt);
+<span class="fc" id="L316">						localVol[s] = lv * lv;</span>
+					}
+
+<span class="fc" id="L319">					final RealMatrix volaMatrix = MatrixUtils.createRealDiagonalMatrix(localVol);</span>
+<span class="fc" id="L320">					implicitMatrix = volaMatrix.multiply(implicitMatrix);</span>
+<span class="fc" id="L321">					explicitMatrix = volaMatrix.multiply(explicitMatrix);</span>
+<span class="fc" id="L322">				}</span>
+				else {
+<span class="fc" id="L324">					implicitMatrix = tridiagMatrix.scalarMultiply(theta * dt * volSq);</span>
+<span class="fc" id="L325">					explicitMatrix = tridiagMatrix.scalarMultiply(-theta1 * dt * volSq);</span>
+				}
+
+<span class="fc" id="L328">				implicitMatrix = idMatrix.add(implicitMatrix);</span>
+<span class="fc" id="L329">				explicitMatrix = idMatrix.add(explicitMatrix);</span>
+
+<span class="fc bfc" id="L331" title="All 2 branches covered.">				if(option.isAmericanOption()) {</span>
+					// Use the penalty algorithm from Forsyth's 2001 paper to solve the
+					// linear complementary problem for the American exercise feature.
+<span class="fc" id="L334">					final double penaltyFactor = 1 / Math.min(timeStepSize * timeStepSize, spaceStepSize * spaceStepSize);</span>
+
+<span class="fc" id="L336">					forward = forwardStructure.getForward(times.get(i));</span>
+<span class="fc" id="L337">					fdf = forwardStructure.getFutureDividendFactor(times.get(i));</span>
+<span class="fc" id="L338">					final double discountFactor = discountCurve.getForwardDiscountFactor(times.get(i), expiryTime);</span>
+
+<span class="fc" id="L340">					final RealVector payoffs = MatrixUtils.createRealVector(new double[spaceNbOfSteps]);</span>
+<span class="fc" id="L341">					final RealMatrix penaltyMatrix = MatrixUtils.createRealMatrix(spaceNbOfSteps, spaceNbOfSteps);</span>
+
+<span class="fc bfc" id="L343" title="All 2 branches covered.">					for(int j = 1; j &lt; spaceNbOfSteps - 1; j++) {</span>
+<span class="fc" id="L344">						final double payoff = option.getPayoff((forward - fdf) * spots.get(j) + fdf) / discountFactor;</span>
+<span class="fc" id="L345">						payoffs.setEntry(j, payoff);</span>
+<span class="fc bfc" id="L346" title="All 2 branches covered.">						penaltyMatrix.setEntry(j, j, prices.getEntry(j) &lt; payoff ? penaltyFactor : 0);</span>
+					}
+
+<span class="fc" id="L349">					final RealVector b = explicitMatrix.operate(prices);</span>
+<span class="fc" id="L350">					RealVector oldPrices = prices.copy();</span>
+<span class="fc" id="L351">					final RealMatrix oldPenaltyMatrix = penaltyMatrix.copy();</span>
+<span class="fc" id="L352">					final double tol = 1 / penaltyFactor;</span>
+
+<span class="fc" id="L354">					int iterations = 0;</span>
+					while(true) {
+
+<span class="pc bpc" id="L357" title="1 of 2 branches missed.">						assert iterations++ &lt; 100 : &quot;Penalty algorithm for american exercise did not converge in 100 steps&quot;;</span>
+
+<span class="fc" id="L359">						final RealVector c = b.add(penaltyMatrix.operate(payoffs));</span>
+<span class="fc" id="L360">						final RealMatrix A = implicitMatrix.add(penaltyMatrix);</span>
+<span class="fc" id="L361">						final DecompositionSolver solver = new LUDecomposition(A).getSolver();</span>
+
+<span class="fc" id="L363">						prices = solver.solve(c);</span>
+
+<span class="fc bfc" id="L365" title="All 2 branches covered.">						for(int j = 1; j &lt; spaceNbOfSteps - 1; j++) {</span>
+<span class="fc bfc" id="L366" title="All 2 branches covered.">							penaltyMatrix.setEntry(j, j, prices.getEntry(j) &lt; payoffs.getEntry(j) ? penaltyFactor : 0);</span>
+						}
+
+<span class="fc bfc" id="L369" title="All 2 branches covered.">						if(penaltyMatrix.equals(oldPenaltyMatrix)</span>
+<span class="fc" id="L370">								|| (prices.subtract(oldPrices).getLInfNorm())</span>
+<span class="fc bfc" id="L371" title="All 2 branches covered.">								/ Math.max(oldPrices.getLInfNorm(), 1.0) &lt; tol) {</span>
+<span class="fc" id="L372">							break;</span>
+						}
+
+<span class="fc" id="L375">						oldPrices = prices.copy();</span>
+<span class="fc" id="L376">					}</span>
+<span class="fc" id="L377">				}</span>
+				else {
+					// Solve the PDE step directly
+<span class="fc" id="L380">					prices = explicitMatrix.operate(prices);</span>
+<span class="fc" id="L381">					final DecompositionSolver solver = new LUDecomposition(implicitMatrix).getSolver();</span>
+<span class="fc" id="L382">					prices = solver.solve(prices);</span>
+				}
+
+				// Set boundary conditions
+<span class="fc" id="L386">				prices.setEntry(0, option.getPayoff((forward - fdf) * spaceMinForwardMultiple + fdf));</span>
+<span class="fc" id="L387">				prices.setEntry(spaceNbOfSteps - 1, option.getPayoff((forward - fdf) * spaceMaxForwardMultiple + fdf));</span>
+			}
+		}
+
+<span class="fc" id="L391">		final double discountFactor = discountCurve.getDiscountFactor(expiryDate);</span>
+<span class="fc" id="L392">		final double price = discountFactor * prices.getEntry(spotIndex);</span>
+
+<span class="fc bfc" id="L394" title="All 2 branches covered.">		if(calculateSensis) {</span>
+
+<span class="fc" id="L396">			final double dFdX = forwardStructure.getDividendAdjustedStrike(</span>
+<span class="fc" id="L397">					forwardStructure.getForward(expiryDate),</span>
+					expiryDate);
+<span class="fc" id="L399">			final double dFdS = forwardStructure.getGrowthDiscountFactor(valDate, expiryDate);</span>
+
+<span class="fc" id="L401">			final double delta = discountFactor</span>
+<span class="fc" id="L402">					* 0.5 * (prices.getEntry(spotIndex + 1) - prices.getEntry(spotIndex - 1))</span>
+					/ spaceStepSize * dFdS / dFdX;
+
+<span class="fc" id="L405">			final double gamma = discountFactor</span>
+<span class="fc" id="L406">					* (prices.getEntry(spotIndex + 1) + prices.getEntry(spotIndex - 1) - 2 * prices.getEntry(spotIndex))</span>
+					/ spaceStepSq * dFdS * dFdS / dFdX / dFdX;
+
+<span class="fc" id="L409">			final double discountFactorTheta = discountCurve.getDiscountFactor(expiryTime - dt);</span>
+<span class="fc" id="L410">			final double theta = (discountFactorTheta * lastAtmPrice - price) / dt;</span>
+
+<span class="fc" id="L412">			return new double[] { price, delta, gamma, theta };</span>
+		}
+		else {
+<span class="fc" id="L415">			return new double[] { price, Double.NaN, Double.NaN, Double.NaN };</span>
+		}
+	}
+
+	public double getImpliedVolatility(
+			Option option,
+			EquityForwardStructure forwardStructure,
+			YieldCurve discountCurve,
+			double price) {
+
+<span class="fc" id="L425">		double initialGuess = 0.25;</span>
+<span class="fc" id="L426">		final double forward = forwardStructure.getForward(option.getExpiryDate());</span>
+
+		// Use analytic pricer as initial guess for Europeans and OTM Americans
+		// Use two bisection steps for ITM Americans
+<span class="pc bpc" id="L430" title="1 of 4 branches missed.">		if(option.isAmericanOption() &amp;&amp; option.getPayoff(forward) &gt; 0.0) {</span>
+
+<span class="fc" id="L432">			final BisectionSearch bisectionSolver = new BisectionSearch(0.00001, 1.0);</span>
+<span class="fc bfc" id="L433" title="All 2 branches covered.">			for(int i = 0; i &lt; 3; i++) {</span>
+<span class="fc" id="L434">				final double currentVol = bisectionSolver.getNextPoint();</span>
+<span class="fc" id="L435">				final double currentPrice = getPrice(</span>
+						option,
+						forwardStructure,
+						discountCurve,
+						new FlatVolatilitySurface(currentVol));
+
+<span class="fc" id="L441">				bisectionSolver.setValue(currentPrice - price);</span>
+			}
+<span class="fc" id="L443">			initialGuess = bisectionSolver.getBestPoint();</span>
+<span class="fc" id="L444">		}</span>
+		else {
+<span class="fc" id="L446">			final AnalyticOptionValuation anaPricer = new AnalyticOptionValuation(dayCounter);</span>
+			Option testOption;
+
+<span class="pc bpc" id="L449" title="1 of 2 branches missed.">			if(option.isAmericanOption()) {</span>
+<span class="fc" id="L450">				testOption = new EuropeanOption(option.getExpiryDate(), option.getStrike(), option.isCallOption());</span>
+			}
+			else {
+<span class="nc" id="L453">				testOption = option;</span>
+			}
+
+<span class="fc" id="L456">			initialGuess = anaPricer.getImpliedVolatility(testOption, forwardStructure, discountCurve, price);</span>
+		}
+
+		// Solve for implied vol
+<span class="fc" id="L460">		final SecantMethod solver = new SecantMethod(initialGuess, initialGuess * 1.01);</span>
+<span class="pc bpc" id="L461" title="1 of 4 branches missed.">		while(solver.getAccuracy() / price &gt; 1e-3 &amp;&amp; !solver.isDone()) {</span>
+
+<span class="fc" id="L463">			final double currentVol = solver.getNextPoint();</span>
+<span class="fc" id="L464">			final double currentPrice = getPrice(</span>
+					option,
+					forwardStructure,
+					discountCurve,
+					new FlatVolatilitySurface(currentVol));
+
+<span class="fc" id="L470">			solver.setValue(currentPrice - price);</span>
+<span class="fc" id="L471">		}</span>
+
+<span class="fc" id="L473">		return Math.abs(solver.getBestPoint()); // Note that the PDE only uses sigma^2</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

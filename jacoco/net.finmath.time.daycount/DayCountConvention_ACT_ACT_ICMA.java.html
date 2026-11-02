@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_ACT_ACT_ICMA.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_ACT_ACT_ICMA.java</span></div><h1>DayCountConvention_ACT_ACT_ICMA.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import net.finmath.time.Period;
+
+/**
+ * Implementation of ACT/ACT ICMA.
+ *
+ * Calculates the day count by calculating the actual number of days between startDate and endDate.
+ *
+ * A fractional day is rounded to the approximately nearest day.
+ *
+ * The day count fraction is calculated using ACT_ACT_ICMA convention, that is, the
+ * day count fraction is &lt;i&gt;n/(f*m)&lt;/i&gt;, where
+ * &lt;ul&gt;
+ * 	&lt;li&gt;	&lt;i&gt;n&lt;/i&gt; is the number of days between period start and the given day,&lt;/li&gt;
+ * 	&lt;li&gt;	&lt;i&gt;m&lt;/i&gt; is the number of days between period start and period end,&lt;/li&gt;
+ * 	&lt;li&gt;	&lt;i&gt;f&lt;/i&gt; is the number of periods within a year&lt;/li&gt;
+ * &lt;/ul&gt;
+ * where the start date is included in the counting and the end date is excluded in the counting.
+ *
+ * In contrast to other daycount conventions this daycount conventions requires information on an
+ * associated schedule of periods. It depends on the definition of period start and period end
+ * and on the frequency.
+ *
+ * This is implemented by providing an object implementing an &lt;code&gt;net.finmath.time.Period&lt;/code&gt;
+ * upon construction.
+ *
+ * &lt;p&gt;
+ * The class can be constructed using isCountLastDayNotFirst = true, which will change its behavior compared to above.
+ * In this case the start date is excluded in the counting and the end date is included in the counting.
+ * This means that from 31.12.2014 to 01.01.2015 the day count fraction is 1/365 since 2015 is not a leap year.
+ * &lt;/p&gt;
+ *
+ * Note: The daycount method {@link DayCountConvention_ACT_ACT_ISDA} is a special case of this method
+ * for frequency being one, having annual periods from January 1st to December 31st.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_ACT_ACT_ICMA extends DayCountConvention_ACT implements Serializable {
+
+	private static final long serialVersionUID = -6104391125796839417L;
+
+	private final ArrayList&lt;Period&gt;	periods;
+	private final int				frequency;
+
+	/**
+	 * Create an ACT/ACT ICMA day count convention.
+	 *
+	 * @param periods A sorted list of periods defining the periods. From the periods, only the period end dates are used as interval boundaries, except for the start date of the first interval, where the period start date is used.
+	 * @param frequency The frequency, i.e., the number of periods which make up a year.
+	 */
+	public DayCountConvention_ACT_ACT_ICMA(final ArrayList&lt;Period&gt; periods, final int frequency) {
+<span class="fc" id="L65">		super();</span>
+<span class="fc" id="L66">		this.periods	= periods;</span>
+<span class="fc" id="L67">		this.frequency	= frequency;</span>
+<span class="fc" id="L68">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L76">			return -getDaycountFraction(endDate,startDate);</span>
+		}
+
+<span class="fc" id="L79">		int periodIndexEndDate = Collections.binarySearch(periods, new Period(endDate, endDate, endDate, endDate));</span>
+<span class="fc" id="L80">		int periodIndexStartDate = Collections.binarySearch(periods, new Period(startDate, startDate, startDate, startDate));</span>
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">		if(periodIndexEndDate &lt; 0) {</span>
+<span class="fc" id="L83">			periodIndexEndDate		= -periodIndexEndDate-1;</span>
+		}
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">		if(periodIndexStartDate &lt; 0) {</span>
+<span class="fc" id="L86">			periodIndexStartDate	= -periodIndexStartDate-1;</span>
+		} else {
+<span class="nc" id="L88">			periodIndexStartDate	= periodIndexStartDate+1;</span>
+		}
+
+<span class="fc" id="L91">		final Period startDatePeriod = periods.get(periodIndexStartDate);</span>
+<span class="fc" id="L92">		final Period endDatePeriod = periods.get(periodIndexEndDate);</span>
+
+<span class="fc" id="L94">		final double periodFraction =</span>
+<span class="fc" id="L95">				getDaycount(startDate, startDatePeriod.getPeriodEnd()) / getDaycount(startDatePeriod.getPeriodStart(), startDatePeriod.getPeriodEnd())</span>
+				+
+<span class="fc" id="L97">				getDaycount(endDatePeriod.getPeriodStart(), endDate) / getDaycount(endDatePeriod.getPeriodStart(), endDatePeriod.getPeriodEnd())</span>
+				+
+				(periodIndexEndDate - periodIndexStartDate) - 1;
+
+<span class="fc" id="L101">		return periodFraction / frequency;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

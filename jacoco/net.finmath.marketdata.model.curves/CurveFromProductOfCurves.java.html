@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CurveFromProductOfCurves.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">CurveFromProductOfCurves.java</span></div><h1>CurveFromProductOfCurves.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.curves;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * A curve derived from other curves by multiplying the values.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CurveFromProductOfCurves extends AbstractCurve implements Serializable, Curve {
+
+	private static final long serialVersionUID = 8850409340966149755L;
+
+	private final Curve[] curves;
+
+	/**
+	 * Create a curve using one or more curves.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date of this curve.
+	 * @param curves Argument list or array of curves.
+	 */
+	public CurveFromProductOfCurves(final String name, final LocalDate referenceDate, final Curve... curves) {
+<span class="nc" id="L33">		super(name, referenceDate);</span>
+
+<span class="nc" id="L35">		this.curves = curves;</span>
+<span class="nc" id="L36">	}</span>
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc" id="L40">		double value = 1.0;</span>
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">		for(final Curve curve : curves) {</span>
+<span class="nc" id="L43">			value *= curve.getValue(model, time);</span>
+		}
+
+<span class="nc" id="L46">		return value;</span>
+	}
+
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L52">		return null;</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L57">	}</span>
+
+	@Override
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+<span class="nc" id="L61">		throw new CloneNotSupportedException(&quot;Cloning is unsupported for this curve.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

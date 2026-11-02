@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOptionVarianceGammaModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">EuropeanOptionVarianceGammaModelBoundary.java</span></div><h1>EuropeanOptionVarianceGammaModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMVarianceGammaModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link EuropeanOption} under the
+ * {@link FDMVarianceGammaModel}.
+ *
+ * &lt;p&gt;
+ * The class follows the standard factory naming convention
+ * {@code &lt;ProductSimpleName&gt;&lt;ModelCoreName&gt;Boundary}, so that it can be
+ * instantiated automatically by {@link FDBoundaryFactory}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Since the finite-difference Variance Gamma model is formulated in the stock
+ * variable, the standard one-dimensional vanilla outer-domain asymptotics are
+ * used.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class EuropeanOptionVarianceGammaModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The model.
+	 */
+	private final FDMVarianceGammaModel model;
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * Creates the boundary condition associated with a given
+	 * {@link FDMVarianceGammaModel}.
+	 *
+	 * @param model The Variance Gamma model used to determine risk-free and
+	 *              dividend discount factors.
+	 */
+<span class="fc" id="L46">	public EuropeanOptionVarianceGammaModelBoundary(final FDMVarianceGammaModel model) {</span>
+<span class="fc" id="L47">		this.model = model;</span>
+<span class="fc" id="L48">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="fc" id="L56">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="fc" id="L57">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="fc bfc" id="L59" title="All 2 branches covered.">		if (sign == CallOrPut.CALL) {</span>
+<span class="fc" id="L60">			return new BoundaryCondition[] {</span>
+<span class="fc" id="L61">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="fc" id="L65">		time = Math.max(time, EPSILON);</span>
+
+<span class="fc" id="L67">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="fc" id="L68">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="fc" id="L70">		final double strike = option.getStrike();</span>
+<span class="fc" id="L71">		final double maturity = option.getMaturity();</span>
+
+<span class="fc" id="L73">		return new BoundaryCondition[] {</span>
+<span class="fc" id="L74">				StandardBoundaryCondition.dirichlet(</span>
+<span class="fc" id="L75">						strike * Math.exp(-riskFreeRate * (maturity - time))</span>
+						)
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="fc" id="L86">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="fc" id="L87">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">		if (sign == CallOrPut.PUT) {</span>
+<span class="fc" id="L90">			return new BoundaryCondition[] {</span>
+<span class="fc" id="L91">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="fc" id="L95">		time = Math.max(time, EPSILON);</span>
+
+<span class="fc" id="L97">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="fc" id="L98">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="fc" id="L100">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="fc" id="L101">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+
+<span class="fc" id="L103">		final double strike = option.getStrike();</span>
+<span class="fc" id="L104">		final double maturity = option.getMaturity();</span>
+<span class="fc" id="L105">		final double stock = stateVariables[0];</span>
+
+<span class="fc" id="L107">		final double dividendAdjustedStockPrice =</span>
+<span class="fc" id="L108">				stock * Math.exp(-dividendYieldRate * (maturity - time));</span>
+
+<span class="fc" id="L110">		return new BoundaryCondition[] {</span>
+<span class="fc" id="L111">				StandardBoundaryCondition.dirichlet(</span>
+						dividendAdjustedStockPrice
+<span class="fc" id="L113">						- strike * Math.exp(-riskFreeRate * (maturity - time))</span>
+						)
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

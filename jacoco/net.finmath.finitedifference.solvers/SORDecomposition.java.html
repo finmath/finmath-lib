@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SORDecomposition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">SORDecomposition.java</span></div><h1>SORDecomposition.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.RealMatrix;
+
+/**
+ * Performs a Successive Over-Relaxation (SOR) decomposition for solving linear
+ * systems
+ * of the form {@code A x = b}.
+ *
+ * &lt;p&gt;
+ * The input matrix {@code A} is decomposed into its diagonal part {@code D},
+ * strictly
+ * lower triangular part {@code L}, and strictly upper triangular part {@code
+ * U}. The
+ * solver then applies an iterative SOR (Gauss-Seidel with relaxation) sweep to
+ * approximate the solution.
+ * &lt;/p&gt;
+ *
+ * @author Enrico De Vecchi
+ * @author Alessandro Gnoatto
+ */
+public class SORDecomposition {
+
+	// Diagonal part of the matrix A
+	/**
+	 * The d.
+	 */
+	private final RealMatrix matrixD;
+
+	// Strictly lower triangular part of the matrix A
+	/**
+	 * The l.
+	 */
+	private final RealMatrix matrixL;
+
+	// Strictly upper triangular part of the matrix A
+	/**
+	 * The u.
+	 */
+	private final RealMatrix matrixU;
+
+	// Relaxation factor omega
+	/**
+	 * The omega.
+	 */
+	private double omega;
+
+	// Keep a reference copy of A for efficient SOR sweeps
+	/**
+	 * The a.
+	 */
+	private final double[][] a;
+
+	/**
+	 * Constructs the decomposition of the given matrix {@code A} into {@code
+	 * D}, {@code L}, and {@code U}.
+	 *
+	 * @param matrixA The input square matrix to decompose.
+	 */
+<span class="nc" id="L61">	public SORDecomposition(final RealMatrix matrixA) {</span>
+<span class="nc" id="L62">		this.a = matrixA.getData();</span>
+<span class="nc" id="L63">		this.matrixD = MatrixUtils.createRealDiagonalMatrix(getDiagonal(matrixA));</span>
+<span class="nc" id="L64">		this.matrixL = lowerMatrix(matrixA);</span>
+<span class="nc" id="L65">		this.matrixU = upperMatrix(matrixA);</span>
+<span class="nc" id="L66">		this.omega = 1.0;</span>
+<span class="nc" id="L67">	}</span>
+
+	/**
+	 * Returns the diagonal matrix {@code D} of the decomposition.
+	 *
+	 * @return The diagonal part of {@code A}.
+	 */
+	public RealMatrix getD() {
+<span class="nc" id="L75">		return matrixD;</span>
+	}
+
+	/**
+	 * Returns the strictly lower triangular matrix {@code L} of the
+	 * decomposition.
+	 *
+	 * @return The strictly lower triangular part of {@code A}.
+	 */
+	public RealMatrix getL() {
+<span class="nc" id="L85">		return matrixL;</span>
+	}
+
+	/**
+	 * Returns the strictly upper triangular matrix {@code U} of the
+	 * decomposition.
+	 *
+	 * @return The strictly upper triangular part of {@code A}.
+	 */
+	public RealMatrix getU() {
+<span class="nc" id="L95">		return matrixU;</span>
+	}
+
+	private double[] getDiagonal(final RealMatrix matrixM) {
+<span class="nc" id="L99">		final double[] diag = new double[matrixM.getColumnDimension()];</span>
+<span class="nc bnc" id="L100" title="All 2 branches missed.">		for (int i = 0; i &lt; diag.length; i++) {</span>
+<span class="nc" id="L101">			diag[i] = matrixM.getEntry(i, i);</span>
+		}
+<span class="nc" id="L103">		return diag;</span>
+	}
+
+	private RealMatrix upperMatrix(final RealMatrix matrixM) {
+<span class="nc" id="L107">		final int n = matrixM.getColumnDimension();</span>
+<span class="nc" id="L108">		final double[][] U = new double[n][n];</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">			for (int j = i + 1; j &lt; n; j++) {</span>
+<span class="nc" id="L111">				U[i][j] = matrixM.getEntry(i, j);</span>
+			}
+		}
+<span class="nc" id="L114">		return MatrixUtils.createRealMatrix(U);</span>
+	}
+
+	private RealMatrix lowerMatrix(final RealMatrix matrixM) {
+<span class="nc" id="L118">		final int n = matrixM.getColumnDimension();</span>
+<span class="nc" id="L119">		final double[][] L = new double[n][n];</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">		for (int i = 1; i &lt; n; i++) {</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">			for (int j = 0; j &lt; i; j++) {</span>
+<span class="nc" id="L122">				L[i][j] = matrixM.getEntry(i, j);</span>
+			}
+		}
+<span class="nc" id="L125">		return MatrixUtils.createRealMatrix(L);</span>
+	}
+
+	/**
+	 * Performs a fixed number of SOR iterations to approximate the solution of
+	 * {@code A x = b}.
+	 *
+	 * &lt;p&gt;
+	 * This method is a backwards-compatible entry point which delegates to
+	 * {@link #getSol(RealMatrix, RealMatrix, double, int, double)} with {@code
+	 * tol = 0.0}.
+	 * &lt;/p&gt;
+	 *
+	 * @param x0   The initial guess for {@code x} (n x 1).
+	 * @param b     The right-hand side vector {@code b} (n x 1).
+	 * @param w The relaxation factor {@code omega} (typically {@code 0 &lt; w &lt;
+	 *     2}).
+	 * @param steps The number of iterations to perform.
+	 * @return The approximate solution after the specified number of
+	 *     iterations.
+	 */
+	public RealMatrix getSol(final RealMatrix x0, final RealMatrix b, final double w, final int steps) {
+		// Backwards compatible entry point: perform a fixed number of
+		// iterations.
+<span class="nc" id="L149">		return getSol(x0, b, w, steps, 0.0);</span>
+	}
+
+	/**
+	 * Performs SOR (Gauss-Seidel with relaxation) to solve {@code A x = b}.
+	 *
+	 * &lt;p&gt;
+	 * If {@code tol &gt; 0.0}, the iteration stops early when the infinity norm of
+	 * the residual
+	 * satisfies {@code ||A x - b||_inf &lt;= tol}. If {@code tol == 0.0}, the
+	 * solver always runs
+	 * {@code maxIters} iterations.
+	 * &lt;/p&gt;
+	 *
+	 * @param x0       Initial guess (n x 1).
+	 * @param b        Right-hand side (n x 1).
+	 * @param w Relaxation factor {@code omega} (typically {@code 0 &lt; w &lt; 2}).
+	 * @param maxIters Maximum number of sweeps.
+	 * @param tol Residual tolerance in infinity norm (set to 0 to disable early
+	 *     stopping).
+	 * @return Approximate solution.
+	 */
+	public RealMatrix getSol(
+			final RealMatrix x0,
+			final RealMatrix b,
+			final double w,
+			final int maxIters,
+			final double tol) {
+
+<span class="nc" id="L178">		final int n = b.getRowDimension();</span>
+<span class="nc bnc" id="L179" title="All 4 branches missed.">		if (b.getColumnDimension() != 1 || x0.getColumnDimension() != 1) {</span>
+<span class="nc" id="L180">			throw new IllegalArgumentException(&quot;SOR expects column vectors (n x 1).&quot;);</span>
+		}
+<span class="nc bnc" id="L182" title="All 2 branches missed.">		if (x0.getRowDimension() != n) {</span>
+<span class="nc" id="L183">			throw new IllegalArgumentException(&quot;x_0 and b must have the same dimension.&quot;);</span>
+		}
+
+<span class="nc" id="L186">		this.omega = w;</span>
+
+<span class="nc" id="L188">		final double[] x = x0.getColumn(0).clone();</span>
+<span class="nc" id="L189">		final double[] bb = b.getColumn(0);</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		for (int iter = 0; iter &lt; maxIters; iter++) {</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">			for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L193">				final double aii = a[i][i];</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">				if (aii == 0.0) {</span>
+<span class="nc" id="L195">					throw new ArithmeticException(&quot;Zero diagonal entry encountered at i=&quot; + i);</span>
+				}
+
+<span class="nc" id="L198">				double sigma = 0.0;</span>
+
+				// j &lt; i uses updated x (Gauss-Seidel)
+<span class="nc bnc" id="L201" title="All 2 branches missed.">				for (int j = 0; j &lt; i; j++) {</span>
+<span class="nc" id="L202">					sigma += a[i][j] * x[j];</span>
+				}
+				// j &gt; i uses previous x values (still in x[])
+<span class="nc bnc" id="L205" title="All 2 branches missed.">				for (int j = i + 1; j &lt; n; j++) {</span>
+<span class="nc" id="L206">					sigma += a[i][j] * x[j];</span>
+				}
+
+<span class="nc" id="L209">				final double xGs = (bb[i] - sigma) / aii;</span>
+<span class="nc" id="L210">				x[i] = (1.0 - w) * x[i] + w * xGs;</span>
+			}
+
+<span class="nc bnc" id="L213" title="All 2 branches missed.">			if (tol &gt; 0.0) {</span>
+<span class="nc" id="L214">				final double resInf = residualInfNorm(x, bb);</span>
+<span class="nc bnc" id="L215" title="All 2 branches missed.">				if (resInf &lt;= tol) {</span>
+<span class="nc" id="L216">					break;</span>
+				}
+			}
+		}
+
+<span class="nc" id="L221">		return MatrixUtils.createColumnRealMatrix(x);</span>
+	}
+
+	private double residualInfNorm(final double[] x, final double[] b) {
+<span class="nc" id="L225">		double max = 0.0;</span>
+<span class="nc bnc" id="L226" title="All 2 branches missed.">		for (int i = 0; i &lt; a.length; i++) {</span>
+<span class="nc" id="L227">			double ax = 0.0;</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">			for (int j = 0; j &lt; a.length; j++) {</span>
+<span class="nc" id="L229">				ax += a[i][j] * x[j];</span>
+			}
+<span class="nc" id="L231">			max = Math.max(max, Math.abs(ax - b[i]));</span>
+		}
+<span class="nc" id="L233">		return max;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

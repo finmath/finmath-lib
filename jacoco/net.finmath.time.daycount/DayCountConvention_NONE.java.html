@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_NONE.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_NONE.java</span></div><h1>DayCountConvention_NONE.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+/**
+ * This is a special day count convention, where the day count between two dates is always 0.0
+ * and the year fraction for an interval is always 1.0.
+ *
+ * The latter property is probably the relevant property: you may use this day count convention if a coupon period
+ * pays the coupon without applying a year fraction of the accrual period, but the implementation requires an object implementing
+ * {@link DayCountConvention}.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_NONE implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = 1234679674480984332L;
+
+	/**
+	 * Create a day count convention with a constant year fraction of 1.0 for all periods.
+	 */
+<span class="nc" id="L30">	public DayCountConvention_NONE() {</span>
+<span class="nc" id="L31">	}</span>
+
+	@Override
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc" id="L35">		return 0.0;</span>
+	}
+
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc" id="L40">		return 1.0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

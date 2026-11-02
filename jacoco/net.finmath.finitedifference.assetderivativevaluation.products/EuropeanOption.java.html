@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">EuropeanOption.java</span></div><h1>EuropeanOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Finite difference valuation of a European option on a single asset.
+ *
+ * &lt;p&gt;
+ * Given an underlying price {@code S} with strike {@code K} and maturity {@code
+ * T}, the payoff is
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * {@code max(sign * (S(T) - K), 0)},
+ * &lt;/p&gt;
+ * &lt;p&gt;
+ * where {@code sign} corresponds to {@link CallOrPut#CALL} or {@link
+ * CallOrPut#PUT}.
+ * &lt;/p&gt;
+ *
+ * @author Christian Fries
+ * @author Ralph Rudd
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class EuropeanOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put sign.
+	 */
+	private final CallOrPut callOrPutSign;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Creates a European option for a named underlying.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Payoff sign, where {@code 1.0} corresponds to a call
+	 *     and
+	 *        {@code -1.0} corresponds to a put.
+	 */
+	public EuropeanOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final double callOrPutSign) {
+
+<span class="nc" id="L69">		super();</span>
+<span class="nc" id="L70">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L71">		this.maturity = maturity;</span>
+<span class="nc" id="L72">		this.strike = strike;</span>
+
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		if (callOrPutSign == 1.0) {</span>
+<span class="nc" id="L75">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		} else if (callOrPutSign == -1.0) {</span>
+<span class="nc" id="L77">			this.callOrPutSign = CallOrPut.PUT;</span>
+		} else {
+<span class="nc" id="L79">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+
+<span class="nc" id="L82">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="nc" id="L83">	}</span>
+
+	/**
+	 * Creates a European option for a named underlying.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Option type.
+	 */
+	public EuropeanOption(
+			final String underlyingName,
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPutSign) {
+
+<span class="nc" id="L99">		super();</span>
+<span class="nc" id="L100">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L101">		this.maturity = maturity;</span>
+<span class="nc" id="L102">		this.strike = strike;</span>
+<span class="nc" id="L103">		this.callOrPutSign = callOrPutSign;</span>
+<span class="nc" id="L104">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="nc" id="L105">	}</span>
+
+	/**
+	 * Creates a European option (single-asset case, unnamed underlying).
+	 *
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Payoff sign, where {@code 1.0} corresponds to a call
+	 *     and
+	 *        {@code -1.0} corresponds to a put.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final double callOrPutSign) {
+
+<span class="nc" id="L118">		super();</span>
+<span class="nc" id="L119">		this.maturity = maturity;</span>
+<span class="nc" id="L120">		this.strike = strike;</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">		if (callOrPutSign == 1.0) {</span>
+<span class="nc" id="L123">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">		} else if (callOrPutSign == -1.0) {</span>
+<span class="nc" id="L125">			this.callOrPutSign = CallOrPut.PUT;</span>
+		} else {
+<span class="nc" id="L127">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+
+<span class="nc" id="L130">		this.underlyingName = null;</span>
+<span class="nc" id="L131">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="nc" id="L132">	}</span>
+
+	/**
+	 * Creates a European option (single-asset case, unnamed underlying).
+	 *
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Option type.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
+
+<span class="fc" id="L143">		super();</span>
+<span class="fc" id="L144">		this.maturity = maturity;</span>
+<span class="fc" id="L145">		this.strike = strike;</span>
+<span class="fc" id="L146">		this.callOrPutSign = callOrPutSign;</span>
+<span class="fc" id="L147">		this.underlyingName = null;</span>
+<span class="fc" id="L148">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="fc" id="L149">	}</span>
+
+	/**
+	 * Creates a European call option for a named underlying.
+	 *
+	 * @param underlyingName Name of the underlying.
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
+<span class="nc" id="L159">		this(underlyingName, maturity, strike, 1.0);</span>
+<span class="nc" id="L160">	}</span>
+
+	/**
+	 * Creates a European call option (single-asset case, unnamed underlying).
+	 *
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 */
+	public EuropeanOption(final double maturity, final double strike) {
+<span class="nc" id="L169">		this(maturity, strike, 1.0);</span>
+<span class="nc" id="L170">	}</span>
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="fc" id="L174">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+
+<span class="fc bfc" id="L176" title="All 2 branches covered.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="fc" id="L177">			return solver.getValue(evaluationTime, maturity, assetValue -&gt; Math.max(assetValue - strike, 0.0));</span>
+		} else {
+<span class="fc" id="L179">			return solver.getValue(evaluationTime, maturity, assetValue -&gt; Math.max(strike - assetValue, 0.0));</span>
+		}
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L185">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+
+<span class="nc bnc" id="L187" title="All 2 branches missed.">		if (callOrPutSign == CallOrPut.CALL) {</span>
+<span class="nc" id="L188">			return solver.getValues(maturity, assetValue -&gt; Math.max(assetValue - strike, 0.0));</span>
+		} else {
+<span class="nc" id="L190">			return solver.getValues(maturity, assetValue -&gt; Math.max(strike - assetValue, 0.0));</span>
+		}
+	}
+
+	/**
+	 * Returns the name of the underlying.
+	 *
+	 * @return The underlying name, or {@code null} if unspecified.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L200">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the option maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="fc" id="L209">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the option strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="fc" id="L218">		return strike;</span>
+	}
+
+	/**
+	 * Returns whether the option is a call or put.
+	 *
+	 * @return The option type.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="fc" id="L227">		return callOrPutSign;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L236">		return exercise;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CalibratedModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.fouriermethod.calibration</a> &gt; <span class="el_source">CalibratedModel.java</span></div><h1>CalibratedModel.java</h1><pre class="source lang-java linenums">package net.finmath.fouriermethod.calibration;
+
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.function.Function;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.fouriermethod.calibration.models.CalibratableProcess;
+import net.finmath.fouriermethod.models.CharacteristicFunctionModel;
+import net.finmath.fouriermethod.products.smile.EuropeanOptionSmile;
+import net.finmath.marketdata.model.volatilities.OptionSmileData;
+import net.finmath.marketdata.model.volatilities.OptionSurfaceData;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.optimizer.Optimizer;
+import net.finmath.optimizer.OptimizerFactory;
+import net.finmath.optimizer.SolverException;
+
+/**
+ * This class solves a calibration problem. The problem is defined in terms of:
+ * &lt;ul&gt;
+ * &lt;li&gt; a generic container of market data OptionSurfaceData.
+ * &lt;li&gt; a generic pricing model.
+ * &lt;li&gt; a generic calibration algorithm.
+ * &lt;li&gt; a generic pricer for claims.
+ * &lt;/ul&gt;
+ *
+ * The class supports both calibration in terms of:
+ * &lt;ul&gt;
+ * &lt;li&gt; Prices
+ * &lt;li&gt; Log-normal implied volatilities.
+ * &lt;li&gt; Normal implied volatilities.
+ * &lt;/ul&gt;
+ *
+ * To change the calibration entity please change the convention in the option surface.
+ * The calibration entity (i.e. price/vol/normal vol) is directly detected from market data.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class CalibratedModel {
+
+	private final OptionSurfaceData surface; //target calibration instruments. They dictate the calibration entity: vol/price.
+	private final CalibratableProcess model; //Pricing model
+	private final OptimizerFactory optimizerFactory; //construct the instance of the optimization algorithm inside the class.
+	private final EuropeanOptionSmile pricer; //How do we compute prices: Carr Madan, Cos, Conv, Lewis...
+
+	//Optimizer parameters
+	private final double[] initialParameters;
+	private final double[] lowerBound;
+	private final double[] upperBound;
+	private final double[] parameterStep;
+
+	/**
+	 * Create the calibration from data.
+	 *
+	 * @param surface The target calibration instruments. They dictate the calibration entity: vol/price.
+	 * @param model The model to calibrate.
+	 * @param optimizerFactory Factory providing the optimizer to use.
+	 * @param pricer How do we compute prices: Carr Madan, Cos, Conv, Lewis...
+	 * @param initialParameters Initial parameters
+	 * @param parameterStep Parameter steps.
+	 */
+	public CalibratedModel(final OptionSurfaceData surface, final CalibratableProcess model,
+			final OptimizerFactory optimizerFactory, final EuropeanOptionSmile pricer, final double[] initialParameters,
+			final double[] parameterStep) {
+<span class="fc" id="L67">		super();</span>
+<span class="fc" id="L68">		this.surface = surface;</span>
+<span class="fc" id="L69">		this.model = model;</span>
+<span class="fc" id="L70">		this.optimizerFactory = optimizerFactory;</span>
+<span class="fc" id="L71">		this.pricer = pricer;</span>
+<span class="fc" id="L72">		this.initialParameters = initialParameters;</span>
+<span class="fc" id="L73">		lowerBound = model.getParameterLowerBounds();</span>
+<span class="fc" id="L74">		upperBound = model.getParameterUpperBounds();</span>
+<span class="fc" id="L75">		this.parameterStep = parameterStep;</span>
+<span class="fc" id="L76">	}</span>
+
+	/**
+	 * Solves the calibration problem thus providing a calibrated model.
+	 *
+	 * @return the calibrated model wrapped in an {@link OptimizationResult}.
+	 * @throws SolverException Thrown if the calibration problem cannot be solved.
+	 */
+	public OptimizationResult getCalibration() throws SolverException {
+
+<span class="fc" id="L86">		final Optimizer.ObjectiveFunction objectiveFunction = new Optimizer.ObjectiveFunction() {</span>
+			@Override
+			public void setValues(final double[] parameters, final double[] values) {
+
+				//We change the parameters of the model
+<span class="fc" id="L91">				final CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);</span>
+<span class="fc" id="L92">				final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();</span>
+
+<span class="fc" id="L94">				final int numberOfMaturities = surface.getMaturities().length;</span>
+<span class="fc" id="L95">				final double[] mats = surface.getMaturities();</span>
+
+<span class="fc" id="L97">				final QuotingConvention targetConvention = surface.getQuotingConvention();</span>
+
+<span class="fc" id="L99">				final ArrayList&lt;Double&gt; vals = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L101" title="All 2 branches covered.">				for(int t = 0; t&lt;numberOfMaturities; t++) {</span>
+
+<span class="fc" id="L103">					final double[] currentStrikes = surface.getSmile(mats[t]).getStrikes();</span>
+
+<span class="fc" id="L105">					final EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);</span>
+
+					try {
+<span class="fc" id="L108">						final Map&lt;String, Function&lt;Double, Double&gt;&gt; currentModelPrices = newPricer.getValue(0.0, newModelFourier);</span>
+
+<span class="fc bfc" id="L110" title="All 2 branches covered.">						for(int i = 0; i&lt;currentStrikes.length;i++) {</span>
+
+<span class="pc bpc" id="L112" title="1 of 2 branches missed.">							if(targetConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {</span>
+								//we convert prices into lognormal volatilities
+<span class="fc" id="L114">								final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);</span>
+<span class="fc" id="L115">								final double optionMaturity =mats[t];</span>
+<span class="fc" id="L116">								final double optionStrike = currentStrikes[i];</span>
+<span class="fc" id="L117">								final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);</span>
+<span class="fc" id="L118">								final double optionValue = currentModelPrices.get(&quot;valuePerStrike&quot;).apply(optionStrike);</span>
+<span class="fc" id="L119">								vals.add(net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));</span>
+
+
+<span class="pc bnc" id="L122" title="All 2 branches missed.">							}else if(targetConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {</span>
+								//we convert prices into normal volatilities
+<span class="nc" id="L124">								final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);</span>
+<span class="nc" id="L125">								final double optionMaturity =mats[t];</span>
+<span class="nc" id="L126">								final double optionStrike = currentStrikes[i];</span>
+<span class="nc" id="L127">								final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);</span>
+<span class="nc" id="L128">								final double optionValue = currentModelPrices.get(&quot;valuePerStrike&quot;).apply(optionStrike);</span>
+<span class="nc" id="L129">								vals.add(net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue));</span>
+<span class="nc" id="L130">							}else {</span>
+								//just output the prices
+<span class="nc" id="L132">								vals.add(currentModelPrices.get(&quot;valuePerStrike&quot;).apply(currentStrikes[i]));</span>
+							}
+
+						}
+<span class="nc" id="L136">					} catch (final CalculationException e) {</span>
+<span class="nc" id="L137">						e.printStackTrace();</span>
+<span class="fc" id="L138">					}</span>
+
+				}
+<span class="fc bfc" id="L141" title="All 2 branches covered.">				for(int i = 0; i&lt;values.length; i++) {values[i] = vals.get(i);}</span>
+<span class="fc" id="L142">			}</span>
+		};
+
+<span class="fc" id="L145">		final Optimizer optimizer = optimizerFactory.getOptimizer(</span>
+				objectiveFunction,
+				initialParameters,
+				lowerBound,
+				upperBound,
+				parameterStep,
+<span class="fc" id="L151">				formatTargetValuesForOptimizer() /* targetValues */);</span>
+
+
+<span class="fc" id="L154">		optimizer.run();</span>
+
+<span class="fc" id="L156">		final ArrayList&lt;String&gt; calibrationOutput = outputCalibrationResult(optimizer.getBestFitParameters());</span>
+
+<span class="fc" id="L158">		final CalibratableProcess calibratedModel = model.getCloneForModifiedParameters(optimizer.getBestFitParameters());</span>
+
+<span class="fc" id="L160">		return new OptimizationResult(calibratedModel, optimizer.getBestFitParameters(), optimizer.getIterations(), optimizer.getRootMeanSquaredError(), calibrationOutput);</span>
+	}
+
+	/**
+	 * This is a service method that takes care of putting al the target values in a single array.
+	 * @return
+	 */
+	private double[] formatTargetValuesForOptimizer() {
+		//Put all values in an array for the optimizer.
+<span class="fc" id="L169">		final int numberOfMaturities = surface.getMaturities().length;</span>
+<span class="fc" id="L170">		final double[] mats = surface.getMaturities();</span>
+
+<span class="fc" id="L172">		final ArrayList&lt;Double&gt; vals = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">		for(int t = 0; t&lt;numberOfMaturities; t++) {</span>
+<span class="fc" id="L175">			final double mat = mats[t];</span>
+<span class="fc" id="L176">			final double[] myStrikes = surface.getSurface().get(mat).getStrikes();</span>
+
+<span class="fc" id="L178">			final OptionSmileData smileOfInterest = surface.getSurface().get(mat);</span>
+
+<span class="fc bfc" id="L180" title="All 2 branches covered.">			for(int k = 0; k &lt; myStrikes.length; k++) {</span>
+<span class="fc" id="L181">				vals.add(smileOfInterest.getSmile().get(myStrikes[k]).getValue());</span>
+			}
+
+		}
+<span class="fc" id="L185">		final Double[] targetVals = new Double[vals.size()];</span>
+<span class="fc" id="L186">		return ArrayUtils.toPrimitive(vals.toArray(targetVals));</span>
+	}
+
+	/**
+	 * When the calibration is done this method is called to produce a table
+	 *
+	 * @param parameters Calibration parameters.
+	 */
+	private ArrayList&lt;String&gt; outputCalibrationResult(final double[] parameters) {
+
+<span class="fc" id="L196">		final ArrayList&lt;String&gt; calibrationOutput = new ArrayList&lt;&gt;();</span>
+
+		//We change the parameters of the model
+<span class="fc" id="L199">		final CalibratableProcess newModel = model.getCloneForModifiedParameters(parameters);</span>
+<span class="fc" id="L200">		final CharacteristicFunctionModel newModelFourier = newModel.getCharacteristicFunctionModel();</span>
+
+<span class="fc" id="L202">		final int numberOfMaturities = surface.getMaturities().length;</span>
+<span class="fc" id="L203">		final double[] mats = surface.getMaturities();</span>
+
+<span class="fc" id="L205">		final QuotingConvention targetConvention = surface.getQuotingConvention();</span>
+
+		double value;
+		double targetValue;
+		double T;
+		double K;
+
+<span class="fc" id="L212">		calibrationOutput.add(&quot;Strike&quot;+ &quot;\t&quot; + &quot;Maturity&quot;+ &quot;\t&quot; + &quot;Market Value&quot; + &quot;\t&quot; + &quot;Model Value&quot; + &quot;\t&quot; + &quot;Squared Error&quot;);</span>
+
+<span class="fc bfc" id="L214" title="All 2 branches covered.">		for(int t = 0; t&lt;numberOfMaturities; t++) {</span>
+<span class="fc" id="L215">			T = mats[t];</span>
+<span class="fc" id="L216">			final OptionSmileData currentSmile = surface.getSmile(mats[t]);</span>
+<span class="fc" id="L217">			final double[] currentStrikes = currentSmile.getStrikes();</span>
+
+<span class="fc" id="L219">			final EuropeanOptionSmile newPricer = pricer.getCloneWithModifiedParameters(mats[t],currentStrikes);</span>
+
+			try {
+<span class="fc" id="L222">				final Map&lt;String, Function&lt;Double, Double&gt;&gt; currentModelPrices = newPricer.getValue(0.0, newModelFourier);</span>
+
+<span class="fc bfc" id="L224" title="All 2 branches covered.">				for(int i = 0; i&lt;currentStrikes.length;i++) {</span>
+<span class="fc" id="L225">					K = currentStrikes[i];</span>
+<span class="fc" id="L226">					targetValue = currentSmile.getOption(currentStrikes[i]).getValue();</span>
+
+<span class="pc bpc" id="L228" title="1 of 2 branches missed.">					if(targetConvention.equals(QuotingConvention.VOLATILITYLOGNORMAL)) {</span>
+						//we convert prices into lognormal volatilities
+<span class="fc" id="L230">						final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);</span>
+<span class="fc" id="L231">						final double optionMaturity =mats[t];</span>
+<span class="fc" id="L232">						final double optionStrike = currentStrikes[i];</span>
+<span class="fc" id="L233">						final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);</span>
+<span class="fc" id="L234">						final double optionValue = currentModelPrices.get(&quot;valuePerStrike&quot;).apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);</span>
+<span class="fc" id="L235">						value = net.finmath.functions.AnalyticFormulas.blackScholesOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);</span>
+
+
+<span class="pc bnc" id="L238" title="All 2 branches missed.">					}else if(targetConvention.equals(QuotingConvention.VOLATILITYNORMAL)) {</span>
+						//we convert prices into normal volatilities
+<span class="nc" id="L240">						final double forward = surface.getEquityForwardCurve().getDiscountFactor(mats[t]);</span>
+<span class="nc" id="L241">						final double optionMaturity =mats[t];</span>
+<span class="nc" id="L242">						final double optionStrike = currentStrikes[i];</span>
+<span class="nc" id="L243">						final double payoffUnit = surface.getDiscountCurve().getDiscountFactor(mats[t]);</span>
+<span class="nc" id="L244">						final double optionValue = currentModelPrices.get(&quot;valuePerStrike&quot;).apply(optionStrike);//currentModelPrices.get(currentStrikes[i]);</span>
+<span class="nc" id="L245">						value = net.finmath.functions.AnalyticFormulas.bachelierOptionImpliedVolatility(forward, optionMaturity, optionStrike, payoffUnit, optionValue);</span>
+<span class="nc" id="L246">					}else {</span>
+						//just output the prices
+<span class="nc" id="L248">						value = currentModelPrices.get(&quot;valuePerStrike&quot;).apply(currentStrikes[i]);//currentModelPrices.get(currentStrikes[i]);</span>
+					}
+<span class="fc" id="L250">					calibrationOutput.add(K+ &quot;\t&quot; + T + &quot;\t&quot; + targetValue + &quot;\t&quot; + value+ &quot;\t&quot; + Math.pow(targetValue-value,2));</span>
+				}
+<span class="nc" id="L252">			} catch (final CalculationException e) {</span>
+<span class="nc" id="L253">				e.printStackTrace();</span>
+<span class="fc" id="L254">			}</span>
+
+
+		}
+<span class="fc" id="L258">		return calibrationOutput;</span>
+	}
+
+
+	/**
+	 * Helper class for calibration results.
+	 *
+	 * @author Alessandro Gnoatto
+	 */
+	public static class OptimizationResult{
+		private final CalibratableProcess model; //the calibrated model
+		private final double[] bestFitParameters;
+		private final int iterations;
+		private final double rootMeanSquaredError;
+		private final ArrayList&lt;String&gt; calibrationOutput;
+
+		public OptimizationResult(final CalibratableProcess model, final double[] bestFitParameters,
+				final int iterations, final double rootMeanSquaredError, final ArrayList&lt;String&gt; calibrationOutput) {
+<span class="fc" id="L276">			super();</span>
+<span class="fc" id="L277">			this.model = model;</span>
+<span class="fc" id="L278">			this.bestFitParameters = bestFitParameters;</span>
+<span class="fc" id="L279">			this.iterations = iterations;</span>
+<span class="fc" id="L280">			this.rootMeanSquaredError = rootMeanSquaredError;</span>
+<span class="fc" id="L281">			this.calibrationOutput = calibrationOutput;</span>
+<span class="fc" id="L282">		}</span>
+
+		public CalibratableProcess getModel() {
+<span class="fc" id="L285">			return model;</span>
+		}
+
+		public double[] getBestFitParameters() {
+<span class="nc" id="L289">			return bestFitParameters;</span>
+		}
+
+		public int getIterations() {
+<span class="fc" id="L293">			return iterations;</span>
+		}
+
+		public double getRootMeanSquaredError() {
+<span class="fc" id="L297">			return rootMeanSquaredError;</span>
+		}
+
+		public ArrayList&lt;String&gt; getCalibrationOutput(){
+<span class="fc" id="L301">			return calibrationOutput;</span>
+		}
+
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

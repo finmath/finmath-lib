@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MinIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">MinIndex.java</span></div><h1>MinIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 22.11.2009
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.Arrays;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A minumum index.
+ *
+ * Provides the function min(index1(t), index2(t), ...).
+ *
+ * @author Christian Fries
+ * @version 1.2
+ */
+public class MinIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = -1512137372132830198L;
+
+	private final AbstractProductComponent[] indexArguments;
+
+	/**
+	 * Creates the function min(index1(t), index2(t), ...)
+	 *
+	 * @param indexArguments An arguments list of &lt;code&gt;AbstractProductComponent&lt;/code&gt;s or an array thereof. A minimum number of 2 arguments is required.
+	 */
+	public MinIndex(final AbstractProductComponent... indexArguments) {
+<span class="nc" id="L34">		super();</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">		if(indexArguments.length &lt; 1) {</span>
+<span class="nc" id="L36">			throw new IllegalArgumentException(&quot;Missing arguments. Please provide one or more arguments.&quot;);</span>
+		}
+<span class="nc" id="L38">		this.indexArguments = indexArguments;</span>
+<span class="nc" id="L39">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L43">		RandomVariable value = indexArguments[0].getValue(evaluationTime, model);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		for(final AbstractProductComponent index : indexArguments) {</span>
+<span class="nc" id="L45">			value = value.cap(index.getValue(evaluationTime, model));</span>
+		}
+<span class="nc" id="L47">		return value;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L52">		Set&lt;String&gt; underlyingNames = null;</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">		for(final AbstractProductComponent product : indexArguments) {</span>
+<span class="nc" id="L54">			final Set&lt;String&gt; productUnderlyingNames = product.queryUnderlyings();</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">			if(productUnderlyingNames != null) {</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">				if(underlyingNames == null) {</span>
+<span class="nc" id="L57">					underlyingNames = productUnderlyingNames;</span>
+				} else {
+<span class="nc" id="L59">					underlyingNames.addAll(productUnderlyingNames);</span>
+				}
+			}
+		}
+<span class="nc" id="L63">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L68">		return &quot;MinIndex [indexArguments=&quot; + Arrays.toString(indexArguments)</span>
+		+ &quot;]&quot;;
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AcceptanceRejectionRandomNumberGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.randomnumbers</a> &gt; <span class="el_source">AcceptanceRejectionRandomNumberGenerator.java</span></div><h1>AcceptanceRejectionRandomNumberGenerator.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 21 May 2018
+ */
+package net.finmath.randomnumbers;
+
+import java.util.function.DoubleUnaryOperator;
+
+import org.apache.commons.lang3.Validate;
+
+/**
+ * Class implementing &lt;code&gt;RandomNumberGenerator1D&lt;/code&gt; by the acceptance rejection method.
+ *
+ * Note that the acceptance rejection methods requires a two dimensional uniform random number sequence with independent components.
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class AcceptanceRejectionRandomNumberGenerator implements RandomNumberGenerator1D {
+
+	private static final long serialVersionUID = -9060003224133337426L;
+
+	private final RandomNumberGenerator uniformRandomNumberGenerator;
+	private final DoubleUnaryOperator targetDensity;
+	private final DoubleUnaryOperator referenceDensity;
+	private final DoubleUnaryOperator referenceDistributionICDF;
+	private final double acceptanceLevel;
+
+	/**
+	 * Create a random number sequence using the given input sequence and acceptance-rejection sampling.
+	 *
+	 * @param uniformRandomNumberGenerator A two dimension (at least) uniform number generator (with i.i.d components). The first two components will be used.
+	 * @param targetDensity The density f of the target distribution F.
+	 * @param referenceDensity The density g.
+	 * @param referenceDistributionICDF The ICDF, i.e. the inverse of G where G' = g.
+	 * @param acceptanceLevel The constant C such that \( f \leq C g \).
+	 */
+	public AcceptanceRejectionRandomNumberGenerator(final RandomNumberGenerator uniformRandomNumberGenerator,
+			final DoubleUnaryOperator targetDensity,
+			final DoubleUnaryOperator referenceDensity,
+			final DoubleUnaryOperator referenceDistributionICDF,
+<span class="fc" id="L43">			final double acceptanceLevel) {</span>
+<span class="fc" id="L44">		Validate.inclusiveBetween(2, Integer.MAX_VALUE, uniformRandomNumberGenerator.getDimension(), &quot;The acceptance rejection method requires a uniform distributed random number generator with at least dimension 2.&quot;);</span>
+
+<span class="fc" id="L46">		this.uniformRandomNumberGenerator = uniformRandomNumberGenerator;</span>
+<span class="fc" id="L47">		this.targetDensity = targetDensity;</span>
+<span class="fc" id="L48">		this.referenceDensity = referenceDensity;</span>
+<span class="fc" id="L49">		this.referenceDistributionICDF = referenceDistributionICDF;</span>
+<span class="fc" id="L50">		this.acceptanceLevel = acceptanceLevel;</span>
+<span class="fc" id="L51">	}</span>
+
+	@Override
+	public double nextDouble() {
+<span class="fc" id="L55">		boolean rejected = true;</span>
+<span class="fc" id="L56">		double y = Double.NaN;</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">		while(rejected) {</span>
+<span class="fc" id="L58">			final double[] uniform = uniformRandomNumberGenerator.getNext();		// Tuple (u,v) of two uniforms</span>
+<span class="fc" id="L59">			final double u = uniform[0];											// u that samples acceptance/rejection</span>
+<span class="fc" id="L60">			y = referenceDistributionICDF.applyAsDouble(uniform[1]);				// y = ICDF method applied to v (candidate)</span>
+<span class="fc bfc" id="L61" title="All 2 branches covered.">			rejected = targetDensity.applyAsDouble(y) &lt; u * acceptanceLevel * referenceDensity.applyAsDouble(y);</span>
+<span class="fc" id="L62">		}</span>
+<span class="fc" id="L63">		return y;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

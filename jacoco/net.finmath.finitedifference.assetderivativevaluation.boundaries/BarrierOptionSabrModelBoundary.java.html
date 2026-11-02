@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarrierOptionSabrModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">BarrierOptionSabrModelBoundary.java</span></div><h1>BarrierOptionSabrModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMSabrModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.BarrierOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.BarrierType;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link BarrierOption} under the {@link FDMSabrModel}.
+ *
+ * &lt;p&gt;
+ * State variables are assumed to be {@code (S, alpha)}, where {@code S} is the
+ * asset level and {@code alpha} the stochastic volatility factor.
+ * For knock-out options, Dirichlet conditions are imposed on the barrier side
+ * in the asset direction. Volatility-direction boundaries are left untouched
+ * via {@link StandardBoundaryCondition#none()}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The barrier is assumed to coincide with the lower or upper boundary of the
+ * asset grid. In-options may still be handled elsewhere by the product logic.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This version uses grid-aware continuation-side spot boundary values, with two
+ * targeted exceptions:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;for {@code UP_OUT CALL} at the lower spot boundary, use
+ *       {@code none()} instead of a hard zero,&lt;/li&gt;
+ *   &lt;li&gt;for {@code DOWN_OUT PUT} at the upper spot boundary, use
+ *       {@code none()} instead of a hard zero.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BarrierOptionSabrModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMSabrModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L57">	public BarrierOptionSabrModelBoundary(final FDMSabrModel model) {</span>
+<span class="nc" id="L58">		this.model = model;</span>
+<span class="nc" id="L59">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L67">		final BarrierOption option = (BarrierOption) product;</span>
+<span class="nc" id="L68">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L69">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="nc" id="L71">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L73" title="All 2 branches missed.">		final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+
+<span class="nc" id="L75">		final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+		/*
+		 * S -&gt; lower boundary
+		 *
+		 * If the lower boundary is the knock-out barrier, use rebate.
+		 *
+		 * Targeted relaxation:
+		 * For UP_OUT CALL, the lower continuation-side spot boundary is left
+		 * free.
+		 */
+<span class="nc bnc" id="L86" title="All 2 branches missed.">		if (barrierType == BarrierType.DOWN_OUT) {</span>
+<span class="nc" id="L87">			result[0] = StandardBoundaryCondition.dirichlet(option.getRebate());</span>
+<span class="nc bnc" id="L88" title="All 4 branches missed.">		} else if (barrierType == BarrierType.UP_OUT &amp;&amp; sign == CallOrPut.CALL) {</span>
+<span class="nc" id="L89">			result[0] = StandardBoundaryCondition.none();</span>
+		} else {
+<span class="nc" id="L91">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L92">					getDiscountedIntrinsicValue(option, time, stock)</span>
+					);
+		}
+
+		// alpha -&gt; lower boundary
+<span class="nc" id="L97">		result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L99">		return result;</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L108">		final BarrierOption option = (BarrierOption) product;</span>
+<span class="nc" id="L109">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L110">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="nc" id="L112">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L114" title="All 2 branches missed.">		final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : 0.0;</span>
+
+<span class="nc" id="L116">		final BoundaryCondition[] result = new BoundaryCondition[2];</span>
+
+		/*
+		 * S -&gt; upper boundary
+		 *
+		 * If the upper boundary is the knock-out barrier, use rebate.
+		 *
+		 * Targeted relaxation:
+		 * For DOWN_OUT PUT, the upper continuation-side spot boundary is left
+		 * free.
+		 */
+<span class="nc bnc" id="L127" title="All 2 branches missed.">		if (barrierType == BarrierType.UP_OUT) {</span>
+<span class="nc" id="L128">			result[0] = StandardBoundaryCondition.dirichlet(option.getRebate());</span>
+<span class="nc bnc" id="L129" title="All 4 branches missed.">		} else if (barrierType == BarrierType.DOWN_OUT &amp;&amp; sign == CallOrPut.PUT) {</span>
+<span class="nc" id="L130">			result[0] = StandardBoundaryCondition.none();</span>
+		} else {
+<span class="nc" id="L132">			result[0] = StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L133">					getDiscountedIntrinsicValue(option, time, stock)</span>
+					);
+		}
+
+		// alpha -&gt; upper boundary
+<span class="nc" id="L138">		result[1] = StandardBoundaryCondition.none();</span>
+
+<span class="nc" id="L140">		return result;</span>
+	}
+
+	private double getDiscountedIntrinsicValue(
+			final BarrierOption option,
+			final double evaluationTime,
+			final double stock) {
+
+<span class="nc" id="L148">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L149">		final double tau = Math.max(maturity - evaluationTime, 0.0);</span>
+
+<span class="nc" id="L151">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(tau);</span>
+<span class="nc" id="L152">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(tau);</span>
+
+<span class="nc" id="L154">		final double discountedForwardLikeSpot = stock * discountFactorDividend;</span>
+<span class="nc" id="L155">		final double discountedStrike = option.getStrike() * discountFactorRiskFree;</span>
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">		if (option.getCallOrPut() == CallOrPut.CALL) {</span>
+<span class="nc" id="L158">			return Math.max(discountedForwardLikeSpot - discountedStrike, 0.0);</span>
+		} else {
+<span class="nc" id="L160">			return Math.max(discountedStrike - discountedForwardLikeSpot, 0.0);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

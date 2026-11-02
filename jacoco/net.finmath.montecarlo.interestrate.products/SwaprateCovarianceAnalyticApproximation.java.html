@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaprateCovarianceAnalyticApproximation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">SwaprateCovarianceAnalyticApproximation.java</span></div><h1>SwaprateCovarianceAnalyticApproximation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 10.11.2007
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.AbstractMonteCarloProduct;
+import net.finmath.montecarlo.MonteCarloSimulationModel;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.interestrate.LIBORMarketModel;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class implements an analytic approximation of the integrated instantaneous covariance
+ * of two swap rates under a LIBOR market model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SwaprateCovarianceAnalyticApproximation extends AbstractMonteCarloProduct {
+
+	private final double[]    swapTenor1;       // Vector of swap tenor (period start and end dates).
+	private final double[]    swapTenor2;       // Vector of swap tenor (period start and end dates).
+
+	/**
+	 * Create the product implementing the analytic approximation of a swap rate covariance in a forward rate model.
+	 *
+	 * @param swapTenor1 The swap tenor of the first rate in doubles.
+	 * @param swapTenor2 The swap tenor of the second rate in doubles.
+	 */
+	public SwaprateCovarianceAnalyticApproximation(final double[] swapTenor1, final double[] swapTenor2) {
+<span class="nc" id="L37">		super();</span>
+<span class="nc" id="L38">		this.swapTenor1 = swapTenor1;</span>
+<span class="nc" id="L39">		this.swapTenor2 = swapTenor2;</span>
+<span class="nc" id="L40">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final MonteCarloSimulationModel model) throws CalculationException {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">		if(!(model instanceof LIBORModelMonteCarloSimulationModel)) {</span>
+<span class="nc" id="L45">			throw new IllegalArgumentException(&quot;This product requires a simulation of type LIBORModelMonteCarloSimulationModel where the underlying model is of type LIBORMarketModel.&quot;);</span>
+		}
+
+<span class="nc" id="L48">		final ProcessModel modelBase = ((LIBORModelMonteCarloSimulationModel)model).getModel();</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		if(modelBase instanceof LIBORMarketModel) {</span>
+<span class="nc" id="L50">			return getValues(evaluationTime, model.getTimeDiscretization(), (LIBORMarketModel)modelBase);</span>
+		} else {
+<span class="nc" id="L52">			throw new IllegalArgumentException(&quot;This product requires a simulation where the underlying model is of type LIBORMarketModel.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Calculates the approximated integrated instantaneous covariance of two swap rates,
+	 * using the approximation d log(S(t))/d log(L(t)) = d log(S(0))/d log(L(0)).
+	 *
+	 * @param evaluationTime The evaluation time.
+	 * @param timeDiscretization The time discretization used for integrating the covariance.
+	 * @param model A model implementing the LIBORMarketModelFromCovarianceModel
+	 * @return Returns the approximated integrated instantaneous covariance of two swap rates.
+	 */
+	public RandomVariable getValues(final double evaluationTime, final TimeDiscretization timeDiscretization, final LIBORMarketModel model) {
+
+<span class="nc" id="L67">		final int swapStartIndex1  = model.getLiborPeriodIndex(swapTenor1[0]);</span>
+<span class="nc" id="L68">		final int swapEndIndex1    = model.getLiborPeriodIndex(swapTenor1[swapTenor1.length-1]);</span>
+
+<span class="nc" id="L70">		final int swapStartIndex2  = model.getLiborPeriodIndex(swapTenor2[0]);</span>
+<span class="nc" id="L71">		final int swapEndIndex2    = model.getLiborPeriodIndex(swapTenor2[swapTenor2.length-1]);</span>
+
+<span class="nc" id="L73">		final int optionMaturityIndex = model.getCovarianceModel().getTimeDiscretization().getTimeIndex(Math.min(swapTenor1[0], swapTenor2[0]));</span>
+
+<span class="nc" id="L75">		final double[]  swapCovarianceWeights1  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor1).get(&quot;values&quot;);</span>
+<span class="nc" id="L76">		final double[]  swapCovarianceWeights2  = SwaptionSingleCurveAnalyticApproximation.getLogSwaprateDerivative(model.getLiborPeriodDiscretization(), model.getForwardRateCurve(), swapTenor2).get(&quot;values&quot;);</span>
+
+		// Get the integrated libor covariance from the model
+<span class="nc" id="L79">		final double[][]	integratedLIBORCovariance = model.getIntegratedLIBORCovariance(timeDiscretization)[optionMaturityIndex];</span>
+
+		// Calculate integrated swap rate covariance
+<span class="nc" id="L82">		double integratedSwapRateCovariance = 0.0;</span>
+
+<span class="nc bnc" id="L84" title="All 2 branches missed.">		for(int componentIndex1 = swapStartIndex1; componentIndex1 &lt; swapEndIndex1; componentIndex1++) {</span>
+			// Sum the libor cross terms (use symmetry)
+<span class="nc bnc" id="L86" title="All 2 branches missed.">			for(int componentIndex2 = swapStartIndex2; componentIndex2 &lt; swapEndIndex2; componentIndex2++) {</span>
+<span class="nc" id="L87">				integratedSwapRateCovariance += swapCovarianceWeights1[componentIndex1-swapStartIndex1] * swapCovarianceWeights2[componentIndex2-swapStartIndex2] * integratedLIBORCovariance[componentIndex1][componentIndex2];</span>
+			}
+		}
+
+<span class="nc" id="L91">		return new RandomVariableFromDoubleArray(evaluationTime, integratedSwapRateCovariance);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

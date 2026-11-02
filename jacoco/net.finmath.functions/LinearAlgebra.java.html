@@ -1,0 +1,1458 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearAlgebra.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">LinearAlgebra.java</span></div><h1>LinearAlgebra.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.02.2004
+ */
+
+package net.finmath.functions;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+
+import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
+import org.apache.commons.math3.linear.CholeskyDecomposition;
+import org.apache.commons.math3.linear.DecompositionSolver;
+import org.apache.commons.math3.linear.EigenDecomposition;
+import org.apache.commons.math3.linear.LUDecomposition;
+import org.apache.commons.math3.linear.MatrixUtils;
+import org.apache.commons.math3.linear.QRDecomposition;
+import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.SingularValueDecomposition;
+import org.ejml.data.DMatrixRMaj;
+import org.ejml.dense.row.factory.LinearSolverFactory_DDRM;
+import org.ejml.interfaces.linsol.LinearSolverDense;
+
+/**
+ * This class implements some methods from linear algebra (e.g. solution of a linear equation, PCA).
+ *
+ * It is basically a functional wrapper using either Apache Commons Math, EJML or JBlas
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+<span class="nc" id="L36">public class LinearAlgebra {</span>
+
+<span class="fc" id="L38">	private static boolean isEigenvalueDecompositionViaSVD = Boolean.parseBoolean(System.getProperty(&quot;net.finmath.functions.LinearAlgebra.isEigenvalueDecompositionViaSVD&quot;,&quot;false&quot;));</span>
+
+<span class="fc" id="L40">	public enum SolverBackend {</span>
+<span class="fc" id="L41">		COMMONS_MATH,</span>
+<span class="fc" id="L42">		EJML,</span>
+<span class="fc" id="L43">		JBLAS</span>
+	}
+
+	private static final String PROPERTY_SOLVER_BACKEND = &quot;net.finmath.functions.LinearAlgebra.solverBackend&quot;;
+	private static final String PROPERTY_LEGACY_USE_COMMONS_MATH = &quot;net.finmath.functions.LinearAlgebra.isUseApacheCommonsMath&quot;;
+
+	/*
+	 * The default backend used by the static methods is immutable after class
+	 * initialization. This avoids a mutable global switch while preserving the
+	 * existing static method signatures.
+	 */
+	private static final SolverBackend solverBackend;
+	private static final boolean isSolverUseApacheCommonsMath;
+
+	static {
+<span class="fc" id="L58">		SolverBackend configuredSolverBackend = getConfiguredSolverBackend();</span>
+
+		/*
+		 * Check if jblas is available only when it is requested, since loading
+		 * jblas may fail on platforms without a compatible native library.
+		 * If legacy configuration requested jblas but it is not available, fall
+		 * back to the pure-Java EJML backend.
+		 */
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">		if(configuredSolverBackend == SolverBackend.JBLAS) {</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">			if(!JBlasAvailabilityHolder.IS_AVAILABLE) {</span>
+<span class="nc" id="L68">				configuredSolverBackend = SolverBackend.EJML;</span>
+			}
+		}
+
+<span class="fc" id="L72">		solverBackend = configuredSolverBackend;</span>
+
+		/*
+		 * Backward compatibility for methods that still use the old boolean.
+		 * If the backend is EJML, those methods use Commons Math and must not
+		 * accidentally fall through to jblas.
+		 */
+<span class="pc bpc" id="L79" title="1 of 2 branches missed.">		isSolverUseApacheCommonsMath = solverBackend != SolverBackend.JBLAS;</span>
+<span class="fc" id="L80">	}</span>
+
+	public static boolean isEigenvalueDecompositionViaSVD() {
+<span class="nc" id="L83">		return isEigenvalueDecompositionViaSVD;</span>
+	}
+
+	/**
+	 * Returns the legacy solver flag. This method is kept for backward compatibility
+	 * and returns false only if the default backend is jblas. In particular, it
+	 * returns true for EJML, since methods not converted to the backend enum
+	 * continue to use Commons Math.
+	 *
+	 * @return True if the default solver backend is not jblas.
+	 */
+	public static boolean isSolverUseApacheCommonsMath() {
+<span class="nc" id="L95">		return isSolverUseApacheCommonsMath;</span>
+	}
+
+	public static boolean isJBlasAvailable() {
+<span class="fc" id="L99">		return JBlasAvailabilityHolder.IS_AVAILABLE;</span>
+	}
+
+	/**
+	 * Returns the immutable default backend used by the static solve methods.
+	 * The value is determined once during class initialization from system
+	 * properties.
+	 *
+	 * @return The default solver backend.
+	 */
+	public static SolverBackend getSolverBackend() {
+<span class="nc" id="L110">		return solverBackend;</span>
+	}
+
+	/**
+	 * Returns the immutable default backend used by the static solve methods.
+	 *
+	 * @return The default solver backend.
+	 */
+	public static SolverBackend getDefaultSolverBackend() {
+<span class="nc" id="L119">		return solverBackend;</span>
+	}
+
+	/**
+	 * Creates a backend-specific, immutable solver instance. Use this if different
+	 * parts of an application should use different solver backends without changing
+	 * global static state.
+	 *
+	 * @param solverBackend The solver backend.
+	 * @return A backend-specific solver instance.
+	 */
+	public static Solver getSolver(final SolverBackend solverBackend) {
+<span class="fc" id="L131">		return new Solver(solverBackend);</span>
+	}
+
+	/**
+	 * Creates a backend-specific, immutable solver instance.
+	 *
+	 * @param solverBackend The solver backend.
+	 * @return A backend-specific solver instance.
+	 */
+	public static Solver of(final SolverBackend solverBackend) {
+<span class="nc" id="L141">		return getSolver(solverBackend);</span>
+	}
+
+	/**
+	 * Creates a solver instance using the default backend.
+	 *
+	 * @return A solver instance using the default backend.
+	 */
+	public static Solver getDefaultSolver() {
+<span class="nc" id="L150">		return new Solver(solverBackend);</span>
+	}
+
+	/**
+	 * Immutable backend-specific solver facade. The instance methods delegate to
+	 * static methods with an explicit backend parameter. This avoids mutable global
+	 * state and allows different threads to use different solver backends safely.
+	 */
+	public static final class Solver {
+
+		private final SolverBackend solverBackend;
+
+<span class="fc" id="L162">		private Solver(final SolverBackend solverBackend) {</span>
+<span class="fc" id="L163">			this.solverBackend = requireSolverBackendAvailable(solverBackend);</span>
+<span class="fc" id="L164">		}</span>
+
+		public SolverBackend getSolverBackend() {
+<span class="nc" id="L167">			return solverBackend;</span>
+		}
+
+		public double[] solveLinearEquationTikonov(final double[][] matrixA, final double[] b, final double lambda) {
+<span class="nc" id="L171">			return LinearAlgebra.solveLinearEquationTikonov(solverBackend, matrixA, b, lambda);</span>
+		}
+
+		public double[] solveLinearEquationTikonov(
+				final double[][] matrixA,
+				final double[] b,
+				final double lambda0,
+				final double lambda1,
+				final double lambda2) {
+<span class="nc" id="L180">			return LinearAlgebra.solveLinearEquationTikonov(solverBackend, matrixA, b, lambda0, lambda1, lambda2);</span>
+		}
+
+		public double[] solveLinearEquation(final double[][] matrixA, final double[] b) {
+<span class="nc" id="L184">			return LinearAlgebra.solveLinearEquation(solverBackend, matrixA, b);</span>
+		}
+
+		public double[] solveLinearEquationSVD(final double[][] matrixA, final double[] b) {
+<span class="nc" id="L188">			return LinearAlgebra.solveLinearEquationSVD(solverBackend, matrixA, b);</span>
+		}
+
+		public double[][] invert(final double[][] matrix) {
+<span class="nc" id="L192">			return LinearAlgebra.invert(solverBackend, matrix);</span>
+		}
+
+		public double[] solveLinearEquationSymmetric(final double[][] matrix, final double[] vector) {
+<span class="nc" id="L196">			return LinearAlgebra.solveLinearEquationSymmetric(solverBackend, matrix, vector);</span>
+		}
+
+		public double[] solveLinearEquationLeastSquare(final double[][] matrix, final double[] vector) {
+<span class="nc" id="L200">			return LinearAlgebra.solveLinearEquationLeastSquare(solverBackend, matrix, vector);</span>
+		}
+
+		public double[][] solveLinearEquationLeastSquare(final double[][] matrix, final double[][] rhs) {
+<span class="nc" id="L204">			return LinearAlgebra.solveLinearEquationLeastSquare(solverBackend, matrix, rhs);</span>
+		}
+
+		public double[][] pseudoInverse(final double[][] matrix) {
+<span class="nc" id="L208">			return LinearAlgebra.pseudoInverse(solverBackend, matrix);</span>
+		}
+
+		public double[] solveTikhonovViaNormalEquations(
+				final double[][] matrix,
+				final double[] rhs,
+				final double regularizationLambda) {
+<span class="nc" id="L215">			return LinearAlgebra.solveTikhonovViaNormalEquations(solverBackend, matrix, rhs, regularizationLambda);</span>
+		}
+
+		public double[] solveLinearEquationCholesky(final double[][] matrix, final double[] rhs) {
+<span class="fc" id="L219">			return LinearAlgebra.solveLinearEquationCholesky(solverBackend, matrix, rhs);</span>
+		}
+	}
+
+	private static SolverBackend requireSolverBackend(final SolverBackend solverBackend) {
+<span class="pc bpc" id="L224" title="1 of 2 branches missed.">		if(solverBackend == null) {</span>
+<span class="nc" id="L225">			throw new NullPointerException(&quot;solverBackend&quot;);</span>
+		}
+<span class="fc" id="L227">		return solverBackend;</span>
+	}
+
+	private static SolverBackend requireSolverBackendAvailable(final SolverBackend solverBackend) {
+<span class="fc" id="L231">		requireSolverBackend(solverBackend);</span>
+
+<span class="pc bpc" id="L233" title="1 of 4 branches missed.">		if(solverBackend == SolverBackend.JBLAS &amp;&amp; !JBlasAvailabilityHolder.IS_AVAILABLE) {</span>
+<span class="fc" id="L234">			throw new IllegalArgumentException(&quot;JBLAS backend requested, but jblas is not available.&quot;);</span>
+		}
+
+<span class="fc" id="L237">		return solverBackend;</span>
+	}
+
+	private static SolverBackend getConfiguredSolverBackend() {
+<span class="fc" id="L241">		final String configuredBackend = System.getProperty(PROPERTY_SOLVER_BACKEND);</span>
+
+<span class="pc bpc" id="L243" title="3 of 4 branches missed.">		if(configuredBackend != null &amp;&amp; !configuredBackend.trim().isEmpty()) {</span>
+<span class="nc" id="L244">			return parseSolverBackend(configuredBackend);</span>
+		}
+
+		/*
+		 * Backward compatibility with the old boolean property:
+		 * true  -&gt; COMMONS_MATH
+		 * false -&gt; JBLAS
+		 */
+<span class="fc" id="L252">		final boolean useCommonsMath = Boolean.parseBoolean(System.getProperty(PROPERTY_LEGACY_USE_COMMONS_MATH,&quot;true&quot;));</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">		return useCommonsMath ? SolverBackend.COMMONS_MATH : SolverBackend.JBLAS;</span>
+	}
+
+	private static SolverBackend parseSolverBackend(final String configuredBackend) {
+<span class="nc" id="L257">		final String normalizedName = configuredBackend</span>
+<span class="nc" id="L258">				.trim()</span>
+<span class="nc" id="L259">				.replace('-', '_')</span>
+<span class="nc" id="L260">				.replace(' ', '_')</span>
+<span class="nc" id="L261">				.toUpperCase(Locale.ENGLISH);</span>
+
+<span class="nc bnc" id="L263" title="All 2 branches missed.">		if(&quot;COMMONS&quot;.equals(normalizedName)</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">				|| &quot;APACHE&quot;.equals(normalizedName)</span>
+<span class="nc bnc" id="L265" title="All 2 branches missed.">				|| &quot;APACHE_COMMONS&quot;.equals(normalizedName)</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">				|| &quot;APACHE_COMMONS_MATH&quot;.equals(normalizedName)) {</span>
+<span class="nc" id="L267">			return SolverBackend.COMMONS_MATH;</span>
+		}
+
+<span class="nc" id="L270">		return SolverBackend.valueOf(normalizedName);</span>
+	}
+
+	private static boolean checkJBlasAvailability() {
+		try {
+<span class="nc" id="L275">			final double[] x = org.jblas.Solve.solve(new org.jblas.DoubleMatrix(2, 2, 1.0, 1.0, 0.0, 1.0), new org.jblas.DoubleMatrix(2, 1, 1.0, 1.0)).data;</span>
+<span class="nc bnc" id="L276" title="All 4 branches missed.">			return Math.abs(x[0] - 1.0) &lt; 1E-12 &amp;&amp; Math.abs(x[1]) &lt; 1E-12;</span>
+		}
+<span class="fc" id="L278">		catch(final RuntimeException | LinkageError exception) {</span>
+<span class="fc" id="L279">			return false;</span>
+		}
+	}
+
+	/*
+	 * Initialization-on-demand holder. Commons Math and EJML use does not load the
+	 * optional native jblas classes. The probe runs at most once when availability
+	 * is queried, JBLAS is explicitly requested, or JBLAS is the configured default.
+	 */
+	private static final class JBlasAvailabilityHolder {
+<span class="fc" id="L289">		private static final boolean IS_AVAILABLE = checkJBlasAvailability();</span>
+
+		private JBlasAvailabilityHolder() {
+		}
+	}
+
+	/**
+	 * Create a Cholesky decomposition of a symmetric matrix.
+	 *
+	 * @param symmetricMatrix The input matrix.
+	 * @return A lower triangle matrix representing the CholeskyDecomposition.
+	 */
+	public static double[][] getCholeskyDecomposition(double[][] symmetricMatrix) {
+<span class="nc" id="L302">		final CholeskyDecomposition decomposition = new CholeskyDecomposition(new Array2DRowRealMatrix(symmetricMatrix));</span>
+
+<span class="nc" id="L304">		final double[][] choleskyDecomposition = decomposition.getL().getData();</span>
+
+<span class="nc" id="L306">		return choleskyDecomposition;</span>
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an m - vector given as double[m],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * using a standard Tikhonov regularization, i.e., we solve in the least square sense
+	 *   A* x = b*
+	 * where A* = (A^T, lambda I)^T and b* = (b^T , 0)^T.
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @param lambda The parameter lambda of the Tikhonov regularization. Lambda effectively measures which small numbers are considered zero.
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationTikonov(final double[][] matrixA, final double[] b, final double lambda) {
+<span class="nc" id="L326">		return solveLinearEquationTikonov(solverBackend, matrixA, b, lambda);</span>
+	}
+
+	public static double[] solveLinearEquationTikonov(
+			final SolverBackend solverBackend,
+			final double[][] matrixA,
+			final double[] b,
+			final double lambda) {
+<span class="nc" id="L334">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="nc bnc" id="L336" title="All 2 branches missed.">		if(lambda == 0) {</span>
+<span class="nc" id="L337">			return solveLinearEquationLeastSquare(solverBackend, matrixA, b);</span>
+		}
+
+		/*
+		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
+		 * And SVD is an alternative to this method.
+		 */
+<span class="nc" id="L344">		final int rows = matrixA.length;</span>
+<span class="nc" id="L345">		final int cols = matrixA[0].length;</span>
+<span class="nc" id="L346">		final double[][] matrixRegularized = new double[rows+cols][cols];</span>
+<span class="nc" id="L347">		final double[] bRegularized = new double[rows+cols];					// Note the JVM initializes arrays to zero.</span>
+<span class="nc bnc" id="L348" title="All 2 branches missed.">		for(int i=0; i&lt;rows; i++) {</span>
+<span class="nc" id="L349">			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);</span>
+		}
+<span class="nc" id="L351">		System.arraycopy(b, 0, bRegularized, 0, rows);</span>
+
+<span class="nc bnc" id="L353" title="All 2 branches missed.">		for(int j=0; j&lt;cols; j++) {</span>
+<span class="nc" id="L354">			final double[] matrixRow = matrixRegularized[rows+j];</span>
+
+<span class="nc" id="L356">			matrixRow[j] = lambda;</span>
+		}
+
+<span class="nc" id="L359">		return solveLinearEquation(solverBackend, matrixRegularized, bRegularized);</span>
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an m - vector given as double[m],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * using a Tikhonov regularization, i.e., we solve in the least square sense
+	 *   A* x = b*
+	 * where A* = (A^T, lambda0 I, lambda1 S, lambda2 C)^T and b* = (b^T , 0 , 0 , 0)^T.
+	 *
+	 * The matrix I is the identity matrix, effectively reducing the level of the solution vector.
+	 * The matrix S is the first order central finite difference matrix with -lambda1 on the element [i][i-1] and +lambda1 on the element [i][i+1]
+	 * The matrix C is the second order central finite difference matrix with -0.5 lambda2 on the element [i][i-1] and [i][i+1] and lambda2 on the element [i][i].
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @param lambda0 The parameter lambda0 of the Tikhonov regularization. Reduces the norm of the solution vector.
+	 * @param lambda1 The parameter lambda1 of the Tikhonov regularization. Reduces the slope of the solution vector.
+	 * @param lambda2 The parameter lambda1 of the Tikhonov regularization. Reduces the curvature of the solution vector.
+	 * @return The solution x of the equation A* x = b*
+	 */
+	public static double[] solveLinearEquationTikonov(final double[][] matrixA, final double[] b, final double lambda0, final double lambda1, final double lambda2) {
+<span class="nc" id="L385">		return solveLinearEquationTikonov(solverBackend, matrixA, b, lambda0, lambda1, lambda2);</span>
+	}
+
+	public static double[] solveLinearEquationTikonov(
+			final SolverBackend solverBackend,
+			final double[][] matrixA,
+			final double[] b,
+			final double lambda0,
+			final double lambda1,
+			final double lambda2) {
+<span class="nc" id="L395">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="nc bnc" id="L397" title="All 6 branches missed.">		if(lambda0 == 0 &amp;&amp; lambda1 ==0 &amp;&amp; lambda2 == 0) {</span>
+<span class="nc" id="L398">			return solveLinearEquationLeastSquare(solverBackend, matrixA, b);</span>
+		}
+
+		/*
+		 * The copy of the array is inefficient, but the use cases for this method are currently limited.
+		 * And SVD is an alternative to this method.
+		 */
+<span class="nc" id="L405">		final int rows = matrixA.length;</span>
+<span class="nc" id="L406">		final int cols = matrixA[0].length;</span>
+<span class="nc" id="L407">		final double[][] matrixRegularized = new double[rows+3*cols][cols];</span>
+<span class="nc" id="L408">		final double[] bRegularized = new double[rows+3*cols];					// Note the JVM initializes arrays to zero.</span>
+<span class="nc bnc" id="L409" title="All 2 branches missed.">		for(int i=0; i&lt;rows; i++) {</span>
+<span class="nc" id="L410">			System.arraycopy(matrixA[i], 0, matrixRegularized[i], 0, cols);</span>
+		}
+<span class="nc" id="L412">		System.arraycopy(b, 0, bRegularized, 0, rows);</span>
+
+<span class="nc bnc" id="L414" title="All 2 branches missed.">		for(int j=0; j&lt;cols; j++) {</span>
+<span class="nc" id="L415">			final double[] matrixRow = matrixRegularized[rows+0*cols+j];</span>
+
+<span class="nc" id="L417">			matrixRow[j] = lambda0;</span>
+		}
+
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		for(int j=0; j&lt;cols; j++) {</span>
+<span class="nc" id="L421">			final double[] matrixRow = matrixRegularized[rows+1*cols+j];</span>
+
+<span class="nc" id="L423">			matrixRow[j] = 0;</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">			if(j&gt;0) {</span>
+<span class="nc" id="L425">				matrixRow[j-1] = lambda1;</span>
+			}
+<span class="nc bnc" id="L427" title="All 2 branches missed.">			if(j&lt;cols-1) {</span>
+<span class="nc" id="L428">				matrixRow[j+1] = -lambda1;</span>
+			}
+		}
+
+<span class="nc bnc" id="L432" title="All 2 branches missed.">		for(int j=0; j&lt;cols; j++) {</span>
+<span class="nc" id="L433">			final double[] matrixRow = matrixRegularized[rows+2*cols+j];</span>
+
+<span class="nc" id="L435">			matrixRow[j] = lambda2;</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">			if(j&gt;0) {</span>
+<span class="nc" id="L437">				matrixRow[j-1] = -0.5 * lambda2;</span>
+			}
+<span class="nc bnc" id="L439" title="All 2 branches missed.">			if(j&lt;cols-1) {</span>
+<span class="nc" id="L440">				matrixRow[j+1] = -0.5 * lambda2;</span>
+			}
+		}
+
+<span class="nc" id="L444">		return solveLinearEquation(solverBackend, matrixRegularized, bRegularized);</span>
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an m - vector given as double[m],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquation(final double[][] matrixA, final double[] b) {
+<span class="nc" id="L460">		return solveLinearEquation(solverBackend, matrixA, b);</span>
+	}
+
+	public static double[] solveLinearEquation(
+			final SolverBackend solverBackend,
+			final double[][] matrixA,
+			final double[] b) {
+<span class="fc" id="L467">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L469" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L471">			final int numberOfColumns = checkMatrixAndVectorDimensions(matrixA, b);</span>
+
+			final LinearSolverDense&lt;DMatrixRMaj&gt; solverEJML;
+<span class="pc bpc" id="L474" title="1 of 2 branches missed.">			if(matrixA.length == numberOfColumns) {</span>
+<span class="fc" id="L475">				solverEJML = LinearSolverFactory_DDRM.linear(numberOfColumns);</span>
+			}
+<span class="nc bnc" id="L477" title="All 2 branches missed.">			else if(matrixA.length &gt; numberOfColumns) {</span>
+<span class="nc" id="L478">				solverEJML = LinearSolverFactory_DDRM.leastSquares(matrixA.length, numberOfColumns);</span>
+			}
+			else {
+<span class="nc" id="L481">				solverEJML = LinearSolverFactory_DDRM.pseudoInverse(true);</span>
+			}
+
+<span class="fc" id="L484">			return solveLinearEquationUsingEJML(</span>
+					matrixA,
+					b,
+					solverEJML,
+					&quot;Linear solve failed. Matrix is probably singular or ill-conditioned.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L492">			final int numberOfColumns = checkMatrixAndVectorDimensions(matrixA, b);</span>
+<span class="nc bnc" id="L493" title="All 2 branches missed.">			if(matrixA.length == numberOfColumns) {</span>
+<span class="nc" id="L494">				return org.jblas.Solve.solve(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;</span>
+			}
+			else {
+<span class="nc" id="L497">				return org.jblas.Solve.solveLeastSquares(new org.jblas.DoubleMatrix(matrixA), new org.jblas.DoubleMatrix(b)).data;</span>
+			}
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L503">			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);</span>
+
+			final DecompositionSolver solver;
+<span class="pc bpc" id="L506" title="1 of 2 branches missed.">			if(matrix.getColumnDimension() == matrix.getRowDimension()) {</span>
+<span class="fc" id="L507">				solver = new LUDecomposition(matrix).getSolver();</span>
+			}
+			else {
+<span class="nc" id="L510">				solver = new QRDecomposition(new Array2DRowRealMatrix(matrixA)).getSolver();</span>
+			}
+
+			// Using SVD - very slow
+			//			solver = new SingularValueDecomposition(new Array2DRowRealMatrix(A)).getSolver();
+
+<span class="fc" id="L516">			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);</span>
+		}
+		}
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an m - vector given as double[m],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param matrixA The matrix A (left hand side of the linear equation).
+	 * @param b The vector (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationSVD(final double[][] matrixA, final double[] b) {
+<span class="fc" id="L534">		return solveLinearEquationSVD(solverBackend, matrixA, b);</span>
+	}
+
+	public static double[] solveLinearEquationSVD(
+			final SolverBackend solverBackend,
+			final double[][] matrixA,
+			final double[] b) {
+<span class="fc" id="L541">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L543" title="2 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="nc" id="L545">			checkMatrixAndVectorDimensions(matrixA, b);</span>
+
+<span class="nc" id="L547">			return solveLinearEquationUsingEJML(</span>
+					matrixA,
+					b,
+<span class="nc" id="L550">					LinearSolverFactory_DDRM.pseudoInverse(true),</span>
+					&quot;SVD solve failed.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L555">			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrixA))</span>
+<span class="nc" id="L556">					.mmul(new org.jblas.DoubleMatrix(b)).data;</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L561">			final Array2DRowRealMatrix matrix = new Array2DRowRealMatrix(matrixA);</span>
+
+			// Using SVD - very slow
+<span class="fc" id="L564">			final DecompositionSolver solver = new SingularValueDecomposition(matrix).getSolver();</span>
+
+<span class="fc" id="L566">			return solver.solve(new Array2DRowRealMatrix(b)).getColumn(0);</span>
+		}
+		}
+	}
+	/**
+	 * Returns the inverse of a given matrix.
+	 *
+	 * @param matrix A matrix given as double[n][n].
+	 * @return The inverse of the given matrix.
+	 */
+	public static double[][] invert(final double[][] matrix) {
+<span class="nc" id="L577">		return invert(solverBackend, matrix);</span>
+	}
+
+	public static double[][] invert(final SolverBackend solverBackend, final double[][] matrix) {
+<span class="fc" id="L581">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L583" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L585">			final int numberOfColumns = checkMatrixDimensions(matrix, &quot;matrix&quot;);</span>
+<span class="fc" id="L586">			checkSquareMatrix(matrix, numberOfColumns);</span>
+
+<span class="fc" id="L588">			return invertUsingEJML(</span>
+					matrix,
+<span class="fc" id="L590">					LinearSolverFactory_DDRM.linear(numberOfColumns),</span>
+					&quot;Matrix inverse failed. Matrix is probably singular or ill-conditioned.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L595">			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix)).toArray2();</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+			// Use LU from common math
+<span class="fc" id="L601">			final LUDecomposition lu = new LUDecomposition(new Array2DRowRealMatrix(matrix));</span>
+<span class="fc" id="L602">			final double[][] matrixInverse = lu.getSolver().getInverse().getData();</span>
+
+<span class="fc" id="L604">			return matrixInverse;</span>
+		}
+		}
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an symmetric n x n - matrix given as double[n][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param matrix The matrix A (left hand side of the linear equation).
+	 * @param vector The vector b (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationSymmetric(final double[][] matrix, final double[] vector) {
+<span class="fc" id="L622">		return solveLinearEquationSymmetric(solverBackend, matrix, vector);</span>
+	}
+
+	public static double[] solveLinearEquationSymmetric(
+			final SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[] vector) {
+<span class="fc" id="L629">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L631" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L633">			final int numberOfColumns = checkMatrixAndVectorDimensions(matrix, vector);</span>
+<span class="fc" id="L634">			checkSquareMatrix(matrix, numberOfColumns);</span>
+
+<span class="fc" id="L636">			return solveLinearEquationUsingEJML(</span>
+					matrix,
+					vector,
+<span class="fc" id="L639">					LinearSolverFactory_DDRM.linear(numberOfColumns),</span>
+					&quot;Symmetric linear solve failed. Matrix is probably singular or ill-conditioned.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L644">			return org.jblas.Solve.solveSymmetric(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(vector)).data;</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L649">			final DecompositionSolver solver = new LUDecomposition(new Array2DRowRealMatrix(matrix)).getSolver();</span>
+<span class="fc" id="L650">			return solver.solve(new Array2DRowRealMatrix(vector)).getColumn(0);</span>
+		}
+		}
+	}
+
+	/**
+	 * Find a solution of the linear equation A x = b in the least square sense where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;b is an m - vector given as double[m],&lt;/li&gt;
+	 * &lt;li&gt;x is an n - vector given as double[n],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * If the least-squares solution is not unique, the solution with minimum
+	 * Euclidean norm is returned.
+	 *
+	 * @param matrix The matrix A (left hand side of the linear equation).
+	 * @param vector The vector b (right hand of the linear equation).
+	 * @return A solution x to A x = b.
+	 */
+	public static double[] solveLinearEquationLeastSquare(final double[][] matrix, final double[] vector) {
+<span class="fc" id="L670">		return solveLinearEquationLeastSquare(solverBackend, matrix, vector);</span>
+	}
+
+	public static double[] solveLinearEquationLeastSquare(
+			final SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[] vector) {
+<span class="fc" id="L677">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L679" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L681">			checkMatrixAndVectorDimensions(matrix, vector);</span>
+
+			/*
+			 * The previous Commons Math implementation uses SVD.
+			 * Use EJML's SVD-based pseudo-inverse to preserve robust behavior.
+			 */
+<span class="fc" id="L687">			return solveLinearEquationUsingEJML(</span>
+					matrix,
+					vector,
+<span class="fc" id="L690">					LinearSolverFactory_DDRM.pseudoInverse(true),</span>
+					&quot;Least-square solve failed.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L695">			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix))</span>
+<span class="nc" id="L696">					.mmul(new org.jblas.DoubleMatrix(vector)).data;</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L701">			final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();</span>
+<span class="fc" id="L702">			return solver.solve(new ArrayRealVector(vector)).toArray();</span>
+		}
+		}
+	}
+
+	/**
+	 * Find a solution of the linear equation A X = B in the least square sense where
+	 * &lt;ul&gt;
+	 * &lt;li&gt;A is an m x n - matrix given as double[m][n]&lt;/li&gt;
+	 * &lt;li&gt;B is an m x k - matrix given as double[m][k],&lt;/li&gt;
+	 * &lt;li&gt;X is an n x k - matrix given as double[n][k],&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 * If a least-squares solution is not unique, each right-hand side is solved
+	 * using the minimum-Euclidean-norm solution.
+	 *
+	 * @param matrix The matrix A (left hand side of the linear equation).
+	 * @param rhs The matrix B (right hand of the linear equation).
+	 * @return A solution X to A X = B.
+	 */
+	public static double[][] solveLinearEquationLeastSquare(final double[][] matrix, final double[][] rhs) {
+<span class="fc" id="L722">		return solveLinearEquationLeastSquare(solverBackend, matrix, rhs);</span>
+	}
+
+	public static double[][] solveLinearEquationLeastSquare(
+			final SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[][] rhs) {
+<span class="fc" id="L729">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L731" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L733">			checkMatrixAndMatrixDimensions(matrix, rhs);</span>
+
+			/*
+			 * The previous Commons Math implementation uses SVD.
+			 * Use EJML's SVD-based pseudo-inverse to preserve robust behavior.
+			 */
+<span class="fc" id="L739">			return solveLinearEquationUsingEJML(</span>
+					matrix,
+					rhs,
+<span class="fc" id="L742">					LinearSolverFactory_DDRM.pseudoInverse(true),</span>
+					&quot;Least-square solve failed.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L747">			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix))</span>
+<span class="nc" id="L748">					.mmul(new org.jblas.DoubleMatrix(rhs)).toArray2();</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L753">			final DecompositionSolver solver = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix, false)).getSolver();</span>
+<span class="fc" id="L754">			return solver.solve(new Array2DRowRealMatrix(rhs)).getData();</span>
+		}
+		}
+	}
+
+	/**
+	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
+	 * These Eigenvectors can also be interpreted as &quot;principal components&quot; (i.e., the method implements the PCA).
+	 *
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (eigenvectors).
+	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
+	 */
+	public static double[][] getFactorMatrix(final double[][] correlationMatrix, final int numberOfFactors) {
+<span class="fc" id="L768">		return getFactorMatrixUsingCommonsMath(correlationMatrix, numberOfFactors);</span>
+	}
+
+	/**
+	 * Returns a correlation matrix which has rank &amp;lt; n and for which the first n factors agree with the factors of correlationMatrix.
+	 *
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (Eigenvectors).
+	 * @return Factor reduced correlation matrix.
+	 */
+	public static double[][] factorReduction(final double[][] correlationMatrix, final int numberOfFactors) {
+<span class="fc" id="L779">		return factorReductionUsingCommonsMath(correlationMatrix, numberOfFactors);</span>
+	}
+
+	/**
+	 * Returns the matrix of the n Eigenvectors corresponding to the first n largest Eigenvalues of a correlation matrix.
+	 * These eigenvectors can also be interpreted as &quot;principal components&quot; (i.e., the method implements the PCA).
+	 *
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (Eigenvectors).
+	 * @return Matrix of n Eigenvectors (columns) (matrix is given as double[n][numberOfFactors], where n is the number of rows of the correlationMatrix.
+	 */
+	private static double[][] getFactorMatrixUsingCommonsMath(final double[][] correlationMatrix, final int numberOfFactors) {
+		/*
+		 * Factor reduction
+		 */
+		// Create an eigen vector decomposition of the correlation matrix
+		double[]	eigenValues;
+		double[][]	eigenVectorMatrix;
+
+<span class="pc bpc" id="L798" title="1 of 2 branches missed.">		if(isEigenvalueDecompositionViaSVD) {</span>
+<span class="nc" id="L799">			final SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(correlationMatrix));</span>
+<span class="nc" id="L800">			eigenValues = svd.getSingularValues();</span>
+<span class="nc" id="L801">			eigenVectorMatrix = svd.getV().getData();</span>
+<span class="nc" id="L802">		}</span>
+		else {
+<span class="fc" id="L804">			final EigenDecomposition eigenDecomp = new EigenDecomposition(new Array2DRowRealMatrix(correlationMatrix, false));</span>
+<span class="fc" id="L805">			eigenValues			= eigenDecomp.getRealEigenvalues();</span>
+<span class="fc" id="L806">			eigenVectorMatrix	= eigenDecomp.getV().getData();</span>
+		}
+
+		class EigenValueIndex implements Comparable&lt;EigenValueIndex&gt; {
+			private final int	index;
+			private final Double value;
+
+<span class="fc" id="L813">			EigenValueIndex(final int index, final double value) {</span>
+<span class="fc" id="L814">				this.index = index; this.value = value;</span>
+<span class="fc" id="L815">			}</span>
+
+			@Override
+<span class="fc" id="L818">			public int compareTo(final EigenValueIndex o) { return o.value.compareTo(value); }</span>
+		}
+<span class="fc" id="L820">		final List&lt;EigenValueIndex&gt; eigenValueIndices = new ArrayList&lt;&gt;();</span>
+<span class="fc bfc" id="L821" title="All 2 branches covered.">		for(int i=0; i&lt;eigenValues.length; i++) {</span>
+<span class="fc" id="L822">			eigenValueIndices.add(i,new EigenValueIndex(i,eigenValues[i]));</span>
+		}
+<span class="fc" id="L824">		Collections.sort(eigenValueIndices);</span>
+
+		// Extract factors corresponding to the largest eigenvalues
+<span class="fc" id="L827">		final double[][] factorMatrix = new double[eigenValues.length][numberOfFactors];</span>
+<span class="fc bfc" id="L828" title="All 2 branches covered.">		for (int factor = 0; factor &lt; numberOfFactors; factor++) {</span>
+<span class="fc" id="L829">			final int		eigenVectorIndex	= eigenValueIndices.get(factor).index;</span>
+<span class="fc" id="L830">			double	eigenValue			= eigenValues[eigenVectorIndex];</span>
+<span class="fc bfc" id="L831" title="All 2 branches covered.">			final double	signChange			= eigenVectorMatrix[0][eigenVectorIndex] &gt; 0.0 ? 1.0 : -1.0;		// Convention: Have first entry of eigenvector positive. This is to make results more consistent.</span>
+<span class="fc" id="L832">			double  eigenVectorNormSquared     = 0.0;</span>
+<span class="fc bfc" id="L833" title="All 2 branches covered.">			for (int row = 0; row &lt; eigenValues.length; row++) {</span>
+<span class="fc" id="L834">				eigenVectorNormSquared += eigenVectorMatrix[row][eigenVectorIndex] * eigenVectorMatrix[row][eigenVectorIndex];</span>
+			}
+<span class="fc" id="L836">			eigenValue = Math.max(eigenValue,0.0);</span>
+<span class="fc bfc" id="L837" title="All 2 branches covered.">			for (int row = 0; row &lt; eigenValues.length; row++) {</span>
+<span class="fc" id="L838">				factorMatrix[row][factor] = signChange * Math.sqrt(eigenValue/eigenVectorNormSquared) * eigenVectorMatrix[row][eigenVectorIndex];</span>
+			}
+		}
+
+<span class="fc" id="L842">		return factorMatrix;</span>
+	}
+
+	/**
+	 * Returns a correlation matrix which has rank &amp;lt; n and for which the first n factors agree with the factors of correlationMatrix.
+	 *
+	 * @param correlationMatrix The given correlation matrix.
+	 * @param numberOfFactors The requested number of factors (Eigenvectors).
+	 * @return Factor reduced correlation matrix.
+	 */
+	public static double[][] factorReductionUsingCommonsMath(final double[][] correlationMatrix, final int numberOfFactors) {
+
+		// Extract factors corresponding to the largest eigenvalues
+<span class="fc" id="L855">		final double[][] factorMatrix = getFactorMatrix(correlationMatrix, numberOfFactors);</span>
+
+		// Renormalize rows
+<span class="fc bfc" id="L858" title="All 2 branches covered.">		for (int row = 0; row &lt; correlationMatrix.length; row++) {</span>
+<span class="fc" id="L859">			double sumSquared = 0;</span>
+<span class="fc bfc" id="L860" title="All 2 branches covered.">			for (int factor = 0; factor &lt; numberOfFactors; factor++) {</span>
+<span class="fc" id="L861">				sumSquared += factorMatrix[row][factor] * factorMatrix[row][factor];</span>
+			}
+<span class="pc bpc" id="L863" title="1 of 2 branches missed.">			if(sumSquared != 0) {</span>
+<span class="fc bfc" id="L864" title="All 2 branches covered.">				for (int factor = 0; factor &lt; numberOfFactors; factor++) {</span>
+<span class="fc" id="L865">					factorMatrix[row][factor] = factorMatrix[row][factor] / Math.sqrt(sumSquared);</span>
+				}
+			}
+			else {
+				// This is a rare case: The factor reduction of a completely decorrelated system to 1 factor
+<span class="nc bnc" id="L870" title="All 2 branches missed.">				for (int factor = 0; factor &lt; numberOfFactors; factor++) {</span>
+<span class="nc" id="L871">					factorMatrix[row][factor] = 1.0;</span>
+				}
+			}
+		}
+
+		// Orthogonalized again
+<span class="fc" id="L877">		final double[][] reducedCorrelationMatrix = (new Array2DRowRealMatrix(factorMatrix).multiply(new Array2DRowRealMatrix(factorMatrix).transpose())).getData();</span>
+
+<span class="fc" id="L879">		return getFactorMatrix(reducedCorrelationMatrix, numberOfFactors);</span>
+	}
+
+	/**
+	 * Calculate the &quot;matrix exponential&quot; (expm).
+	 *
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 *
+	 * @param matrix The given matrix.
+	 * @return The exp(matrix).
+	 */
+	public static double[][] exp(final double[][] matrix) {
+<span class="nc" id="L892">		return org.jblas.MatrixFunctions.expm(new org.jblas.DoubleMatrix(matrix)).toArray2();</span>
+	}
+
+	/**
+	 * Calculate the power of a matrix
+	 *
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 *
+	 * @param matrix The given matrix.
+	 * @param exponent The exponent
+	 * @return The pow(matrix, exponent).
+	 */
+	public static double[][] pow(final double[][] matrix, double exponent) {
+<span class="nc" id="L906">		return org.jblas.MatrixFunctions.expm(org.jblas.MatrixFunctions.log(new org.jblas.DoubleMatrix(matrix).mul(exponent))).toArray2();</span>
+	}
+
+	/**
+	 * Calculate the &quot;matrix exponential&quot; (expm).
+	 *
+	 * Note: The function currently requires jblas. If jblas is not availabe on your system, an exception will be thrown.
+	 * A future version of this function may implement a fall back.
+	 *
+	 * @param matrix The given matrix.
+	 * @return The exp(matrix).
+	 */
+	public static RealMatrix exp(final RealMatrix matrix) {
+<span class="nc" id="L919">		return new Array2DRowRealMatrix(exp(matrix.getData()));</span>
+	}
+
+	/**
+	 * Transpose a matrix
+	 *
+	 * @param matrix The given matrix.
+	 * @return The transposed matrix.
+	 */
+	public static double[][] transpose(final double[][] matrix){
+
+		//Get number of rows and columns of matrix
+<span class="nc" id="L931">		final int numberOfRows = matrix.length;</span>
+<span class="nc" id="L932">		final int numberOfCols = matrix[0].length;</span>
+
+		//Instantiate a unitMatrix of dimension dim
+<span class="nc" id="L935">		final double[][] transpose = new double[numberOfCols][numberOfRows];</span>
+
+		//Create unit matrix
+<span class="nc bnc" id="L938" title="All 2 branches missed.">		for(int rowIndex = 0; rowIndex &lt; numberOfRows; rowIndex++) {</span>
+<span class="nc bnc" id="L939" title="All 2 branches missed.">			for(int colIndex = 0; colIndex &lt; numberOfCols; colIndex++) {</span>
+<span class="nc" id="L940">				transpose[colIndex][rowIndex] = matrix[rowIndex][colIndex];</span>
+			}
+		}
+<span class="nc" id="L943">		return transpose;</span>
+	}
+
+	/**
+	 * Pseudo-Inverse of a matrix calculated in the least square sense.
+	 *
+	 * @param matrix The given matrix A.
+	 * @return pseudoInverse The pseudo-inverse matrix P, such that A*P*A = A and P*A*P = P
+	 */
+	public static double[][] pseudoInverse(final double[][] matrix){
+<span class="fc" id="L953">		return pseudoInverse(solverBackend, matrix);</span>
+	}
+
+	public static double[][] pseudoInverse(final SolverBackend solverBackend, final double[][] matrix){
+<span class="fc" id="L957">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L959" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L961">			return invertUsingEJML(</span>
+					matrix,
+<span class="fc" id="L963">					LinearSolverFactory_DDRM.pseudoInverse(true),</span>
+					&quot;Pseudo-inverse failed.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L968">			return org.jblas.Solve.pinv(new org.jblas.DoubleMatrix(matrix)).toArray2();</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+			// Use SVD from common math
+<span class="fc" id="L974">			final SingularValueDecomposition svd = new SingularValueDecomposition(new Array2DRowRealMatrix(matrix));</span>
+<span class="fc" id="L975">			final double[][] matrixInverse = svd.getSolver().getInverse().getData();</span>
+
+<span class="fc" id="L977">			return matrixInverse;</span>
+		}
+		}
+	}
+
+	/**
+	 * Generates a diagonal matrix with the input vector on its diagonal
+	 *
+	 * @param vector The given matrix A.
+	 * @return diagonalMatrix The matrix with the vectors entries on its diagonal
+	 */
+	public static double[][] diag(final double[] vector){
+
+		// Note: According to the Java Language spec, an array is initialized with the default value, here 0.
+<span class="nc" id="L991">		final double[][] diagonalMatrix = new double[vector.length][vector.length];</span>
+
+<span class="nc bnc" id="L993" title="All 2 branches missed.">		for(int index = 0; index &lt; vector.length; index++) {</span>
+<span class="nc" id="L994">			diagonalMatrix[index][index] = vector[index];</span>
+		}
+
+<span class="nc" id="L997">		return diagonalMatrix;</span>
+	}
+
+	/**
+	 * Multiplication of two matrices.
+	 *
+	 * @param left The matrix A.
+	 * @param right The matrix B
+	 * @return product The matrix product of A*B (if suitable)
+	 */
+	public static double[][] multMatrices(final double[][] left, final double[][] right){
+<span class="fc" id="L1008">		return new Array2DRowRealMatrix(left).multiply(new Array2DRowRealMatrix(right)).getData();</span>
+	}
+
+	/**
+	 * Multiplication of matrix and vector. The vector array is interpreted as column vector.
+	 *
+	 * @param matrix The matrix A.
+	 * @param vector The vector v
+	 * @return product The matrix product of A*v (if suitable)
+	 */
+	public static double[] multMatrixVector(final double[][] matrix, final double[] vector){
+<span class="fc" id="L1019">		return new Array2DRowRealMatrix(matrix).multiply(new Array2DRowRealMatrix(vector)).getColumn(0);</span>
+	}
+
+	/**
+	 * Matrix power. Tries to calculate a matrix A such that M^{exponent} = A.
+	 *
+	 * @param matrix The matrix M of which we like to have the power.
+	 * @param exponent The exponent.
+	 * @return The exponent-th power of M
+	 */
+	public static double[][] matrixPow(double[][] matrix, double exponent) {
+<span class="fc" id="L1030">		return matrixExp(matrixLog(new Array2DRowRealMatrix(matrix)).scalarMultiply(exponent)).getData();</span>
+	}
+
+	/**
+	 * Matrix exponential. Tries to calculate the matrix A such that exp(M) = A.
+	 *
+	 * @param matrix The matrix M
+	 * @return exp(M)
+	 */
+	public static double[][] matrixExp(double[][] matrix) {
+<span class="nc" id="L1040">		return matrixExp(new Array2DRowRealMatrix(matrix)).getData();</span>
+	}
+
+	/**
+	 * Matrix logarithm. Tries to calculate the matrix A such that log(M) = A.
+	 *
+	 * @param matrix The matrix M
+	 * @return log(M)
+	 */
+	public static double[][] matrixLog(double[][] matrix) {
+<span class="nc" id="L1050">		return matrixLog(new Array2DRowRealMatrix(matrix)).getData();</span>
+	}
+
+	/**
+	 * Matrix Frobenius norm squared ||M||^2.
+	 *
+	 * @param matrix The matrix M
+	 * @return The norm squared ||M||^2.
+	 */
+	public static double matrixNormFrobeniusSquared(final double[][] matrix) {
+		/*
+		 * Kahan summation on entry * entry
+		 */
+<span class="nc" id="L1063">		double sum = 0.0;</span>
+<span class="nc" id="L1064">		double error = 0.0;														// Running error compensation</span>
+<span class="nc bnc" id="L1065" title="All 2 branches missed.">		for(final double[] row : matrix) {</span>
+<span class="nc bnc" id="L1066" title="All 2 branches missed.">			for(final double entry : row) {</span>
+<span class="nc" id="L1067">				final double value = entry * entry - error;		// Error corrected value</span>
+<span class="nc" id="L1068">				final double newSum = sum + value;				// New sum</span>
+<span class="nc" id="L1069">				error = (newSum - sum) - value;					// New numerical error</span>
+<span class="nc" id="L1070">				sum	= newSum;</span>
+			}
+		}
+<span class="nc" id="L1073">		return sum;</span>
+	}
+
+	/**
+	 * Matrix trace tr(M).
+	 *
+	 * @param matrix The matrix M
+	 * @return The trace tr(M)
+	 */
+	public static double matrixTrace(final double[][] matrix) {
+		/*
+		 * Kahan summation on matrix[i][i]
+		 */
+<span class="nc" id="L1086">		double sum = 0.0;</span>
+<span class="nc" id="L1087">		double error = 0.0;														// Running error compensation</span>
+<span class="nc bnc" id="L1088" title="All 2 branches missed.">		for(int i = 0; i &lt; Math.min(matrix.length, matrix[0].length); i++) {</span>
+<span class="nc" id="L1089">			final double value = matrix[i][i] - error;		// Error corrected value</span>
+<span class="nc" id="L1090">			final double newSum = sum + value;				// New sum</span>
+<span class="nc" id="L1091">			error = (newSum - sum) - value;					// New numerical error</span>
+<span class="nc" id="L1092">			sum	= newSum;</span>
+		}
+<span class="nc" id="L1094">		return sum;</span>
+	}
+
+	/*
+	 * There are better ways doing this - but this here is sufficient for some less crital purposes.
+	 */
+
+	private static RealMatrix matrixExp(RealMatrix matrix) {
+<span class="fc bfc" id="L1102" title="All 2 branches covered.">		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {</span>
+			// Symmetric matrix: try to use eigenvalue decomposition.
+<span class="fc" id="L1104">			final EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);</span>
+<span class="fc" id="L1105">			final RealMatrix diag = eigenDecomposition.getD();</span>
+<span class="fc bfc" id="L1106" title="All 2 branches covered.">			for(int i=0; i&lt;diag.getRowDimension(); i++) {</span>
+<span class="fc" id="L1107">				diag.setEntry(i, i, Math.exp(diag.getEntry(i, i)));</span>
+			}
+<span class="fc" id="L1109">			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());</span>
+		}
+		else {
+<span class="fc" id="L1112">			RealMatrix exp = MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension());</span>
+<span class="fc" id="L1113">			double factor = 1.0;</span>
+<span class="fc bfc" id="L1114" title="All 2 branches covered.">			for(int k=1; k&lt;15; k++) {</span>
+<span class="fc" id="L1115">				factor = factor * k;</span>
+<span class="fc" id="L1116">				exp = exp.add(matrix.power(k).scalarMultiply(1.0/factor));</span>
+			}
+<span class="fc" id="L1118">			return exp;</span>
+		}
+	}
+
+	private static RealMatrix matrixLog(RealMatrix matrix) {
+<span class="fc bfc" id="L1123" title="All 2 branches covered.">		if(MatrixUtils.isSymmetric(matrix, 1E-10)) {</span>
+			// Symmetric matrix: try to use eigenvalue decomposition.
+<span class="fc" id="L1125">			final EigenDecomposition eigenDecomposition = new EigenDecomposition(matrix);</span>
+<span class="fc" id="L1126">			final RealMatrix diag = eigenDecomposition.getD();</span>
+<span class="fc bfc" id="L1127" title="All 2 branches covered.">			for(int i=0; i&lt;diag.getRowDimension(); i++) {</span>
+<span class="fc" id="L1128">				diag.setEntry(i, i, Math.log(diag.getEntry(i, i)));</span>
+			}
+<span class="fc" id="L1130">			return eigenDecomposition.getV().multiply(eigenDecomposition.getD()).multiply(eigenDecomposition.getVT());</span>
+		}
+		else {
+<span class="fc" id="L1133">			final RealMatrix m = matrix.subtract(MatrixUtils.createRealIdentityMatrix(matrix.getRowDimension()));</span>
+<span class="fc" id="L1134">			RealMatrix log = m.copy();</span>
+<span class="fc bfc" id="L1135" title="All 2 branches covered.">			for(int k=2; k&lt;15; k++) {</span>
+<span class="fc bfc" id="L1136" title="All 2 branches covered.">				log = log.add(m.power(k).scalarMultiply((k%2 == 0 ? -1.0 : 1.0)/k));</span>
+			}
+<span class="fc" id="L1138">			return log;</span>
+		}
+	}
+
+
+	private static double[] solveLinearEquationUsingEJML(
+			final double[][] matrix,
+			final double[] vector,
+			final LinearSolverDense&lt;DMatrixRMaj&gt; solver,
+			final String failureMessage) {
+
+<span class="fc" id="L1149">		final DMatrixRMaj matrixEJML = new DMatrixRMaj(matrix);</span>
+<span class="fc" id="L1150">		final DMatrixRMaj vectorEJML = new DMatrixRMaj(vector.length, 1);</span>
+<span class="fc bfc" id="L1151" title="All 2 branches covered.">		for(int row = 0; row &lt; vector.length; row++) {</span>
+<span class="fc" id="L1152">			vectorEJML.set(row, 0, vector[row]);</span>
+		}
+<span class="fc" id="L1154">		final DMatrixRMaj solutionEJML = new DMatrixRMaj(matrixEJML.getNumCols(), 1);</span>
+
+<span class="fc bfc" id="L1156" title="All 2 branches covered.">		if(!solver.setA(matrixEJML)) {</span>
+<span class="fc" id="L1157">			throw new ArithmeticException(failureMessage);</span>
+		}
+
+<span class="fc" id="L1160">		solver.solve(vectorEJML, solutionEJML);</span>
+
+<span class="fc" id="L1162">		final double[] solution = new double[solutionEJML.getNumRows()];</span>
+<span class="fc bfc" id="L1163" title="All 2 branches covered.">		for(int row = 0; row &lt; solution.length; row++) {</span>
+<span class="fc" id="L1164">			solution[row] = solutionEJML.get(row, 0);</span>
+		}
+
+<span class="fc" id="L1167">		return solution;</span>
+	}
+
+	private static double[][] solveLinearEquationUsingEJML(
+			final double[][] matrix,
+			final double[][] rhs,
+			final LinearSolverDense&lt;DMatrixRMaj&gt; solver,
+			final String failureMessage) {
+
+<span class="fc" id="L1176">		final DMatrixRMaj matrixEJML = new DMatrixRMaj(matrix);</span>
+<span class="fc" id="L1177">		final DMatrixRMaj rhsEJML = new DMatrixRMaj(rhs);</span>
+<span class="fc" id="L1178">		final DMatrixRMaj solutionEJML = new DMatrixRMaj(matrixEJML.getNumCols(), rhsEJML.getNumCols());</span>
+
+<span class="pc bpc" id="L1180" title="1 of 2 branches missed.">		if(!solver.setA(matrixEJML)) {</span>
+<span class="nc" id="L1181">			throw new ArithmeticException(failureMessage);</span>
+		}
+
+<span class="fc" id="L1184">		solver.solve(rhsEJML, solutionEJML);</span>
+
+<span class="fc" id="L1186">		final double[][] solution = new double[solutionEJML.getNumRows()][solutionEJML.getNumCols()];</span>
+<span class="fc bfc" id="L1187" title="All 2 branches covered.">		for(int row = 0; row &lt; solution.length; row++) {</span>
+<span class="fc bfc" id="L1188" title="All 2 branches covered.">			for(int column = 0; column &lt; solution[row].length; column++) {</span>
+<span class="fc" id="L1189">				solution[row][column] = solutionEJML.get(row, column);</span>
+			}
+		}
+
+<span class="fc" id="L1193">		return solution;</span>
+	}
+
+	private static double[][] invertUsingEJML(
+			final double[][] matrix,
+			final LinearSolverDense&lt;DMatrixRMaj&gt; solver,
+			final String failureMessage) {
+
+<span class="fc" id="L1201">		final DMatrixRMaj matrixEJML = new DMatrixRMaj(matrix);</span>
+<span class="fc" id="L1202">		final DMatrixRMaj inverseEJML = new DMatrixRMaj(matrixEJML.getNumCols(), matrixEJML.getNumRows());</span>
+
+<span class="pc bpc" id="L1204" title="1 of 2 branches missed.">		if(!solver.setA(matrixEJML)) {</span>
+<span class="nc" id="L1205">			throw new ArithmeticException(failureMessage);</span>
+		}
+
+<span class="fc" id="L1208">		solver.invert(inverseEJML);</span>
+
+<span class="fc" id="L1210">		final double[][] inverse = new double[inverseEJML.getNumRows()][inverseEJML.getNumCols()];</span>
+<span class="fc bfc" id="L1211" title="All 2 branches covered.">		for(int row = 0; row &lt; inverse.length; row++) {</span>
+<span class="fc bfc" id="L1212" title="All 2 branches covered.">			for(int column = 0; column &lt; inverse[row].length; column++) {</span>
+<span class="fc" id="L1213">				inverse[row][column] = inverseEJML.get(row, column);</span>
+			}
+		}
+
+<span class="fc" id="L1217">		return inverse;</span>
+	}
+
+	private static int checkMatrixAndVectorDimensions(final double[][] matrix, final double[] vector) {
+<span class="fc" id="L1221">		final int numberOfColumns = checkMatrixDimensions(matrix, &quot;matrix&quot;);</span>
+
+<span class="pc bpc" id="L1223" title="1 of 2 branches missed.">		if(vector == null) {</span>
+<span class="nc" id="L1224">			throw new NullPointerException(&quot;vector&quot;);</span>
+		}
+<span class="fc bfc" id="L1226" title="All 2 branches covered.">		if(matrix.length != vector.length) {</span>
+<span class="fc" id="L1227">			throw new IllegalArgumentException(</span>
+					&quot;Incompatible dimensions: matrix has &quot; + matrix.length
+							+ &quot; rows, vector has length &quot; + vector.length + &quot;.&quot;);
+		}
+
+<span class="fc" id="L1232">		return numberOfColumns;</span>
+	}
+
+	private static int checkMatrixAndMatrixDimensions(final double[][] matrix, final double[][] rhs) {
+<span class="fc" id="L1236">		final int numberOfColumns = checkMatrixDimensions(matrix, &quot;matrix&quot;);</span>
+<span class="fc" id="L1237">		checkMatrixDimensions(rhs, &quot;rhs&quot;);</span>
+
+<span class="pc bpc" id="L1239" title="1 of 2 branches missed.">		if(matrix.length != rhs.length) {</span>
+<span class="nc" id="L1240">			throw new IllegalArgumentException(</span>
+					&quot;Incompatible dimensions: matrix has &quot; + matrix.length
+							+ &quot; rows, rhs has &quot; + rhs.length + &quot; rows.&quot;);
+		}
+
+<span class="fc" id="L1245">		return numberOfColumns;</span>
+	}
+
+	private static int checkMatrixDimensions(final double[][] matrix, final String name) {
+<span class="pc bpc" id="L1249" title="1 of 2 branches missed.">		if(matrix == null) {</span>
+<span class="nc" id="L1250">			throw new NullPointerException(name);</span>
+		}
+<span class="pc bpc" id="L1252" title="1 of 2 branches missed.">		if(matrix.length == 0) {</span>
+<span class="nc" id="L1253">			throw new IllegalArgumentException(&quot;Matrix &quot; + name + &quot; has zero rows.&quot;);</span>
+		}
+<span class="pc bpc" id="L1255" title="1 of 2 branches missed.">		if(matrix[0] == null) {</span>
+<span class="nc" id="L1256">			throw new NullPointerException(name + &quot;[0]&quot;);</span>
+		}
+
+<span class="fc" id="L1259">		final int numberOfColumns = matrix[0].length;</span>
+
+<span class="pc bpc" id="L1261" title="1 of 2 branches missed.">		if(numberOfColumns == 0) {</span>
+<span class="nc" id="L1262">			throw new IllegalArgumentException(&quot;Matrix &quot; + name + &quot; has zero columns.&quot;);</span>
+		}
+
+<span class="fc bfc" id="L1265" title="All 2 branches covered.">		for(int row = 1; row &lt; matrix.length; row++) {</span>
+<span class="pc bpc" id="L1266" title="1 of 2 branches missed.">			if(matrix[row] == null) {</span>
+<span class="nc" id="L1267">				throw new NullPointerException(name + &quot;[&quot; + row + &quot;]&quot;);</span>
+			}
+<span class="pc bpc" id="L1269" title="1 of 2 branches missed.">			if(matrix[row].length != numberOfColumns) {</span>
+<span class="nc" id="L1270">				throw new IllegalArgumentException(</span>
+						&quot;Matrix &quot; + name + &quot; is not rectangular: row 0 has length &quot;
+								+ numberOfColumns + &quot;, row &quot; + row + &quot; has length &quot;
+								+ matrix[row].length + &quot;.&quot;);
+			}
+		}
+
+<span class="fc" id="L1277">		return numberOfColumns;</span>
+	}
+
+	private static void checkSquareMatrix(final double[][] matrix, final int numberOfColumns) {
+<span class="pc bpc" id="L1281" title="1 of 2 branches missed.">		if(matrix.length != numberOfColumns) {</span>
+<span class="nc" id="L1282">			throw new IllegalArgumentException(</span>
+					&quot;Matrix is not square: &quot; + matrix.length + &quot; x &quot; + numberOfColumns + &quot;.&quot;);
+		}
+<span class="fc" id="L1285">	}</span>
+
+	public static boolean matrixIsRowZero(double[][] matrix, int i) {
+<span class="pc bpc" id="L1288" title="1 of 2 branches missed.">		for(double value : matrix[i]) {</span>
+<span class="fc bfc" id="L1289" title="All 2 branches covered.">			if(value != 0.0) return false;</span>
+		}
+<span class="nc" id="L1291">		return true;</span>
+	}
+
+	public static boolean matrixIsColZero(double[][] matrix, int i) {
+<span class="pc bpc" id="L1295" title="1 of 2 branches missed.">		for(int row = 0; row &lt; matrix.length; row++) {</span>
+<span class="pc bpc" id="L1296" title="1 of 2 branches missed.">			if(matrix[row][i] != 0.0) return false;</span>
+		}
+<span class="nc" id="L1298">		return true;</span>
+	}
+
+	/**
+	 * Solves the Tikhonov-regularized normal equations
+	 *
+	 * &lt;pre&gt;
+	 *     (B^T B + lambda I) x = B^T beta.
+	 * &lt;/pre&gt;
+	 *
+	 * The normal matrix is assembled explicitly and solved by Cholesky decomposition.
+	 * Forming the unregularized normal matrix squares the spectral condition number
+	 * of B. If Cholesky fails, this method therefore solves the original least-squares
+	 * system for lambda = 0, or its augmented form for lambda &amp;gt; 0, instead of applying
+	 * an SVD to B&lt;sup&gt;T&lt;/sup&gt; B.
+	 *
+	 * @param matrix The matrix B.
+	 * @param rhs The right-hand side beta.
+	 * @param regularizationLambda The finite, non-negative regularization parameter lambda.
+	 * @return The Tikhonov-regularized solution x.
+	 */
+	public static double[] solveTikhonovViaNormalEquations(
+			final double[][] matrix,
+			final double[] rhs,
+			final double regularizationLambda) {
+<span class="nc" id="L1323">		return solveTikhonovViaNormalEquations(solverBackend, matrix, rhs, regularizationLambda);</span>
+	}
+
+	/**
+	 * Solves the Tikhonov-regularized normal equations using an explicit backend.
+	 * See {@link #solveTikhonovViaNormalEquations(double[][], double[], double)}
+	 * for the equation and conditioning characteristics.
+	 *
+	 * @param solverBackend The solver backend.
+	 * @param matrix The matrix B.
+	 * @param rhs The right-hand side beta.
+	 * @param regularizationLambda The finite, non-negative regularization parameter lambda.
+	 * @return The Tikhonov-regularized solution x.
+	 */
+	public static double[] solveTikhonovViaNormalEquations(
+			final SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[] rhs,
+			final double regularizationLambda) {
+<span class="fc" id="L1342">		requireSolverBackendAvailable(solverBackend);</span>
+<span class="fc bfc" id="L1343" title="All 4 branches covered.">		if(!Double.isFinite(regularizationLambda) || regularizationLambda &lt; 0.0) {</span>
+<span class="fc" id="L1344">			throw new IllegalArgumentException(&quot;regularizationLambda must be finite and non-negative.&quot;);</span>
+		}
+
+<span class="fc" id="L1347">		final int cols = checkMatrixAndVectorDimensions(matrix, rhs);</span>
+<span class="fc" id="L1348">		final int rows = matrix.length;</span>
+
+<span class="fc" id="L1350">		final double[][] normalMatrix = new double[cols][cols];</span>
+<span class="fc" id="L1351">		final double[] normalRhs = new double[cols];</span>
+
+		/*
+		 * normalMatrix = B^T B
+		 * normalRhs    = B^T beta
+		 */
+<span class="fc bfc" id="L1357" title="All 2 branches covered.">		for(int row = 0; row &lt; rows; row++) {</span>
+<span class="fc" id="L1358">			final double[] matrixRow = matrix[row];</span>
+<span class="fc" id="L1359">			final double rhsValue = rhs[row];</span>
+
+<span class="fc bfc" id="L1361" title="All 2 branches covered.">			for(int col1 = 0; col1 &lt; cols; col1++) {</span>
+<span class="fc" id="L1362">				final double value1 = matrixRow[col1];</span>
+<span class="fc bfc" id="L1363" title="All 2 branches covered.">				if(value1 == 0.0) {</span>
+<span class="fc" id="L1364">					continue;</span>
+				}
+
+<span class="fc" id="L1367">				normalRhs[col1] += value1 * rhsValue;</span>
+
+<span class="fc bfc" id="L1369" title="All 2 branches covered.">				for(int col2 = 0; col2 &lt;= col1; col2++) {</span>
+<span class="fc" id="L1370">					normalMatrix[col1][col2] += value1 * matrixRow[col2];</span>
+				}
+			}
+		}
+
+		/*
+		 * Add lambda I and mirror the lower triangle.
+		 */
+<span class="fc bfc" id="L1378" title="All 2 branches covered.">		for(int col1 = 0; col1 &lt; cols; col1++) {</span>
+<span class="fc" id="L1379">			normalMatrix[col1][col1] += regularizationLambda;</span>
+
+<span class="fc bfc" id="L1381" title="All 2 branches covered.">			for(int col2 = 0; col2 &lt; col1; col2++) {</span>
+<span class="fc" id="L1382">				normalMatrix[col2][col1] = normalMatrix[col1][col2];</span>
+			}
+		}
+
+		try {
+<span class="fc" id="L1387">			return solveLinearEquationCholesky(solverBackend, normalMatrix, normalRhs);</span>
+		}
+<span class="fc" id="L1389">		catch(final RuntimeException choleskyFailed) {</span>
+			/*
+			 * Avoid applying an SVD to the normal matrix, since that would retain
+			 * the squared conditioning. Solve the original system, augmented with
+			 * sqrt(lambda) I for regularized problems.
+			 */
+<span class="pc bpc" id="L1395" title="1 of 2 branches missed.">			if(regularizationLambda == 0.0) {</span>
+<span class="fc" id="L1396">				return solveLinearEquationLeastSquare(solverBackend, matrix, rhs);</span>
+			}
+
+<span class="nc" id="L1399">			final double[][] augmentedMatrix = new double[rows + cols][cols];</span>
+<span class="nc" id="L1400">			final double[] augmentedRhs = new double[rows + cols];</span>
+<span class="nc bnc" id="L1401" title="All 2 branches missed.">			for(int row = 0; row &lt; rows; row++) {</span>
+<span class="nc" id="L1402">				System.arraycopy(matrix[row], 0, augmentedMatrix[row], 0, cols);</span>
+<span class="nc" id="L1403">				augmentedRhs[row] = rhs[row];</span>
+			}
+
+<span class="nc" id="L1406">			final double sqrtRegularizationLambda = Math.sqrt(regularizationLambda);</span>
+<span class="nc bnc" id="L1407" title="All 2 branches missed.">			for(int col = 0; col &lt; cols; col++) {</span>
+<span class="nc" id="L1408">				augmentedMatrix[rows + col][col] = sqrtRegularizationLambda;</span>
+			}
+
+<span class="nc" id="L1411">			return solveLinearEquationLeastSquare(solverBackend, augmentedMatrix, augmentedRhs);</span>
+		}
+	}
+
+	public static double[] solveLinearEquationCholesky(
+			final double[][] matrix,
+			final double[] rhs) {
+<span class="fc" id="L1418">		return solveLinearEquationCholesky(solverBackend, matrix, rhs);</span>
+	}
+
+	public static double[] solveLinearEquationCholesky(
+			final SolverBackend solverBackend,
+			final double[][] matrix,
+			final double[] rhs) {
+<span class="fc" id="L1425">		requireSolverBackendAvailable(solverBackend);</span>
+
+<span class="pc bpc" id="L1427" title="1 of 3 branches missed.">		switch(solverBackend) {</span>
+		case EJML: {
+<span class="fc" id="L1429">			final int numberOfColumns = checkMatrixAndVectorDimensions(matrix, rhs);</span>
+<span class="fc" id="L1430">			checkSquareMatrix(matrix, numberOfColumns);</span>
+
+<span class="fc" id="L1432">			return solveLinearEquationUsingEJML(</span>
+					matrix,
+					rhs,
+<span class="fc" id="L1435">					LinearSolverFactory_DDRM.chol(matrix.length),</span>
+					&quot;Cholesky decomposition failed. Matrix is probably not symmetric positive definite.&quot;);
+		}
+
+		case JBLAS: {
+<span class="nc" id="L1440">			return org.jblas.Solve.solvePositive(new org.jblas.DoubleMatrix(matrix), new org.jblas.DoubleMatrix(rhs)).data;</span>
+		}
+
+		case COMMONS_MATH:
+		default: {
+<span class="fc" id="L1445">			final DecompositionSolver solver =</span>
+					new CholeskyDecomposition(
+							new Array2DRowRealMatrix(matrix, false),
+							1.0E-12,
+							1.0E-15)
+<span class="fc" id="L1450">					.getSolver();</span>
+
+<span class="fc" id="L1452">			return solver.solve(new ArrayRealVector(rhs, false)).toArray();</span>
+		}
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomOperator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.stochastic</a> &gt; <span class="el_source">RandomOperator.java</span></div><h1>RandomOperator.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 21.10.2007
+ * Created on 02.02.2014
+ */
+package net.finmath.stochastic;
+
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.UnaryOperator;
+
+/**
+ * @author Chrisitan Fries
+ */
+@FunctionalInterface
+public interface RandomOperator extends UnaryOperator&lt;RandomVariable&gt; {
+
+	/**
+	 * Applies this function to the given argument.
+	 *
+	 * @param value the function argument
+	 * @return the function result
+	 */
+	@Override
+	RandomVariable apply(RandomVariable value);
+
+	/**
+	 * Returns a composed function that first applies the {@code before}
+	 * function to its input, and then applies this function to the result.
+	 * If evaluation of either function throws an exception, it is relayed to
+	 * the caller of the composed function.
+	 *
+	 * @param before the function to apply before this function is applied
+	 * @return a composed function that first applies the {@code before}
+	 * function and then applies this function
+	 * @throws NullPointerException if before is null
+	 *
+	 * @see #andThen(Function)
+	 */
+	default RandomOperator compose(RandomOperator before) {
+<span class="nc" id="L42">		Objects.requireNonNull(before);</span>
+<span class="nc" id="L43">		return v -&gt; apply(before.apply(v));</span>
+	}
+
+	/**
+	 * Returns a composed function that first applies this function to
+	 * its input, and then applies the {@code after} function to the result.
+	 * If evaluation of either function throws an exception, it is relayed to
+	 * the caller of the composed function.
+	 *
+	 * @param after the function to apply after this function is applied
+	 * @return a composed function that first applies this function and then
+	 * applies the {@code after} function
+	 * @throws NullPointerException if after is null
+	 *
+	 * @see #compose(Function)
+	 */
+	default RandomOperator andThen(RandomOperator after) {
+<span class="nc" id="L60">		Objects.requireNonNull(after);</span>
+<span class="nc" id="L61">		return t -&gt; after.apply(apply(t));</span>
+	}
+
+	/**
+	 * Returns a function that always returns its input argument.
+	 *
+	 * @return a function that always returns its input argument
+	 */
+	static RandomOperator identity() {
+<span class="nc" id="L70">		return t -&gt; t;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

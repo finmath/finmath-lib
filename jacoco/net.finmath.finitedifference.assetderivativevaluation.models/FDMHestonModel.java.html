@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FDMHestonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">FDMHestonModel.java</span></div><h1>FDMHestonModel.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FDBoundaryFactory;
+import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDifferenceBoundary;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
+import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+
+/**
+ * Finite difference model for option pricing under the Heston stochastic
+ * volatility model.
+ *
+ * &lt;p&gt;
+ * State variables are {@code (S, v)} where {@code S} is the spot and {@code v}
+ * is the
+ * instantaneous variance.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The methods {@link #getDrift(double, double...)} and {@link
+ * #getFactorLoading(double, double...)}
+ * follow the conventions used in {@link FiniteDifferenceEquityModel}:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code getDrift} returns the vector of drifts for the state
+ * variables.&lt;/li&gt;
+ * &lt;li&gt;{@code getFactorLoading} returns the matrix of factor loadings (here 2
+ * factors), producing
+ *       the correct covariance with correlation {@code rho}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * Boundary conditions are provided through the {@link FiniteDifferenceBoundary}
+ * interface methods,
+ * via {@link FDBoundaryFactory}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ * @author Enrico De Vecchi
+ */
+public class FDMHestonModel implements FiniteDifferenceEquityModel {
+
+	/**
+	 * The initial spot.
+	 */
+	private final double initialSpot;
+	/**
+	 * The initial variance.
+	 */
+	private final double initialVariance;
+
+	/**
+	 * The risk free curve.
+	 */
+	private final DiscountCurve riskFreeCurve;
+	/**
+	 * The dividend yield curve.
+	 */
+	private final DiscountCurve dividendYieldCurve;
+
+	// Heston parameters (risk-neutral)
+	/**
+	 * The kappa.
+	 */
+	private final double kappa;
+	/**
+	 * The theta v.
+	 */
+	private final double thetaV;
+	/**
+	 * The sigma.
+	 */
+	private final double sigma;    // vol-of-vol (often eta)
+	/**
+	 * The rho.
+	 */
+	private final double rho;
+
+	/**
+	 * The space time discretization.
+	 */
+	private final SpaceTimeDiscretization spaceTimeDiscretization;
+
+	/**
+	 * Constructs a Heston finite difference model for option pricing.
+	 *
+	 * @param initialSpot            Initial spot price.
+	 * @param initialVariance        Initial variance.
+	 * @param riskFreeCurve          Risk-free discount curve.
+	 * @param dividendYieldCurve     Dividend yield discount curve.
+	 * @param kappa                  Mean reversion speed of variance.
+	 * @param thetaV                 Long-term mean of variance.
+	 * @param sigma                  Vol-of-vol parameter.
+	 * @param rho Correlation between spot and variance Brownian motions.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMHestonModel(
+			final double initialSpot,
+			final double initialVariance,
+			final DiscountCurve riskFreeCurve,
+			final DiscountCurve dividendYieldCurve,
+			final double kappa,
+			final double thetaV,
+			final double sigma,
+			final double rho,
+<span class="nc" id="L112">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L114">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L115">		this.initialVariance = initialVariance;</span>
+<span class="nc" id="L116">		this.riskFreeCurve = riskFreeCurve;</span>
+<span class="nc" id="L117">		this.dividendYieldCurve = dividendYieldCurve;</span>
+
+<span class="nc" id="L119">		this.kappa = kappa;</span>
+<span class="nc" id="L120">		this.thetaV = thetaV;</span>
+<span class="nc" id="L121">		this.sigma = sigma;</span>
+<span class="nc" id="L122">		this.rho = rho;</span>
+
+<span class="nc" id="L124">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L125">	}</span>
+
+	/**
+	 * Constructs a Heston finite difference model for option pricing without
+	 * dividend yield curve
+	 * (i.e. dividend yield is assumed to be zero).
+	 *
+	 * @param initialSpot            Initial spot price.
+	 * @param initialVariance        Initial variance.
+	 * @param riskFreeCurve          Risk-free discount curve.
+	 * @param kappa                  Mean reversion speed of variance.
+	 * @param thetaV                 Long-term mean of variance.
+	 * @param sigma                  Vol-of-vol parameter.
+	 * @param rho Correlation between spot and variance Brownian motions.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMHestonModel(
+			final double initialSpot,
+			final double initialVariance,
+			final DiscountCurve riskFreeCurve,
+			final double kappa,
+			final double thetaV,
+			final double sigma,
+			final double rho,
+<span class="nc" id="L150">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L152">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L153">		this.initialVariance = initialVariance;</span>
+<span class="nc" id="L154">		this.riskFreeCurve = riskFreeCurve;</span>
+
+<span class="nc" id="L156">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L157">		final double[] givenAnnualizedZeroRates = new double[] {0.0, 0.0};</span>
+<span class="nc" id="L158">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L159">		final InterpolationEntity interpolationEntity = InterpolationEntity.LOG_OF_VALUE_PER_TIME;</span>
+<span class="nc" id="L160">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L162">		this.dividendYieldCurve =</span>
+<span class="nc" id="L163">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L172">		this.kappa = kappa;</span>
+<span class="nc" id="L173">		this.thetaV = thetaV;</span>
+<span class="nc" id="L174">		this.sigma = sigma;</span>
+<span class="nc" id="L175">		this.rho = rho;</span>
+
+<span class="nc" id="L177">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L178">	}</span>
+
+	/**
+	 * Constructs a Heston finite difference model for option pricing from
+	 * constant rates.
+	 *
+	 * @param initialSpot            Initial spot price.
+	 * @param initialVariance        Initial variance.
+	 * @param riskFreeRate           Constant risk-free rate.
+	 * @param dividendYieldRate      Constant dividend yield rate.
+	 * @param kappa                  Mean reversion speed of variance.
+	 * @param thetaV                 Long-term mean of variance.
+	 * @param sigma                  Vol-of-vol parameter.
+	 * @param rho Correlation between spot and variance Brownian motions.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMHestonModel(
+			final double initialSpot,
+			final double initialVariance,
+			final double riskFreeRate,
+			final double dividendYieldRate,
+			final double kappa,
+			final double thetaV,
+			final double sigma,
+			final double rho,
+<span class="fc" id="L204">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="fc" id="L206">		this.initialSpot = initialSpot;</span>
+<span class="fc" id="L207">		this.initialVariance = initialVariance;</span>
+
+<span class="fc" id="L209">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="fc" id="L210">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="fc" id="L211">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="fc" id="L212">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="fc" id="L214">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="fc" id="L215">		this.riskFreeCurve =</span>
+<span class="fc" id="L216">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="fc" id="L225">		final double[] givenAnnualizedZeroRates1 = new double[] {dividendYieldRate, dividendYieldRate};</span>
+<span class="fc" id="L226">		this.dividendYieldCurve =</span>
+<span class="fc" id="L227">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates1,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="fc" id="L236">		this.kappa = kappa;</span>
+<span class="fc" id="L237">		this.thetaV = thetaV;</span>
+<span class="fc" id="L238">		this.sigma = sigma;</span>
+<span class="fc" id="L239">		this.rho = rho;</span>
+
+<span class="fc" id="L241">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="fc" id="L242">	}</span>
+
+	/**
+	 * Constructs a Heston finite difference model for option pricing from a
+	 * constant risk-free
+	 * rate and zero dividend yield.
+	 *
+	 * @param initialSpot            Initial spot price.
+	 * @param initialVariance        Initial variance.
+	 * @param riskFreeRate           Constant risk-free rate.
+	 * @param kappa                  Mean reversion speed of variance.
+	 * @param thetaV                 Long-term mean of variance.
+	 * @param sigma                  Vol-of-vol parameter.
+	 * @param rho Correlation between spot and variance Brownian motions.
+	 * @param spaceTimeDiscretization Grid object defining the spatial
+	 *     discretization.
+	 */
+	public FDMHestonModel(
+			final double initialSpot,
+			final double initialVariance,
+			final double riskFreeRate,
+			final double kappa,
+			final double thetaV,
+			final double sigma,
+			final double rho,
+<span class="nc" id="L267">			final SpaceTimeDiscretization spaceTimeDiscretization) {</span>
+
+<span class="nc" id="L269">		this.initialSpot = initialSpot;</span>
+<span class="nc" id="L270">		this.initialVariance = initialVariance;</span>
+
+<span class="nc" id="L272">		final double[] times = new double[] {0.0, 1.0};</span>
+<span class="nc" id="L273">		final InterpolationMethod interpolationMethod = InterpolationMethod.LINEAR;</span>
+<span class="nc" id="L274">		final InterpolationEntity interpolationEntity = InterpolationEntity.VALUE;</span>
+<span class="nc" id="L275">		final ExtrapolationMethod extrapolationMethod = ExtrapolationMethod.CONSTANT;</span>
+
+<span class="nc" id="L277">		final double[] givenAnnualizedZeroRates = new double[] {riskFreeRate, riskFreeRate};</span>
+<span class="nc" id="L278">		this.riskFreeCurve =</span>
+<span class="nc" id="L279">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L288">		final double[] givenAnnualizedZeroRates1 = new double[] {0.0, 0.0};</span>
+<span class="nc" id="L289">		this.dividendYieldCurve =</span>
+<span class="nc" id="L290">				DiscountCurveInterpolation.createDiscountCurveFromAnnualizedZeroRates(</span>
+						&quot;dividendCurve&quot;,
+						null,
+						times,
+						givenAnnualizedZeroRates1,
+						interpolationMethod,
+						extrapolationMethod,
+						interpolationEntity);
+
+<span class="nc" id="L299">		this.kappa = kappa;</span>
+<span class="nc" id="L300">		this.thetaV = thetaV;</span>
+<span class="nc" id="L301">		this.sigma = sigma;</span>
+<span class="nc" id="L302">		this.rho = rho;</span>
+
+<span class="nc" id="L304">		this.spaceTimeDiscretization = spaceTimeDiscretization;</span>
+<span class="nc" id="L305">	}</span>
+
+	@Override
+	public DiscountCurve getRiskFreeCurve() {
+<span class="fc" id="L309">		return riskFreeCurve;</span>
+	}
+
+	@Override
+	public DiscountCurve getDividendYieldCurve() {
+<span class="fc" id="L314">		return dividendYieldCurve;</span>
+	}
+
+	/**
+	 * Returns the initial value of the system of SDEs.
+	 *
+	 * @return The initial spot.
+	 */
+	@Override
+	public double[] getInitialValue() {
+<span class="fc" id="L324">		return new double[] {initialSpot, initialVariance};</span>
+	}
+
+	/**
+	 * Returns the initial variance value.
+	 *
+	 * @return The initial variance.
+	 */
+	/*public double getInitialVariance() {
+		return initialVariance;
+	}*/
+
+	/**
+	 * Returns the mean reversion speed of variance.
+	 *
+	 * @return The parameter {@code kappa}.
+	 */
+	public double getKappa() {
+<span class="nc" id="L342">		return kappa;</span>
+	}
+
+	/**
+	 * Returns the long-term mean of variance.
+	 *
+	 * @return The parameter {@code thetaV}.
+	 */
+	public double getThetaV() {
+<span class="nc" id="L351">		return thetaV;</span>
+	}
+
+	/**
+	 * Returns the vol-of-vol parameter.
+	 *
+	 * @return The parameter {@code sigma}.
+	 */
+	public double getSigma() {
+<span class="nc" id="L360">		return sigma;</span>
+	}
+
+	/**
+	 * Returns the correlation between the Brownian motions.
+	 *
+	 * @return The parameter {@code rho}.
+	 */
+	public double getRho() {
+<span class="nc" id="L369">		return rho;</span>
+	}
+
+	@Override
+	public SpaceTimeDiscretization getSpaceTimeDiscretization() {
+<span class="fc" id="L374">		return this.spaceTimeDiscretization;</span>
+	}
+
+	@Override
+	public double[] getDrift(final double time, final double... stateVariables) {
+		// stateVariables[0]=S, stateVariables[1]=v
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">		final double v = stateVariables.length &gt; 1 ? stateVariables[1] : initialVariance;</span>
+
+<span class="fc" id="L382">		double t = time;</span>
+<span class="fc bfc" id="L383" title="All 2 branches covered.">		if (t == 0) {</span>
+<span class="fc" id="L384">			t = 0.000001;</span>
+		}
+
+<span class="fc" id="L387">		final double rF = getRiskFreeCurve().getDiscountFactor(t);</span>
+<span class="fc" id="L388">		final double r = -Math.log(rF) / t;</span>
+
+<span class="fc" id="L390">		final double dY = getDividendYieldCurve().getDiscountFactor(t);</span>
+<span class="fc" id="L391">		final double q = -Math.log(dY) / t;</span>
+
+<span class="fc" id="L393">		final double mu = (r - q) * stateVariables[0];		// drift for S</span>
+<span class="fc" id="L394">		final double muV = kappa * (thetaV - v);	// drift of the CIR</span>
+
+<span class="fc" id="L396">		return new double[] {mu, muV};</span>
+	}
+
+	@Override
+	public double[][] getFactorLoading(final double time, final double... stateVariables) {
+		// Factors are independent. Correlation rho is embedded in the second
+		// row.
+<span class="pc bpc" id="L403" title="1 of 2 branches missed.">		final double stock = stateVariables.length &gt; 0 ? stateVariables[0] : initialSpot;</span>
+<span class="pc bpc" id="L404" title="1 of 2 branches missed.">		final double variance = Math.max(0.0, stateVariables.length &gt; 1 ? stateVariables[1] : initialVariance);</span>
+<span class="fc" id="L405">		final double sqrtV = Math.sqrt(variance);</span>
+
+<span class="fc" id="L407">		final double sqrtOneMinusRho2 = Math.sqrt(Math.max(0.0, 1.0 - rho * rho));</span>
+
+		// state dimension 2, factor dimension 2
+<span class="fc" id="L410">		final double[][] b = new double[2][2];</span>
+
+		// dS = ... + S * sqrt(v) dW1
+<span class="fc" id="L413">		b[0][0] = sqrtV * stock;	// percentage loading for S: will be multiplied by S in PDE operator</span>
+<span class="fc" id="L414">		b[0][1] = 0.0;</span>
+
+		// dv = ... + sigma * sqrt(v) ( rho dW1 + sqrt(1-rho^2) dW2 )
+<span class="fc" id="L417">		b[1][0] = sigma * sqrtV * rho;</span>
+<span class="fc" id="L418">		b[1][1] = sigma * sqrtV * sqrtOneMinusRho2;</span>
+
+<span class="fc" id="L420">		return b;</span>
+	}
+
+	/**
+	 * Convenience method returning the covariance matrix {@code a = B B^T},
+	 * derived from
+	 * {@link #getFactorLoading(double, double...)}.
+	 *
+	 * @param time           Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return The covariance matrix.
+	 */
+	public double[][] getCovariance(final double time, final double... stateVariables) {
+<span class="nc" id="L433">		final double[][] factorLoading = getFactorLoading(time, stateVariables);</span>
+
+<span class="nc" id="L435">		final double a00 = factorLoading[0][0] * factorLoading[0][0] + factorLoading[0][1] * factorLoading[0][1];</span>
+<span class="nc" id="L436">		final double a01 = factorLoading[0][0] * factorLoading[1][0] + factorLoading[0][1] * factorLoading[1][1];</span>
+<span class="nc" id="L437">		final double a11 = factorLoading[1][0] * factorLoading[1][0] + factorLoading[1][1] * factorLoading[1][1];</span>
+
+<span class="nc" id="L439">		return new double[][] {</span>
+			{a00, a01},
+			{a01, a11}
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L451">		final FiniteDifferenceBoundary boundary =</span>
+<span class="fc" id="L452">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="fc" id="L454">		return boundary.getBoundaryConditionsAtLowerBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			final double time,
+			final double... riskFactors) {
+
+<span class="fc" id="L463">		final FiniteDifferenceBoundary boundary =</span>
+<span class="fc" id="L464">				FDBoundaryFactory.createBoundary(this, product);</span>
+
+<span class="fc" id="L466">		return boundary.getBoundaryConditionsAtUpperBoundary(product, time, riskFactors);</span>
+	}
+
+	@Override
+	public FiniteDifferenceEquityModel getCloneWithModifiedSpaceTimeDiscretization(
+			final SpaceTimeDiscretization newSpaceTimeDiscretization) {
+<span class="nc" id="L472">		return new FDMHestonModel(</span>
+				initialSpot,
+				initialVariance,
+				riskFreeCurve,
+				dividendYieldCurve,
+				kappa,
+				thetaV,
+				sigma,
+				rho,
+				newSpaceTimeDiscretization
+				);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscountCurveRenormalized.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">DiscountCurveRenormalized.java</span></div><h1>DiscountCurveRenormalized.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 25.08.2017
+ */
+package net.finmath.marketdata.model.curves;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * A discount curve \( t \mapsto df(t) \) with property \( df(t_{0}) = 1 \) for a given
+ * \( t_{0} \) derived from a base discount curve by a constant skaling.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DiscountCurveRenormalized implements DiscountCurve, Serializable {
+
+	private static final long serialVersionUID = -7603795467908495733L;
+
+	private final String name;
+	private final LocalDate referenceDate;
+	private final LocalDate spotDate;
+	private final String baseCurveName;
+
+	private transient double spotOffset;
+
+	public DiscountCurveRenormalized(final String name, final LocalDate referenceDate, final LocalDate spotDate, final String baseCurveName) {
+<span class="nc" id="L34">		super();</span>
+<span class="nc" id="L35">		this.name = name;</span>
+<span class="nc" id="L36">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L37">		this.spotDate = spotDate;</span>
+<span class="nc" id="L38">		this.baseCurveName = baseCurveName;</span>
+<span class="nc" id="L39">		spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);</span>
+<span class="nc" id="L40">	}</span>
+
+	@Override
+	public String getName() {
+<span class="nc" id="L44">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="nc" id="L49">		return referenceDate;</span>
+	}
+
+	@Override
+	public double getValue(final double time) {
+<span class="nc" id="L54">		return getDiscountFactor(time);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc" id="L59">		return getDiscountFactor(model, time);</span>
+	}
+
+	@Override
+	public CurveBuilder getCloneBuilder() {
+<span class="nc" id="L64">		throw new UnsupportedOperationException(&quot;Method not supported.&quot;);</span>
+	}
+
+	@Override
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+<span class="nc" id="L69">		throw new UnsupportedOperationException(&quot;Method not supported.&quot;);</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L74">		throw new UnsupportedOperationException(&quot;Method not supported.&quot;);</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L79">		throw new UnsupportedOperationException(&quot;Method not supported.&quot;);</span>
+	}
+
+	@Override
+	public double getDiscountFactor(final double maturity) {
+<span class="nc" id="L84">		return getDiscountFactor(null, maturity);</span>
+	}
+
+	@Override
+	public double getDiscountFactor(final AnalyticModel model, final double maturity) {
+<span class="nc" id="L89">		return model.getDiscountCurve(baseCurveName).getDiscountFactor(model, maturity)</span>
+<span class="nc" id="L90">				/ model.getDiscountCurve(baseCurveName).getDiscountFactor(model, spotOffset);</span>
+	}
+
+	@Override
+	public DiscountCurveRenormalized clone() {
+<span class="nc" id="L95">		return new DiscountCurveRenormalized(getName(), getReferenceDate(), spotDate, baseCurveName);</span>
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L99">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L101">		spotOffset = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, spotDate);</span>
+<span class="nc" id="L102">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

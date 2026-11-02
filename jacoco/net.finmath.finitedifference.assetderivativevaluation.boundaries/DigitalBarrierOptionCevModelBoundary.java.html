@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DigitalBarrierOptionCevModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">DigitalBarrierOptionCevModelBoundary.java</span></div><h1>DigitalBarrierOptionCevModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMCevModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.DigitalBarrierOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.BarrierType;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.modelling.products.DigitalPayoffType;
+
+/**
+ * Boundary conditions for {@link DigitalBarrierOption} under the
+ * {@link FDMCevModel}.
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DigitalBarrierOptionCevModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * The model.
+	 */
+	private final FDMCevModel model;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 */
+<span class="nc" id="L35">	public DigitalBarrierOptionCevModelBoundary(final FDMCevModel model) {</span>
+<span class="nc" id="L36">		this.model = model;</span>
+<span class="nc" id="L37">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L45">		final DigitalBarrierOption option = (DigitalBarrierOption) product;</span>
+<span class="nc" id="L46">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L47">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L48">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+
+<span class="nc bnc" id="L50" title="All 4 branches missed.">		if ((barrierType == BarrierType.DOWN_OUT) || (sign == CallOrPut.CALL)) {</span>
+<span class="nc" id="L51">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L52">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L56">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L59">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L60">					StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+			};
+<span class="nc bnc" id="L62" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L63">			final double stateVariable = stateVariables[0];</span>
+<span class="nc" id="L64">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L65">					StandardBoundaryCondition.dirichlet(getDiscountedAssetValue(stateVariable, option, time))</span>
+			};
+		} else {
+<span class="nc" id="L68">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L78">		final DigitalBarrierOption option = (DigitalBarrierOption) product;</span>
+<span class="nc" id="L79">		final BarrierType barrierType = option.getBarrierType();</span>
+<span class="nc" id="L80">		final CallOrPut sign = option.getCallOrPut();</span>
+<span class="nc" id="L81">		final DigitalPayoffType payoffType = option.getDigitalPayoffType();</span>
+
+<span class="nc bnc" id="L83" title="All 4 branches missed.">		if ((barrierType == BarrierType.UP_OUT) || (sign == CallOrPut.PUT)) {</span>
+<span class="nc" id="L84">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L85">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L89">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">		if (payoffType == DigitalPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L92">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L93">					StandardBoundaryCondition.dirichlet(getDiscountedCashValue(option, time))</span>
+			};
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		} else if (payoffType == DigitalPayoffType.ASSET_OR_NOTHING) {</span>
+<span class="nc" id="L96">			final double stateVariable = stateVariables[0];</span>
+<span class="nc" id="L97">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L98">					StandardBoundaryCondition.dirichlet(getDiscountedAssetValue(stateVariable, option, time))</span>
+			};
+		} else {
+<span class="nc" id="L101">			throw new IllegalArgumentException(&quot;Unsupported digital payoff type.&quot;);</span>
+		}
+	}
+
+	private double getDiscountedCashValue(final DigitalBarrierOption option, final double time) {
+<span class="nc" id="L106">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L107">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+<span class="nc" id="L108">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L109">		return option.getCashPayoff() * Math.exp(-riskFreeRate * (maturity - time));</span>
+	}
+
+	private double getDiscountedAssetValue(
+			final double stateVariable,
+			final DigitalBarrierOption option,
+			final double time) {
+
+<span class="nc" id="L117">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L118">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+<span class="nc" id="L119">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L120">		return stateVariable * Math.exp(-dividendYieldRate * (maturity - time));</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

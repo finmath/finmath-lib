@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StochasticOptimizerFactoryLevenbergMarquardt.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.optimizer</a> &gt; <span class="el_source">StochasticOptimizerFactoryLevenbergMarquardt.java</span></div><h1>StochasticOptimizerFactoryLevenbergMarquardt.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 29.05.2015
+ */
+
+package net.finmath.optimizer;
+
+import net.finmath.optimizer.StochasticOptimizer.ObjectiveFunction;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class StochasticOptimizerFactoryLevenbergMarquardt implements StochasticOptimizerFactory {
+
+	private final StochasticLevenbergMarquardt.RegularizationMethod regularizationMethod;
+	private final int		maxIterations;
+	private final double		errorTolerance;
+	private final int		maxThreads;
+
+	public StochasticOptimizerFactoryLevenbergMarquardt(final StochasticLevenbergMarquardt.RegularizationMethod regularizationMethod, final int maxIterations, final double errorTolerance, final int maxThreads) {
+<span class="nc" id="L24">		super();</span>
+<span class="nc" id="L25">		this.regularizationMethod = regularizationMethod;</span>
+<span class="nc" id="L26">		this.maxIterations = maxIterations;</span>
+<span class="nc" id="L27">		this.errorTolerance = errorTolerance;</span>
+<span class="nc" id="L28">		this.maxThreads = maxThreads;</span>
+<span class="nc" id="L29">	}</span>
+
+	public StochasticOptimizerFactoryLevenbergMarquardt(final int maxIterations, final double errorTolerance, final int maxThreads) {
+<span class="nc" id="L32">		this(StochasticLevenbergMarquardt.RegularizationMethod.LEVENBERG_MARQUARDT, maxIterations, errorTolerance, maxThreads);</span>
+<span class="nc" id="L33">	}</span>
+
+	public StochasticOptimizerFactoryLevenbergMarquardt(final int maxIterations, final int maxThreads) {
+<span class="nc" id="L36">		this(maxIterations, 0.0, maxThreads);</span>
+<span class="nc" id="L37">	}</span>
+
+	@Override
+	public StochasticOptimizer getOptimizer(final ObjectiveFunction objectiveFunction, final RandomVariable[] initialParameters, final RandomVariable[] lowerBound, final RandomVariable[]  upperBound, final RandomVariable[] parameterSteps, final RandomVariable[] targetValues) {
+<span class="nc" id="L41">		return</span>
+				new StochasticLevenbergMarquardt(regularizationMethod, initialParameters, targetValues, parameterSteps, maxIterations, errorTolerance, maxThreads)
+<span class="nc" id="L43">		{</span>
+			private static final long serialVersionUID = -7050719719557572792L;
+
+			@Override
+			public void setValues(final RandomVariable[] parameters, final RandomVariable[] values) throws SolverException {
+<span class="nc" id="L48">				objectiveFunction.setValues(parameters, values);</span>
+<span class="nc" id="L49">			}</span>
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

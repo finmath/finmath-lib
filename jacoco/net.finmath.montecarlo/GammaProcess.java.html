@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GammaProcess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo</a> &gt; <span class="el_source">GammaProcess.java</span></div><h1>GammaProcess.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 29.06.2004
+ */
+package net.finmath.montecarlo;
+
+import java.io.Serializable;
+
+import net.finmath.functions.GammaDistribution;
+import net.finmath.randomnumbers.MersenneTwister;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implementation of a time-discrete n-dimensional Gamma process
+ * \(
+ * \Gamma = (\Gamma_{1},\ldots,\Gamma_{n})
+ * \), where \( \Gamma_{i} \) is
+ * a Gamma process and \( \Gamma_{i} \), \( \Gamma_{j} \) are
+ * independent for &lt;i&gt;i&lt;/i&gt; not equal &lt;i&gt;j&lt;/i&gt;.
+ *
+ * The increments \( \Delta \Gamma \) are Gamma distributed with shape parameter &lt;code&gt;shape * (t-s)&lt;/code&gt;
+ * for \( t-s = \Delta t \) and scale parameter 1.
+ *
+ * Here the dimension &lt;i&gt;n&lt;/i&gt; is called factors since this Gamma process is used to
+ * generate multi-dimensional multi-factor Levy processes and there one might
+ * use a different number of factors to generate Levy processes of different
+ * dimension.
+ *
+ * The quintruppel (time discretization, number of factors, number of paths, seed, shape)
+ * defines the state of an object of this class, i.e., GammaProcess for which
+ * there parameters agree, generate the same random numbers.
+ *
+ * The class is immutable and thread safe. It uses lazy initialization.
+ *
+ * @author Christian Fries
+ * @version 1.6
+ */
+public class GammaProcess implements IndependentIncrements, Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -5430067621669213475L;
+
+	private final double shape;
+	private final double scale;
+
+	private final TimeDiscretization						timeDiscretization;
+
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
+	private final int			seed;
+
+<span class="fc" id="L56">	private final RandomVariableFactory randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+
+	private transient RandomVariable[][]	gammaIncrements;
+
+	/**
+	 * Construct a Gamma process with a given shape parameter.
+	 *
+	 * @param timeDiscretization The time discretization used for the Gamma increments.
+	 * @param numberOfFactors Number of factors.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param seed The seed of the random number generator.
+	 * @param shape The shape parameter of the Gamma distribution.
+	 * @param scale The scale parameter of the Gamma distribution.
+	 */
+	public GammaProcess(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final double shape,
+			final double scale) {
+<span class="fc" id="L77">		super();</span>
+<span class="fc" id="L78">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc" id="L79">		this.numberOfFactors	= numberOfFactors;</span>
+<span class="fc" id="L80">		this.numberOfPaths		= numberOfPaths;</span>
+<span class="fc" id="L81">		this.seed				= seed;</span>
+<span class="fc" id="L82">		this.shape				= shape;</span>
+<span class="fc" id="L83">		this.scale				= scale;</span>
+
+<span class="fc" id="L85">		gammaIncrements	= null; 	// Lazy initialization</span>
+<span class="fc" id="L86">	}</span>
+
+	/**
+	 * Construct a Gamma process with a given shape parameter.
+	 *
+	 * @param timeDiscretization The time discretization used for the Gamma increments.
+	 * @param numberOfFactors Number of factors.
+	 * @param numberOfPaths Number of paths to simulate.
+	 * @param seed The seed of the random number generator.
+	 * @param shape The shape parameter of the Gamma distribution.
+	 */
+	public GammaProcess(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed,
+			final double shape) {
+<span class="nc" id="L103">		this(timeDiscretization, numberOfFactors, numberOfPaths, seed, shape, 1.0);</span>
+<span class="nc" id="L104">	}</span>
+
+	@Override
+	public IndependentIncrements getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L108">		return new GammaProcess(getTimeDiscretization(), getNumberOfFactors(), getNumberOfPaths(), seed, shape);</span>
+	}
+
+	@Override
+	public IndependentIncrements getCloneWithModifiedTimeDiscretization(final TimeDiscretization newTimeDiscretization) {
+		/// @TODO This can be improved: a complete recreation of the Gamma process wouldn't be necessary!
+<span class="nc" id="L114">		return new GammaProcess(newTimeDiscretization, getNumberOfFactors(), getNumberOfPaths(), getSeed(), shape);</span>
+	}
+
+	@Override
+	public RandomVariable getIncrement(final int timeIndex, final int factor) {
+		// Thread safe lazy initialization
+<span class="fc" id="L120">		synchronized(this) {</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">			if(gammaIncrements == null) {</span>
+<span class="fc" id="L122">				doGenerateGammaIncrements();</span>
+			}
+<span class="fc" id="L124">		}</span>
+
+		/*
+		 *  For performance reasons we return directly the stored data (no defensive copy).
+		 *  We return an immutable object to ensure that the receiver does not alter the data.
+		 */
+<span class="fc" id="L130">		return gammaIncrements[timeIndex][factor];</span>
+	}
+
+	/**
+	 * Lazy initialization of gammaIncrement. Synchronized to ensure thread safety of lazy init.
+	 */
+	private void doGenerateGammaIncrements() {
+<span class="pc bpc" id="L137" title="1 of 2 branches missed.">		if(gammaIncrements != null) {</span>
+<span class="nc" id="L138">			return;	// Nothing to do</span>
+		}
+
+		// Create random number sequence generator
+<span class="fc" id="L142">		final MersenneTwister			mersenneTwister		= new MersenneTwister(seed);</span>
+
+		// Allocate memory
+<span class="fc" id="L145">		final double[][][] gammaIncrementsArray = new double[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors][numberOfPaths];</span>
+
+		// Pre-calculate distributions
+<span class="fc" id="L148">		final GammaDistribution[] gammaDistributions = new GammaDistribution[timeDiscretization.getNumberOfTimeSteps()];</span>
+<span class="fc bfc" id="L149" title="All 2 branches covered.">		for(int timeIndex=0; timeIndex&lt;gammaDistributions.length; timeIndex++) {</span>
+<span class="fc" id="L150">			final double deltaT = timeDiscretization.getTimeStep(timeIndex);</span>
+<span class="fc" id="L151">			gammaDistributions[timeIndex] = new GammaDistribution(shape * deltaT, scale);</span>
+		}
+
+		/*
+		 * Generate gamma distributed independent increments.
+		 *
+		 * The inner loop goes over time and factors.
+		 * MersenneTwister is known to generate &quot;independent&quot; increments in 623 dimensions.
+		 * Since we want to generate independent streams (paths), the loop over path is the outer loop.
+		 */
+<span class="fc bfc" id="L161" title="All 2 branches covered.">		for(int path=0; path&lt;numberOfPaths; path++) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">			for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="fc" id="L163">				final GammaDistribution gammaDistribution = gammaDistributions[timeIndex];</span>
+				// Generate uncorrelated Gamma distributed increment
+<span class="fc bfc" id="L165" title="All 2 branches covered.">				for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="fc" id="L166">					final double uniformIncrement = mersenneTwister.nextDouble();</span>
+<span class="fc" id="L167">					gammaIncrementsArray[timeIndex][factor][path] = gammaDistribution.inverseCumulativeDistribution(uniformIncrement);</span>
+				}
+			}
+		}
+
+		// Allocate memory for RandomVariableFromDoubleArray wrapper objects.
+<span class="fc" id="L173">		gammaIncrements = new RandomVariable[timeDiscretization.getNumberOfTimeSteps()][numberOfFactors];</span>
+
+		// Wrap the values in RandomVariableFromDoubleArray objects
+<span class="fc bfc" id="L176" title="All 2 branches covered.">		for(int timeIndex=0; timeIndex&lt;timeDiscretization.getNumberOfTimeSteps(); timeIndex++) {</span>
+<span class="fc" id="L177">			final double time = timeDiscretization.getTime(timeIndex+1);</span>
+<span class="fc bfc" id="L178" title="All 2 branches covered.">			for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="fc" id="L179">				gammaIncrements[timeIndex][factor] =</span>
+<span class="fc" id="L180">						randomVariableFactory.createRandomVariable(time, gammaIncrementsArray[timeIndex][factor]);</span>
+			}
+		}
+<span class="fc" id="L183">	}</span>
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L187">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L192">		return numberOfFactors;</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L197">		return numberOfPaths;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L202">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	/**
+	 * @return Returns the seed.
+	 */
+	public int getSeed() {
+<span class="nc" id="L209">		return seed;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L214">		return super.toString()</span>
+<span class="nc" id="L215">				+ &quot;\n&quot; + &quot;timeDiscretizationFromArray: &quot; + timeDiscretization.toString()</span>
+				+ &quot;\n&quot; + &quot;numberOfPaths: &quot; + numberOfPaths
+				+ &quot;\n&quot; + &quot;numberOfFactors: &quot; + numberOfFactors
+				+ &quot;\n&quot; + &quot;seed: &quot; + seed
+				+ &quot;\n&quot; + &quot;shape: &quot; + shape;
+	}
+
+	@Override
+	public boolean equals(final Object o) {
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		if (this == o) {</span>
+<span class="nc" id="L225">			return true;</span>
+		}
+<span class="nc bnc" id="L227" title="All 4 branches missed.">		if (o == null || getClass() != o.getClass()) {</span>
+<span class="nc" id="L228">			return false;</span>
+		}
+
+<span class="nc" id="L231">		final GammaProcess that = (GammaProcess) o;</span>
+
+<span class="nc bnc" id="L233" title="All 6 branches missed.">		if ((numberOfFactors != that.numberOfFactors) || (numberOfPaths != that.numberOfPaths) || (seed != that.seed)) {</span>
+<span class="nc" id="L234">			return false;</span>
+		}
+<span class="nc" id="L236">		return timeDiscretization.equals(that.timeDiscretization);</span>
+	}
+
+	@Override
+	public int hashCode() {
+<span class="nc" id="L241">		int result = timeDiscretization.hashCode();</span>
+<span class="nc" id="L242">		result = 31 * result + numberOfFactors;</span>
+<span class="nc" id="L243">		result = 31 * result + numberOfPaths;</span>
+<span class="nc" id="L244">		result = 31 * result + seed;</span>
+<span class="nc" id="L245">		result = 31 * result + Double.hashCode(shape);</span>
+<span class="nc" id="L246">		return result;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

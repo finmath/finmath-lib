@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HullWhiteLocalVolatilityModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">HullWhiteLocalVolatilityModel.java</span></div><h1>HullWhiteLocalVolatilityModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.05.2013
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Special variant of a blended model (or displaced diffusion model)
+ * build on top of a standard covariance model
+ * using the special function corresponding to the Hull-White local volatility.
+ *
+ * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+ * &lt;i&gt;(1+L&lt;sub&gt;i&lt;/sub&gt;(t) d) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+ * where &lt;i&gt;d&lt;/i&gt; is a constant (the period length), &lt;i&gt;L&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+ * the realization of the &lt;i&gt;i&lt;/i&gt;-th component of the stochastic process and
+ * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+ *
+ * If this model is combined with an exponential decay volatility model
+ * &lt;code&gt;LIBORVolatilityModelTwoParameterExponentialForm&lt;/code&gt;, then
+ * the resulting LIBOR Market model corresponds to a Hull-White short rate model
+ * (with constant short rate volatility and mean reversion).
+ *
+ * The parameter of this model is the parameter vector of the given base covariance model.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class HullWhiteLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = -4182083344704425769L;
+
+	private final AbstractLIBORCovarianceModelParametric covarianceModel;
+	private final double periodLength;
+
+	/**
+	 * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;(1+L&lt;sub&gt;i&lt;/sub&gt;(t) d) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;d&lt;/i&gt; is a constant (the period length), &lt;i&gt;L&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+	 * the realization of the &lt;i&gt;i&lt;/i&gt;-th component of the stochastic process and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+	 *
+	 * The parameter of this model is the parameter vector of the given base covariance model.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param periodLength The parameter &lt;i&gt;d&lt;/i&gt; in the formula above.
+	 */
+	public HullWhiteLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final double periodLength) {
+<span class="fc" id="L54">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+<span class="fc" id="L55">		this.covarianceModel	= covarianceModel;</span>
+<span class="fc" id="L56">		this.periodLength		= periodLength;</span>
+<span class="fc" id="L57">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L61">		return new HullWhiteLocalVolatilityModel((AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), periodLength);</span>
+	}
+
+	/**
+	 * Returns the base covariance model, i.e., the model providing the factor loading &lt;i&gt;F&lt;/i&gt;.
+	 *
+	 * @return The base covariance model.
+	 */
+	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {
+<span class="nc" id="L70">		return covarianceModel;</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L75">		return covarianceModel.getParameterAsDouble();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="nc" id="L80">		return new HullWhiteLocalVolatilityModel(covarianceModel.getCloneWithModifiedParameters(parameters), periodLength);</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L85">		final RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+
+<span class="pc bpc" id="L87" title="1 of 4 branches missed.">		if(realizationAtTimeIndex != null &amp;&amp; realizationAtTimeIndex[component] != null) {</span>
+<span class="fc" id="L88">			final RandomVariable localVolatilityFactor = realizationAtTimeIndex[component].mult(periodLength).add(1.0);</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">			for (int factorIndex = 0; factorIndex &lt; factorLoading.length; factorIndex++) {</span>
+<span class="fc" id="L90">				factorLoading[factorIndex] = factorLoading[factorIndex].mult(localVolatilityFactor);</span>
+			}
+		}
+
+<span class="fc" id="L94">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L99">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L105">		double periodLength = this.periodLength;</span>
+<span class="nc" id="L106">		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;</span>
+
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">			if(!dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="nc" id="L110">				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);</span>
+			}
+
+			// Explicitly passed covarianceModel has priority
+<span class="nc" id="L114">			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault(&quot;covarianceModel&quot;, covarianceModel);</span>
+<span class="nc" id="L115">			periodLength = (double)dataModified.getOrDefault(&quot;periodLength&quot;, periodLength);</span>
+		}
+
+<span class="nc" id="L118">		final AbstractLIBORCovarianceModelParametric newModel = new HullWhiteLocalVolatilityModel(covarianceModel, periodLength);</span>
+<span class="nc" id="L119">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

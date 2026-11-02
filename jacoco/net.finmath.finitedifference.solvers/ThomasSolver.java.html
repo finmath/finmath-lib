@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ThomasSolver.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.solvers</a> &gt; <span class="el_source">ThomasSolver.java</span></div><h1>ThomasSolver.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.solvers;
+
+/**
+ * Utility class providing an implementation of the Thomas algorithm
+ * for solving a tridiagonal linear system.
+ * &lt;p&gt;
+ * The method solves a system of the form
+ * &lt;pre&gt;
+ * [ d0  u0   0   ...                ] [x0]   [r0]
+ * [ l1  d1  u1   0   ...            ] [x1] = [r1]
+ * [  0  l2  d2  u2   0   ...        ] [x2]   [r2]
+ * [              ...                ] [...]  [...]
+ * [          ... l(n-1) d(n-1)      ] [xn]   [rn]
+ * &lt;/pre&gt;
+ * where:
+ * &lt;ul&gt;
+ * &lt;li&gt;{@code lower[i]} contains the sub-diagonal entry for row {@code i},&lt;/li&gt;
+ * &lt;li&gt;{@code diag[i]} contains the main diagonal entry for row {@code i},&lt;/li&gt;
+ * &lt;li&gt;{@code upper[i]} contains the super-diagonal entry for row {@code
+ * i},&lt;/li&gt;
+ * &lt;li&gt;{@code rhs[i]} contains the right-hand side entry for row {@code i}.&lt;/li&gt;
+ * &lt;/ul&gt;
+ * &lt;p&gt;
+ * By convention, {@code lower[0]} is unused and may be set to any value, and
+ * {@code upper[n-1]} is unused by the backward substitution step.
+ * &lt;p&gt;
+ * This solver runs in linear time and is intended for non-singular tridiagonal
+ * systems. No validation of input sizes or pivot values is performed.
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class ThomasSolver {
+
+	/**
+	 * Creates no instances of this utility class.
+	 */
+	private ThomasSolver() {
+	}
+
+	/**
+	 * Solves a tridiagonal linear system using the Thomas algorithm.
+	 * &lt;p&gt;
+	 * The input arrays represent the three diagonals of the tridiagonal matrix
+	 * and the right-hand side vector. All arrays are expected to have identical
+	 * length {@code n}, where {@code n &gt;= 1}.
+	 * &lt;p&gt;
+	 * The algorithm consists of a forward elimination phase followed by a
+	 * backward substitution phase.
+	 * &lt;p&gt;
+	 * Note: The caller must provide arrays of consistent length and a
+	 * non-singular tridiagonal system.
+	 *
+	 * @param lower The lower diagonal of the system matrix. Entry {@code
+	 *     lower[i]}
+	 * represents the coefficient below the main diagonal in row {@code i}.
+	 * 		The value {@code lower[0]} is not used.
+	 * @param diag The main diagonal of the system matrix. Entry {@code diag[i]}
+	 * 		represents the diagonal coefficient in row {@code i}.
+	 * @param upper The upper diagonal of the system matrix. Entry {@code
+	 *     upper[i]}
+	 * represents the coefficient above the main diagonal in row {@code i}.
+	 * 		The value {@code upper[n-1]} is not used in the final row.
+	 * @param rhs The right-hand side vector of the linear system.
+	 * @return The solution vector {@code x} satisfying the tridiagonal system.
+	 */
+	public static double[] solve(
+			final double[] lower,
+			final double[] diag,
+			final double[] upper,
+			final double[] rhs) {
+
+<span class="fc" id="L72">		final int n = diag.length;</span>
+
+<span class="fc" id="L74">		final double[] cPrime = new double[n];</span>
+<span class="fc" id="L75">		final double[] dPrime = new double[n];</span>
+<span class="fc" id="L76">		final double[] x = new double[n];</span>
+
+<span class="fc" id="L78">		cPrime[0] = upper[0] / diag[0];</span>
+<span class="fc" id="L79">		dPrime[0] = rhs[0] / diag[0];</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">		for (int i = 1; i &lt; n; i++) {</span>
+<span class="fc" id="L82">			final double denom = diag[i] - lower[i] * cPrime[i - 1];</span>
+<span class="fc bfc" id="L83" title="All 2 branches covered.">			cPrime[i] = i &lt; n - 1 ? upper[i] / denom : 0.0;</span>
+<span class="fc" id="L84">			dPrime[i] = (rhs[i] - lower[i] * dPrime[i - 1]) / denom;</span>
+		}
+
+<span class="fc" id="L87">		x[n - 1] = dPrime[n - 1];</span>
+<span class="fc bfc" id="L88" title="All 2 branches covered.">		for (int i = n - 2; i &gt;= 0; i--) {</span>
+<span class="fc" id="L89">			x[i] = dPrime[i] - cPrime[i] * x[i + 1];</span>
+		}
+
+<span class="fc" id="L92">		return x;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

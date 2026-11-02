@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataTableInterpolated.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.data</a> &gt; <span class="el_source">DataTableInterpolated.java</span></div><h1>DataTableInterpolated.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.data;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.commons.math3.analysis.BivariateFunction;
+import org.apache.commons.math3.analysis.UnivariateFunction;
+import org.apache.commons.math3.analysis.interpolation.AkimaSplineInterpolator;
+import org.apache.commons.math3.analysis.interpolation.BivariateGridInterpolator;
+import org.apache.commons.math3.analysis.interpolation.PiecewiseBicubicSplineInterpolator;
+import org.apache.commons.math3.analysis.interpolation.UnivariateInterpolator;
+
+import net.finmath.time.SchedulePrototype;
+
+
+/**
+ * Extends {@link net.finmath.singleswaprate.data.DataTableBasic} with the capacity to interpolate values between tenor grid nodes. Note that the interpolation is done to the accuracy of the table convention.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class DataTableInterpolated extends DataTableBasic implements DataTable, Cloneable {
+
+	private static final long serialVersionUID = -6852590286897952990L;
+
+	/**
+	 * Create an interpolated table from a basic table.
+	 *
+	 * @param baseTable The table to receive interpolation.
+	 * @return The table with interpolation.
+	 */
+	public static DataTableInterpolated interpolateDataTable(final DataTableBasic baseTable) {
+
+<span class="fc" id="L36">		final int[] maturities = new int[baseTable.size()];</span>
+<span class="fc" id="L37">		final int[] terminations = new int[baseTable.size()];</span>
+<span class="fc" id="L38">		final double[] values = new double[baseTable.size()];</span>
+
+<span class="fc" id="L40">		int i = 0;</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">		for(final int maturity : baseTable.getMaturities()) {</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">			for(final int termination : baseTable.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L43">				maturities[i] = maturity;</span>
+<span class="fc" id="L44">				terminations[i] = termination;</span>
+<span class="fc" id="L45">				values[i++] = baseTable.getValue(maturity, termination);</span>
+<span class="fc" id="L46">			}</span>
+<span class="fc" id="L47">		}</span>
+
+<span class="fc" id="L49">		return new DataTableInterpolated(baseTable.getName(), baseTable.getConvention(), baseTable.getReferenceDate(), baseTable.getScheduleMetaData(),</span>
+				maturities, terminations, values);
+	}
+
+	// sliceInterpolator is used when either only one row or column is given. AkimaSplineInterpolator corresponds to the underlying interpolator of PiecewiseBicubicSplineInterpolator in Version 3.6 of commons.math3
+<span class="fc" id="L54">	private static final BivariateGridInterpolator interpolator = new PiecewiseBicubicSplineInterpolator();</span>
+<span class="fc" id="L55">	private static final UnivariateInterpolator sliceInterpolator = new AkimaSplineInterpolator();</span>
+
+	/**
+	 * Create an empty table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 */
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData) {
+<span class="nc" id="L67">		super(name, convention, referenceDate, scheduleMetaData);</span>
+<span class="nc" id="L68">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final int[] maturities, final int[] terminations, final double[] values) {
+<span class="fc" id="L83">		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);</span>
+<span class="fc" id="L84">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableInterpolated(final String name, final TableConvention convention, final LocalDate referenceDate,
+			final SchedulePrototype scheduleMetaData, final List&lt;Integer&gt; maturities, final List&lt;Integer&gt; terminations, final List&lt;Double&gt; values) {
+<span class="fc" id="L99">		super(name, convention, referenceDate, scheduleMetaData, maturities, terminations, values);</span>
+<span class="fc" id="L100">	}</span>
+
+	@Override
+	public double getValue(final int maturity, final int termination) {
+<span class="fc bfc" id="L104" title="All 2 branches covered.">		if(containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L105">			return super.getValue(maturity, termination);</span>
+		}
+
+		// check if either of the table dimensions is one and fits the input, otherwise default to bivariate interpolation.
+<span class="fc bfc" id="L109" title="All 2 branches covered.">		if(getMaturities().contains(maturity)) {</span>
+
+<span class="fc" id="L111">			final int[] terminations = getTerminationsForMaturity(maturity).stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="fc" id="L112">			final double[] values = new double[terminations.length];</span>
+
+<span class="fc bfc" id="L114" title="All 2 branches covered.">			for(int i = 0; i &lt; values.length; i++) {</span>
+<span class="fc" id="L115">				values[i] = super.getValue(maturity, terminations[i]);</span>
+			}
+
+<span class="fc" id="L118">			final UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(terminations).asDoubleStream().toArray(), values);</span>
+<span class="fc" id="L119">			return curve.value(termination);</span>
+
+<span class="fc bfc" id="L121" title="All 2 branches covered.">		} else if(getTerminations().contains(termination)){</span>
+
+<span class="fc" id="L123">			final int[] maturities = getMaturitiesForTermination(termination).stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="fc" id="L124">			final double[] values = new double[maturities.length];</span>
+
+<span class="fc bfc" id="L126" title="All 2 branches covered.">			for(int i = 0; i&lt; maturities.length; i++) {</span>
+<span class="fc" id="L127">				values[i] = super.getValue(maturities[i], termination);</span>
+			}
+
+<span class="fc" id="L130">			final UnivariateFunction curve = sliceInterpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(), values);</span>
+<span class="fc" id="L131">			return curve.value(maturity);</span>
+		} else {
+
+<span class="pc bpc" id="L134" title="1 of 2 branches missed.">			if(size() != getMaturities().size() * getTerminations().size()) {</span>
+<span class="nc" id="L135">				throw new RuntimeException(&quot;For interpolation &quot; +getName()+ &quot; requires a regular grid of values.&quot;);</span>
+			}
+
+<span class="fc" id="L138">			final int[] maturities = getMaturities().stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="fc" id="L139">			final int[] terminations = getTerminations().stream().mapToInt(Integer::intValue).toArray();</span>
+<span class="fc" id="L140">			final double[][] values = new double[maturities.length][terminations.length];</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">			for(int i = 0; i&lt; maturities.length; i++) {</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">				for(int j = 0; j &lt; terminations.length; j++) {</span>
+<span class="fc" id="L144">					values[i][j] = getValue(maturities[i], terminations[j]);</span>
+				}
+			}
+
+<span class="fc" id="L148">			final BivariateFunction surface = interpolator.interpolate(Arrays.stream(maturities).asDoubleStream().toArray(),</span>
+<span class="fc" id="L149">					Arrays.stream(terminations).asDoubleStream().toArray(), values);</span>
+<span class="fc" id="L150">			return surface.value(maturity, termination);</span>
+		}
+
+	}
+
+	@Override
+	public double getValue(final double maturity, final double termination) {
+<span class="fc bfc" id="L157" title="All 2 branches covered.">		if(containsEntryFor(maturity, termination)) {</span>
+<span class="fc" id="L158">			return super.getValue(maturity, termination);</span>
+		}
+
+		// round to make regular grid
+		int roundingMultiplier;
+<span class="pc bpc" id="L163" title="4 of 5 branches missed.">		switch (getConvention()) {</span>
+<span class="nc" id="L164">		case YEARS: roundingMultiplier = 1; break;</span>
+<span class="fc" id="L165">		case MONTHS: roundingMultiplier = 12; break;</span>
+<span class="nc" id="L166">		case DAYS: roundingMultiplier = 365; break;</span>
+<span class="nc" id="L167">		case WEEKS: roundingMultiplier = 52; break;</span>
+<span class="nc" id="L168">		default: throw new RuntimeException(&quot;No tableConvention specified&quot;);</span>
+		}
+
+
+<span class="fc" id="L172">		final int roundedMaturity = Math.toIntExact(Math.round(maturity * roundingMultiplier));</span>
+<span class="fc" id="L173">		final int roundedTermination = Math.toIntExact(Math.round(termination * roundingMultiplier)) - roundedMaturity;</span>
+
+<span class="fc" id="L175">		return getValue(roundedMaturity, roundedTermination);</span>
+	}
+
+	@Override
+	public DataTableInterpolated clone() {
+
+<span class="fc" id="L181">		final int[] maturities = new int[size()];</span>
+<span class="fc" id="L182">		final int[] terminations = new int[size()];</span>
+<span class="fc" id="L183">		final double[] values = new double[size()];</span>
+
+<span class="fc" id="L185">		int i = 0;</span>
+<span class="fc bfc" id="L186" title="All 2 branches covered.">		for(final int maturity : getMaturities()) {</span>
+<span class="fc bfc" id="L187" title="All 2 branches covered.">			for(final int termination : getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L188">				maturities[i] = maturity;</span>
+<span class="fc" id="L189">				terminations[i] = termination;</span>
+<span class="fc" id="L190">				values[i++] = getValue(maturity, termination);</span>
+<span class="fc" id="L191">			}</span>
+<span class="fc" id="L192">		}</span>
+
+<span class="fc" id="L194">		return new DataTableInterpolated(getName(), getConvention(), getReferenceDate(), getScheduleMetaData(), maturities, terminations, values);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L199">		return toString(1.0);</span>
+	}
+
+	@Override
+	public String toString(final double unit) {
+<span class="fc" id="L204">		final StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L205">		builder.append(&quot;DataTableInterpolated with interpolator &quot;+ interpolator.getClass()+ &quot; and base table: &quot;);</span>
+<span class="fc" id="L206">		builder.append(super.toString(unit));</span>
+
+<span class="fc" id="L208">		return builder.toString();</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

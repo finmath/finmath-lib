@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardCurveWithFixings.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">ForwardCurveWithFixings.java</span></div><h1>ForwardCurveWithFixings.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 22.05.2014
+ */
+
+package net.finmath.marketdata.model.curves;
+
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * @author Christian Fries
+ *
+ * @version 1.0
+ */
+public class ForwardCurveWithFixings extends PiecewiseCurve implements ForwardCurve {
+
+	private static final long serialVersionUID = -6192098475095644443L;
+
+	/**
+	 * Create a piecewise forward curve.
+	 *
+	 * @param curveInterface Base curve, to be used by default.
+	 * @param fixedPartCurve CurveFromInterpolationPoints to be used for the open time interval from fixedPartStartTime to fixedPartEndTime.
+	 * @param fixedPartStartTime Start time of the interval where we use the fixedPartCurve.
+	 * @param fixedPartEndTime End time of the interval where we use the fixedPartCurve.
+	 */
+	public ForwardCurveWithFixings(final ForwardCurve curveInterface, final ForwardCurve fixedPartCurve, final double fixedPartStartTime, final double fixedPartEndTime) {
+<span class="nc" id="L29">		super(curveInterface, fixedPartCurve, fixedPartStartTime, fixedPartEndTime);</span>
+<span class="nc" id="L30">	}</span>
+
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime) {
+<span class="nc bnc" id="L34" title="All 4 branches missed.">		if(fixingTime &gt; this.getFixedPartStartTime() &amp;&amp; fixingTime &lt; this.getFixedPartEndTime()) {</span>
+<span class="nc" id="L35">			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime);</span>
+		}
+		else {
+<span class="nc" id="L38">			return ((ForwardCurve)getBaseCurve()).getForward(model, fixingTime);</span>
+		}
+	}
+
+	@Override
+	public double getForward(final AnalyticModel model, final double fixingTime, final double paymentOffset) {
+<span class="nc bnc" id="L44" title="All 4 branches missed.">		if(fixingTime &gt; this.getFixedPartStartTime() &amp;&amp; fixingTime &lt; this.getFixedPartEndTime()) {</span>
+<span class="nc" id="L45">			return ((ForwardCurve)getFixedPartCurve()).getForward(model, fixingTime, paymentOffset);</span>
+		}
+		else {
+<span class="nc" id="L48">			return ((ForwardCurve)getBaseCurve()).getForward(model, fixingTime, paymentOffset);</span>
+		}
+	}
+
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 *
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
+	 */
+	public double[] getForwards(final AnalyticModel model, final double[] fixingTimes)
+	{
+<span class="nc" id="L61">		final double[] values = new double[fixingTimes.length];</span>
+
+<span class="nc bnc" id="L63" title="All 2 branches missed.">		for(int i=0; i&lt;fixingTimes.length; i++) {</span>
+<span class="nc" id="L64">			values[i] = getForward(model, fixingTimes[i]);</span>
+		}
+
+<span class="nc" id="L67">		return values;</span>
+	}
+
+	@Override
+	public String getDiscountCurveName() {
+<span class="nc" id="L72">		return ((ForwardCurve)getBaseCurve()).getDiscountCurveName();</span>
+	}
+
+	@Override
+	public double getPaymentOffset(final double fixingTime) {
+<span class="nc" id="L77">		return ((ForwardCurve)getBaseCurve()).getPaymentOffset(fixingTime);</span>
+	}
+
+	@Override
+	public Curve getCloneForParameter(final double[] value) throws CloneNotSupportedException {
+<span class="nc" id="L82">		return new ForwardCurveWithFixings((ForwardCurve)getBaseCurve().getCloneForParameter(value), (ForwardCurve)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());</span>
+	}
+
+	@Override
+	public ForwardCurveWithFixings clone() throws CloneNotSupportedException {
+<span class="nc" id="L87">		return new ForwardCurveWithFixings((ForwardCurve)getBaseCurve().clone(), (ForwardCurve)getFixedPartCurve(), getFixedPartStartTime(), getFixedPartEndTime());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

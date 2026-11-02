@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimpleHistroricalSimulation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.timeseries.models.parametric</a> &gt; <span class="el_source">SimpleHistroricalSimulation.java</span></div><h1>SimpleHistroricalSimulation.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 15.07.2012
+ */
+
+
+package net.finmath.timeseries.models.parametric;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.timeseries.HistoricalSimulationModel;
+
+/**
+ * Implementation of standard historical simulation.
+ *
+ * @author Christian Fries, Norman Seeger
+ * @version 1.0
+ */
+
+public class SimpleHistroricalSimulation implements HistoricalSimulationModel {
+
+	private final double[] values;
+
+	private final int windowIndexStart;
+	private final int windowIndexEnd;
+
+<span class="nc" id="L29">	public SimpleHistroricalSimulation(final double[] values) {</span>
+<span class="nc" id="L30">		this.values = values;</span>
+<span class="nc" id="L31">		windowIndexStart	= 0;</span>
+<span class="nc" id="L32">		windowIndexEnd		= values.length-1;</span>
+
+<span class="nc" id="L34">	}</span>
+
+<span class="nc" id="L36">	public SimpleHistroricalSimulation(final double[] values, final int windowIndexStart, final int windowIndexEnd) {</span>
+<span class="nc" id="L37">		this.values = values;</span>
+<span class="nc" id="L38">		this.windowIndexStart	= windowIndexStart;</span>
+<span class="nc" id="L39">		this.windowIndexEnd		= windowIndexEnd;</span>
+
+<span class="nc" id="L41">	}</span>
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.timeseries.HistoricalSimulationModel#getCloneWithWindow(int, int)
+	 */
+	@Override
+	public HistoricalSimulationModel getCloneWithWindow(final int windowIndexStart, final int windowIndexEnd) {
+<span class="nc" id="L49">		return new SimpleHistroricalSimulation(values, windowIndexStart, windowIndexEnd);</span>
+	}
+
+	public double[] getSzenarios(final int relAbsFlag) {
+<span class="nc" id="L53">		final double[] szenarios = new double[windowIndexEnd-windowIndexStart+1-1];</span>
+
+		double y;
+
+<span class="nc bnc" id="L57" title="All 2 branches missed.">		for (int i = windowIndexStart+1; i &lt;= windowIndexEnd; i++) {</span>
+
+<span class="nc bnc" id="L59" title="All 2 branches missed.">			if (relAbsFlag==1) {</span>
+<span class="nc" id="L60">				y = Math.log(values[i]/values[i-1]);</span>
+				//double y = (values[i]-values[i-1]))/values[i-1]);
+			} else {
+<span class="nc" id="L63">				y = values[i] - values[i-1];</span>
+			}
+
+<span class="nc" id="L66">			szenarios[i-windowIndexStart-1]	= y;</span>
+		}
+<span class="nc" id="L68">		java.util.Arrays.sort(szenarios);</span>
+
+<span class="nc" id="L70">		return szenarios;</span>
+	}
+	public double[] getQuantilPredictions(final int relAbsFlag,  final double[] quantiles) {
+<span class="nc" id="L73">		final double[] szenarios = this.getSzenarios(relAbsFlag);</span>
+
+<span class="nc" id="L75">		final double[] quantileValues = new double[quantiles.length];</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		for(int i=0; i&lt;quantiles.length; i++) {</span>
+<span class="nc" id="L77">			final double quantile = quantiles[i];</span>
+<span class="nc" id="L78">			final double quantileIndex = szenarios.length * quantile  - 1;</span>
+<span class="nc" id="L79">			final int quantileIndexLo = (int)quantileIndex;</span>
+<span class="nc" id="L80">			final int quantileIndexHi = quantileIndexLo+1;</span>
+
+<span class="nc" id="L82">			final double evalLo = szenarios[Math.max(quantileIndexLo,0               )];</span>
+<span class="nc" id="L83">			final double evalHi = szenarios[Math.max(quantileIndexHi,0               )];</span>
+
+<span class="nc bnc" id="L85" title="All 2 branches missed.">			if (relAbsFlag==1) {</span>
+<span class="nc" id="L86">				final double szenarioChange =</span>
+<span class="nc" id="L87">						(quantileIndexHi-quantileIndex) * Math.exp(evalLo)  // ?????????????????????</span>
+<span class="nc" id="L88">						+ (quantileIndex-quantileIndexLo) * Math.exp(evalHi);</span>
+
+<span class="nc" id="L90">				final double quantileValue = values[windowIndexEnd] * szenarioChange;</span>
+<span class="nc" id="L91">				quantileValues[i] = quantileValue;</span>
+
+<span class="nc" id="L93">			} else {</span>
+<span class="nc" id="L94">				final double szenarioChange =</span>
+						(quantileIndexHi-quantileIndex) * evalLo  // ?????????????????????
+						+ (quantileIndex-quantileIndexLo) * evalHi;
+
+<span class="nc" id="L98">				final double quantileValue = values[windowIndexEnd] + szenarioChange;</span>
+<span class="nc" id="L99">				quantileValues[i] = quantileValue;</span>
+
+			}
+
+		}
+
+<span class="nc" id="L105">		return quantileValues;</span>
+	}
+
+
+	/* (non-Javadoc)
+	 * @see net.finmath.timeseries.HistoricalSimulationModel#getBestParameters()
+	 */
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters() {
+<span class="nc" id="L114">		return getBestParameters(null);</span>
+	}
+
+
+	@Override
+	public Map&lt;String, Object&gt; getBestParameters(final Map&lt;String, Object&gt; guess) {
+<span class="nc" id="L120">		final int relAbsFlag = 1;</span>
+<span class="nc" id="L121">		final double[] quantiles = {0.01, 0.05, 0.5};</span>
+<span class="nc" id="L122">		final double[] quantileValues = this.getQuantilPredictions(relAbsFlag, quantiles);</span>
+
+<span class="nc" id="L124">		final Map&lt;String, Object&gt; results = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L125">		results.put(&quot;Szenarios&quot;, this.getSzenarios(relAbsFlag));</span>
+<span class="nc" id="L126">		results.put(&quot;Quantile=1%&quot;, quantileValues[0]);</span>
+<span class="nc" id="L127">		results.put(&quot;Quantile=5%&quot;, quantileValues[1]);</span>
+<span class="nc" id="L128">		results.put(&quot;Quantile=50%&quot;, quantileValues[2]);</span>
+<span class="nc" id="L129">		return results;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

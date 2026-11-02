@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractRecombiningTreeModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation</a> &gt; <span class="el_source">AbstractRecombiningTreeModel.java</span></div><h1>AbstractRecombiningTreeModel.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.OneDimensionalRiskFactorTreeModel;
+
+/**
+ *
+ * This class represent the recombining tree model, a general abstract class which collect the common properties
+ * about recombining trees.
+ *
+ * @author Carlo Andrea Tramentozzi
+ * @version 1.0
+ */
+
+public abstract class AbstractRecombiningTreeModel extends OneDimensionalRiskFactorTreeModel implements OneDimensionalAssetTreeModel {
+
+	/** Common parameters of the model */
+	private final double initialPrice;
+	private final double riskFreeRate;
+	private final double volatility;
+
+	/** Temporal discretization */
+	private final double timeStep;
+	private final double lastTime;
+	private final int numberOfTimes;
+	/** Cache of level spot S_k */
+<span class="fc" id="L31">	private final List&lt;RandomVariable&gt; spotLevels = new ArrayList&lt;&gt;();</span>
+
+	/**
+	 * Constructs a recombining tree model on an equidistant time grid by
+	 * specifying the time step.
+	 * The constructor sets the common model parameters, computes
+	 * the number of time points and initializes the level-0 cache of
+	 * spot values with S_0.
+	 * @param initialPrice The initial asset price S0
+	 * @param riskFreeRate  The continuously compounded risk-free rate r used consistently with df().
+	 * @param volatility    The volatility.
+	 * @param lastTime      The final time T of the grid.
+	 * @param timeStep      The time step Δt between consecutive grid points
+	 */
+<span class="fc" id="L45">	public AbstractRecombiningTreeModel(double initialPrice, double riskFreeRate, double volatility, double lastTime, double timeStep) {</span>
+<span class="fc" id="L46">		this.initialPrice = initialPrice;</span>
+<span class="fc" id="L47">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L48">		this.volatility = volatility;</span>
+<span class="fc" id="L49">		this.lastTime = lastTime;</span>
+<span class="fc" id="L50">		this.timeStep = timeStep;</span>
+<span class="fc" id="L51">		final int steps = (int)Math.round(lastTime / timeStep);</span>
+<span class="fc" id="L52">		this.numberOfTimes = steps + 1;</span>
+<span class="fc" id="L53">		spotLevels.add(new RandomVariableFromDoubleArray(0.0, new double[] { initialPrice }));</span>
+<span class="fc" id="L54">	}</span>
+
+	/**
+	 * Constructs a recombining tree model on an equidistant time grid by
+	 * specifying the time step.
+	 * The constructor sets the common model parameters , computes
+	 * the number of time points and initializes the level-0 cache of
+	 * spot values with S_0.
+	 * @param initialPrice The initial asset price S₀.
+	 * @param riskFreeRate  The continuously compounded risk-free rate r used consistently with df().
+	 * @param volatility    The (log) volatility σ.
+	 * @param lastTime      The final time T of the grid.
+	 * @param  numberOfTimes The total number of grid points N (must be ≥ 2). The number of steps is N−1.
+	 */
+<span class="fc" id="L68">	public AbstractRecombiningTreeModel(double initialPrice, double riskFreeRate, double volatility, double lastTime, int numberOfTimes) {</span>
+<span class="fc" id="L69">		this.initialPrice = initialPrice;</span>
+<span class="fc" id="L70">		this.riskFreeRate = riskFreeRate;</span>
+<span class="fc" id="L71">		this.volatility = volatility;</span>
+<span class="fc" id="L72">		this.lastTime = lastTime;</span>
+<span class="fc" id="L73">		this.numberOfTimes = numberOfTimes;</span>
+<span class="fc" id="L74">		this.timeStep = lastTime / (numberOfTimes - 1);</span>
+
+<span class="fc" id="L76">		spotLevels.add(new RandomVariableFromDoubleArray(0.0, new double[] { initialPrice }));</span>
+<span class="fc" id="L77">	}</span>
+
+
+	/** One step discount factor(according to q): continuous */
+	@Override
+	public double getOneStepDiscountFactor(int timeIndex) {
+<span class="fc" id="L83">		return Math.exp(-riskFreeRate * timeStep);</span>
+	}
+
+
+
+	/** Getter */
+	@Override
+<span class="fc" id="L90">	public double getInitialPrice()   { return initialPrice; }</span>
+	@Override
+<span class="fc" id="L92">	public double getRiskFreeRate()   { return riskFreeRate; }</span>
+	@Override
+<span class="fc" id="L94">	public double getVolatility()     { return volatility; }</span>
+
+	@Override
+<span class="fc" id="L97">	public double getTimeStep()       { return timeStep; }</span>
+	@Override
+<span class="fc" id="L99">	public double getLastTime()       { return lastTime; }</span>
+	@Override
+<span class="fc" id="L101">	public int getNumberOfTimes()     { return numberOfTimes; }</span>
+<span class="fc" id="L102">	public double getSpot()           {return getInitialPrice(); } //Redefinition</span>
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExponentialCorrelationCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.curves</a> &gt; <span class="el_source">ExponentialCorrelationCurve.java</span></div><h1>ExponentialCorrelationCurve.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.curves;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.AbstractCurve;
+import net.finmath.marketdata.model.curves.CurveBuilder;
+
+/**
+ * A curve, which models exponential decay of correlation from one point in time to another, according to
+ * \[
+ * 		\max\{e^{c(t-T)}, 1\} \, .
+ * \]
+ * Any point after the given termination time will have correlation of one.
+ * Any point before will have decaying correlation according to the parameter.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class ExponentialCorrelationCurve extends AbstractCurve implements Cloneable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -2781643232961198556L;
+	private final double termination;
+	private final double correlationDecay;
+
+	/**
+	 * Create the curve.
+	 *
+	 * @param name The name of the curve
+	 * @param referenceDate The reference date of the curve
+	 * @param termination The date as double, from which the correlation is measured
+	 * @param correlationDecay The rate at which the correlation decays
+	 */
+	public ExponentialCorrelationCurve(final String name, final LocalDate referenceDate, final double termination, final double correlationDecay) {
+<span class="fc" id="L39">		super(name, referenceDate);</span>
+
+<span class="fc" id="L41">		this.termination = termination;</span>
+<span class="fc" id="L42">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L43">	}</span>
+
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="pc bpc" id="L47" title="1 of 2 branches missed.">		if(time &gt; termination) {</span>
+<span class="nc" id="L48">			return 1.0;</span>
+		} else {
+<span class="fc" id="L50">			return Math.exp(correlationDecay *(time -termination));</span>
+		}
+	}
+
+	@Override
+	public CurveBuilder getCloneBuilder() {
+<span class="nc" id="L56">		throw new UnsupportedOperationException(&quot;This class does not allow to add points.&quot;);</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L61">		return new double[]{termination, correlationDecay};</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L66">		throw new UnsupportedOperationException(&quot;This class is immutable.&quot;);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

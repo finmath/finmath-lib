@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VarianceGammaModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.models</a> &gt; <span class="el_source">VarianceGammaModel.java</span></div><h1>VarianceGammaModel.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.assetderivativevaluation.models;
+
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromArrayFactory;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * This class implements a &lt;i&gt;Variance Gamma Model&lt;/i&gt;, that is, it provides the drift and volatility specification
+ * and performs the calculation of the numeraire (consistent with the dynamics, i.e. the drift).
+ *
+ * The model is
+ * \[
+ * 	dS_t = r S dt + S dL, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ *
+ * where the process L is a &lt;code&gt;{@link net.finmath.montecarlo.VarianceGammaProcess}&lt;/code&gt;.
+ *
+ * @author Alessandro Gnoatto
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
+ */
+public class VarianceGammaModel extends AbstractProcessModel {
+
+	private final RandomVariableFactory randomVariableFactory;
+
+	private final RandomVariable initialValue;
+
+	private final DiscountCurve discountCurveForForwardRate;
+	private final RandomVariable riskFreeRate;		// Actually the same as the drift (which is not stochastic)
+
+	private final DiscountCurve discountCurveForDiscountRate;
+	private final RandomVariable discountRate;		// Constant rate, used if discountCurveForForwardRate is null
+
+	private final RandomVariable sigma;
+	private final RandomVariable theta;
+	private final RandomVariable nu;
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final RandomVariable initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final RandomVariable sigma, final RandomVariable theta, final RandomVariable nu,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="nc" id="L64">		super();</span>
+<span class="nc" id="L65">		this.randomVariableFactory = randomVariableFactory;</span>
+
+<span class="nc" id="L67">		this.initialValue = initialValue;</span>
+<span class="nc" id="L68">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="nc" id="L69">		riskFreeRate = null;</span>
+<span class="nc" id="L70">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="nc" id="L71">		discountRate = null;</span>
+<span class="nc" id="L72">		this.sigma = sigma;</span>
+<span class="nc" id="L73">		this.theta = theta;</span>
+<span class="nc" id="L74">		this.nu = nu;</span>
+<span class="nc" id="L75">	}</span>
+
+	/**
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param discountRate The constant rate used for discounting.
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final RandomVariable initialValue, final RandomVariable riskFreeRate, final RandomVariable discountRate, final RandomVariable sigma, final RandomVariable theta,
+			final RandomVariable nu,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="nc" id="L91">		super();</span>
+<span class="nc" id="L92">		this.randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+<span class="nc" id="L93">		this.initialValue = initialValue;</span>
+<span class="nc" id="L94">		discountCurveForForwardRate = null;</span>
+<span class="nc" id="L95">		this.riskFreeRate = riskFreeRate;</span>
+<span class="nc" id="L96">		discountCurveForDiscountRate = null;</span>
+<span class="nc" id="L97">		this.discountRate = discountRate;</span>
+<span class="nc" id="L98">		this.sigma = sigma;</span>
+<span class="nc" id="L99">		this.theta = theta;</span>
+<span class="nc" id="L100">		this.nu = nu;</span>
+<span class="nc" id="L101">	}</span>
+
+	/**
+	 * Create the model from a descriptor.
+	 *
+	 * @param descriptor A descriptor of the model.
+	 */
+	public VarianceGammaModel(VarianceGammaModelDescriptor descriptor) {
+<span class="fc" id="L109">		this(descriptor.getInitialValue(),</span>
+<span class="fc" id="L110">				descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L111">				descriptor.getDiscountCurveForDiscountRate(),</span>
+<span class="fc" id="L112">				descriptor.getSigma(),</span>
+<span class="fc" id="L113">				descriptor.getTheta(),</span>
+<span class="fc" id="L114">				descriptor.getNu());</span>
+<span class="fc" id="L115">	}</span>
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu,
+			final RandomVariableFactory randomVariableFactory) {
+<span class="fc" id="L131">		super();</span>
+<span class="fc" id="L132">		this.initialValue = randomVariableFactory.createRandomVariable(initialValue);</span>
+<span class="fc" id="L133">		this.discountCurveForForwardRate = discountCurveForForwardRate;</span>
+<span class="fc" id="L134">		riskFreeRate = null;</span>
+<span class="fc" id="L135">		this.discountCurveForDiscountRate = discountCurveForDiscountRate;</span>
+<span class="fc" id="L136">		discountRate = null;</span>
+<span class="fc" id="L137">		this.sigma = randomVariableFactory.createRandomVariable(sigma);</span>
+<span class="fc" id="L138">		this.theta = randomVariableFactory.createRandomVariable(theta);</span>
+<span class="fc" id="L139">		this.nu = randomVariableFactory.createRandomVariable(nu);</span>
+
+<span class="fc" id="L141">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L142">	}</span>
+
+	/**
+	 * Construct a Variance Gamma model with discount curves for the forward price (i.e. repo rate minus dividend yield) and for discounting.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param discountCurveForForwardRate The curve specifying \( t \mapsto exp(- r^{\text{c}}(t) \cdot t) \) - with \( r^{\text{c}}(t) \) the risk free rate
+	 * @param discountCurveForDiscountRate The curve specifying \( t \mapsto exp(- r^{\text{d}}(t) \cdot t) \) - with \( r^{\text{d}}(t) \) the discount rate
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 */
+	public VarianceGammaModel(final double initialValue, final DiscountCurve discountCurveForForwardRate,
+			final DiscountCurve discountCurveForDiscountRate, final double sigma, final double theta, final double nu) {
+<span class="fc" id="L156">		this(initialValue, discountCurveForDiscountRate, discountCurveForDiscountRate, sigma, theta, nu, new RandomVariableFromArrayFactory());</span>
+<span class="fc" id="L157">	}</span>
+
+	/**
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param discountRate The constant rate used for discounting.
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 */
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double discountRate, final double sigma, final double theta,
+			final double nu) {
+<span class="fc" id="L171">		super();</span>
+<span class="fc" id="L172">		this.randomVariableFactory = new RandomVariableFromArrayFactory();</span>
+<span class="fc" id="L173">		this.initialValue = this.randomVariableFactory.createRandomVariable(initialValue);</span>
+<span class="fc" id="L174">		discountCurveForForwardRate = null;</span>
+<span class="fc" id="L175">		this.riskFreeRate = this.randomVariableFactory.createRandomVariable(riskFreeRate);</span>
+<span class="fc" id="L176">		discountCurveForDiscountRate = null;</span>
+<span class="fc" id="L177">		this.discountRate = this.randomVariableFactory.createRandomVariable(discountRate);</span>
+<span class="fc" id="L178">		this.sigma = this.randomVariableFactory.createRandomVariable(sigma);</span>
+<span class="fc" id="L179">		this.theta = this.randomVariableFactory.createRandomVariable(theta);</span>
+<span class="fc" id="L180">		this.nu = this.randomVariableFactory.createRandomVariable(nu);</span>
+<span class="fc" id="L181">	}</span>
+
+
+	/**
+	 * Construct a Variance Gamma model with constant rates for the forward price (i.e. repo rate minus dividend yield) and for the discount curve.
+	 *
+	 * @param initialValue \( S_{0} \) - spot - initial value of S
+	 * @param riskFreeRate The constant risk free rate for the drift (repo rate of the underlying).
+	 * @param sigma The parameter \( \sigma \).
+	 * @param theta The parameter \( \theta \).
+	 * @param nu The parameter \( \nu \).
+	 */
+	public VarianceGammaModel(final double initialValue, final double riskFreeRate, final double sigma, final double theta, final double nu) {
+<span class="fc" id="L194">		this(initialValue,riskFreeRate,riskFreeRate,sigma,theta,nu);</span>
+<span class="fc" id="L195">	}</span>
+
+	@Override
+	public RandomVariable applyStateSpaceTransform(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L199">		return randomVariable.exp();</span>
+	}
+
+	@Override
+	public RandomVariable applyStateSpaceTransformInverse(final MonteCarloProcess process, final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+<span class="fc" id="L204">		return randomVariable.log();</span>
+	}
+
+	@Override
+	public RandomVariable[] getInitialState(MonteCarloProcess process) {
+<span class="fc" id="L209">		return new RandomVariable[] { initialValue.log() };</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(MonteCarloProcess process, final double time) {
+<span class="fc bfc" id="L214" title="All 2 branches covered.">		if(discountCurveForDiscountRate != null) {</span>
+<span class="fc" id="L215">			return getRandomVariableForConstant(1.0/discountCurveForDiscountRate.getDiscountFactor(time));</span>
+		}
+		else {
+<span class="fc" id="L218">			return discountRate.mult(time).exp();</span>
+		}
+	}
+
+	@Override
+	public RandomVariable[] getDrift(final MonteCarloProcess process, final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+		RandomVariable riskFreeRateAtTimeStep;
+
+<span class="fc bfc" id="L226" title="All 2 branches covered.">		if(discountCurveForForwardRate != null) {</span>
+<span class="fc" id="L227">			final double time		= process.getTime(timeIndex);</span>
+<span class="fc" id="L228">			final double timeNext	= process.getTime(timeIndex+1);</span>
+
+<span class="fc" id="L230">			riskFreeRateAtTimeStep = getRandomVariableForConstant(Math.log(discountCurveForForwardRate.getDiscountFactor(time) / discountCurveForForwardRate.getDiscountFactor(timeNext)) / (timeNext-time));</span>
+<span class="fc" id="L231">		}</span>
+		else {
+<span class="fc" id="L233">			riskFreeRateAtTimeStep = riskFreeRate;</span>
+		}
+
+		// r + log(1 - theta * nu - 0.5 nu sigma^2)
+<span class="fc" id="L237">		return new RandomVariable[] { riskFreeRateAtTimeStep.add(theta.mult(nu).add(sigma.squared().mult(nu).mult(0.5)).mult(-1).add(1.0).log().div(nu)) };</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final MonteCarloProcess process, final int timeIndex, final int componentIndex,
+			final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L243">		final RandomVariable[] factors = new RandomVariable[1];</span>
+<span class="fc" id="L244">		factors[0] = getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L245">		return factors;</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L250">		return 1;</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L255">		return 1;</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L260">		return randomVariableFactory.createRandomVariable(value);</span>
+	}
+
+	@Override
+	public ProcessModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) throws CalculationException {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc" id="L268">		final RandomVariableFactory newRandomVariableFactory = (RandomVariableFactory)dataModified.getOrDefault(&quot;randomVariableFactory&quot;, randomVariableFactory);</span>
+
+<span class="nc" id="L270">		final RandomVariable newInitialValue	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;initialValue&quot;), initialValue);</span>
+<span class="nc" id="L271">		final RandomVariable newRiskFreeRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;riskFreeRate&quot;), riskFreeRate);</span>
+<span class="nc" id="L272">		final RandomVariable newDiscountRate	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;discountRate&quot;), discountRate);</span>
+
+<span class="nc" id="L274">		final RandomVariable newSigma	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;sigma&quot;), sigma);</span>
+<span class="nc" id="L275">		final RandomVariable newTheta	= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;theta&quot;), theta);</span>
+<span class="nc" id="L276">		final RandomVariable newNu		= RandomVariableFactory.getRandomVariableOrDefault(newRandomVariableFactory, dataModified.get(&quot;nu&quot;), nu);</span>
+
+<span class="nc" id="L278">		return new VarianceGammaModel(newInitialValue, newRiskFreeRate, newDiscountRate, newSigma, newTheta, newNu, newRandomVariableFactory);</span>
+	}
+
+	/**
+	 * @return the discountCurveForForwardRate
+	 */
+	public DiscountCurve getDiscountCurveForForwardRate() {
+<span class="nc" id="L285">		return discountCurveForForwardRate;</span>
+	}
+
+	/**
+	 * @return the riskFreeRate
+	 */
+	public RandomVariable getRiskFreeRate() {
+<span class="nc" id="L292">		return riskFreeRate;</span>
+	}
+
+	/**
+	 * @return the discountCurveForDiscountRate
+	 */
+	public DiscountCurve getDiscountCurveForDiscountRate() {
+<span class="nc" id="L299">		return discountCurveForDiscountRate;</span>
+	}
+
+	/**
+	 * @return the discountRate
+	 */
+	public RandomVariable getDiscountRate() {
+<span class="nc" id="L306">		return discountRate;</span>
+	}
+
+	/**
+	 * @return the sigma
+	 */
+	public RandomVariable getSigma() {
+<span class="nc" id="L313">		return sigma;</span>
+	}
+
+	/**
+	 * @return the theta
+	 */
+	public RandomVariable getTheta() {
+<span class="nc" id="L320">		return theta;</span>
+	}
+
+	/**
+	 * @return the nu
+	 */
+	public RandomVariable getNu() {
+<span class="nc" id="L327">		return nu;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L335">		return &quot;VarianceGammaModel [initialValue=&quot; + initialValue + &quot;, discountCurveForForwardRate=&quot;</span>
+				+ discountCurveForForwardRate + &quot;, riskFreeRate=&quot; + riskFreeRate + &quot;, discountCurveForDiscountRate=&quot;
+				+ discountCurveForDiscountRate + &quot;, discountRate=&quot; + discountRate + &quot;, sigma=&quot; + sigma + &quot;, theta=&quot;
+				+ theta + &quot;, nu=&quot; + nu + &quot;]&quot;;
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

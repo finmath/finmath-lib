@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableArray.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.stochastic</a> &gt; <span class="el_source">RandomVariableArray.java</span></div><h1>RandomVariableArray.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2009
+ */
+package net.finmath.stochastic;
+
+/**
+ * An array of &lt;code&gt;RandomVariable&lt;/code&gt; objects, implementing the &lt;code&gt;RandomVariable&lt;/code&gt; interface.
+ *
+ * The array features a method &lt;code&gt;getLevel()&lt;/code&gt; which indicates if the object is an array where elements are themselves arrays. See {@link #getLevel()}.
+ *
+ * All methods inherited from &lt;code&gt;RandomVariable&lt;/code&gt; act element wise on the vector elements getElement(int) and return
+ * corresponding RandomVariableArray having the same level.
+ *
+ * In addition methods are provided that reduce the level by one, like the scalar product, see {@link #sumProduct(RandomVariableArray)}.
+ *
+ * @author Christian Fries
+ */
+public interface RandomVariableArray extends RandomVariable {
+
+	int getNumberOfElements();
+
+	RandomVariable getElement(int index);
+
+	/**
+	 * Returns the level of the array
+	 *
+	 * The level of the array is given by 1 if the elements are of type &lt;code&gt;RandomVariable&lt;/code&gt; but not of type &lt;code&gt;RandomVariableArray&lt;/code&gt;.
+	 * If the elements are of type &lt;code&gt;RandomVariableArray&lt;/code&gt; the level of this array is 1 plus the level of its elements.
+	 * Note: the elements are required to be of the the same level.
+	 *
+	 * @return The level of the array.
+	 */
+	default int getLevel() {
+
+<span class="nc" id="L37">		final RandomVariable element = getElement(0);</span>
+<span class="nc bnc" id="L38" title="All 2 branches missed.">		if(element instanceof RandomVariableArray) {</span>
+<span class="nc" id="L39">			return ((RandomVariableArray)element).getLevel() + 1;</span>
+		}
+		else {
+<span class="nc" id="L42">			return 1;</span>
+		}
+	}
+
+	default Object toDoubleArray() {
+<span class="nc bnc" id="L47" title="All 2 branches missed.">		if(getLevel() == 1) {</span>
+<span class="nc" id="L48">			final double[] doubleArray = new double[getNumberOfElements()];</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">			for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L50">				doubleArray[i] = getElement(i).doubleValue();</span>
+			}
+<span class="nc" id="L52">			return doubleArray;</span>
+		}
+		else {
+			// TODO The following code requires a consistent level on all elements
+<span class="nc" id="L56">			final Object[] doubleArray = new Object[getNumberOfElements()];</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">			for(int i=0; i&lt;getNumberOfElements(); i++) {</span>
+<span class="nc" id="L58">				doubleArray[i] = ((RandomVariableArray)getElement(i)).toDoubleArray();</span>
+			}
+<span class="nc" id="L60">			return doubleArray;</span>
+		}
+	}
+
+	/**
+	 * Component wise operation
+	 *
+	 * @param operator A function operator mapping random variables x &amp;rarr; operator(x).
+	 * @return An array where operator has been applied to eeach element.
+	 */
+	RandomVariableArray map(RandomOperator operator);
+
+	/**
+	 * Components wise product followed by sum of all elements.
+	 * Reduction of getLevel by 1.
+	 * Note: The return value is for sure instanceof &lt;code&gt;RandomVariable&lt;/code&gt; but may be instanceof &lt;code&gt;RandomVariableArray&lt;/code&gt;.
+	 *
+	 * @param array Given &lt;code&gt;RandomVariableArray&lt;/code&gt; of the same size()
+	 * @return The scalar product of this array and the given array.
+	 */
+	RandomVariable sumProduct(RandomVariableArray array);
+
+	@Override
+	default RandomVariableArray getConditionalExpectation(final ConditionalExpectationEstimator conditionalExpectationOperator)
+	{
+<span class="nc" id="L85">		return map(new RandomOperator() {</span>
+			@Override
+			public RandomVariable apply(final RandomVariable x) {
+<span class="nc" id="L88">				return conditionalExpectationOperator.getConditionalExpectation(x);</span>
+			}
+		});
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

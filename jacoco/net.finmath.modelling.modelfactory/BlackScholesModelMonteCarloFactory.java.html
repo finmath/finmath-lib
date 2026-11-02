@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlackScholesModelMonteCarloFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.modelfactory</a> &gt; <span class="el_source">BlackScholesModelMonteCarloFactory.java</span></div><h1>BlackScholesModelMonteCarloFactory.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2018
+ */
+
+package net.finmath.modelling.modelfactory;
+
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.SingleAssetProductDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetMonteCarloProductFactory;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.MonteCarloAssetModel;
+import net.finmath.montecarlo.model.AbstractProcessModel;
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+
+/**
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class BlackScholesModelMonteCarloFactory implements ModelFactory&lt;BlackScholesModelDescriptor&gt; {
+
+	private final RandomVariableFactory randomVariableFactory;
+	private final IndependentIncrements brownianMotion;
+
+
+	public BlackScholesModelMonteCarloFactory(final RandomVariableFactory randomVariableFactory, final IndependentIncrements brownianMotion) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="fc" id="L37">		this.brownianMotion = brownianMotion;</span>
+<span class="fc" id="L38">	}</span>
+
+	@Override
+	public DescribedModel&lt;BlackScholesModelDescriptor&gt; getModelFromDescriptor(final BlackScholesModelDescriptor modelDescriptor) {
+
+		/*
+		 * Build model from description.
+		 * Adding product factory.
+		 *
+		 * We build the class implementing DescribedModel&lt;BlackScholesModelDescriptor&gt; as an inner class.
+		 * For larger applications this should be a dedicated class file.
+		 */
+<span class="fc" id="L50">		final AbstractProcessModel model = new net.finmath.montecarlo.assetderivativevaluation.models.BlackScholesModelWithCurves(</span>
+<span class="fc" id="L51">				modelDescriptor.getInitialValue(),</span>
+<span class="fc" id="L52">				modelDescriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L53">				modelDescriptor.getVolatility(),</span>
+<span class="fc" id="L54">				modelDescriptor.getDiscountCurveForDiscountRate(),</span>
+				randomVariableFactory
+				);
+
+		class BlackScholesMonteCarloModel extends MonteCarloAssetModel implements DescribedModel&lt;BlackScholesModelDescriptor&gt; {
+
+<span class="fc" id="L60">			private final SingleAssetMonteCarloProductFactory productFactory = new SingleAssetMonteCarloProductFactory(modelDescriptor.getReferenceDate());</span>
+
+<span class="fc" id="L62">			BlackScholesMonteCarloModel(final ProcessModel model, final MonteCarloProcess process) {</span>
+<span class="fc" id="L63">				super(model, process);</span>
+<span class="fc" id="L64">			}</span>
+
+			@Override
+			public BlackScholesModelDescriptor getDescriptor() {
+<span class="nc" id="L68">				return modelDescriptor;</span>
+			}
+
+			@Override
+			public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(final ProductDescriptor productDescriptor) {
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">				if(productDescriptor instanceof SingleAssetProductDescriptor) {</span>
+<span class="fc" id="L74">					return productFactory.getProductFromDescriptor(productDescriptor);</span>
+				}
+				else {
+<span class="nc" id="L77">					final String name = modelDescriptor.name();</span>
+<span class="nc" id="L78">					throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+				}
+			}
+		}
+
+<span class="fc" id="L83">		return new BlackScholesMonteCarloModel(model, new EulerSchemeFromProcessModel(model, brownianMotion));</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Library.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.information</a> &gt; <span class="el_source">Library.java</span></div><h1>Library.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 18.08.2014
+ */
+
+package net.finmath.information;
+
+import java.io.InputStream;
+import java.util.Properties;
+
+/**
+ * Provides information on the finmath-lib library, e.g., the version.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class Library {
+
+	private static Properties properties;
+	static {
+<span class="fc" id="L22">		properties = new Properties();</span>
+<span class="fc" id="L23">		try(InputStream propertiesInputStream = Library.class.getResourceAsStream(&quot;/finmath-lib.properties&quot;)) {</span>
+<span class="fc" id="L24">			properties.load(propertiesInputStream);</span>
+<span class="nc" id="L25">		} catch (final Exception e) {</span>
+<span class="nc" id="L26">			properties = null;</span>
+<span class="fc" id="L27">		}</span>
+<span class="fc" id="L28">	}</span>
+
+	private Library() { }
+
+	private static Properties getProperites() {
+<span class="fc" id="L33">		return properties;</span>
+	}
+
+	/**
+	 * Return the version string of this instance of finmath-lib.
+	 *
+	 * @return The version string of this instance of finmath-lib.
+	 */
+	public static String getVersionString() {
+<span class="fc" id="L42">		String versionString = &quot;UNKNOWN&quot;;</span>
+<span class="fc" id="L43">		final Properties propeties = getProperites();</span>
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">		if(propeties != null) {</span>
+<span class="fc" id="L45">			versionString = propeties.getProperty(&quot;finmath-lib.version&quot;);</span>
+		}
+<span class="fc" id="L47">		return versionString;</span>
+	}
+
+	/**
+	 * Return the build string of this instance of finmath-lib.
+	 * Currently this is the Git commit hash.
+	 *
+	 * @return The build string of this instance of finmath-lib.
+	 */
+	public static String getBuildString() {
+<span class="fc" id="L57">		String versionString = &quot;UNKNOWN&quot;;</span>
+<span class="fc" id="L58">		final Properties propeties = getProperites();</span>
+<span class="pc bpc" id="L59" title="1 of 2 branches missed.">		if(propeties != null) {</span>
+<span class="fc" id="L60">			versionString = propeties.getProperty(&quot;finmath-lib.build&quot;);</span>
+		}
+<span class="fc" id="L62">		return versionString;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

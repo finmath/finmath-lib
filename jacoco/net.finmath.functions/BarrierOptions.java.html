@@ -1,0 +1,1118 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BarrierOptions.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">BarrierOptions.java</span></div><h1>BarrierOptions.java</h1><pre class="source lang-java linenums">package net.finmath.functions;
+
+/**
+ * Analytic helper formulas for barrier-style products under Black-Scholes.
+ *
+ * &lt;p&gt;
+ * This class is intentionally kept in {@code it.univr.fima.correction}
+ * and serves as the analytic regression backbone for the finite-difference
+ * barrier product layer in this project.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Covered formulas include:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;standard single-barrier vanilla options,&lt;/li&gt;
+ *   &lt;li&gt;single-barrier binary options,&lt;/li&gt;
+ *   &lt;li&gt;single-barrier one-touch / no-touch style binaries,&lt;/li&gt;
+ *   &lt;li&gt;double-barrier vanilla options,&lt;/li&gt;
+ *   &lt;li&gt;double-barrier cash binaries, including KIKO / KOKI,&lt;/li&gt;
+ *   &lt;li&gt;soft barriers.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * The class remains in this package on purpose, to avoid name clashes
+ * with the upstream dependency class {@code net.finmath.functions.BarrierOptions}.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ * @date 23.03.2026
+ */
+public final class BarrierOptions {
+
+<span class="fc" id="L35">	public enum BarrierType {</span>
+		/**
+		 * The down in.
+		 */
+<span class="fc" id="L39">		DOWN_IN,</span>
+		/**
+		 * The up in.
+		 */
+<span class="fc" id="L43">		UP_IN,</span>
+		/**
+		 * The down out.
+		 */
+<span class="fc" id="L47">		DOWN_OUT,</span>
+		/**
+		 * The up out.
+		 */
+<span class="fc" id="L51">		UP_OUT</span>
+	}
+
+	/**
+	 * Binary payoff style used by single-barrier binary formulas.
+	 */
+<span class="nc" id="L57">	public enum BinaryPayoffType {</span>
+		/** Pays a fixed cash amount at expiry when the terminal condition is met. */
+<span class="nc" id="L59">		CASH_OR_NOTHING,</span>
+		/** Pays one unit of the underlying at expiry when the terminal condition is met. */
+<span class="nc" id="L61">		ASSET_OR_NOTHING</span>
+	}
+
+	/**
+	 * Double-barrier monitoring styles supported by the closed-form routines.
+	 */
+<span class="nc" id="L67">	public enum DoubleBarrierType {</span>
+		/** Knock-in if either barrier is hit. */
+<span class="nc" id="L69">		KNOCK_IN,</span>
+		/** Knock-out if either barrier is hit. */
+<span class="nc" id="L71">		KNOCK_OUT,</span>
+		/** Knock-in at the lower barrier and knock-out at the upper barrier. */
+<span class="nc" id="L73">		KIKO,</span>
+		/** Knock-out at the lower barrier and knock-in at the upper barrier. */
+<span class="nc" id="L75">		KOKI</span>
+	}
+
+	/**
+	 * The pi.
+	 */
+	private static final double PI = 3.14159265358979323846264338327950;
+
+	private BarrierOptions() {}
+
+	/**
+	 * Prices a standard continuously monitored single-barrier European option
+	 * with possible rebate under Black-Scholes.
+	 *
+	 * &lt;p&gt;This is the Haug-style single-barrier formula already present in the
+	 * original helper class.&lt;/p&gt;
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param optionStrike Strike {@code K}.
+	 * @param isCall {@code true} for a call, {@code false} for a put.
+	 * @param rebate Cash rebate associated with the barrier event.
+	 * @param barrierValue Barrier level {@code H}.
+	 * @param barrierType Barrier orientation and knock style.
+	 * @return The single-barrier option value.
+	 */
+	public static double blackScholesBarrierOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall,
+			final double rebate,
+			final double barrierValue,
+			final BarrierType barrierType) {
+
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		final int phi = isCall ? +1 : -1;</span>
+<span class="fc" id="L117">		final int eta = getEta(barrierType);</span>
+
+<span class="fc" id="L119">		final double volSq = volatility * volatility;</span>
+<span class="fc" id="L120">		final double volTime = volatility * Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L121">		final double mu = (riskFreeRate - dividendYield - 0.5 * volSq) / volSq;</span>
+<span class="fc" id="L122">		final double lambda = Math.sqrt(mu * mu + (2.0 * riskFreeRate) / volSq);</span>
+<span class="fc" id="L123">		final double z = Math.log(barrierValue / initialStockValue) / volTime + lambda * volTime;</span>
+
+<span class="fc" id="L125">		final double muVolTime = (1.0 + mu) * volTime;</span>
+
+<span class="fc" id="L127">		final double x1 = Math.log(initialStockValue / optionStrike) / volTime + muVolTime;</span>
+<span class="fc" id="L128">		final double x2 = Math.log(initialStockValue / barrierValue) / volTime + muVolTime;</span>
+<span class="fc" id="L129">		final double y1 = Math.log(barrierValue * barrierValue / (initialStockValue * optionStrike)) / volTime + muVolTime;</span>
+<span class="fc" id="L130">		final double y2 = Math.log(barrierValue / initialStockValue) / volTime + muVolTime;</span>
+
+<span class="fc" id="L132">		final double A = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)</span>
+<span class="fc" id="L133">				* n(phi * x1)</span>
+<span class="fc" id="L134">				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)</span>
+<span class="fc" id="L135">				* n(phi * (x1 - volTime));</span>
+<span class="fc" id="L136">		final double B = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)</span>
+<span class="fc" id="L137">				* n(phi * x2)</span>
+<span class="fc" id="L138">				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)</span>
+<span class="fc" id="L139">				* n(phi * (x2 - volTime));</span>
+<span class="fc" id="L140">		final double C = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)</span>
+<span class="fc" id="L141">				* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))</span>
+<span class="fc" id="L142">				* n(eta * y1)</span>
+<span class="fc" id="L143">				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)</span>
+<span class="fc" id="L144">				* Math.pow(barrierValue / initialStockValue, 2.0 * mu)</span>
+<span class="fc" id="L145">				* n(eta * (y1 - volTime));</span>
+<span class="fc" id="L146">		final double D = phi * initialStockValue * Math.exp(-dividendYield * optionMaturity)</span>
+<span class="fc" id="L147">				* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))</span>
+<span class="fc" id="L148">				* n(eta * y2)</span>
+<span class="fc" id="L149">				- phi * optionStrike * Math.exp(-riskFreeRate * optionMaturity)</span>
+<span class="fc" id="L150">				* Math.pow(barrierValue / initialStockValue, 2.0 * mu)</span>
+<span class="fc" id="L151">				* n(eta * (y2 - volTime));</span>
+<span class="fc" id="L152">		final double E = rebate * Math.exp(-riskFreeRate * optionMaturity)</span>
+<span class="fc" id="L153">				* (n(eta * (x2 - volTime))</span>
+<span class="fc" id="L154">						- Math.pow(barrierValue / initialStockValue, 2.0 * mu)</span>
+<span class="fc" id="L155">						* n(eta * (y2 - volTime)));</span>
+<span class="fc" id="L156">		final double F = rebate * (Math.pow(barrierValue / initialStockValue, mu + lambda) * n(eta * z)</span>
+<span class="fc" id="L157">				+ Math.pow(barrierValue / initialStockValue, mu - lambda) * n(eta * (z - 2.0 * lambda * volTime)));</span>
+
+<span class="pc bpc" id="L159" title="1 of 5 branches missed.">		switch (barrierType) {</span>
+		case DOWN_IN:
+<span class="fc bfc" id="L161" title="All 2 branches covered.">			if (isCall) {</span>
+<span class="fc bfc" id="L162" title="All 2 branches covered.">				return optionStrike &gt;= barrierValue ? C + E : A - B + D + E;</span>
+			}
+<span class="fc bfc" id="L164" title="All 2 branches covered.">			return optionStrike &gt;= barrierValue ? B - C + D + E : A + E;</span>
+		case UP_IN:
+<span class="fc bfc" id="L166" title="All 2 branches covered.">			if (isCall) {</span>
+<span class="fc bfc" id="L167" title="All 2 branches covered.">				return optionStrike &gt;= barrierValue ? A + E : B - C + D + E;</span>
+			}
+<span class="fc bfc" id="L169" title="All 2 branches covered.">			return optionStrike &gt;= barrierValue ? A - B + D + E : C + E;</span>
+		case DOWN_OUT:
+<span class="fc bfc" id="L171" title="All 2 branches covered.">			if (isCall) {</span>
+<span class="fc bfc" id="L172" title="All 2 branches covered.">				return optionStrike &gt;= barrierValue ? A - C + F : B - D + F;</span>
+			}
+<span class="fc bfc" id="L174" title="All 2 branches covered.">			return optionStrike &gt;= barrierValue ? A - B + C - D + F : F;</span>
+		case UP_OUT:
+<span class="fc bfc" id="L176" title="All 2 branches covered.">			if (isCall) {</span>
+<span class="fc bfc" id="L177" title="All 2 branches covered.">				return optionStrike &gt;= barrierValue ? F : A - B + C - D + F;</span>
+			}
+<span class="fc bfc" id="L179" title="All 2 branches covered.">			return optionStrike &gt;= barrierValue ? B - D + F : A - C + F;</span>
+		default:
+<span class="nc" id="L181">			throw new IllegalArgumentException(&quot;Invalid barrier type.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Prices a continuously monitored single-barrier binary option under
+	 * Black-Scholes.
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param optionStrike Strike {@code K}.
+	 * @param isCall {@code true} for a call, {@code false} for a put.
+	 * @param barrierValue Barrier level {@code H}.
+	 * @param barrierType Barrier orientation and knock style.
+	 * @param binaryPayoffType Cash-or-nothing or asset-or-nothing payoff.
+	 * @param cashPayoff Cash amount used when {@code binaryPayoffType} is cash-or-nothing.
+	 * @return The single-barrier binary option value.
+	 */
+	public static double blackScholesBinaryBarrierOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall,
+			final double barrierValue,
+			final BarrierType barrierType,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc" id="L215">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L216">		validatePositive(optionStrike, &quot;optionStrike&quot;);</span>
+<span class="nc" id="L217">		validatePositive(barrierValue, &quot;barrierValue&quot;);</span>
+<span class="nc" id="L218">		validateNonNegative(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L219">		validateNonNegative(optionMaturity, &quot;optionMaturity&quot;);</span>
+
+<span class="nc bnc" id="L221" title="All 8 branches missed.">		final boolean knockedOut =</span>
+				(barrierType == BarrierType.DOWN_OUT &amp;&amp; initialStockValue &lt;= barrierValue)
+				|| (barrierType == BarrierType.UP_OUT &amp;&amp; initialStockValue &gt;= barrierValue);
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		if (knockedOut) {</span>
+<span class="nc" id="L225">			return 0.0;</span>
+		}
+
+<span class="nc bnc" id="L228" title="All 8 branches missed.">		final boolean knockedIn =</span>
+				(barrierType == BarrierType.DOWN_IN &amp;&amp; initialStockValue &lt;= barrierValue)
+				|| (barrierType == BarrierType.UP_IN &amp;&amp; initialStockValue &gt;= barrierValue);
+<span class="nc bnc" id="L231" title="All 2 branches missed.">		if (knockedIn) {</span>
+<span class="nc" id="L232">			return vanillaBinaryValue(</span>
+					initialStockValue,
+					riskFreeRate,
+					dividendYield,
+					volatility,
+					optionMaturity,
+					optionStrike,
+					isCall,
+					binaryPayoffType,
+					cashPayoff);
+		}
+
+<span class="nc" id="L244">		final double variance = volatility * volatility * optionMaturity;</span>
+<span class="nc" id="L245">		final double stdDev = Math.sqrt(variance);</span>
+<span class="nc" id="L246">		final double discount = Math.exp(-riskFreeRate * optionMaturity);</span>
+<span class="nc" id="L247">		final double dividendDiscount = Math.exp(-dividendYield * optionMaturity);</span>
+
+<span class="nc" id="L249">		double mu = Math.log(dividendDiscount / discount) / variance - 0.5;</span>
+<span class="nc" id="L250">		double K = 0.0;</span>
+
+<span class="nc bnc" id="L252" title="All 2 branches missed.">		if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L253">			K = cashPayoff;</span>
+		} else {
+<span class="nc" id="L255">			mu += 1.0;</span>
+<span class="nc" id="L256">			K = initialStockValue * dividendDiscount / discount;</span>
+		}
+
+<span class="nc" id="L259">		final double logSX = Math.log(initialStockValue / optionStrike);</span>
+<span class="nc" id="L260">		final double logSH = Math.log(initialStockValue / barrierValue);</span>
+<span class="nc" id="L261">		final double logHS = Math.log(barrierValue / initialStockValue);</span>
+<span class="nc" id="L262">		final double logH2SX = Math.log(barrierValue * barrierValue / (initialStockValue * optionStrike));</span>
+<span class="nc" id="L263">		final double hs2mu = Math.pow(barrierValue / initialStockValue, 2.0 * mu);</span>
+
+<span class="nc" id="L265">		final double eta = getEta(barrierType);</span>
+<span class="nc bnc" id="L266" title="All 2 branches missed.">		final double phi = isCall ? 1.0 : -1.0;</span>
+
+		final double cumX1;
+		final double cumX2;
+		final double cumY1;
+		final double cumY2;
+
+<span class="nc bnc" id="L273" title="All 2 branches missed.">		if (variance &gt;= 1E-16) {</span>
+<span class="nc" id="L274">			final double x1 = phi * (logSX / stdDev + mu * stdDev);</span>
+<span class="nc" id="L275">			final double x2 = phi * (logSH / stdDev + mu * stdDev);</span>
+<span class="nc" id="L276">			final double y1 = eta * (logH2SX / stdDev + mu * stdDev);</span>
+<span class="nc" id="L277">			final double y2 = eta * (logHS / stdDev + mu * stdDev);</span>
+
+<span class="nc" id="L279">			cumX1 = n(x1);</span>
+<span class="nc" id="L280">			cumX2 = n(x2);</span>
+<span class="nc" id="L281">			cumY1 = n(y1);</span>
+<span class="nc" id="L282">			cumY2 = n(y2);</span>
+<span class="nc" id="L283">		} else {</span>
+<span class="nc bnc" id="L284" title="All 2 branches missed.">			cumX1 = logSX &gt; 0.0 ? 1.0 : 0.0;</span>
+<span class="nc bnc" id="L285" title="All 2 branches missed.">			cumX2 = logSH &gt; 0.0 ? 1.0 : 0.0;</span>
+<span class="nc bnc" id="L286" title="All 2 branches missed.">			cumY1 = logH2SX &gt; 0.0 ? 1.0 : 0.0;</span>
+<span class="nc bnc" id="L287" title="All 2 branches missed.">			cumY2 = logHS &gt; 0.0 ? 1.0 : 0.0;</span>
+		}
+
+		final double alpha;
+<span class="nc bnc" id="L291" title="All 5 branches missed.">		switch (barrierType) {</span>
+		case DOWN_IN:
+<span class="nc bnc" id="L293" title="All 2 branches missed.">			if (isCall) {</span>
+<span class="nc bnc" id="L294" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L295">						? hs2mu * cumY1</span>
+<span class="nc" id="L296">								: cumX1 - cumX2 + hs2mu * cumY2;</span>
+			} else {
+<span class="nc bnc" id="L298" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L299">						? cumX2 + hs2mu * (-cumY1 + cumY2)</span>
+<span class="nc" id="L300">								: cumX1;</span>
+			}
+<span class="nc" id="L302">			break;</span>
+		case UP_IN:
+<span class="nc bnc" id="L304" title="All 2 branches missed.">			if (isCall) {</span>
+<span class="nc bnc" id="L305" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L306">						? cumX1</span>
+<span class="nc" id="L307">								: cumX2 + hs2mu * (-cumY1 + cumY2);</span>
+			} else {
+<span class="nc bnc" id="L309" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L310">						? cumX1 - cumX2 + hs2mu * cumY2</span>
+<span class="nc" id="L311">								: hs2mu * cumY1;</span>
+			}
+<span class="nc" id="L313">			break;</span>
+		case DOWN_OUT:
+<span class="nc bnc" id="L315" title="All 2 branches missed.">			if (isCall) {</span>
+<span class="nc bnc" id="L316" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L317">						? cumX1 - hs2mu * cumY1</span>
+<span class="nc" id="L318">								: cumX2 - hs2mu * cumY2;</span>
+			} else {
+<span class="nc bnc" id="L320" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L321">						? cumX1 - cumX2 + hs2mu * (cumY1 - cumY2)</span>
+<span class="nc" id="L322">								: 0.0;</span>
+			}
+<span class="nc" id="L324">			break;</span>
+		case UP_OUT:
+<span class="nc bnc" id="L326" title="All 2 branches missed.">			if (isCall) {</span>
+<span class="nc bnc" id="L327" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L328">						? 0.0</span>
+<span class="nc" id="L329">								: cumX1 - cumX2 + hs2mu * (cumY1 - cumY2);</span>
+			} else {
+<span class="nc bnc" id="L331" title="All 2 branches missed.">				alpha = optionStrike &gt;= barrierValue</span>
+<span class="nc" id="L332">						? cumX2 - hs2mu * cumY2</span>
+<span class="nc" id="L333">								: cumX1 - hs2mu * cumY1;</span>
+			}
+<span class="nc" id="L335">			break;</span>
+		default:
+<span class="nc" id="L337">			throw new IllegalArgumentException(&quot;Invalid barrier type.&quot;);</span>
+		}
+
+<span class="nc" id="L340">		return discount * K * alpha;</span>
+	}
+
+	/**
+	 * Prices a continuously monitored double-barrier vanilla option under
+	 * Black-Scholes using the truncated series also used by QuantLib.
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param optionStrike Strike {@code K}.
+	 * @param isCall {@code true} for a call, {@code false} for a put.
+	 * @param lowerBarrier Lower barrier {@code L}.
+	 * @param upperBarrier Upper barrier {@code U}.
+	 * @param barrierType Double-barrier knock style.
+	 * @param series Number of image terms retained on each side of zero.
+	 * @return The double-barrier vanilla option value.
+	 */
+	public static double blackScholesDoubleBarrierOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType barrierType,
+			final int series) {
+
+<span class="nc" id="L373">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L374">		validatePositive(optionStrike, &quot;optionStrike&quot;);</span>
+<span class="nc" id="L375">		validatePositive(lowerBarrier, &quot;lowerBarrier&quot;);</span>
+<span class="nc" id="L376">		validatePositive(upperBarrier, &quot;upperBarrier&quot;);</span>
+<span class="nc" id="L377">		validatePositive(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L378">		validatePositive(optionMaturity, &quot;optionMaturity&quot;);</span>
+<span class="nc bnc" id="L379" title="All 2 branches missed.">		if (lowerBarrier &gt;= upperBarrier) {</span>
+<span class="nc" id="L380">			throw new IllegalArgumentException(&quot;lowerBarrier must be &lt; upperBarrier&quot;);</span>
+		}
+<span class="nc bnc" id="L382" title="All 4 branches missed.">		if (barrierType == DoubleBarrierType.KIKO || barrierType == DoubleBarrierType.KOKI) {</span>
+<span class="nc" id="L383">			throw new IllegalArgumentException(&quot;KIKO/KOKI are not supported for vanilla double-barrier options.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L386" title="All 4 branches missed.">		final boolean triggered = initialStockValue &lt;= lowerBarrier || initialStockValue &gt;= upperBarrier;</span>
+<span class="nc bnc" id="L387" title="All 2 branches missed.">		if (triggered) {</span>
+<span class="nc bnc" id="L388" title="All 2 branches missed.">			return barrierType == DoubleBarrierType.KNOCK_IN</span>
+<span class="nc" id="L389">					? vanillaBlackScholesValue(initialStockValue, riskFreeRate, dividendYield, volatility,</span>
+							optionMaturity, optionStrike, isCall)
+<span class="nc" id="L391">							: 0.0;</span>
+		}
+
+<span class="nc" id="L394">		final double volatilitySquared = volatility * volatility;</span>
+<span class="nc" id="L395">		final double stdDeviation = volatility * Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L396">		final double costOfCarry = riskFreeRate - dividendYield;</span>
+<span class="nc" id="L397">		final double mu1 = 2.0 * costOfCarry / volatilitySquared + 1.0;</span>
+<span class="nc" id="L398">		final double bsigma = (costOfCarry + 0.5 * volatilitySquared) * optionMaturity / stdDeviation;</span>
+<span class="nc" id="L399">		final double dividendDiscount = Math.exp(-dividendYield * optionMaturity);</span>
+<span class="nc" id="L400">		final double riskFreeDiscount = Math.exp(-riskFreeRate * optionMaturity);</span>
+
+		final double knockOutValue;
+<span class="nc bnc" id="L403" title="All 2 branches missed.">		if (isCall) {</span>
+<span class="nc" id="L404">			double acc1 = 0.0;</span>
+<span class="nc" id="L405">			double acc2 = 0.0;</span>
+<span class="nc bnc" id="L406" title="All 2 branches missed.">			for (int n = -series; n &lt;= series; n++) {</span>
+<span class="nc" id="L407">				final double L2n = Math.pow(lowerBarrier, 2.0 * n);</span>
+<span class="nc" id="L408">				final double U2n = Math.pow(upperBarrier, 2.0 * n);</span>
+<span class="nc" id="L409">				final double d1 = Math.log(initialStockValue * U2n / (optionStrike * L2n)) / stdDeviation + bsigma;</span>
+<span class="nc" id="L410">				final double d2 = Math.log(initialStockValue * U2n / (upperBarrier * L2n)) / stdDeviation + bsigma;</span>
+<span class="nc" id="L411">				final double d3 = Math.log(Math.pow(lowerBarrier, 2.0 * n + 2.0)</span>
+						/ (optionStrike * initialStockValue * U2n)) / stdDeviation + bsigma;
+<span class="nc" id="L413">				final double d4 = Math.log(Math.pow(lowerBarrier, 2.0 * n + 2.0)</span>
+						/ (upperBarrier * initialStockValue * U2n)) / stdDeviation + bsigma;
+
+<span class="nc" id="L416">				acc1 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1)</span>
+<span class="nc" id="L417">						* (n(d1) - n(d2))</span>
+<span class="nc" id="L418">						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1)</span>
+<span class="nc" id="L419">						* (n(d3) - n(d4));</span>
+
+<span class="nc" id="L421">				acc2 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1 - 2.0)</span>
+<span class="nc" id="L422">						* (n(d1 - stdDeviation) - n(d2 - stdDeviation))</span>
+<span class="nc" id="L423">						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1 - 2.0)</span>
+<span class="nc" id="L424">						* (n(d3 - stdDeviation) - n(d4 - stdDeviation));</span>
+			}
+<span class="nc" id="L426">			knockOutValue = Math.max(0.0,</span>
+					initialStockValue * dividendDiscount * acc1 - optionStrike * riskFreeDiscount * acc2);
+<span class="nc" id="L428">		} else {</span>
+<span class="nc" id="L429">			double acc1 = 0.0;</span>
+<span class="nc" id="L430">			double acc2 = 0.0;</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">			for (int n = -series; n &lt;= series; n++) {</span>
+<span class="nc" id="L432">				final double L2n = Math.pow(lowerBarrier, 2.0 * n);</span>
+<span class="nc" id="L433">				final double U2n = Math.pow(upperBarrier, 2.0 * n);</span>
+<span class="nc" id="L434">				final double y1 = Math.log(initialStockValue * U2n / Math.pow(lowerBarrier, 2.0 * n + 1.0)) / stdDeviation + bsigma;</span>
+<span class="nc" id="L435">				final double y2 = Math.log(initialStockValue * U2n / (optionStrike * L2n)) / stdDeviation + bsigma;</span>
+<span class="nc" id="L436">				final double y3 = Math.log(Math.pow(lowerBarrier, 2.0 * n + 2.0)</span>
+						/ (lowerBarrier * initialStockValue * U2n)) / stdDeviation + bsigma;
+<span class="nc" id="L438">				final double y4 = Math.log(Math.pow(lowerBarrier, 2.0 * n + 2.0)</span>
+						/ (optionStrike * initialStockValue * U2n)) / stdDeviation + bsigma;
+
+<span class="nc" id="L441">				acc1 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1 - 2.0)</span>
+<span class="nc" id="L442">						* (n(y1 - stdDeviation) - n(y2 - stdDeviation))</span>
+<span class="nc" id="L443">						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1 - 2.0)</span>
+<span class="nc" id="L444">						* (n(y3 - stdDeviation) - n(y4 - stdDeviation));</span>
+
+<span class="nc" id="L446">				acc2 += Math.pow(Math.pow(upperBarrier, n) / Math.pow(lowerBarrier, n), mu1)</span>
+<span class="nc" id="L447">						* (n(y1) - n(y2))</span>
+<span class="nc" id="L448">						- Math.pow(Math.pow(lowerBarrier, n + 1.0) / (Math.pow(upperBarrier, n) * initialStockValue), mu1)</span>
+<span class="nc" id="L449">						* (n(y3) - n(y4));</span>
+			}
+<span class="nc" id="L451">			knockOutValue = Math.max(0.0,</span>
+					optionStrike * riskFreeDiscount * acc1 - initialStockValue * dividendDiscount * acc2);
+		}
+
+<span class="nc bnc" id="L455" title="All 2 branches missed.">		if (barrierType == DoubleBarrierType.KNOCK_OUT) {</span>
+<span class="nc" id="L456">			return knockOutValue;</span>
+		}
+
+<span class="nc" id="L459">		return Math.max(0.0,</span>
+<span class="nc" id="L460">				vanillaBlackScholesValue(initialStockValue, riskFreeRate, dividendYield, volatility,</span>
+						optionMaturity, optionStrike, isCall) - knockOutValue);
+	}
+
+	/**
+	 * Prices a continuously monitored double-barrier cash binary option under
+	 * Black-Scholes.
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param cashPayoff Cash amount paid when the contract condition is satisfied.
+	 * @param lowerBarrier Lower barrier {@code L}.
+	 * @param upperBarrier Upper barrier {@code U}.
+	 * @param barrierType Double-barrier binary style.
+	 * @param maxIteration Maximum number of series terms.
+	 * @param requiredConvergence Absolute convergence tolerance for the last term.
+	 * @return The double-barrier cash binary value.
+	 */
+	public static double blackScholesDoubleBarrierCashBinaryValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType barrierType,
+			final int maxIteration,
+			final double requiredConvergence) {
+
+<span class="nc" id="L494">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L495">		validatePositive(lowerBarrier, &quot;lowerBarrier&quot;);</span>
+<span class="nc" id="L496">		validatePositive(upperBarrier, &quot;upperBarrier&quot;);</span>
+<span class="nc" id="L497">		validatePositive(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L498">		validatePositive(optionMaturity, &quot;optionMaturity&quot;);</span>
+<span class="nc bnc" id="L499" title="All 2 branches missed.">		if (lowerBarrier &gt;= upperBarrier) {</span>
+<span class="nc" id="L500">			throw new IllegalArgumentException(&quot;lowerBarrier must be &lt; upperBarrier&quot;);</span>
+		}
+
+<span class="nc bnc" id="L503" title="All 5 branches missed.">		switch (barrierType) {</span>
+		case KNOCK_OUT:
+<span class="nc bnc" id="L505" title="All 4 branches missed.">			if (initialStockValue &lt;= lowerBarrier || initialStockValue &gt;= upperBarrier) {</span>
+<span class="nc" id="L506">				return 0.0;</span>
+			}
+			break;
+		case KNOCK_IN:
+<span class="nc bnc" id="L510" title="All 4 branches missed.">			if (initialStockValue &lt;= lowerBarrier || initialStockValue &gt;= upperBarrier) {</span>
+<span class="nc" id="L511">				return cashPayoff;</span>
+			}
+			break;
+		case KIKO:
+<span class="nc bnc" id="L515" title="All 2 branches missed.">			if (initialStockValue &gt;= upperBarrier) {</span>
+<span class="nc" id="L516">				return 0.0;</span>
+<span class="nc bnc" id="L517" title="All 2 branches missed.">			} else if (initialStockValue &lt;= lowerBarrier) {</span>
+<span class="nc" id="L518">				return cashPayoff;</span>
+			}
+			break;
+		case KOKI:
+<span class="nc bnc" id="L522" title="All 2 branches missed.">			if (initialStockValue &lt;= lowerBarrier) {</span>
+<span class="nc" id="L523">				return 0.0;</span>
+<span class="nc bnc" id="L524" title="All 2 branches missed.">			} else if (initialStockValue &gt;= upperBarrier) {</span>
+<span class="nc" id="L525">				return cashPayoff;</span>
+			}
+			break;
+		default:
+<span class="nc" id="L529">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+
+<span class="nc" id="L532">		final double variance = volatility * volatility * optionMaturity;</span>
+<span class="nc bnc" id="L533" title="All 4 branches missed.">		if (barrierType == DoubleBarrierType.KIKO || barrierType == DoubleBarrierType.KOKI) {</span>
+<span class="nc" id="L534">			return doubleBarrierBinaryKikoKokiValue(initialStockValue, riskFreeRate, dividendYield, variance,</span>
+					optionMaturity, cashPayoff, lowerBarrier, upperBarrier, barrierType,
+					maxIteration, requiredConvergence);
+		}
+<span class="nc" id="L538">		return doubleBarrierBinaryExpiryValue(initialStockValue, riskFreeRate, dividendYield, variance,</span>
+				optionMaturity, cashPayoff, lowerBarrier, upperBarrier, barrierType,
+				maxIteration, requiredConvergence);
+	}
+
+	/**
+	 * Prices a soft-barrier option under Black-Scholes.
+	 *
+	 * &lt;p&gt;The barrier is smoothed over the interval between {@code lowerBarrier}
+	 * and {@code upperBarrier}. When the two levels coincide, the method falls
+	 * back to the standard single-barrier formula.&lt;/p&gt;
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param optionStrike Strike {@code K}.
+	 * @param isCall {@code true} for a call, {@code false} for a put.
+	 * @param lowerBarrier Lower end of the soft barrier band.
+	 * @param upperBarrier Upper end of the soft barrier band.
+	 * @param barrierType Soft knock-in or knock-out direction.
+	 * @return The soft-barrier option value.
+	 */
+	public static double blackScholesSoftBarrierOptionValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final BarrierType barrierType) {
+
+<span class="nc" id="L574">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L575">		validatePositive(optionStrike, &quot;optionStrike&quot;);</span>
+<span class="nc" id="L576">		validatePositive(lowerBarrier, &quot;lowerBarrier&quot;);</span>
+<span class="nc" id="L577">		validatePositive(upperBarrier, &quot;upperBarrier&quot;);</span>
+<span class="nc" id="L578">		validatePositive(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L579">		validatePositive(optionMaturity, &quot;optionMaturity&quot;);</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">		if (upperBarrier &lt; lowerBarrier) {</span>
+<span class="nc" id="L581">			throw new IllegalArgumentException(&quot;upperBarrier must be &gt;= lowerBarrier&quot;);</span>
+		}
+
+<span class="nc" id="L584">		double r = riskFreeRate;</span>
+<span class="nc" id="L585">		final double q = dividendYield;</span>
+<span class="nc bnc" id="L586" title="All 2 branches missed.">		if (Math.abs(r - q) &lt; 1E-10) {</span>
+<span class="nc" id="L587">			r = q + 1E-6;</span>
+		}
+
+<span class="nc bnc" id="L590" title="All 8 branches missed.">		final boolean knockedIn = (barrierType == BarrierType.DOWN_IN &amp;&amp; initialStockValue &lt;= lowerBarrier)</span>
+				|| (barrierType == BarrierType.UP_IN &amp;&amp; initialStockValue &gt;= upperBarrier);
+<span class="nc bnc" id="L592" title="All 2 branches missed.">		if (knockedIn) {</span>
+<span class="nc" id="L593">			return vanillaBlackScholesValue(initialStockValue, r, q, volatility, optionMaturity, optionStrike, isCall);</span>
+		}
+
+<span class="nc bnc" id="L596" title="All 8 branches missed.">		final boolean knockedOut = (barrierType == BarrierType.DOWN_OUT &amp;&amp; initialStockValue &lt;= lowerBarrier)</span>
+				|| (barrierType == BarrierType.UP_OUT &amp;&amp; initialStockValue &gt;= upperBarrier);
+<span class="nc bnc" id="L598" title="All 2 branches missed.">		if (knockedOut) {</span>
+<span class="nc" id="L599">			return 0.0;</span>
+		}
+
+<span class="nc bnc" id="L602" title="All 2 branches missed.">		if (Math.abs(upperBarrier - lowerBarrier) &lt; 1E-4) {</span>
+<span class="nc" id="L603">			return blackScholesBarrierOptionValue(initialStockValue, r, q, volatility, optionMaturity,</span>
+					optionStrike, isCall, 0.0, upperBarrier, barrierType);
+		}
+
+<span class="nc bnc" id="L607" title="All 2 branches missed.">		final int eta = isCall ? 1 : -1;</span>
+<span class="nc" id="L608">		final double b = r - q;</span>
+<span class="nc" id="L609">		final double mu = (b + 0.5 * volatility * volatility) / (volatility * volatility);</span>
+<span class="nc" id="L610">		final double sqrtT = Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L611">		final double lambda1 = Math.exp(-0.5 * volatility * volatility * optionMaturity * (mu + 0.5) * (mu - 0.5));</span>
+<span class="nc" id="L612">		final double lambda2 = Math.exp(-0.5 * volatility * volatility * optionMaturity * (mu - 0.5) * (mu - 1.5));</span>
+<span class="nc" id="L613">		final double SX = initialStockValue * optionStrike;</span>
+<span class="nc" id="L614">		final double logU2SX = Math.log((upperBarrier * upperBarrier) / SX);</span>
+<span class="nc" id="L615">		final double logL2SX = Math.log((lowerBarrier * lowerBarrier) / SX);</span>
+
+<span class="nc" id="L617">		final double d1 = logU2SX / (volatility * sqrtT) + mu * volatility * sqrtT;</span>
+<span class="nc" id="L618">		final double d2 = d1 - (mu + 0.5) * volatility * sqrtT;</span>
+<span class="nc" id="L619">		final double d3 = logU2SX / (volatility * sqrtT) + (mu - 1.0) * volatility * sqrtT;</span>
+<span class="nc" id="L620">		final double d4 = d3 - (mu - 0.5) * volatility * sqrtT;</span>
+
+<span class="nc" id="L622">		final double e1 = logL2SX / (volatility * sqrtT) + mu * volatility * sqrtT;</span>
+<span class="nc" id="L623">		final double e2 = e1 - (mu + 0.5) * volatility * sqrtT;</span>
+<span class="nc" id="L624">		final double e3 = logL2SX / (volatility * sqrtT) + (mu - 1.0) * volatility * sqrtT;</span>
+<span class="nc" id="L625">		final double e4 = e3 - (mu - 0.5) * volatility * sqrtT;</span>
+
+<span class="nc" id="L627">		double term1 = eta * initialStockValue * Math.exp((b - r) * optionMaturity)</span>
+<span class="nc" id="L628">				* Math.pow(initialStockValue, -2.0 * mu)</span>
+<span class="nc" id="L629">				* Math.pow(SX, mu + 0.5)</span>
+				/ (2.0 * (mu + 0.5));
+<span class="nc" id="L631">		term1 *= Math.pow((upperBarrier * upperBarrier) / SX, mu + 0.5) * n(eta * d1)</span>
+<span class="nc" id="L632">				- lambda1 * n(eta * d2)</span>
+<span class="nc" id="L633">				- Math.pow((lowerBarrier * lowerBarrier) / SX, mu + 0.5) * n(eta * e1)</span>
+<span class="nc" id="L634">				+ lambda1 * n(eta * e2);</span>
+
+<span class="nc" id="L636">		double term2 = eta * optionStrike * Math.exp(-r * optionMaturity)</span>
+<span class="nc" id="L637">				* Math.pow(initialStockValue, -2.0 * (mu - 1.0))</span>
+<span class="nc" id="L638">				* Math.pow(SX, mu - 0.5)</span>
+				/ (2.0 * (mu - 0.5));
+<span class="nc" id="L640">		term2 *= Math.pow((upperBarrier * upperBarrier) / SX, mu - 0.5) * n(eta * d3)</span>
+<span class="nc" id="L641">				- lambda2 * n(eta * d4)</span>
+<span class="nc" id="L642">				- Math.pow((lowerBarrier * lowerBarrier) / SX, mu - 0.5) * n(eta * e3)</span>
+<span class="nc" id="L643">				+ lambda2 * n(eta * e4);</span>
+
+<span class="nc" id="L645">		final double knockInValue = (term1 - term2) / (upperBarrier - lowerBarrier);</span>
+<span class="nc bnc" id="L646" title="All 4 branches missed.">		if (barrierType == BarrierType.DOWN_IN || barrierType == BarrierType.UP_IN) {</span>
+<span class="nc" id="L647">			return knockInValue;</span>
+		}
+
+<span class="nc" id="L650">		return vanillaBlackScholesValue(initialStockValue, r, q, volatility, optionMaturity, optionStrike, isCall)</span>
+				- knockInValue;
+	}
+
+	private static double doubleBarrierBinaryExpiryValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double variance,
+			final double optionMaturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType barrierType,
+			final int maxIteration,
+			final double requiredConvergence) {
+
+<span class="nc" id="L667">		final double sigmaSq = variance / optionMaturity;</span>
+<span class="nc" id="L668">		final double b = riskFreeRate - dividendYield;</span>
+<span class="nc" id="L669">		final double alpha = -0.5 * (2.0 * b / sigmaSq - 1.0);</span>
+<span class="nc" id="L670">		final double beta = -0.25 * Math.pow(2.0 * b / sigmaSq - 1.0, 2.0) - 2.0 * riskFreeRate / sigmaSq;</span>
+<span class="nc" id="L671">		final double Z = Math.log(upperBarrier / lowerBarrier);</span>
+<span class="nc" id="L672">		final double factor = (2.0 * PI * cashPayoff) / (Z * Z);</span>
+<span class="nc" id="L673">		final double loAlpha = Math.pow(initialStockValue / lowerBarrier, alpha);</span>
+<span class="nc" id="L674">		final double hiAlpha = Math.pow(initialStockValue / upperBarrier, alpha);</span>
+
+<span class="nc" id="L676">		double total = 0.0;</span>
+<span class="nc" id="L677">		double term = 0.0;</span>
+<span class="nc bnc" id="L678" title="All 2 branches missed.">		for (int i = 1; i &lt; maxIteration; i++) {</span>
+<span class="nc" id="L679">			final double term1 = (loAlpha - Math.pow(-1.0, i) * hiAlpha)</span>
+<span class="nc" id="L680">					/ (alpha * alpha + Math.pow(i * PI / Z, 2.0));</span>
+<span class="nc" id="L681">			final double term2 = Math.sin(i * PI / Z * Math.log(initialStockValue / lowerBarrier));</span>
+<span class="nc" id="L682">			final double term3 = Math.exp(-0.5 * (Math.pow(i * PI / Z, 2.0) - beta) * variance);</span>
+<span class="nc" id="L683">			term = factor * i * term1 * term2 * term3;</span>
+<span class="nc" id="L684">			total += term;</span>
+		}
+<span class="nc bnc" id="L686" title="All 2 branches missed.">		if (Math.abs(term) &gt;= requiredConvergence) {</span>
+<span class="nc" id="L687">			throw new IllegalArgumentException(&quot;series did not converge sufficiently fast&quot;);</span>
+		}
+
+<span class="nc bnc" id="L690" title="All 2 branches missed.">		if (barrierType == DoubleBarrierType.KNOCK_OUT) {</span>
+<span class="nc" id="L691">			return Math.max(total, 0.0);</span>
+		}
+<span class="nc" id="L693">		final double discount = Math.exp(-riskFreeRate * optionMaturity);</span>
+<span class="nc" id="L694">		return Math.max(cashPayoff * discount - total, 0.0);</span>
+	}
+
+	private static double doubleBarrierBinaryKikoKokiValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double variance,
+			final double optionMaturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType barrierType,
+			final int maxIteration,
+			final double requiredConvergence) {
+
+<span class="nc" id="L710">		double barrierLo = lowerBarrier;</span>
+<span class="nc" id="L711">		double barrierHi = upperBarrier;</span>
+<span class="nc bnc" id="L712" title="All 2 branches missed.">		if (barrierType == DoubleBarrierType.KOKI) {</span>
+<span class="nc" id="L713">			final double tmp = barrierLo;</span>
+<span class="nc" id="L714">			barrierLo = barrierHi;</span>
+<span class="nc" id="L715">			barrierHi = tmp;</span>
+		}
+
+<span class="nc" id="L718">		final double sigmaSq = variance / optionMaturity;</span>
+<span class="nc" id="L719">		final double b = riskFreeRate - dividendYield;</span>
+<span class="nc" id="L720">		final double alpha = -0.5 * (2.0 * b / sigmaSq - 1.0);</span>
+<span class="nc" id="L721">		final double beta = -0.25 * Math.pow(2.0 * b / sigmaSq - 1.0, 2.0) - 2.0 * riskFreeRate / sigmaSq;</span>
+<span class="nc" id="L722">		final double Z = Math.log(barrierHi / barrierLo);</span>
+<span class="nc" id="L723">		final double logSL = Math.log(initialStockValue / barrierLo);</span>
+
+<span class="nc" id="L725">		double total = 0.0;</span>
+<span class="nc" id="L726">		double term = 0.0;</span>
+<span class="nc bnc" id="L727" title="All 2 branches missed.">		for (int i = 1; i &lt; maxIteration; i++) {</span>
+<span class="nc" id="L728">			final double factor = Math.pow(i * PI / Z, 2.0) - beta;</span>
+<span class="nc" id="L729">			final double term1 = (beta - Math.pow(i * PI / Z, 2.0) * Math.exp(-0.5 * factor * variance)) / factor;</span>
+<span class="nc" id="L730">			final double term2 = Math.sin(i * PI / Z * logSL);</span>
+<span class="nc" id="L731">			term = (2.0 / (i * PI)) * term1 * term2;</span>
+<span class="nc" id="L732">			total += term;</span>
+		}
+<span class="nc" id="L734">		total += 1.0 - logSL / Z;</span>
+<span class="nc" id="L735">		total *= cashPayoff * Math.pow(initialStockValue / barrierLo, alpha);</span>
+
+<span class="nc bnc" id="L737" title="All 2 branches missed.">		if (Math.abs(term) &gt;= requiredConvergence) {</span>
+<span class="nc" id="L738">			throw new IllegalArgumentException(&quot;series did not converge sufficiently fast&quot;);</span>
+		}
+<span class="nc" id="L740">		return Math.max(total, 0.0);</span>
+	}
+
+	private static double vanillaBinaryValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc bnc" id="L754" title="All 4 branches missed.">		if (optionMaturity &lt;= 0.0 || volatility &lt;= 0.0) {</span>
+<span class="nc bnc" id="L755" title="All 2 branches missed.">			final double intrinsicIndicator = isCall</span>
+<span class="nc bnc" id="L756" title="All 2 branches missed.">					? (initialStockValue &gt; optionStrike ? 1.0 : 0.0)</span>
+<span class="nc bnc" id="L757" title="All 2 branches missed.">							: (initialStockValue &lt; optionStrike ? 1.0 : 0.0);</span>
+<span class="nc bnc" id="L758" title="All 2 branches missed.">			if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L759">				return Math.exp(-riskFreeRate * Math.max(optionMaturity, 0.0)) * cashPayoff * intrinsicIndicator;</span>
+			}
+<span class="nc" id="L761">			return initialStockValue * Math.exp(-dividendYield * Math.max(optionMaturity, 0.0)) * intrinsicIndicator;</span>
+		}
+
+<span class="nc" id="L764">		final double sqrtT = Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L765">		final double d1 = (Math.log(initialStockValue / optionStrike)</span>
+				+ (riskFreeRate - dividendYield + 0.5 * volatility * volatility) * optionMaturity)
+				/ (volatility * sqrtT);
+<span class="nc" id="L768">		final double d2 = d1 - volatility * sqrtT;</span>
+<span class="nc bnc" id="L769" title="All 2 branches missed.">		final double phi = isCall ? 1.0 : -1.0;</span>
+
+<span class="nc bnc" id="L771" title="All 2 branches missed.">		if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L772">			return cashPayoff * Math.exp(-riskFreeRate * optionMaturity) * n(phi * d2);</span>
+		}
+<span class="nc" id="L774">		return initialStockValue * Math.exp(-dividendYield * optionMaturity) * n(phi * d1);</span>
+	}
+
+	/**
+	 * Prices a vanilla European option under Black-Scholes by delegating to
+	 * {@link AnalyticFormulas}.
+	 *
+	 * &lt;p&gt;This helper is used only for parity reductions in the barrier formulas.
+	 * It intentionally avoids re-implementing the vanilla closed form locally.&lt;/p&gt;
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param optionStrike Strike {@code K}.
+	 * @param isCall {@code true} for a call, {@code false} for a put.
+	 * @return The Black-Scholes value of the corresponding vanilla European option.
+	 */
+	private static double vanillaBlackScholesValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double optionStrike,
+			final boolean isCall) {
+
+<span class="nc bnc" id="L802" title="All 2 branches missed.">		if (optionMaturity &lt;= 0.0) {</span>
+<span class="nc bnc" id="L803" title="All 2 branches missed.">			return Math.max(isCall ? initialStockValue - optionStrike : optionStrike - initialStockValue, 0.0);</span>
+		}
+
+<span class="nc" id="L806">		final double forward = initialStockValue * Math.exp((riskFreeRate - dividendYield) * optionMaturity);</span>
+<span class="nc" id="L807">		final double payoffUnit = Math.exp(-riskFreeRate * optionMaturity);</span>
+<span class="nc" id="L808">		final double callValue = AnalyticFormulas.blackScholesGeneralizedOptionValue(</span>
+				forward,
+				volatility,
+				optionMaturity,
+				optionStrike,
+				payoffUnit);
+
+<span class="nc bnc" id="L815" title="All 2 branches missed.">		if (isCall) {</span>
+<span class="nc" id="L816">			return callValue;</span>
+		}
+
+<span class="nc" id="L819">		return callValue - payoffUnit * (forward - optionStrike);</span>
+	}
+
+	private static int getEta(final BarrierType barrierType) {
+<span class="pc bpc" id="L823" title="1 of 3 branches missed.">		switch (barrierType) {</span>
+		case DOWN_IN:
+		case DOWN_OUT:
+<span class="fc" id="L826">			return 1;</span>
+		case UP_IN:
+		case UP_OUT:
+<span class="fc" id="L829">			return -1;</span>
+		default:
+<span class="nc" id="L831">			throw new IllegalArgumentException(&quot;Invalid barrier type.&quot;);</span>
+		}
+	}
+
+	private static double n(final double x) {
+<span class="fc" id="L836">		return NormalDistribution.cumulativeDistribution(x);</span>
+	}
+
+	private static void validatePositive(final double value, final String name) {
+<span class="nc bnc" id="L840" title="All 2 branches missed.">		if (!(value &gt; 0.0)) {</span>
+<span class="nc" id="L841">			throw new IllegalArgumentException(name + &quot; must be &gt; 0&quot;);</span>
+		}
+<span class="nc" id="L843">	}</span>
+
+	private static void validateNonNegative(final double value, final String name) {
+<span class="nc bnc" id="L846" title="All 2 branches missed.">		if (value &lt; 0.0) {</span>
+<span class="nc" id="L847">			throw new IllegalArgumentException(name + &quot; must be &gt;= 0&quot;);</span>
+		}
+<span class="nc" id="L849">	}</span>
+
+	/**
+	 * Settlement timing for the binary barrier payoff.
+	 */
+<span class="nc" id="L854">	public enum BinaryBarrierSettlement {</span>
+		/** Pays immediately when the barrier is first hit. */
+<span class="nc" id="L856">		AT_HIT,</span>
+		/** Pays at expiry if the barrier event condition is satisfied. */
+<span class="nc" id="L858">		AT_EXPIRY</span>
+	}
+
+	/**
+	 * Barrier-event style for strike-free binary barriers.
+	 */
+<span class="nc" id="L864">	public enum BinaryBarrierEventType {</span>
+		/** Pays if the barrier has been hit before maturity. */
+<span class="nc" id="L866">		HIT,</span>
+		/** Pays if the barrier has not been hit before maturity. */
+<span class="nc" id="L868">		NO_HIT</span>
+	}
+
+	/**
+	 * Prices a continuously monitored single-barrier binary paying at the first hit time.
+	 *
+	 * &lt;p&gt;This covers the Reiner-Rubinstein / Haug formulas:
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;down-and-in cash-(at-hit)-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;up-and-in cash-(at-hit)-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;down-and-in asset-(at-hit)-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;up-and-in asset-(at-hit)-or-nothing.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * &lt;p&gt;For asset-at-hit, the payoff at hit is the barrier level {@code H}, since the hit occurs exactly at {@code S=H}.&lt;/p&gt;
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param barrierValue Barrier level {@code H}.
+	 * @param barrierType Must be {@code DOWN_IN} or {@code UP_IN}.
+	 * @param binaryPayoffType Cash-or-nothing or asset-or-nothing payoff.
+	 * @param cashPayoff Cash amount used for cash-or-nothing.
+	 * @return The at-hit binary barrier value.
+	 */
+	public static double blackScholesBinaryBarrierAtHitValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double barrierValue,
+			final BarrierType barrierType,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc" id="L906">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L907">		validatePositive(barrierValue, &quot;barrierValue&quot;);</span>
+<span class="nc" id="L908">		validateNonNegative(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L909">		validateNonNegative(optionMaturity, &quot;optionMaturity&quot;);</span>
+
+<span class="nc bnc" id="L911" title="All 4 branches missed.">		if (barrierType != BarrierType.DOWN_IN &amp;&amp; barrierType != BarrierType.UP_IN) {</span>
+<span class="nc" id="L912">			throw new IllegalArgumentException(&quot;At-hit formulas only apply to DOWN_IN or UP_IN.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L915" title="All 8 branches missed.">		final boolean alreadyHit =</span>
+				(barrierType == BarrierType.DOWN_IN &amp;&amp; initialStockValue &lt;= barrierValue)
+				|| (barrierType == BarrierType.UP_IN &amp;&amp; initialStockValue &gt;= barrierValue);
+
+<span class="nc bnc" id="L919" title="All 2 branches missed.">		if (alreadyHit) {</span>
+<span class="nc bnc" id="L920" title="All 2 branches missed.">			if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L921">				return cashPayoff;</span>
+			}
+<span class="nc" id="L923">			return barrierValue;</span>
+		}
+
+<span class="nc bnc" id="L926" title="All 4 branches missed.">		if ((optionMaturity &lt;= 0.0) || (volatility &lt;= 0.0)) {</span>
+<span class="nc" id="L927">			return 0.0;</span>
+		}
+
+<span class="nc" id="L930">		final double sigmaSq = volatility * volatility;</span>
+<span class="nc" id="L931">		final double volTime = volatility * Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L932">		final double mu = (riskFreeRate - dividendYield - 0.5 * sigmaSq) / sigmaSq;</span>
+<span class="nc" id="L933">		final double lambda = Math.sqrt(mu * mu + 2.0 * riskFreeRate / sigmaSq);</span>
+<span class="nc" id="L934">		final int eta = getEta(barrierType);</span>
+
+<span class="nc" id="L936">		final double z = Math.log(barrierValue / initialStockValue) / volTime + lambda * volTime;</span>
+<span class="nc bnc" id="L937" title="All 2 branches missed.">		final double payoffAmount = binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING ? cashPayoff : barrierValue;</span>
+<span class="nc" id="L938">		final double hs = barrierValue / initialStockValue;</span>
+
+<span class="nc" id="L940">		return payoffAmount</span>
+<span class="nc" id="L941">				* (Math.pow(hs, mu + lambda) * n(eta * z)</span>
+<span class="nc" id="L942">						+ Math.pow(hs, mu - lambda) * n(eta * (z - 2.0 * lambda * volTime)));</span>
+	}
+
+	/**
+	 * Prices a continuously monitored single-barrier binary paying at expiry,
+	 * depending only on whether the barrier has been hit or not.
+	 *
+	 * &lt;p&gt;This covers the Reiner-Rubinstein / Haug formulas:
+	 * &lt;ul&gt;
+	 *   &lt;li&gt;down/up-and-in cash-(at-expiration)-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;down/up-and-in asset-(at-expiration)-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;down/up-and-out cash-or-nothing,&lt;/li&gt;
+	 *   &lt;li&gt;down/up-and-out asset-or-nothing.&lt;/li&gt;
+	 * &lt;/ul&gt;
+	 *
+	 * @param initialStockValue Spot price {@code S0}.
+	 * @param riskFreeRate Continuously compounded risk-free rate {@code r}.
+	 * @param dividendYield Continuously compounded dividend yield {@code q}.
+	 * @param volatility Black-Scholes volatility {@code sigma}.
+	 * @param optionMaturity Time to maturity {@code T}.
+	 * @param barrierValue Barrier level {@code H}.
+	 * @param barrierType Barrier orientation and knock style.
+	 * @param eventType HIT for knock-in style payoff, NO_HIT for knock-out style payoff.
+	 * @param binaryPayoffType Cash-or-nothing or asset-or-nothing.
+	 * @param cashPayoff Cash amount used when {@code binaryPayoffType} is cash-or-nothing.
+	 * @return The expiry binary barrier value.
+	 */
+	public static double blackScholesBinaryBarrierStatusAtExpiryValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double barrierValue,
+			final BarrierType barrierType,
+			final BinaryBarrierEventType eventType,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc" id="L981">		validatePositive(initialStockValue, &quot;initialStockValue&quot;);</span>
+<span class="nc" id="L982">		validatePositive(barrierValue, &quot;barrierValue&quot;);</span>
+<span class="nc" id="L983">		validateNonNegative(volatility, &quot;volatility&quot;);</span>
+<span class="nc" id="L984">		validateNonNegative(optionMaturity, &quot;optionMaturity&quot;);</span>
+
+<span class="nc bnc" id="L986" title="All 4 branches missed.">		final boolean isKnockIn = barrierType == BarrierType.DOWN_IN || barrierType == BarrierType.UP_IN;</span>
+<span class="nc bnc" id="L987" title="All 4 branches missed.">		final boolean isKnockOut = barrierType == BarrierType.DOWN_OUT || barrierType == BarrierType.UP_OUT;</span>
+
+<span class="nc bnc" id="L989" title="All 8 branches missed.">		if ((eventType == BinaryBarrierEventType.HIT &amp;&amp; !isKnockIn)</span>
+				|| (eventType == BinaryBarrierEventType.NO_HIT &amp;&amp; !isKnockOut)) {
+<span class="nc" id="L991">			throw new IllegalArgumentException(</span>
+					&quot;Use HIT with DOWN_IN/UP_IN and NO_HIT with DOWN_OUT/UP_OUT.&quot;);
+		}
+
+<span class="nc bnc" id="L995" title="All 12 branches missed.">		final boolean alreadyHit =</span>
+				((barrierType == BarrierType.DOWN_IN || barrierType == BarrierType.DOWN_OUT) &amp;&amp; initialStockValue &lt;= barrierValue)
+				|| ((barrierType == BarrierType.UP_IN || barrierType == BarrierType.UP_OUT) &amp;&amp; initialStockValue &gt;= barrierValue);
+
+<span class="nc bnc" id="L999" title="All 2 branches missed.">		if (alreadyHit) {</span>
+<span class="nc bnc" id="L1000" title="All 2 branches missed.">			if (eventType == BinaryBarrierEventType.HIT) {</span>
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">				if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L1002">					return cashPayoff * Math.exp(-riskFreeRate * optionMaturity);</span>
+				}
+<span class="nc" id="L1004">				return initialStockValue * Math.exp(-dividendYield * optionMaturity);</span>
+			}
+<span class="nc" id="L1006">			return 0.0;</span>
+		}
+
+<span class="nc bnc" id="L1009" title="All 4 branches missed.">		if ((optionMaturity &lt;= 0.0) || (volatility &lt;= 0.0)) {</span>
+<span class="nc" id="L1010">			return 0.0;</span>
+		}
+
+<span class="nc" id="L1013">		final double sigmaSq = volatility * volatility;</span>
+<span class="nc" id="L1014">		final double volTime = volatility * Math.sqrt(optionMaturity);</span>
+<span class="nc" id="L1015">		final double mu = (riskFreeRate - dividendYield - 0.5 * sigmaSq) / sigmaSq;</span>
+<span class="nc" id="L1016">		final double eta = getEta(barrierType);</span>
+<span class="nc bnc" id="L1017" title="All 2 branches missed.">		final double phi = isKnockIn ? -eta : eta;</span>
+
+<span class="nc" id="L1019">		final double x2 = Math.log(initialStockValue / barrierValue) / volTime + (1.0 + mu) * volTime;</span>
+<span class="nc" id="L1020">		final double y2 = Math.log(barrierValue / initialStockValue) / volTime + (1.0 + mu) * volTime;</span>
+<span class="nc" id="L1021">		final double hs2mu = Math.pow(barrierValue / initialStockValue, 2.0 * mu);</span>
+
+<span class="nc bnc" id="L1023" title="All 2 branches missed.">		if (binaryPayoffType == BinaryPayoffType.CASH_OR_NOTHING) {</span>
+<span class="nc" id="L1024">			final double K = cashPayoff;</span>
+<span class="nc" id="L1025">			final double B2 = K * Math.exp(-riskFreeRate * optionMaturity) * n(phi * (x2 - volTime));</span>
+<span class="nc" id="L1026">			final double B4 = K * Math.exp(-riskFreeRate * optionMaturity) * hs2mu * n(eta * (y2 - volTime));</span>
+<span class="nc bnc" id="L1027" title="All 2 branches missed.">			return isKnockIn ? B2 + B4 : B2 - B4;</span>
+		} else {
+<span class="nc" id="L1029">			final double A2 = initialStockValue * Math.exp(-dividendYield * optionMaturity) * n(phi * x2);</span>
+<span class="nc" id="L1030">			final double A4 = initialStockValue * Math.exp(-dividendYield * optionMaturity)</span>
+<span class="nc" id="L1031">					* Math.pow(barrierValue / initialStockValue, 2.0 * (mu + 1.0))</span>
+<span class="nc" id="L1032">					* n(eta * y2);</span>
+<span class="nc bnc" id="L1033" title="All 2 branches missed.">			return isKnockIn ? A2 + A4 : A2 - A4;</span>
+		}
+	}
+
+	/**
+	 * One-touch / asset-touch convenience wrapper.
+	 *
+	 * &lt;p&gt;For cash-or-nothing this is a standard one-touch paying {@code cashPayoff} at hit.
+	 * For asset-or-nothing this is an asset-touch paying the barrier level at hit.&lt;/p&gt;
+	 * @param initialStockValue The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @param optionMaturity The value.
+	 * @param barrierValue The value.
+	 * @param barrierType The value.
+	 * @param binaryPayoffType The value.
+	 * @param cashPayoff The value.
+	 * @return The value.
+	 */
+	public static double blackScholesOneTouchValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double barrierValue,
+			final BarrierType barrierType,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc" id="L1064">		return blackScholesBinaryBarrierAtHitValue(</span>
+				initialStockValue,
+				riskFreeRate,
+				dividendYield,
+				volatility,
+				optionMaturity,
+				barrierValue,
+				barrierType,
+				binaryPayoffType,
+				cashPayoff);
+	}
+
+	/**
+	 * No-touch / hit-at-expiry convenience wrapper.
+	 *
+	 * &lt;p&gt;Use DOWN_OUT or UP_OUT with eventType NO_HIT for no-touch,
+	 * and DOWN_IN or UP_IN with eventType HIT for hit-by-expiry.&lt;/p&gt;
+	 * @param initialStockValue The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @param optionMaturity The value.
+	 * @param barrierValue The value.
+	 * @param barrierType The value.
+	 * @param eventType The value.
+	 * @param binaryPayoffType The value.
+	 * @param cashPayoff The value.
+	 * @return The value.
+	 */
+	public static double blackScholesBarrierStatusBinaryValue(
+			final double initialStockValue,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double optionMaturity,
+			final double barrierValue,
+			final BarrierType barrierType,
+			final BinaryBarrierEventType eventType,
+			final BinaryPayoffType binaryPayoffType,
+			final double cashPayoff) {
+
+<span class="nc" id="L1105">		return blackScholesBinaryBarrierStatusAtExpiryValue(</span>
+				initialStockValue,
+				riskFreeRate,
+				dividendYield,
+				volatility,
+				optionMaturity,
+				barrierValue,
+				barrierType,
+				eventType,
+				binaryPayoffType,
+				cashPayoff);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

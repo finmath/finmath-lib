@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExerciseType.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">ExerciseType.java</span></div><h1>ExerciseType.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+/**
+ * Enumeration of supported exercise styles for finite-difference products.
+ *
+ * &lt;p&gt;
+ * The exercise type determines the set of times at which the holder may
+ * exercise the option:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;{@link #EUROPEAN}: exercise is allowed only at maturity &lt;i&gt;T&lt;/i&gt;,&lt;/li&gt;
+ * &lt;li&gt;{@link #BERMUDAN}: exercise is allowed only on a prescribed discrete set
+ * of exercise dates,&lt;/li&gt;
+ * &lt;li&gt;{@link #AMERICAN}: exercise is allowed at any time in a continuous
+ * interval up to maturity.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * In optimal stopping terms, if &lt;i&gt;V(t,S)&lt;/i&gt; denotes the option value and
+ * &lt;i&gt;G(t,S)&lt;/i&gt; the immediate exercise value, then:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;for European exercise, the stopping time is fixed to maturity,&lt;/li&gt;
+ * &lt;li&gt;for Bermudan exercise, stopping is restricted to a discrete set of
+ * dates,&lt;/li&gt;
+ *   &lt;li&gt;for American exercise, the value satisfies the obstacle relation
+ * &lt;i&gt;V(t,S) = max(G(t,S), C(t,S))&lt;/i&gt;, where &lt;i&gt;C&lt;/i&gt; denotes the continuation
+ * value.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+<span class="nc" id="L33">public enum ExerciseType {</span>
+	/**
+	 * The european.
+	 */
+<span class="nc" id="L37">	EUROPEAN,</span>
+	/**
+	 * The bermudan.
+	 */
+<span class="nc" id="L41">	BERMUDAN,</span>
+	/**
+	 * The american.
+	 */
+<span class="nc" id="L45">	AMERICAN;</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

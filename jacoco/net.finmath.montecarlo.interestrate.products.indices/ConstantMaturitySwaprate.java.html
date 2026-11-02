@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConstantMaturitySwaprate.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">ConstantMaturitySwaprate.java</span></div><h1>ConstantMaturitySwaprate.java</h1><pre class="source lang-java linenums">/*
+ * Created on 15.09.2006
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * An idealized (single curve) CMS index with given maturity and given period length.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ConstantMaturitySwaprate extends AbstractIndex {
+
+	private static final long serialVersionUID = -5353191308059733179L;
+
+	private final double	fixingOffset;
+	private final double[]	periodLengths;
+
+	/**
+	 * Create a CMS index with given fixing offset and given period lengths.
+	 *
+	 * @param name The name of the underlying index.
+	 * @param currency The currency of the underlying index, if any.
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(final String name, final String currency, final double fixingOffset, final double[] periodLengths) {
+<span class="nc" id="L38">		super(name, currency);</span>
+<span class="nc" id="L39">		this.fixingOffset = fixingOffset;</span>
+<span class="nc" id="L40">		this.periodLengths = periodLengths;</span>
+<span class="nc" id="L41">	}</span>
+
+	/**
+	 * Create a CMS index with given fixing offset and given period lengths.
+	 *
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(final double fixingOffset, final double[] periodLengths) {
+<span class="nc" id="L50">		this(null, null, fixingOffset, periodLengths);</span>
+<span class="nc" id="L51">	}</span>
+
+	/**
+	 * Create a CMS index with given period lengths.
+	 *
+	 * @param periodLengths Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(final double[] periodLengths) {
+<span class="nc" id="L59">		this(0.0, periodLengths);</span>
+<span class="nc" id="L60">	}</span>
+
+	/**
+	 * Create a CMS index with given fixing offset and given maturity and given period length.
+	 * Note that maturity must be a multiple of the period length.
+	 *
+	 * @param name The name of the underlying index.
+	 * @param currency The currency of the underlying index, if any.
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param maturity The maturity.
+	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(final String name, final String currency, final double fixingOffset, final double maturity, final double periodLength) {
+<span class="fc" id="L73">		super(name, currency);</span>
+<span class="fc" id="L74">		this.fixingOffset = fixingOffset;</span>
+
+<span class="fc" id="L76">		final int numberOfPeriods = (int) (maturity / periodLength + 0.5);</span>
+<span class="pc bpc" id="L77" title="1 of 2 branches missed.">		if(numberOfPeriods * periodLength != maturity) {</span>
+<span class="nc" id="L78">			throw new IllegalArgumentException(&quot;matruity not divisible by periodLength&quot;);</span>
+		}
+<span class="fc" id="L80">		periodLengths = new double[numberOfPeriods];</span>
+<span class="fc" id="L81">		Arrays.fill(periodLengths,periodLength);</span>
+<span class="fc" id="L82">	}</span>
+
+	/**
+	 * Create a CMS index with given fixing offset and given maturity and given period length.
+	 * Note that maturity must be a multiple of the period length.
+	 *
+	 * @param fixingOffset Fixing offset of this index.
+	 * @param maturity The maturity.
+	 * @param periodLength Period length of underlying swap, used for the swap annuity calculation.
+	 */
+	public ConstantMaturitySwaprate(final double fixingOffset, final double maturity, final double periodLength) {
+<span class="fc" id="L93">		this(null, null, fixingOffset, maturity, periodLength);</span>
+<span class="fc" id="L94">	}</span>
+
+	/**
+	 * Create a CMS index with given maturity and given period length. Note that maturity must be a multiple of the period length.
+	 *
+	 * @param maturity Maturity of the swap rate.
+	 * @param periodLength Period length of the fixed size (determines the swap annuity used)
+	 */
+	public ConstantMaturitySwaprate(final double maturity, final double periodLength) {
+<span class="fc" id="L103">		this(0.0, maturity, periodLength);</span>
+<span class="fc" id="L104">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// Fetch curve
+<span class="fc" id="L110">		final RandomVariable[] forwardRates = new RandomVariable[periodLengths.length];</span>
+<span class="fc" id="L111">		double periodStart = evaluationTime+fixingOffset;</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">		for(int periodIndex = 0; periodIndex &lt; periodLengths.length; periodIndex++) {</span>
+<span class="fc" id="L113">			forwardRates[periodIndex] = model.getForwardRate(evaluationTime+fixingOffset, periodStart, periodStart+periodLengths[periodIndex]);</span>
+<span class="fc" id="L114">			periodStart += periodLengths[periodIndex];</span>
+		}
+
+		// Calculate float leg value (single curve/classical) and annuity.
+<span class="fc" id="L118">		RandomVariable forwardBondInverse           = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L119">		RandomVariable forwardAnnuityInverse        = model.getRandomVariableForConstant(periodLengths[periodLengths.length-1]);</span>
+<span class="fc bfc" id="L120" title="All 2 branches covered.">		for(int periodIndex = periodLengths.length-1; periodIndex&gt;= 1; periodIndex--) {</span>
+<span class="fc" id="L121">			final RandomVariable forwardBondOnePeriodInverse  = (forwardRates[periodIndex]).mult(periodLengths[periodIndex]).add(1.0);</span>
+<span class="fc" id="L122">			forwardBondInverse		= forwardBondInverse.mult(forwardBondOnePeriodInverse);</span>
+<span class="fc" id="L123">			forwardAnnuityInverse	= forwardAnnuityInverse.addProduct(forwardBondInverse, periodLengths[periodIndex]);</span>
+		}
+<span class="fc" id="L125">		final RandomVariable forwardBondOnePeriodInverse  = (forwardRates[0]).mult(periodLengths[0]).add(1.0);</span>
+<span class="fc" id="L126">		forwardBondInverse = forwardBondInverse.mult(forwardBondOnePeriodInverse);</span>
+
+<span class="fc" id="L128">		final RandomVariable swaprate = forwardBondInverse.sub(1.0).div(forwardAnnuityInverse);</span>
+
+<span class="fc" id="L130">		return swaprate;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L135">		final Set&lt;String&gt; underlyingNames = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L136">		underlyingNames.add(getName());</span>
+<span class="nc" id="L137">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L142">		return &quot;ConstantMaturitySwaprate [fixingOffset=&quot; + fixingOffset</span>
+<span class="nc" id="L143">				+ &quot;, periodLengths=&quot; + Arrays.toString(periodLengths) + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

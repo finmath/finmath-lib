@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VarianceGammaJumpComponent.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.models</a> &gt; <span class="el_source">VarianceGammaJumpComponent.java</span></div><h1>VarianceGammaJumpComponent.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.models;
+
+/**
+ * Jump component for the Variance Gamma model.
+ *
+ * &lt;p&gt;
+ * The jump part acts on one selected state variable through multiplicative
+ * jumps
+ * of the form
+ *
+ * \[ x \mapsto x \cdot exp(y), \]
+ *
+ * where {@code y} denotes the log-jump size. The associated Levy density is
+ * \[ \nu(y) = \left\{
+ * \begin{array}{ll}
+ *   C \cdot exp(-M y) / y,     &amp;amp; \text{for} \, y &amp;gt; 0, \\
+ *   C \cdot exp(-G |y|) / |y|, &amp;amp; \text{for} \, y &amp;lt; 0.
+ * \end{array} \right. \]
+ * This is the standard Variance Gamma Levy density in {@code (C,G,M)}
+ * parameterization. The process has infinite activity and finite variation.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * A convenience factory is also provided for the usual Variance Gamma
+ * parameters {@code (sigma, nu, theta)}. In that case,
+ * &lt;/p&gt;
+ *
+ * &lt;pre&gt;
+ * C = 1 / nu,
+ * G = (sqrt(theta^2 + 2 sigma^2 / nu) + theta) / sigma^2,
+ * M = (sqrt(theta^2 + 2 sigma^2 / nu) - theta) / sigma^2.
+ * &lt;/pre&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class VarianceGammaJumpComponent extends AbstractStateIndependentJumpComponent {
+
+	private static final long serialVersionUID = 1L;
+
+	/**
+	 * The c.
+	 */
+	private final double c;
+	/**
+	 * The g.
+	 */
+	private final double g;
+	/**
+	 * The m.
+	 */
+	private final double m;
+
+	/**
+	 * Creates a Variance Gamma jump component acting on the first state
+	 * variable.
+	 *
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param c The parameter {@code C} of the Levy density.
+	 * @param g The parameter {@code G} governing negative jumps.
+	 * @param m The parameter {@code M} governing positive jumps.
+	 */
+	public VarianceGammaJumpComponent(
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double c,
+			final double g,
+			final double m) {
+<span class="nc" id="L71">		this(0, lowerIntegrationBound, upperIntegrationBound, c, g, m);</span>
+<span class="nc" id="L72">	}</span>
+
+	/**
+	 * Creates a Variance Gamma jump component.
+	 *
+	 * @param stateVariableIndex Index of the affected state variable.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param c The parameter {@code C} of the Levy density.
+	 * @param g The parameter {@code G} governing negative jumps.
+	 * @param m The parameter {@code M} governing positive jumps.
+	 */
+	public VarianceGammaJumpComponent(
+			final int stateVariableIndex,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double c,
+			final double g,
+			final double m) {
+<span class="fc" id="L93">		super(stateVariableIndex, lowerIntegrationBound, upperIntegrationBound, false, true);</span>
+
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">		if (c &lt;= 0.0) {</span>
+<span class="nc" id="L96">			throw new IllegalArgumentException(&quot;Parameter C must be positive.&quot;);</span>
+		}
+<span class="pc bpc" id="L98" title="1 of 2 branches missed.">		if (g &lt;= 0.0) {</span>
+<span class="nc" id="L99">			throw new IllegalArgumentException(&quot;Parameter G must be positive.&quot;);</span>
+		}
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if (m &lt;= 0.0) {</span>
+<span class="nc" id="L102">			throw new IllegalArgumentException(&quot;Parameter M must be positive.&quot;);</span>
+		}
+
+<span class="fc" id="L105">		this.c = c;</span>
+<span class="fc" id="L106">		this.g = g;</span>
+<span class="fc" id="L107">		this.m = m;</span>
+<span class="fc" id="L108">	}</span>
+
+	/**
+	 * Creates a Variance Gamma jump component from the standard
+	 * {@code (sigma, nu, theta)} parameterization, acting on the first state
+	 * variable.
+	 *
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param sigma The volatility parameter of the Variance Gamma model.
+	 * @param nu The variance-of-time-change parameter of the Variance Gamma
+	 *     model.
+	 * @param theta The asymmetry parameter of the Variance Gamma model.
+	 * @return The corresponding Variance Gamma jump component.
+	 */
+	public static VarianceGammaJumpComponent ofSigmaNuTheta(
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double sigma,
+			final double nu,
+			final double theta) {
+<span class="fc" id="L131">		return ofSigmaNuTheta(0, lowerIntegrationBound, upperIntegrationBound, sigma, nu, theta);</span>
+	}
+
+	/**
+	 * Creates a Variance Gamma jump component from the standard
+	 * {@code (sigma, nu, theta)} parameterization.
+	 *
+	 * @param stateVariableIndex Index of the affected state variable.
+	 * @param lowerIntegrationBound Lower integration bound for the log-jump
+	 *     variable.
+	 * @param upperIntegrationBound Upper integration bound for the log-jump
+	 *     variable.
+	 * @param sigma The volatility parameter of the Variance Gamma model.
+	 * @param nu The variance-of-time-change parameter of the Variance Gamma
+	 *     model.
+	 * @param theta The asymmetry parameter of the Variance Gamma model.
+	 * @return The corresponding Variance Gamma jump component.
+	 */
+	public static VarianceGammaJumpComponent ofSigmaNuTheta(
+			final int stateVariableIndex,
+			final double lowerIntegrationBound,
+			final double upperIntegrationBound,
+			final double sigma,
+			final double nu,
+			final double theta) {
+
+<span class="pc bpc" id="L157" title="1 of 2 branches missed.">		if (sigma &lt;= 0.0) {</span>
+<span class="nc" id="L158">			throw new IllegalArgumentException(&quot;Parameter sigma must be positive.&quot;);</span>
+		}
+<span class="pc bpc" id="L160" title="1 of 2 branches missed.">		if (nu &lt;= 0.0) {</span>
+<span class="nc" id="L161">			throw new IllegalArgumentException(&quot;Parameter nu must be positive.&quot;);</span>
+		}
+
+<span class="fc" id="L164">		final double sigmaSquared = sigma * sigma;</span>
+<span class="fc" id="L165">		final double radical = Math.sqrt(theta * theta + 2.0 * sigmaSquared / nu);</span>
+
+<span class="fc" id="L167">		final double c = 1.0 / nu;</span>
+<span class="fc" id="L168">		final double g = (radical + theta) / sigmaSquared;</span>
+<span class="fc" id="L169">		final double m = (radical - theta) / sigmaSquared;</span>
+
+<span class="fc" id="L171">		return new VarianceGammaJumpComponent(</span>
+				stateVariableIndex,
+				lowerIntegrationBound,
+				upperIntegrationBound,
+				c,
+				g,
+				m
+				);
+	}
+
+	@Override
+	protected double getLevyDensity(final double time, final double jumpSize) {
+
+<span class="fc bfc" id="L184" title="All 2 branches covered.">		if (jumpSize &gt; 0.0) {</span>
+<span class="fc" id="L185">			return c * Math.exp(-m * jumpSize) / jumpSize;</span>
+		}
+<span class="pc bpc" id="L187" title="1 of 2 branches missed.">		if (jumpSize &lt; 0.0) {</span>
+<span class="fc" id="L188">			final double absoluteJumpSize = Math.abs(jumpSize);</span>
+<span class="fc" id="L189">			return c * Math.exp(-g * absoluteJumpSize) / absoluteJumpSize;</span>
+		}
+
+<span class="nc" id="L192">		throw new IllegalArgumentException(&quot;The Variance Gamma Levy density is singular at zero.&quot;);</span>
+	}
+
+	/**
+	 * Returns the parameter {@code C}.
+	 *
+	 * @return The parameter {@code C}.
+	 */
+	public double getC() {
+<span class="nc" id="L201">		return c;</span>
+	}
+
+	/**
+	 * Returns the parameter {@code G}.
+	 *
+	 * @return The parameter {@code G}.
+	 */
+	public double getG() {
+<span class="nc" id="L210">		return g;</span>
+	}
+
+	/**
+	 * Returns the parameter {@code M}.
+	 *
+	 * @return The parameter {@code M}.
+	 */
+	public double getM() {
+<span class="nc" id="L219">		return m;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

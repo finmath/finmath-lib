@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ForwardAgreementWithFundingRequirement.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">ForwardAgreementWithFundingRequirement.java</span></div><h1>ForwardAgreementWithFundingRequirement.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 21.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.modelling.Model;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.models.funding.FundingCapacity;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements the valuation of a forward on a single asset.
+ *
+ * Given a model for an asset &lt;i&gt;S&lt;/i&gt;, the Forward Agreement with forward &lt;i&gt;K&lt;/i&gt;, maturity &lt;i&gt;T&lt;/i&gt;
+ * pays
+ * &lt;br&gt;
+ * 	&lt;i&gt;V(T) = S(T) - K&lt;/i&gt; in &lt;i&gt;T&lt;/i&gt;.
+ * &lt;br&gt;
+ *
+ * The &lt;code&gt;getValue&lt;/code&gt; method of this class will return the random variable &lt;i&gt;N(t) * V(T) / N(T)&lt;/i&gt;,
+ * where &lt;i&gt;N&lt;/i&gt; is the numeraire provided by the model. If &lt;i&gt;N(t)&lt;/i&gt; is deterministic,
+ * calling &lt;code&gt;getAverage&lt;/code&gt; on this random variable will result in the value. Otherwise a
+ * conditional expectation has to be applied.
+ *
+ * @author Christian Fries
+ * @version 1.3
+ */
+public class ForwardAgreementWithFundingRequirement extends AbstractAssetMonteCarloProduct {
+
+	private final double maturity;
+	private final double forwardValue;
+	private final Integer underlyingIndex;
+	private final String nameOfUnderliyng;
+
+	private final FundingCapacity fundingCapacity;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff S(T)-K
+	 * @param forwardValue The strike K in the option payoff S(T)-K.
+	 * @param fundingCapacity A funding capacity monitor.
+	 */
+	public ForwardAgreementWithFundingRequirement(final String underlyingName, final double maturity, final double forwardValue, final FundingCapacity fundingCapacity) {
+<span class="nc" id="L51">		super();</span>
+<span class="nc" id="L52">		nameOfUnderliyng	= underlyingName;</span>
+<span class="nc" id="L53">		this.maturity		= maturity;</span>
+<span class="nc" id="L54">		this.forwardValue	= forwardValue;</span>
+<span class="nc" id="L55">		underlyingIndex		= 0;</span>
+
+<span class="nc" id="L57">		this.fundingCapacity	= fundingCapacity;</span>
+<span class="nc" id="L58">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param forwardValue The strike K in the option payoff max(S(T)-K,0).
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 * @param fundingCapacity A funding capacity monitor.
+	 */
+	public ForwardAgreementWithFundingRequirement(final double maturity, final double forwardValue, final int underlyingIndex, final FundingCapacity fundingCapacity) {
+<span class="fc" id="L68">		super();</span>
+<span class="fc" id="L69">		this.maturity			= maturity;</span>
+<span class="fc" id="L70">		this.forwardValue		= forwardValue;</span>
+<span class="fc" id="L71">		this.underlyingIndex	= underlyingIndex;</span>
+<span class="fc" id="L72">		nameOfUnderliyng		= null;		// Use underlyingIndex</span>
+
+<span class="fc" id="L74">		this.fundingCapacity	= fundingCapacity;</span>
+<span class="fc" id="L75">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param forwardValue The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public ForwardAgreementWithFundingRequirement(final double maturity, final double forwardValue) {
+<span class="nc" id="L83">		this(maturity, forwardValue, 0, null);</span>
+<span class="nc" id="L84">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+		// Get underlying and numeraire
+
+		// Get S(T)
+<span class="fc" id="L101">		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);</span>
+
+		// The payoff: values = underlying - strike = V(T) = S(T)-K
+<span class="fc" id="L104">		RandomVariable values = underlyingAtMaturity.sub(forwardValue);</span>
+
+<span class="fc" id="L106">		final RandomVariable defaultCompensation = fundingCapacity.getDefaultFactors(maturity, values).getDefaultCompensation();</span>
+<span class="fc" id="L107">		values = values.mult(defaultCompensation);</span>
+
+		// Discounting...
+<span class="fc" id="L110">		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);</span>
+<span class="fc" id="L111">		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);</span>
+<span class="fc" id="L112">		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);</span>
+
+		// ...to evaluation time.
+<span class="fc" id="L115">		final RandomVariable	numeraireAtEvalTime					= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L116">		final RandomVariable	monteCarloProbabilitiesAtEvalTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L117">		values = values.mult(numeraireAtEvalTime).div(monteCarloProbabilitiesAtEvalTime);</span>
+
+<span class="fc" id="L119">		return values;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getValues(final double evaluationTime, final Model model) {
+<span class="nc" id="L124">		final Map&lt;String, Object&gt;  result = new HashMap&lt;&gt;();</span>
+
+		try {
+<span class="nc" id="L127">			final double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationModel) model).getAverage();</span>
+<span class="nc" id="L128">			result.put(&quot;value&quot;, value);</span>
+<span class="nc" id="L129">		} catch (final CalculationException e) {</span>
+<span class="nc" id="L130">			result.put(&quot;exception&quot;, e);</span>
+<span class="nc" id="L131">		}</span>
+
+<span class="nc" id="L133">		return result;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

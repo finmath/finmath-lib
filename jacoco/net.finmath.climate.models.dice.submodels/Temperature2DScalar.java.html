@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Temperature2DScalar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">Temperature2DScalar.java</span></div><h1>Temperature2DScalar.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import net.finmath.climate.models.Temperature;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * State vector representing temperature above pre-industrial level in Kelvin (K).
+ *
+ * @author Christian Fries
+ */
+public class Temperature2DScalar implements Temperature {
+
+	private final double temperatureOfAtmosphere;
+	private final double temperatureOfLandAndOcean;
+
+	/**
+	 * Create a temperature vector.
+	 *
+	 * @param temperatureOfAtmosphere Temperature over pre-industrial of the atmosphere.
+	 * @param temperatureOfLandAndOcean Temperature over pre-industrial of land and ocean.
+	 */
+	public Temperature2DScalar(double temperatureOfAtmosphere, double temperatureOfLandAndOcean) {
+<span class="fc" id="L24">		super();</span>
+<span class="fc" id="L25">		this.temperatureOfAtmosphere = temperatureOfAtmosphere;</span>
+<span class="fc" id="L26">		this.temperatureOfLandAndOcean = temperatureOfLandAndOcean;</span>
+<span class="fc" id="L27">	}</span>
+
+	public Temperature2DScalar(double[] temperature) {
+<span class="fc" id="L30">		super();</span>
+<span class="fc" id="L31">		this.temperatureOfAtmosphere = temperature[0];</span>
+<span class="fc" id="L32">		this.temperatureOfLandAndOcean = temperature[1];</span>
+<span class="fc" id="L33">	}</span>
+
+	public Temperature2DScalar() {
+<span class="nc" id="L36">		this(0.85, 0.0068);</span>
+<span class="nc" id="L37">	}</span>
+
+	@Override
+	public Double getExpectedTemperatureOfAtmosphere() {
+<span class="fc" id="L41">		return temperatureOfAtmosphere;</span>
+	}
+
+	@Override
+	public RandomVariable getTemperatureOfAtmosphere() {
+<span class="nc" id="L46">		return Scalar.of(temperatureOfAtmosphere);</span>
+	}
+
+	public double getTemperatureOfLandAndOcean() {
+<span class="nc" id="L50">		return temperatureOfLandAndOcean;</span>
+	}
+
+	double[] getAsDoubleArray() {
+<span class="fc" id="L54">		return new double[] { temperatureOfAtmosphere, temperatureOfLandAndOcean };</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

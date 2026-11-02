@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EvolutionOfTemperature.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">EvolutionOfTemperature.java</span></div><h1>EvolutionOfTemperature.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.Function;
+
+import net.finmath.functions.LinearAlgebra;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.util.Cached;
+import net.finmath.util.TriFunction;
+
+/**
+ *
+ * The evolution of the temperature \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + \xi \cdot F(t) \right) \mathrm{d}t \).
+ *
+ * The unit of \( T \) is K (Kelvin).
+ *
+ * This is a function of timeIndex, previous temperature and forcing.
+ *
+ * The evolution is modelled as \( \mathrm{d}T(t) = \left( \Gamma_{T} T(t) + \xi \cdot F(t) \right) \mathrm{d}t \).
+ * With the given {@link TimeDiscretization} it is approximated via an Euler-step
+ * \(
+ * 	T(t_{i+1}) = \Phi T(t_{i}) + (forcingToTemp \cdot (forcing, 0) \cdot \Delta t_{i}
+ * \)
+ * where \( \Phi = (1 + \Gamma_{T} \Delta t_{i}) \).
+ *
+ * @author Christian Fries
+ */
+public class EvolutionOfTemperature implements TriFunction&lt;Integer, Temperature2DScalar, Double, Temperature2DScalar&gt; {
+
+<span class="fc" id="L29">	private static double forcingToTemp5YDefault = 0.1005;	// (climate sensitivity) sometimes called xi1 or c1 (original parameter was per 5 year)</span>
+
+	private static double[][] transitionMatrix5YDefault;
+	static {
+<span class="fc" id="L33">		final double fco22x = 3.6813;       // Forcings of equilibrium CO2 doubling (Wm-2)</span>
+<span class="fc" id="L34">		final double t2xco2 = 3.1;			// Equilibrium temp impact (°C per doubling CO2)</span>
+<span class="fc" id="L35">		final double c3 = 0.088;			// Transfer coefficient upper to lower stratum</span>
+<span class="fc" id="L36">		final double c4 = 0.025;</span>
+
+<span class="fc" id="L38">		final double phi11 = 1-forcingToTemp5YDefault*((fco22x/t2xco2) + c3);</span>
+<span class="fc" id="L39">		final double phi12 = forcingToTemp5YDefault*c3;</span>
+<span class="fc" id="L40">		final double phi21 = c4;</span>
+<span class="fc" id="L41">		final double phi22 = 1-c4;</span>
+
+<span class="fc" id="L43">		transitionMatrix5YDefault = new double[][] { new double[] { phi11, phi12 }, new double[] { phi21, phi22 } };</span>
+<span class="fc" id="L44">	}</span>
+
+	private final TimeDiscretization timeDiscretization;
+	private final Function&lt;Integer, double[][]&gt; transitionMatrices;		// phi in [i][j] (i = row, j = column)
+	private final double forcingToTemp;
+
+	/**
+	 * @param timeDiscretization The time discretization.
+	 * @param transitionMatrices Transition matrix \( \Phi \) for each time step.
+	 * @param forcingToTemp The scaling coefficient for the external forcing to temperature change per year (this is per 1Y).
+	 */
+	public EvolutionOfTemperature(TimeDiscretization timeDiscretization, Function&lt;Integer, double[][]&gt; transitionMatrices, double forcingToTemp) {
+<span class="nc" id="L56">		super();</span>
+<span class="nc" id="L57">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L58">		this.transitionMatrices = transitionMatrices;</span>
+<span class="nc" id="L59">		this.forcingToTemp = forcingToTemp;</span>
+<span class="nc" id="L60">	}</span>
+
+<span class="fc" id="L62">	public EvolutionOfTemperature(TimeDiscretization timeDiscretization) {</span>
+<span class="fc" id="L63">		final Function&lt;Integer, Double&gt; timeSteps = ((Integer timeIndex) -&gt; { return timeDiscretization.getTimeStep(timeIndex); });</span>
+<span class="fc" id="L64">		this.timeDiscretization = timeDiscretization;</span>
+<span class="fc bfc" id="L65" title="All 2 branches covered.">		transitionMatrices = timeSteps.andThen(Cached.&lt;Double, double[][]&gt;of(timeStep -&gt; timeStep == 5.0 ? transitionMatrix5YDefault : LinearAlgebra.matrixPow(transitionMatrix5YDefault, timeStep/5.0)));</span>
+<span class="fc" id="L66">		this.forcingToTemp = forcingToTemp5YDefault/5; // Rescale to per 1 Y</span>
+<span class="fc" id="L67">	}</span>
+
+	@Override
+	public Temperature2DScalar apply(Integer timeIndex, Temperature2DScalar temperature, Double forcing) {
+<span class="fc" id="L71">		final double timeStep = timeDiscretization.getTimeStep(timeIndex);</span>
+<span class="fc" id="L72">		final double[] temperatureNext = LinearAlgebra.multMatrixVector(transitionMatrices.apply(timeIndex), temperature.getAsDoubleArray());</span>
+
+<span class="fc" id="L74">		temperatureNext[0] += forcingToTemp * forcing * timeStep;</span>
+<span class="fc" id="L75">		return new Temperature2DScalar(temperatureNext);</span>
+	}
+
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L79">		return timeDiscretization;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FiniteDifferencePlotData2D.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.utilities</a> &gt; <span class="el_source">FiniteDifferencePlotData2D.java</span></div><h1>FiniteDifferencePlotData2D.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.utilities;
+
+import java.util.function.DoubleBinaryOperator;
+
+/**
+ * Dependency-free plot descriptor for a two-dimensional finite-difference
+ * surface.
+ *
+ * &lt;p&gt;
+ * The descriptor is compatible with plotting tools that consume a
+ * {@link DoubleBinaryOperator}, for example external plot extensions, without
+ * requiring this module to depend on those plotting libraries.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class FiniteDifferencePlotData2D {
+
+	/**
+	 * The x min.
+	 */
+	private final double xMin;
+	/**
+	 * The x max.
+	 */
+	private final double xMax;
+	/**
+	 * The y min.
+	 */
+	private final double yMin;
+	/**
+	 * The y max.
+	 */
+	private final double yMax;
+	/**
+	 * The number of points x.
+	 */
+	private final int numberOfPointsX;
+	/**
+	 * The number of points y.
+	 */
+	private final int numberOfPointsY;
+	/**
+	 * The function.
+	 */
+	private final DoubleBinaryOperator function;
+	/**
+	 * The title.
+	 */
+	private final String title;
+	/**
+	 * The x axis label.
+	 */
+	private final String xAxisLabel;
+	/**
+	 * The y axis label.
+	 */
+	private final String yAxisLabel;
+	/**
+	 * The z axis label.
+	 */
+	private final String zAxisLabel;
+
+	/**
+	 * Creates a two-dimensional plot descriptor.
+	 *
+	 * @param xMin The lower x-axis bound.
+	 * @param xMax The upper x-axis bound.
+	 * @param yMin The lower y-axis bound.
+	 * @param yMax The upper y-axis bound.
+	 * @param numberOfPointsX The number of plot points in the x direction.
+	 * @param numberOfPointsY The number of plot points in the y direction.
+	 * @param function The function to plot.
+	 * @param title The plot title.
+	 * @param xAxisLabel The x-axis label.
+	 * @param yAxisLabel The y-axis label.
+	 * @param zAxisLabel The z-axis label.
+	 */
+	public FiniteDifferencePlotData2D(
+			final double xMin,
+			final double xMax,
+			final double yMin,
+			final double yMax,
+			final int numberOfPointsX,
+			final int numberOfPointsY,
+			final DoubleBinaryOperator function,
+			final String title,
+			final String xAxisLabel,
+			final String yAxisLabel,
+<span class="nc" id="L90">			final String zAxisLabel) {</span>
+
+<span class="nc bnc" id="L92" title="All 4 branches missed.">		if (numberOfPointsX &lt;= 0 || numberOfPointsY &lt;= 0) {</span>
+<span class="nc" id="L93">			throw new IllegalArgumentException(&quot;The number of plot points must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L95" title="All 2 branches missed.">		if (function == null) {</span>
+<span class="nc" id="L96">			throw new IllegalArgumentException(&quot;function must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L99">		this.xMin = xMin;</span>
+<span class="nc" id="L100">		this.xMax = xMax;</span>
+<span class="nc" id="L101">		this.yMin = yMin;</span>
+<span class="nc" id="L102">		this.yMax = yMax;</span>
+<span class="nc" id="L103">		this.numberOfPointsX = numberOfPointsX;</span>
+<span class="nc" id="L104">		this.numberOfPointsY = numberOfPointsY;</span>
+<span class="nc" id="L105">		this.function = function;</span>
+<span class="nc" id="L106">		this.title = title;</span>
+<span class="nc" id="L107">		this.xAxisLabel = xAxisLabel;</span>
+<span class="nc" id="L108">		this.yAxisLabel = yAxisLabel;</span>
+<span class="nc" id="L109">		this.zAxisLabel = zAxisLabel;</span>
+<span class="nc" id="L110">	}</span>
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getXMin() {
+<span class="nc" id="L118">		return xMin;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getXMax() {
+<span class="nc" id="L127">		return xMax;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getYMin() {
+<span class="nc" id="L136">		return yMin;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public double getYMax() {
+<span class="nc" id="L145">		return yMax;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public int getNumberOfPointsX() {
+<span class="nc" id="L154">		return numberOfPointsX;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public int getNumberOfPointsY() {
+<span class="nc" id="L163">		return numberOfPointsY;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public DoubleBinaryOperator getFunction() {
+<span class="nc" id="L172">		return function;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getTitle() {
+<span class="nc" id="L181">		return title;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getXAxisLabel() {
+<span class="nc" id="L190">		return xAxisLabel;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getYAxisLabel() {
+<span class="nc" id="L199">		return yAxisLabel;</span>
+	}
+
+	/**
+	 * Returns the value.
+	 *
+	 * @return The value.
+	 */
+	public String getZAxisLabel() {
+<span class="nc" id="L208">		return zAxisLabel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BoundaryCondition.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.boundaries</a> &gt; <span class="el_source">BoundaryCondition.java</span></div><h1>BoundaryCondition.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.boundaries;
+
+/**
+ * Boundary condition for one boundary component of a finite-difference problem.
+ *
+ * &lt;p&gt;
+ * A boundary condition consists of a type and, if needed, a numerical value.
+ * For {@link BoundaryConditionType#NONE}, the value is ignored.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public interface BoundaryCondition {
+
+	/**
+	 * Returns the type of boundary condition.
+	 *
+	 * @return The boundary condition type.
+	 */
+	BoundaryConditionType getType();
+
+	/**
+	 * Returns the boundary value.
+	 *
+	 * &lt;p&gt;
+	 * This is used only when the type is {@link
+	 * BoundaryConditionType#DIRICHLET}.
+	 * &lt;/p&gt;
+	 *
+	 * @return The boundary value.
+	 */
+	double getValue();
+
+	/**
+	 * Returns true if the condition is of Dirichlet type.
+	 *
+	 * @return True if Dirichlet.
+	 */
+	default boolean isDirichlet() {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		return getType() == BoundaryConditionType.DIRICHLET;</span>
+	}
+
+	/**
+	 * Returns true if no boundary row should be enforced.
+	 *
+	 * @return True if no boundary condition is imposed.
+	 */
+	default boolean isNone() {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">		return getType() == BoundaryConditionType.NONE;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

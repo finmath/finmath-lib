@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExponentialNormalizer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.annuitymapping</a> &gt; <span class="el_source">ExponentialNormalizer.java</span></div><h1>ExponentialNormalizer.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.annuitymapping;
+
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.curves.ForwardCurveFromDiscountCurve;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.singleswaprate.products.NormalizingDummyProduct;
+import net.finmath.time.Schedule;
+
+/**
+ * An exponential normalizing function following
+ * \[
+ * 	c e^{-(x / S)^2}
+ * \]
+ * where S is the swap rate and c is some scaling factor.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class ExponentialNormalizer implements NormalizingFunction {
+
+	private final double initialSwapRate;
+	private final double scale;
+
+	/**
+	 * Create the exponential normalizer from information of the product. The constructor assumes a period of 6M for the forward curve.
+	 *
+	 * @param fixSchedule The fix schedule of the product.
+	 * @param floatSchedule The float schedule of the product.
+	 * @param discountCurveName The name of the discount curve.
+	 * @param forwardCurveName The name of the forward curve.
+	 * @param volatilityCubeName The name of the volatility cube.
+	 * @param model The model for context.
+	 */
+	public ExponentialNormalizer(final Schedule fixSchedule, final Schedule floatSchedule, final String discountCurveName, final String forwardCurveName, final String volatilityCubeName, final VolatilityCubeModel model) {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		final ForwardCurve forwardCurve = new ForwardCurveFromDiscountCurve(discountCurveName,</span>
+<span class="fc" id="L39">				model.getDiscountCurve(discountCurveName).getReferenceDate(), &quot;6M&quot;);</span>
+<span class="fc" id="L40">		this.initialSwapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, forwardCurve, model);</span>
+<span class="fc" id="L41">		final NormalizingDummyProduct unscaledDummy = new NormalizingDummyProduct(fixSchedule, floatSchedule, discountCurveName, forwardCurveName, volatilityCubeName, new ExponentialNormalizer(initialSwapRate, 1));</span>
+
+<span class="fc" id="L43">		this.scale = 1 / unscaledDummy.getValue(fixSchedule.getFixing(0), model);</span>
+<span class="fc" id="L44">	}</span>
+
+	/**
+	 * Create the exponential normalizer with parameters.
+	 *
+	 * @param initialSwapRate The par swap rate.
+	 * @param scale The scale.
+	 */
+	public ExponentialNormalizer(final double initialSwapRate, final double scale) {
+<span class="fc" id="L53">		super();</span>
+<span class="fc" id="L54">		this.initialSwapRate = initialSwapRate;</span>
+<span class="fc" id="L55">		this.scale = scale;</span>
+<span class="fc" id="L56">	}</span>
+
+	@Override
+	public double getValue(final double swapRate) {
+<span class="fc" id="L60">		final double exponent = - swapRate * swapRate / initialSwapRate / initialSwapRate;</span>
+<span class="fc" id="L61">		return scale * Math.exp(exponent);</span>
+	}
+
+	@Override
+	public double getFirstDerivative(final double swapRate) {
+<span class="fc" id="L66">		final double factor = -2 * swapRate / initialSwapRate / initialSwapRate;</span>
+<span class="fc" id="L67">		return factor * getValue(swapRate);</span>
+	}
+
+	@Override
+	public double getSecondDerivative(final double swapRate) {
+<span class="fc" id="L72">		final double factor = 2 / initialSwapRate / initialSwapRate;</span>
+<span class="fc" id="L73">		return (factor * factor * swapRate * swapRate - factor) * getValue(swapRate);</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearCombinationIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">LinearCombinationIndex.java</span></div><h1>LinearCombinationIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 06.12.2009
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * A linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LinearCombinationIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = -8181742829635380940L;
+
+	private final AbstractProductComponent index1;
+	private final AbstractProductComponent index2;
+	private final double scaling1;
+	private final double scaling2;
+
+	/**
+	 * Create a linear combination index paying scaling1 * index1(t) + scaling2 * index2(t)
+	 *
+	 * @param scaling1 Scaling for first index.
+	 * @param index1 First index.
+	 * @param scaling2 Scaling for second index.
+	 * @param index2 Second index.
+	 */
+	public LinearCombinationIndex(final double scaling1, final AbstractProductComponent index1, final double scaling2, final AbstractProductComponent index2) {
+<span class="fc" id="L39">		super();</span>
+<span class="fc" id="L40">		this.scaling1	= scaling1;</span>
+<span class="fc" id="L41">		this.index1		= index1;</span>
+<span class="fc" id="L42">		this.scaling2	= scaling2;</span>
+<span class="fc" id="L43">		this.index2		= index2;</span>
+<span class="fc" id="L44">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="fc" id="L48">		return index1.getValue(evaluationTime, model).mult(scaling1)</span>
+<span class="fc" id="L49">				.addProduct(index2.getValue(evaluationTime, model),scaling2);</span>
+	}
+
+	/**
+	 * Returns the index 1.
+	 *
+	 * @return the index 1.
+	 */
+	public AbstractProductComponent getIndex1() {
+<span class="nc" id="L58">		return index1;</span>
+	}
+
+	/**
+	 * Returns the index 2.
+	 *
+	 * @return the index 2
+	 */
+	public AbstractProductComponent getIndex2() {
+<span class="nc" id="L67">		return index2;</span>
+	}
+
+	/**
+	 * Returns the scaling 1.
+	 *
+	 * @return the scaling 1
+	 */
+	public double getScaling1() {
+<span class="nc" id="L76">		return scaling1;</span>
+	}
+
+	/**
+	 * Returns the scaling 2.
+	 *
+	 * @return the scaling 2
+	 */
+	public double getScaling2() {
+<span class="nc" id="L85">		return scaling2;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L90">		Set&lt;String&gt; underlyingNames			= index1.queryUnderlyings();</span>
+<span class="nc" id="L91">		final Set&lt;String&gt;	underlyingNames2		= index2.queryUnderlyings();</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">		if(underlyingNames2 != null) {</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">			if(underlyingNames != null) {</span>
+<span class="nc" id="L94">				underlyingNames.addAll(underlyingNames2);</span>
+			} else {
+<span class="nc" id="L96">				underlyingNames = underlyingNames2;</span>
+			}
+		}
+<span class="nc" id="L99">		return underlyingNames;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L104">		return &quot;LinearCombinationIndex [index1=&quot; + index1 + &quot;, index2=&quot;</span>
+				+ index2 + &quot;, scaling1=&quot; + scaling1 + &quot;, scaling2=&quot; + scaling2
+<span class="nc" id="L106">				+ &quot;, toString()=&quot; + super.toString() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsianOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.functions</a> &gt; <span class="el_source">AsianOption.java</span></div><h1>AsianOption.java</h1><pre class="source lang-java linenums">package net.finmath.functions;
+
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Utility class collecting analytical or semi-analytical pricing formulas for
+ * Asian options.
+ *
+ * &lt;p&gt;Included formulas:&lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;Continuous geometric-average price Asian option (Black-Scholes exact
+ * formula)&lt;/li&gt;
+ * &lt;li&gt;Discrete geometric-average price Asian option (Black-Scholes exact
+ * formula)&lt;/li&gt;
+ * &lt;li&gt;Discrete geometric-average strike Asian option (Black-Scholes exact
+ * formula)&lt;/li&gt;
+ * &lt;li&gt;Continuous arithmetic-average price Asian option, Levy approximation&lt;/li&gt;
+ * &lt;li&gt;Discrete arithmetic-average price Asian option, Turnbull-Wakeman
+ * approximation&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public final class AsianOption {
+
+	private AsianOption() {
+	}
+
+	/**
+	 * Black-style price using forward, strike, std-dev and discount factor.
+	 * @param optionType The value.
+	 * @param forward The value.
+	 * @param strike The value.
+	 * @param stdDev The value.
+	 * @param discountFactor The value.
+	 * @return The value.
+	 */
+	public static double blackPrice(
+			final CallOrPut optionType,
+			final double forward,
+			final double strike,
+			final double stdDev,
+			final double discountFactor) {
+
+<span class="nc bnc" id="L45" title="All 2 branches missed.">		if (forward &lt;= 0.0) {</span>
+<span class="nc" id="L46">			throw new IllegalArgumentException(&quot;forward must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L48" title="All 2 branches missed.">		if (strike &lt; 0.0) {</span>
+<span class="nc" id="L49">			throw new IllegalArgumentException(&quot;strike must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L51" title="All 2 branches missed.">		if (stdDev &lt; 0.0) {</span>
+<span class="nc" id="L52">			throw new IllegalArgumentException(&quot;stdDev must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		if (discountFactor &lt;= 0.0) {</span>
+<span class="nc" id="L55">			throw new IllegalArgumentException(&quot;discountFactor must be positive.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if (stdDev == 0.0) {</span>
+<span class="nc bnc" id="L59" title="All 2 branches missed.">			final double intrinsic = optionType == CallOrPut.CALL</span>
+<span class="nc" id="L60">					? Math.max(forward - strike, 0.0)</span>
+<span class="nc" id="L61">							: Math.max(strike - forward, 0.0);</span>
+<span class="nc" id="L62">			return discountFactor * intrinsic;</span>
+		}
+
+<span class="nc" id="L65">		final double d1 = (Math.log(forward / strike) + 0.5 * stdDev * stdDev) / stdDev;</span>
+<span class="nc" id="L66">		final double d2 = d1 - stdDev;</span>
+
+<span class="nc bnc" id="L68" title="All 2 branches missed.">		if (optionType == CallOrPut.CALL) {</span>
+<span class="nc" id="L69">			return discountFactor * (forward * NormalDistribution.cumulativeDistribution(d1)</span>
+<span class="nc" id="L70">					- strike * NormalDistribution.cumulativeDistribution(d2));</span>
+		} else {
+<span class="nc" id="L72">			return discountFactor * (strike * NormalDistribution.cumulativeDistribution(-d2)</span>
+<span class="nc" id="L73">					- forward * NormalDistribution.cumulativeDistribution(-d1));</span>
+		}
+	}
+
+	/**
+	 * Exact Black-Scholes price for a continuous geometric-average Asian
+	 * option.
+	 *
+	 * @param spot spot S0
+	 * @param strike strike K
+	 * @param riskFreeRate continuously compounded risk-free rate r
+	 * @param dividendYield continuously compounded dividend yield q
+	 * @param volatility Black-Scholes volatility sigma
+	 * @param maturity maturity T
+	 * @param optionType The value.
+	 * @return The value.
+	 */
+	public static double priceContinuousGeometricAveragePrice(
+			final CallOrPut optionType,
+			final double spot,
+			final double strike,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double maturity) {
+
+<span class="nc" id="L99">		final double variance = volatility * volatility * maturity / 3.0;</span>
+<span class="nc" id="L100">		final double adjustedDividendYield = 0.5 * (riskFreeRate + dividendYield + volatility * volatility / 6.0);</span>
+<span class="nc" id="L101">		final double riskFreeDiscount = Math.exp(-riskFreeRate * maturity);</span>
+<span class="nc" id="L102">		final double dividendDiscount = Math.exp(-adjustedDividendYield * maturity);</span>
+<span class="nc" id="L103">		final double forward = spot * dividendDiscount / riskFreeDiscount;</span>
+
+<span class="nc" id="L105">		return blackPrice(optionType, forward, strike, Math.sqrt(variance), riskFreeDiscount);</span>
+	}
+
+	/**
+	 * Exact Black-Scholes price for a discrete geometric-average price Asian
+	 * option.
+	 *
+	 * &lt;p&gt;This matches the QuantLib analytic discrete geometric average price
+	 * engine.&lt;/p&gt;
+	 *
+	 * @param futureFixingTimes strictly non-negative, increasing fixing times
+	 *     (in years from valuation time) for remaining fixings
+	 * @param pastFixings number of already observed fixings
+	 * @param runningProduct product of already observed fixings; use 1.0 if
+	 *     pastFixings = 0
+	 * @param maturity option maturity / exercise time
+	 * @param optionType The value.
+	 * @param spot The value.
+	 * @param strike The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @return The value.
+	 */
+	public static double priceDiscreteGeometricAveragePrice(
+			final CallOrPut optionType,
+			final double spot,
+			final double strike,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double maturity,
+			final double[] futureFixingTimes,
+			final int pastFixings,
+			final double runningProduct) {
+
+<span class="nc" id="L141">		checkNonNegativeAndSorted(futureFixingTimes);</span>
+
+<span class="nc" id="L143">		final double[] times = futureFixingTimes;</span>
+<span class="nc" id="L144">		final int remainingFixings = times.length;</span>
+<span class="nc" id="L145">		final int numberOfFixings = pastFixings + remainingFixings;</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		if (numberOfFixings &lt;= 0) {</span>
+<span class="nc" id="L147">			throw new IllegalArgumentException(&quot;At least one fixing is required.&quot;);</span>
+		}
+
+<span class="nc" id="L150">		final double N = numberOfFixings;</span>
+<span class="nc" id="L151">		final double pastWeight = pastFixings / N;</span>
+<span class="nc" id="L152">		final double futureWeight = 1.0 - pastWeight;</span>
+
+<span class="nc" id="L154">		double timeSum = 0.0;</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		for (final double t : times) {</span>
+<span class="nc" id="L156">			timeSum += t;</span>
+		}
+
+<span class="nc" id="L159">		double temp = 0.0;</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">		for (int i = pastFixings + 1; i &lt; numberOfFixings; i++) {</span>
+<span class="nc" id="L161">			temp += times[i - pastFixings - 1] * (N - i);</span>
+		}
+
+<span class="nc" id="L164">		final double variance = volatility * volatility / (N * N) * (timeSum + 2.0 * temp);</span>
+<span class="nc" id="L165">		final double nu = riskFreeRate - dividendYield - 0.5 * volatility * volatility;</span>
+
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		final int m = (pastFixings == 0 ? 1 : pastFixings);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">		final double runningLog = pastFixings == 0 ? 0.0 : Math.log(runningProduct);</span>
+<span class="nc" id="L169">		final double muG = pastWeight * runningLog / m</span>
+<span class="nc" id="L170">				+ futureWeight * Math.log(spot)</span>
+				+ nu * timeSum / N;
+
+<span class="nc" id="L173">		final double forward = Math.exp(muG + 0.5 * variance);</span>
+<span class="nc" id="L174">		final double discount = Math.exp(-riskFreeRate * maturity);</span>
+
+<span class="nc" id="L176">		return blackPrice(optionType, forward, strike, Math.sqrt(Math.max(variance, 0.0)), discount);</span>
+	}
+
+	/**
+	 * Exact Black-Scholes price for a discrete geometric-average strike Asian
+	 * option.
+	 *
+	 * &lt;p&gt;This mirrors the QuantLib engine limitation: past fixings are not
+	 * supported.&lt;/p&gt;
+	 *
+	 * @param fixingTimesFromStart fixing times measured from the first fixing
+	 *     date; normally the first entry is 0.0
+	 * @param residualTime time from first fixing date to exercise date
+	 * @param runningProduct product of past fixings; only 1.0 with pastFixings
+	 *     = 0 is supported here
+	 * @param optionType The value.
+	 * @param spot The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @param pastFixings The value.
+	 * @return The value.
+	 */
+	public static double priceDiscreteGeometricAverageStrike(
+			final CallOrPut optionType,
+			final double spot,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double residualTime,
+			final double[] fixingTimesFromStart,
+			final int pastFixings,
+			final double runningProduct) {
+
+<span class="nc bnc" id="L210" title="All 2 branches missed.">		if (pastFixings != 0) {</span>
+<span class="nc" id="L211">			throw new IllegalArgumentException(&quot;pastFixings currently not supported for discrete geometric average strike.&quot;);</span>
+		}
+
+<span class="nc" id="L214">		checkNonNegativeAndSorted(fixingTimesFromStart);</span>
+
+<span class="nc" id="L216">		final double[] times = fixingTimesFromStart;</span>
+<span class="nc" id="L217">		final int remainingFixings = times.length;</span>
+<span class="nc" id="L218">		final int numberOfFixings = pastFixings + remainingFixings;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		if (numberOfFixings &lt;= 0) {</span>
+<span class="nc" id="L220">			throw new IllegalArgumentException(&quot;At least one fixing is required.&quot;);</span>
+		}
+
+<span class="nc" id="L223">		final double N = numberOfFixings;</span>
+<span class="nc" id="L224">		final double pastWeight = pastFixings / N;</span>
+<span class="nc" id="L225">		final double futureWeight = 1.0 - pastWeight;</span>
+
+<span class="nc" id="L227">		double timeSum = 0.0;</span>
+<span class="nc bnc" id="L228" title="All 2 branches missed.">		for (final double t : times) {</span>
+<span class="nc" id="L229">			timeSum += t;</span>
+		}
+
+<span class="nc" id="L232">		final double nu = riskFreeRate - dividendYield - 0.5 * volatility * volatility;</span>
+
+<span class="nc" id="L234">		double temp = 0.0;</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">		for (int i = pastFixings + 1; i &lt; numberOfFixings; i++) {</span>
+<span class="nc" id="L236">			temp += times[i - pastFixings - 1] * (N - i);</span>
+		}
+
+<span class="nc" id="L239">		final double variance = volatility * volatility / (N * N) * (timeSum + 2.0 * temp);</span>
+<span class="nc" id="L240">		final double covarianceTerm = volatility * volatility / N * timeSum;</span>
+<span class="nc" id="L241">		final double sigmaSum2 = variance + volatility * volatility * residualTime - 2.0 * covarianceTerm;</span>
+<span class="nc" id="L242">		final double safeSigmaSum2 = Math.max(sigmaSum2, 0.0);</span>
+
+<span class="nc bnc" id="L244" title="All 2 branches missed.">		final int m = (pastFixings == 0 ? 1 : pastFixings);</span>
+<span class="nc" id="L245">		final double runningLogAverage = Math.log(runningProduct) / m;</span>
+<span class="nc" id="L246">		final double muG = pastWeight * runningLogAverage</span>
+<span class="nc" id="L247">				+ futureWeight * Math.log(spot)</span>
+				+ nu * timeSum / N;
+
+<span class="nc bnc" id="L250" title="All 2 branches missed.">		if (safeSigmaSum2 == 0.0) {</span>
+<span class="nc" id="L251">			final double discountedSpot = spot * Math.exp(-dividendYield * residualTime);</span>
+<span class="nc" id="L252">			final double discountedGeomAverage = Math.exp(muG + 0.5 * variance - riskFreeRate * residualTime);</span>
+<span class="nc bnc" id="L253" title="All 2 branches missed.">			return optionType == CallOrPut.CALL</span>
+<span class="nc" id="L254">					? Math.max(discountedSpot - discountedGeomAverage, 0.0)</span>
+<span class="nc" id="L255">							: Math.max(discountedGeomAverage - discountedSpot, 0.0);</span>
+		}
+
+<span class="nc" id="L258">		final double sqrtSigmaSum = Math.sqrt(safeSigmaSum2);</span>
+<span class="nc" id="L259">		final double y1 = (Math.log(spot)</span>
+				+ (riskFreeRate - dividendYield) * residualTime
+				- muG - 0.5 * variance + 0.5 * safeSigmaSum2) / sqrtSigmaSum;
+<span class="nc" id="L262">		final double y2 = y1 - sqrtSigmaSum;</span>
+
+<span class="nc" id="L264">		final double term1 = spot * Math.exp(-dividendYield * residualTime);</span>
+<span class="nc" id="L265">		final double term2 = Math.exp(muG + 0.5 * variance - riskFreeRate * residualTime);</span>
+
+<span class="nc bnc" id="L267" title="All 2 branches missed.">		if (optionType == CallOrPut.CALL) {</span>
+<span class="nc" id="L268">			return term1 * NormalDistribution.cumulativeDistribution(y1)</span>
+<span class="nc" id="L269">					- term2 * NormalDistribution.cumulativeDistribution(y2);</span>
+		} else {
+<span class="nc" id="L271">			return -term1 * NormalDistribution.cumulativeDistribution(-y1)</span>
+<span class="nc" id="L272">					+ term2 * NormalDistribution.cumulativeDistribution(-y2);</span>
+		}
+	}
+
+	/**
+	 * Levy approximation for a continuous arithmetic-average price Asian
+	 * option.
+	 *
+	 * @param averagingStartTime start of averaging window, measured from
+	 *     valuation time; must satisfy {@code 0 &lt;= averagingStartTime &lt;= maturity}
+	 * @param maturity maturity / exercise time T2 from valuation
+	 * @param currentAverage already accrued arithmetic average if averaging has
+	 *     started; ignored if averagingStartTime == 0
+	 * @param optionType The value.
+	 * @param spot The value.
+	 * @param strike The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @return The value.
+	 */
+	public static double priceContinuousArithmeticAveragePriceLevy(
+			final CallOrPut optionType,
+			final double spot,
+			final double strike,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double averagingStartTime,
+			final double maturity,
+			final double currentAverage) {
+
+<span class="nc bnc" id="L304" title="All 2 branches missed.">		if (averagingStartTime &gt; maturity) {</span>
+<span class="nc" id="L305">			throw new IllegalArgumentException(&quot;averagingStartTime must be &lt;= maturity.&quot;);</span>
+		}
+
+<span class="nc" id="L308">		final double T2 = maturity;</span>
+<span class="nc" id="L309">		final double T = maturity - averagingStartTime;</span>
+<span class="nc bnc" id="L310" title="All 2 branches missed.">		if (T &lt;= 0.0) {</span>
+<span class="nc" id="L311">			throw new IllegalArgumentException(&quot;original averaging length T must be positive.&quot;);</span>
+		}
+
+<span class="nc" id="L314">		final double b = riskFreeRate - dividendYield;</span>
+<span class="nc" id="L315">		final double discount = Math.exp(-riskFreeRate * T2);</span>
+
+		final double Se;
+<span class="nc bnc" id="L318" title="All 2 branches missed.">		if (Math.abs(b) &gt; 1.0e-12) {</span>
+<span class="nc" id="L319">			Se = (spot / (T * b)) * (Math.exp((b - riskFreeRate) * T2) - Math.exp(-riskFreeRate * T2));</span>
+		} else {
+<span class="nc" id="L321">			Se = spot * T2 / T * Math.exp(-riskFreeRate * T2);</span>
+		}
+
+		final double X;
+<span class="nc bnc" id="L325" title="All 2 branches missed.">		if (averagingStartTime &gt; 0.0) {</span>
+<span class="nc" id="L326">			X = strike - (averagingStartTime / T) * currentAverage;</span>
+		} else {
+<span class="nc" id="L328">			X = strike;</span>
+		}
+
+<span class="nc bnc" id="L331" title="All 2 branches missed.">		if (X &lt;= 0.0) {</span>
+<span class="nc bnc" id="L332" title="All 2 branches missed.">			final double intrinsic = optionType == CallOrPut.CALL</span>
+<span class="nc" id="L333">					? Math.max(Se - X * discount, 0.0)</span>
+<span class="nc" id="L334">							: Math.max(X * discount - Se, 0.0);</span>
+<span class="nc" id="L335">			return intrinsic;</span>
+		}
+
+		final double m;
+<span class="nc bnc" id="L339" title="All 2 branches missed.">		if (Math.abs(b) &gt; 1.0e-12) {</span>
+<span class="nc" id="L340">			m = (Math.exp(b * T2) - 1.0) / b;</span>
+		} else {
+<span class="nc" id="L342">			m = T2;</span>
+		}
+
+<span class="nc" id="L345">		final double denom = b + volatility * volatility;</span>
+<span class="nc bnc" id="L346" title="All 2 branches missed.">		if (Math.abs(denom) &lt; 1.0e-14) {</span>
+<span class="nc" id="L347">			throw new IllegalArgumentException(&quot;b + volatility^2 is too close to zero for the Levy formula.&quot;);</span>
+		}
+
+<span class="nc" id="L350">		final double expTermDenom = 2.0 * b + volatility * volatility;</span>
+		final double expTerm;
+<span class="nc bnc" id="L352" title="All 2 branches missed.">		if (Math.abs(expTermDenom) &lt; 1.0e-14) {</span>
+<span class="nc" id="L353">			expTerm = T2;</span>
+		} else {
+<span class="nc" id="L355">			expTerm = (Math.exp((2.0 * b + volatility * volatility) * T2) - 1.0) / expTermDenom;</span>
+		}
+
+<span class="nc" id="L358">		final double M = (2.0 * spot * spot / denom) * (expTerm - m);</span>
+<span class="nc" id="L359">		final double D = M / (T * T);</span>
+<span class="nc" id="L360">		final double V = Math.log(D) - 2.0 * (riskFreeRate * T2 + Math.log(Se));</span>
+<span class="nc" id="L361">		final double safeV = Math.max(V, 0.0);</span>
+
+<span class="nc bnc" id="L363" title="All 2 branches missed.">		if (safeV == 0.0) {</span>
+<span class="nc bnc" id="L364" title="All 2 branches missed.">			final double intrinsic = optionType == CallOrPut.CALL</span>
+<span class="nc" id="L365">					? Math.max(Se - X * discount, 0.0)</span>
+<span class="nc" id="L366">							: Math.max(X * discount - Se, 0.0);</span>
+<span class="nc" id="L367">			return intrinsic;</span>
+		}
+
+<span class="nc" id="L370">		final double sqrtV = Math.sqrt(safeV);</span>
+<span class="nc" id="L371">		final double d1 = (0.5 * Math.log(D) - Math.log(X)) / sqrtV;</span>
+<span class="nc" id="L372">		final double d2 = d1 - sqrtV;</span>
+
+<span class="nc bnc" id="L374" title="All 2 branches missed.">		if (optionType == CallOrPut.CALL) {</span>
+<span class="nc" id="L375">			return Se * NormalDistribution.cumulativeDistribution(d1)</span>
+<span class="nc" id="L376">					- X * discount * NormalDistribution.cumulativeDistribution(d2);</span>
+		} else {
+<span class="nc" id="L378">			return Se * NormalDistribution.cumulativeDistribution(d1)</span>
+<span class="nc" id="L379">					- X * discount * NormalDistribution.cumulativeDistribution(d2)</span>
+					- Se + X * discount;
+		}
+	}
+
+	/**
+	 * Turnbull-Wakeman approximation for a discrete arithmetic-average price
+	 * Asian option.
+	 *
+	 * @param futureFixingTimes remaining fixing times in years from valuation
+	 *     time
+	 * @param pastFixings number of already observed fixings
+	 * @param runningSum sum of already observed fixings; use 0.0 if pastFixings
+	 *     = 0
+	 * @param exerciseTime option maturity / exercise time, typically &gt;= max
+	 *     futureFixingTimes
+	 * @param optionType The value.
+	 * @param spot The value.
+	 * @param strike The value.
+	 * @param riskFreeRate The value.
+	 * @param dividendYield The value.
+	 * @param volatility The value.
+	 * @return The value.
+	 */
+	public static double priceDiscreteArithmeticAveragePriceTurnbullWakeman(
+			final CallOrPut optionType,
+			final double spot,
+			final double strike,
+			final double riskFreeRate,
+			final double dividendYield,
+			final double volatility,
+			final double exerciseTime,
+			final double[] futureFixingTimes,
+			final int pastFixings,
+			final double runningSum) {
+
+<span class="nc" id="L415">		checkNonNegativeAndSorted(futureFixingTimes);</span>
+
+<span class="nc" id="L417">		final double[] times = futureFixingTimes;</span>
+<span class="nc" id="L418">		final int futureFixings = times.length;</span>
+<span class="nc" id="L419">		final int m = futureFixings + pastFixings;</span>
+<span class="nc bnc" id="L420" title="All 2 branches missed.">		if (m &lt;= 0) {</span>
+<span class="nc" id="L421">			throw new IllegalArgumentException(&quot;At least one fixing is required.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L424" title="All 2 branches missed.">		final double accruedAverage = pastFixings == 0 ? 0.0 : runningSum / m;</span>
+<span class="nc" id="L425">		final double effectiveStrike = strike - accruedAverage;</span>
+<span class="nc" id="L426">		final double discount = Math.exp(-riskFreeRate * exerciseTime);</span>
+
+<span class="nc bnc" id="L428" title="All 2 branches missed.">		if (effectiveStrike &lt;= 0.0) {</span>
+<span class="nc bnc" id="L429" title="All 2 branches missed.">			if (optionType == CallOrPut.CALL) {</span>
+<span class="nc" id="L430">				double expectedAverage = accruedAverage;</span>
+<span class="nc bnc" id="L431" title="All 2 branches missed.">				for (final double t : times) {</span>
+<span class="nc" id="L432">					expectedAverage += (spot * Math.exp((riskFreeRate - dividendYield) * t)) / m;</span>
+				}
+<span class="nc" id="L434">				return discount * (expectedAverage - strike);</span>
+			}
+<span class="nc" id="L436">			return 0.0;</span>
+		}
+
+<span class="nc" id="L439">		final int n = times.length;</span>
+<span class="nc bnc" id="L440" title="All 2 branches missed.">		if (n == 0) {</span>
+<span class="nc bnc" id="L441" title="All 2 branches missed.">			final double realizedAverage = pastFixings == 0 ? 0.0 : runningSum / pastFixings;</span>
+<span class="nc bnc" id="L442" title="All 2 branches missed.">			final double payoff = optionType == CallOrPut.CALL</span>
+<span class="nc" id="L443">					? Math.max(realizedAverage - strike, 0.0)</span>
+<span class="nc" id="L444">							: Math.max(strike - realizedAverage, 0.0);</span>
+<span class="nc" id="L445">			return discount * payoff;</span>
+		}
+
+<span class="nc" id="L448">		final double[] forwards = new double[n];</span>
+<span class="nc" id="L449">		final double[] spotVars = new double[n];</span>
+<span class="nc" id="L450">		double EA = 0.0;</span>
+
+<span class="nc bnc" id="L452" title="All 2 branches missed.">		for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L453">			final double t = times[i];</span>
+<span class="nc" id="L454">			forwards[i] = spot * Math.exp((riskFreeRate - dividendYield) * t);</span>
+<span class="nc" id="L455">			spotVars[i] = volatility * volatility * t;</span>
+<span class="nc" id="L456">			EA += forwards[i];</span>
+		}
+<span class="nc" id="L458">		EA /= m;</span>
+
+<span class="nc" id="L460">		double EA2 = 0.0;</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">		for (int i = 0; i &lt; n; i++) {</span>
+<span class="nc" id="L462">			EA2 += forwards[i] * forwards[i] * Math.exp(spotVars[i]);</span>
+<span class="nc bnc" id="L463" title="All 2 branches missed.">			for (int j = 0; j &lt; i; j++) {</span>
+<span class="nc" id="L464">				EA2 += 2.0 * forwards[i] * forwards[j] * Math.exp(spotVars[j]);</span>
+			}
+		}
+<span class="nc" id="L467">		EA2 /= (double) m * m;</span>
+
+<span class="nc" id="L469">		final double tn = times[n - 1];</span>
+<span class="nc" id="L470">		final double sigmaA = Math.sqrt(Math.max(Math.log(EA2 / (EA * EA)) / tn, 0.0));</span>
+<span class="nc" id="L471">		return blackPrice(optionType, EA, effectiveStrike, sigmaA * Math.sqrt(tn), discount);</span>
+	}
+
+	private static void checkNonNegativeAndSorted(final double[] times) {
+<span class="nc bnc" id="L475" title="All 2 branches missed.">		for (int i = 0; i &lt; times.length; i++) {</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">			if (times[i] &lt; 0.0) {</span>
+<span class="nc" id="L477">				throw new IllegalArgumentException(&quot;Fixing times must be non-negative.&quot;);</span>
+			}
+<span class="nc bnc" id="L479" title="All 4 branches missed.">			if (i &gt; 0 &amp;&amp; times[i] &lt; times[i - 1]) {</span>
+<span class="nc" id="L480">				throw new IllegalArgumentException(&quot;Fixing times must be sorted increasingly.&quot;);</span>
+			}
+		}
+<span class="nc" id="L483">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FlatYieldCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.marketdata</a> &gt; <span class="el_source">FlatYieldCurve.java</span></div><h1>FlatYieldCurve.java</h1><pre class="source lang-java linenums">package net.finmath.equities.marketdata;
+
+import java.time.LocalDate;
+
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Class to provide methods of a flat yield curve.
+ *
+ * @author Andreas Grotz
+ */
+<span class="fc" id="L12">public class FlatYieldCurve extends YieldCurve {</span>
+
+	private static final int LONG_TIME = 100;
+
+	public FlatYieldCurve(
+			final LocalDate curveDate,
+			final double rate,
+			final DayCountConvention dayCounter) {
+
+<span class="fc" id="L21">		super(</span>
+				&quot;NONE&quot;,
+				curveDate,
+				dayCounter,
+<span class="fc" id="L25">				new LocalDate[] { curveDate.plusYears(LONG_TIME) },</span>
+				new double[] {
+<span class="fc" id="L27">						Math.exp(</span>
+<span class="fc" id="L28">								-rate * dayCounter.getDaycountFraction(</span>
+										curveDate,
+<span class="fc" id="L30">										curveDate.plusYears(LONG_TIME)))</span>
+				});
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	public FlatYieldCurve rollToDate(LocalDate date) {
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">		assert date.isAfter(getBaseCurve().getReferenceDate()) : &quot;can only roll to future dates&quot;;</span>
+<span class="fc" id="L37">		return new FlatYieldCurve(</span>
+				date,
+<span class="fc" id="L39">				getRate(getBaseCurve().getReferenceDate().plusYears(LONG_TIME)), getDayCounter());</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractForwardCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata2.model.curves</a> &gt; <span class="el_source">AbstractForwardCurve.java</span></div><h1>AbstractForwardCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 04.10.2013
+ */
+
+package net.finmath.marketdata2.model.curves;
+
+import java.time.LocalDate;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import net.finmath.marketdata2.model.AnalyticModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+
+/**
+ * Abstract base class for a forward curve, extending a curve object
+ *
+ * It stores the maturity of the underlying index (paymentOffset) and the associated discount curve.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class AbstractForwardCurve extends CurveInterpolation implements ForwardCurveInterface {
+
+	private static final long serialVersionUID = 3735595267579329042L;
+
+	private final String discountCurveName; // The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards)
+<span class="fc" id="L31">	private final Map&lt;Double, Double&gt; paymentOffsets = new ConcurrentHashMap&lt;&gt;();</span>
+
+	private final String paymentOffsetCode;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+	private final BusinessdayCalendar.DateRollConvention paymentDateRollConvention;
+
+	private final double paymentOffset;
+
+	/**
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param interpolationMethod The interpolation method used for the curve.
+	 * @param extrapolationMethod The extrapolation method used for the curve.
+	 * @param interpolationEntity The entity interpolated/extrapolated.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
+	 */
+	public AbstractForwardCurve(final String name,
+			final LocalDate referenceDate,
+			final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final InterpolationMethod interpolationMethod,
+			final ExtrapolationMethod extrapolationMethod,
+			final InterpolationEntity interpolationEntity,
+			final String discountCurveName) {
+
+<span class="fc" id="L62">		super(name, referenceDate, interpolationMethod, extrapolationMethod, interpolationEntity);</span>
+<span class="fc" id="L63">		this.paymentOffsetCode = paymentOffsetCode;</span>
+<span class="fc" id="L64">		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;</span>
+<span class="fc" id="L65">		this.paymentDateRollConvention = paymentDateRollConvention;</span>
+
+<span class="fc" id="L67">		paymentOffset = Double.NaN;</span>
+
+<span class="fc" id="L69">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L70">	}</span>
+
+	/**
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param paymentOffsetCode The maturity of the index modeled by this curve.
+	 * @param paymentBusinessdayCalendar The business day calendar used for adjusting the payment date.
+	 * @param paymentDateRollConvention The date roll convention used for adjusting the payment date.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
+	 */
+	public AbstractForwardCurve(final String name,
+			final LocalDate referenceDate,
+			final String paymentOffsetCode,
+			final BusinessdayCalendar paymentBusinessdayCalendar,
+			final BusinessdayCalendar.DateRollConvention paymentDateRollConvention,
+			final String discountCurveName) {
+<span class="fc" id="L88">		this(name, referenceDate, paymentOffsetCode, paymentBusinessdayCalendar, paymentDateRollConvention, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE, discountCurveName);</span>
+<span class="fc" id="L89">	}</span>
+
+	/**
+	 * Construct a base forward curve with a reference date and a payment offset.
+	 *
+	 * @param name The name of this curve.
+	 * @param referenceDate The reference date for this curve, i.e., the date which defined t=0.
+	 * @param paymentOffset The maturity of the index modeled by this curve.
+	 * @param discountCurveName The name of the discount curve associated with this forward curve (e.g. OIS for collateralized forwards).
+	 */
+	public AbstractForwardCurve(final String name, final LocalDate referenceDate, final double paymentOffset, final String discountCurveName) {
+<span class="fc" id="L100">		super(name, referenceDate, InterpolationMethod.LINEAR, ExtrapolationMethod.CONSTANT, InterpolationEntity.VALUE);</span>
+<span class="fc" id="L101">		this.paymentOffset = paymentOffset;</span>
+<span class="fc" id="L102">		this.discountCurveName = discountCurveName;</span>
+
+<span class="fc" id="L104">		paymentOffsetCode = null;</span>
+<span class="fc" id="L105">		paymentBusinessdayCalendar = null;</span>
+<span class="fc" id="L106">		paymentDateRollConvention = null;</span>
+<span class="fc" id="L107">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getDiscountCurveName()
+	 */
+	@Override
+	public String getDiscountCurveName() {
+<span class="fc" id="L114">		return discountCurveName;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.ForwardCurveInterface#getPaymentOffset(double)
+	 */
+	@Override
+	public double getPaymentOffset(final double fixingTime) {
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">		if(getPaymentOffsetCode() == null) {</span>
+<span class="fc" id="L123">			return paymentOffset;</span>
+		}
+
+<span class="nc bnc" id="L126" title="All 2 branches missed.">		if(paymentOffsets.containsKey(fixingTime)) {</span>
+<span class="nc" id="L127">			return paymentOffsets.get(fixingTime);</span>
+		}
+		else {
+			/*
+			 * TODO In case paymentDate is relevant for the index modeling, it should be checked
+			 * if the following derivation of paymentDate is accurate (e.g. wo we have a fixingOffset).
+			 * In such a case, this method may be overridden.
+			 */
+<span class="nc" id="L135">			final LocalDate referenceDate = getReferenceDate();</span>
+<span class="nc" id="L136">			final LocalDate fixingDate = FloatingpointDate.getDateFromFloatingPointDate(referenceDate, fixingTime);</span>
+<span class="nc" id="L137">			final LocalDate paymentDate = getPaymentBusinessdayCalendar().getAdjustedDate(fixingDate, getPaymentOffsetCode(), getPaymentDateRollConvention());</span>
+<span class="nc" id="L138">			final double paymentTime = FloatingpointDate.getFloatingPointDateFromDate(referenceDate, paymentDate);</span>
+<span class="nc" id="L139">			paymentOffsets.put(fixingTime, paymentTime-fixingTime);</span>
+<span class="nc" id="L140">			return paymentTime-fixingTime;</span>
+		}
+	}
+
+	/**
+	 * Returns the forwards for a given vector fixing times.
+	 *
+	 * @param model An analytic model providing a context. The discount curve (if needed) is obtained from this model.
+	 * @param fixingTimes The given fixing times.
+	 * @return The forward rates.
+	 */
+	public RandomVariable[] getForwards(final AnalyticModel model, final double[] fixingTimes)
+	{
+<span class="nc" id="L153">		final RandomVariable[] values = new RandomVariable[fixingTimes.length];</span>
+
+<span class="nc bnc" id="L155" title="All 2 branches missed.">		for(int i=0; i&lt;fixingTimes.length; i++) {</span>
+<span class="nc" id="L156">			values[i] = getForward(model, fixingTimes[i]);</span>
+		}
+
+<span class="nc" id="L159">		return values;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L164">		return &quot;AbstractForwardCurve [&quot; + super.toString() + &quot;, discountCurveName=&quot; + getDiscountCurveName() + &quot;, paymentOffsetCode=&quot; + getPaymentOffsetCode() + &quot;, paymentBusinessdayCalendar=&quot; + getPaymentBusinessdayCalendar() + &quot;, paymentDateRollConvention=&quot; + getPaymentDateRollConvention() + &quot;]&quot;;</span>
+	}
+
+	public String getPaymentOffsetCode() {
+<span class="fc" id="L168">		return paymentOffsetCode;</span>
+	}
+
+	public BusinessdayCalendar getPaymentBusinessdayCalendar() {
+<span class="fc" id="L172">		return paymentBusinessdayCalendar;</span>
+	}
+
+	protected BusinessdayCalendar.DateRollConvention getPaymentDateRollConvention() {
+<span class="fc" id="L176">		return paymentDateRollConvention;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

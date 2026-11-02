@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExponentialDecayLocalVolatilityModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">ExponentialDecayLocalVolatilityModel.java</span></div><h1>ExponentialDecayLocalVolatilityModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.05.2013
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Exponential decay model build on top of a given covariance model.
+ *
+ * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+ * &lt;i&gt;(L&lt;sub&gt;i&lt;/sub&gt;(t) + d) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+ * where &lt;i&gt;d&lt;/i&gt; is the displacement and &lt;i&gt;L&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is
+ * the realization of the &lt;i&gt;i&lt;/i&gt;-th component of the stochastic process and
+ * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+ *
+ * The parameter of this model is a joint parameter vector, consisting
+ * of the parameter vector of the given base covariance model and
+ * appending the displacement parameter at the end.
+ *
+ * If this model is not calibrateable, its parameter vector is that of the
+ * covariance model, i.e., only the displacement parameter will be not
+ * part of the calibration.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class ExponentialDecayLocalVolatilityModel extends AbstractLIBORCovarianceModelParametric {
+
+	private static final long serialVersionUID = 4522227972747028512L;
+	private final RandomVariableFactory randomVariableFactory;
+	private final AbstractLIBORCovarianceModelParametric covarianceModel;
+	private final RandomVariable decay;
+
+<span class="nc" id="L42">	private boolean isCalibrateable = false;</span>
+
+	/**
+	 * Exponential decay model build on top of a standard covariance model.
+	 *
+	 * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;exp(- a t) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;a&lt;/i&gt; is the decay parameter and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, consisting
+	 * of the parameter vector of the given base covariance model and
+	 * appending the decay parameter at the end.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * underlying covariance model, i.e., only the decay parameter will be not
+	 * part of the calibration.
+	 *
+	 * @param randomVariableFactory A random variable factory (used when cloning with modifed parameters).
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param decay The decay &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final RandomVariable decay, final boolean isCalibrateable) {
+<span class="nc" id="L66">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+<span class="nc" id="L67">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="nc" id="L68">		this.covarianceModel	= covarianceModel;</span>
+<span class="nc" id="L69">		this.decay		= decay;</span>
+<span class="nc" id="L70">		this.isCalibrateable	= isCalibrateable;</span>
+<span class="nc" id="L71">	}</span>
+
+	/**
+	 * Exponential decay model build on top of a standard covariance model.
+	 *
+	 * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;exp(- a t) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;a&lt;/i&gt; is the decay parameter and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, consisting
+	 * of the parameter vector of the given base covariance model and
+	 * appending the decay parameter at the end.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * underlying covariance model, i.e., only the decay parameter will be not
+	 * part of the calibration.
+	 *
+	 * @param randomVariableFactory A random variable factory (used for the given parameter and when cloning with modifed parameters).
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param decay The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public ExponentialDecayLocalVolatilityModel(final RandomVariableFactory randomVariableFactory, final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
+<span class="nc" id="L95">		super(covarianceModel.getTimeDiscretization(), covarianceModel.getLiborPeriodDiscretization(), covarianceModel.getNumberOfFactors());</span>
+<span class="nc" id="L96">		this.randomVariableFactory = randomVariableFactory;</span>
+<span class="nc" id="L97">		this.covarianceModel = covarianceModel;</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		this.decay = randomVariableFactory != null ? randomVariableFactory.createRandomVariable(decay) : new Scalar(decay);</span>
+<span class="nc" id="L99">		this.isCalibrateable	= isCalibrateable;</span>
+<span class="nc" id="L100">	}</span>
+
+	/**
+	 * Exponential decay model build on top of a standard covariance model.
+	 *
+	 * The model constructed for the &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;exp(- a t) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;a&lt;/i&gt; is the decay parameter and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+	 *
+	 * The parameter of this model is a joint parameter vector, consisting
+	 * of the parameter vector of the given base covariance model and
+	 * appending the decay parameter at the end.
+	 *
+	 * If this model is not calibrateable, its parameter vector is that of the
+	 * underlying covariance model, i.e., only the decay parameter will be not
+	 * part of the calibration.
+	 *
+	 * @param covarianceModel The given covariance model specifying the factor loadings &lt;i&gt;F&lt;/i&gt;.
+	 * @param decay The displacement &lt;i&gt;a&lt;/i&gt;.
+	 * @param isCalibrateable If true, the parameter &lt;i&gt;a&lt;/i&gt; is a free parameter. Note that the covariance model may have its own parameter calibration settings.
+	 */
+	public ExponentialDecayLocalVolatilityModel(final AbstractLIBORCovarianceModelParametric covarianceModel, final double decay, final boolean isCalibrateable) {
+<span class="nc" id="L123">		this(null, covarianceModel, decay, isCalibrateable);</span>
+<span class="nc" id="L124">	}</span>
+
+	@Override
+	public Object clone() {
+<span class="nc" id="L128">		return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, (AbstractLIBORCovarianceModelParametric) covarianceModel.clone(), decay, isCalibrateable);</span>
+	}
+
+	/**
+	 * Returns the base covariance model, i.e., the model providing the factor loading &lt;i&gt;F&lt;/i&gt;
+	 * such that this model's &lt;i&gt;i&lt;/i&gt;-th factor loading is
+	 * &lt;i&gt;exp(- a t) F&lt;sub&gt;i&lt;/sub&gt;(t)&lt;/i&gt;
+	 * where &lt;i&gt;a&lt;/i&gt; is the decay parameter and
+	 * &lt;i&gt;F&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; is the factor loading from the given covariance model.
+	 *
+	 * @return The base covariance model.
+	 */
+	public AbstractLIBORCovarianceModelParametric getBaseCovarianceModel() {
+<span class="nc" id="L141">		return covarianceModel;</span>
+	}
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="nc bnc" id="L146" title="All 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L147">			return covarianceModel.getParameter();</span>
+		}
+
+<span class="nc" id="L150">		final RandomVariable[] covarianceParameters = covarianceModel.getParameter();</span>
+<span class="nc bnc" id="L151" title="All 2 branches missed.">		if(covarianceParameters == null) {</span>
+<span class="nc" id="L152">			return new RandomVariable[] { decay };</span>
+		}
+
+		// Append decay to the end of covarianceParameters
+<span class="nc" id="L156">		final RandomVariable[] jointParameters = new RandomVariable[covarianceParameters.length+1];</span>
+<span class="nc" id="L157">		System.arraycopy(covarianceParameters, 0, jointParameters, 0, covarianceParameters.length);</span>
+<span class="nc" id="L158">		jointParameters[covarianceParameters.length] = decay;</span>
+
+<span class="nc" id="L160">		return jointParameters;</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="nc" id="L165">		final RandomVariable[] parameters = getParameter();</span>
+<span class="nc" id="L166">		final double[] parametersAsDouble = new double[parameters.length];</span>
+<span class="nc bnc" id="L167" title="All 2 branches missed.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="nc" id="L168">			parametersAsDouble[i] = parameters[i].doubleValue();</span>
+		}
+<span class="nc" id="L170">		return parametersAsDouble;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="nc bnc" id="L175" title="All 4 branches missed.">		if(parameters == null || parameters.length == 0) {</span>
+<span class="nc" id="L176">			return this;</span>
+		}
+
+<span class="nc bnc" id="L179" title="All 2 branches missed.">		if(!isCalibrateable) {</span>
+<span class="nc" id="L180">			return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, covarianceModel.getCloneWithModifiedParameters(parameters), decay, isCalibrateable);</span>
+		}
+
+<span class="nc" id="L183">		final RandomVariable[] covarianceParameters = new RandomVariable[parameters.length-1];</span>
+<span class="nc" id="L184">		System.arraycopy(parameters, 0, covarianceParameters, 0, covarianceParameters.length);</span>
+
+<span class="nc" id="L186">		final AbstractLIBORCovarianceModelParametric newCovarianceModel = covarianceModel.getCloneWithModifiedParameters(covarianceParameters);</span>
+<span class="nc" id="L187">		final RandomVariable newDisplacement = parameters[covarianceParameters.length];</span>
+
+<span class="nc" id="L189">		return new ExponentialDecayLocalVolatilityModel(randomVariableFactory, newCovarianceModel, newDisplacement, isCalibrateable);</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="nc" id="L194">		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L199">		final RandomVariable[] factorLoading = covarianceModel.getFactorLoading(timeIndex, component, realizationAtTimeIndex);</span>
+
+<span class="nc" id="L201">		final double time = getTimeDiscretization().getTime(timeIndex);</span>
+<span class="nc" id="L202">		final double fixing = getLiborPeriodDiscretization().getTime(component);</span>
+<span class="nc" id="L203">		final double timeToMaturity = fixing-time;</span>
+<span class="nc bnc" id="L204" title="All 2 branches missed.">		for (int factorIndex = 0; factorIndex &lt; factorLoading.length; factorIndex++) {</span>
+<span class="nc" id="L205">			factorLoading[factorIndex] = factorLoading[factorIndex].mult(decay.mult(-timeToMaturity).exp());</span>
+		}
+
+<span class="nc" id="L208">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariable getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L213">		throw new UnsupportedOperationException();</span>
+	}
+
+	public RandomVariable getDisplacement() {
+<span class="nc" id="L217">		return decay;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L223">		RandomVariable newDecay = decay;</span>
+<span class="nc" id="L224">		boolean isCalibrateable = this.isCalibrateable;</span>
+<span class="nc" id="L225">		AbstractLIBORCovarianceModelParametric covarianceModel = this.covarianceModel;</span>
+
+<span class="nc" id="L227">		RandomVariableFactory newRandomVariableFactory = randomVariableFactory;</span>
+
+<span class="nc bnc" id="L229" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L230" title="All 2 branches missed.">			if(dataModified.containsKey(&quot;randomVariableFactory&quot;)) {</span>
+<span class="nc" id="L231">				newRandomVariableFactory = (RandomVariableFactory)dataModified.get(&quot;randomVariableFactory&quot;);</span>
+<span class="nc" id="L232">				newDecay = newRandomVariableFactory.createRandomVariable(newDecay.doubleValue());</span>
+			}
+<span class="nc bnc" id="L234" title="All 2 branches missed.">			if (!dataModified.containsKey(&quot;covarianceModel&quot;)) {</span>
+<span class="nc" id="L235">				covarianceModel = covarianceModel.getCloneWithModifiedData(dataModified);</span>
+			}
+
+			// Explicitly passed covarianceModel has priority
+<span class="nc" id="L239">			covarianceModel = (AbstractLIBORCovarianceModelParametric)dataModified.getOrDefault(&quot;covarianceModel&quot;, covarianceModel);</span>
+<span class="nc" id="L240">			isCalibrateable = (boolean)dataModified.getOrDefault(&quot;isCalibrateable&quot;, isCalibrateable);</span>
+
+<span class="nc bnc" id="L242" title="All 2 branches missed.">			if (dataModified.getOrDefault(&quot;decay&quot;, newDecay) instanceof RandomVariable) {</span>
+<span class="nc" id="L243">				newDecay = (RandomVariable) dataModified.getOrDefault(&quot;decay&quot;, newDecay);</span>
+<span class="nc bnc" id="L244" title="All 2 branches missed.">			} else if (newRandomVariableFactory == null) {</span>
+<span class="nc" id="L245">				newDecay = new Scalar((double) dataModified.get(&quot;decay&quot;));</span>
+			} else {
+<span class="nc" id="L247">				newDecay = newRandomVariableFactory.createRandomVariable((double) dataModified.get(&quot;decay&quot;));</span>
+			}
+		}
+
+<span class="nc" id="L251">		final AbstractLIBORCovarianceModelParametric newModel = new ExponentialDecayLocalVolatilityModel(newRandomVariableFactory, covarianceModel, newDecay, isCalibrateable);</span>
+<span class="nc" id="L252">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

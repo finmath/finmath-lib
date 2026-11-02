@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataTableBasic.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.data</a> &gt; <span class="el_source">DataTableBasic.java</span></div><h1>DataTableBasic.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.data;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
+
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+
+/**
+ * A basic implementation of {@link net.finmath.singleswaprate.data.DataTable}, which provides no means of inter- or extrapolation.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class DataTableBasic implements DataTable, Cloneable {
+
+	private static final long serialVersionUID = -529758680500367511L;
+
+	/**
+	 * Create a DataTableBasic by upgrading a {@link net.finmath.singleswaprate.data.DataTableLight} to allow access via double representation.
+	 *
+	 * @param baseTable The table to be upgraded.
+	 * @param referenceDate The reference date.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 *
+	 * @return The upgraded table.
+	 */
+	public static DataTableBasic upgradeDataTableLight(final DataTableLight baseTable, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData) {
+
+<span class="fc" id="L35">		final int[] maturities = new int[baseTable.size()];</span>
+<span class="fc" id="L36">		final int[] terminations = new int[baseTable.size()];</span>
+<span class="fc" id="L37">		final double[] values = new double[baseTable.size()];</span>
+
+<span class="fc" id="L39">		int i = 0;</span>
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		for(final int maturity : baseTable.getMaturities()) {</span>
+<span class="fc bfc" id="L41" title="All 2 branches covered.">			for(final int termination : baseTable.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L42">				maturities[i] = maturity;</span>
+<span class="fc" id="L43">				terminations[i] = termination;</span>
+<span class="fc" id="L44">				values[i++] = baseTable.getValue(maturity, termination);</span>
+<span class="fc" id="L45">			}</span>
+<span class="fc" id="L46">		}</span>
+
+<span class="fc" id="L48">		return new DataTableBasic(baseTable.getName(), baseTable.getConvention(), referenceDate, scheduleMetaData,</span>
+				maturities, terminations, values);
+	}
+
+	private final String name;
+	private final TableConvention convention;
+	private final LocalDate referenceDate;
+	private final SchedulePrototype metaSchedule;
+
+<span class="fc" id="L57">	private final TreeSet&lt;Integer&gt; maturitySet = new TreeSet&lt;&gt;();</span>
+<span class="fc" id="L58">	private final TreeSet&lt;Integer&gt; terminationSet = new TreeSet&lt;&gt;();</span>
+
+<span class="fc" id="L60">	private final HashMap&lt;DoubleKey, Double&gt; entries = new HashMap&lt;&gt;();</span>
+
+	/**
+	 * Create an empty table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 */
+<span class="fc" id="L70">	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData){</span>
+<span class="fc" id="L71">		this.name = name;</span>
+<span class="fc" id="L72">		this.convention = convention;</span>
+<span class="fc" id="L73">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L74">		this.metaSchedule = scheduleMetaData;</span>
+<span class="fc" id="L75">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData,
+			final int[] maturities, final int[] terminations, final double[] values){
+<span class="fc" id="L90">		this(name, convention, referenceDate, scheduleMetaData);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">		for(int index = 0; index &lt; maturities.length; index++) {</span>
+<span class="fc" id="L92">			entries.put(new DoubleKey(maturities[index], terminations[index]), values[index]);</span>
+<span class="fc" id="L93">			maturitySet.add(maturities[index]);</span>
+<span class="fc" id="L94">			terminationSet.add(terminations[index]);</span>
+		}
+<span class="fc" id="L96">	}</span>
+
+	/**
+	 * Create a table.
+	 *
+	 * @param name The name of the table.
+	 * @param convention The convention of the table.
+	 * @param referenceDate The referenceDate of the table.
+	 * @param scheduleMetaData The schedule meta data of the table.
+	 * @param maturities The maturities of the points as offset with respect to the reference date.
+	 * @param terminations The terminations of the points as offset with respect to the maturity date.
+	 * @param values The values at the points.
+	 */
+	public DataTableBasic(final String name, final TableConvention convention, final LocalDate referenceDate, final SchedulePrototype scheduleMetaData,
+			final List&lt;Integer&gt; maturities, final List&lt;Integer&gt; terminations, final List&lt;Double&gt; values){
+<span class="fc" id="L111">		this(name, convention, referenceDate, scheduleMetaData);</span>
+<span class="fc bfc" id="L112" title="All 2 branches covered.">		for(int index = 0; index &lt; maturities.size(); index++) {</span>
+<span class="fc" id="L113">			final int mat = maturities.get(index);</span>
+<span class="fc" id="L114">			final int term = terminations.get(index);</span>
+<span class="fc" id="L115">			final double val =values.get(index);</span>
+
+<span class="fc" id="L117">			entries.put(new DoubleKey(mat, term), val);</span>
+<span class="fc" id="L118">			maturitySet.add(mat);</span>
+<span class="fc" id="L119">			terminationSet.add(term);</span>
+		}
+<span class="fc" id="L121">	}</span>
+
+	@Override
+	public DataTable addPoint(final int maturity, final int termination, final double value) {
+<span class="nc" id="L125">		final DataTableBasic newTable = clone();</span>
+<span class="nc" id="L126">		newTable.entries.put(new DoubleKey(maturity, termination),value);</span>
+<span class="nc" id="L127">		newTable.maturitySet.add(maturity);</span>
+<span class="nc" id="L128">		newTable.terminationSet.add(termination);</span>
+<span class="nc" id="L129">		return newTable;</span>
+	}
+
+	@Override
+	public DataTable addPoints(final int[] maturities, final int[] terminations, final double[] values) {
+<span class="fc" id="L134">		final DataTableBasic newTable = clone();</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">		for(int index = 0; index &lt; maturities.length; index++) {</span>
+<span class="fc" id="L136">			newTable.entries.put(new DoubleKey(maturities[index], terminations[index]), values[index]);</span>
+<span class="fc" id="L137">			newTable.maturitySet.add(maturities[index]);</span>
+<span class="fc" id="L138">			newTable.terminationSet.add(terminations[index]);</span>
+		}
+<span class="fc" id="L140">		return newTable;</span>
+	}
+
+	@Override
+	public double getValue(final int maturity, final int termination) {
+<span class="fc" id="L145">		final DoubleKey key = new DoubleKey(maturity, termination);</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">		if(entries.containsKey(key)) {</span>
+<span class="fc" id="L147">			return entries.get(new DoubleKey(maturity,termination));</span>
+		} else {
+<span class="fc" id="L149">			throw new NullPointerException(&quot;Key not found.&quot;);</span>
+		}
+	}
+
+	@Override
+	public double getValue(final double maturity, final double termination) {
+<span class="fc" id="L155">		final DoubleKey key = new DoubleKey(maturity, termination);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">		if(entries.containsKey(key)) {</span>
+<span class="fc" id="L157">			return entries.get(new DoubleKey(maturity,termination));</span>
+		} else {
+<span class="fc" id="L159">			throw new NullPointerException(&quot;Key not found.&quot;);</span>
+		}
+	}
+
+	@Override
+	public int size() {
+<span class="fc" id="L165">		return entries.size();</span>
+	}
+
+	@Override
+	public boolean containsEntryFor(final int maturity, final int termination) {
+<span class="fc" id="L170">		return entries.containsKey(new DoubleKey(maturity, termination));</span>
+	}
+
+	@Override
+	public boolean containsEntryFor(final double maturity, final double termination) {
+<span class="fc" id="L175">		return entries.containsKey(new DoubleKey(maturity, termination));</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getMaturities(){
+<span class="fc" id="L180">		return new TreeSet&lt;&gt;(maturitySet);</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getTerminations(){
+<span class="fc" id="L185">		return new TreeSet&lt;&gt;(terminationSet);</span>
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getTerminationsForMaturity(final int maturity){
+<span class="pc bpc" id="L190" title="1 of 2 branches missed.">		if(maturitySet.contains(maturity)) {</span>
+<span class="fc" id="L191">			final TreeSet&lt;Integer&gt; returnSet = new TreeSet&lt;&gt;();</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">			for(final int termination:terminationSet) {</span>
+<span class="pc bpc" id="L193" title="1 of 2 branches missed.">				if(entries.containsKey(new DoubleKey(maturity,termination))) {</span>
+<span class="fc" id="L194">					returnSet.add(termination);</span>
+				}
+<span class="fc" id="L196">			}</span>
+<span class="fc" id="L197">			return returnSet;</span>
+		} else {
+<span class="nc" id="L199">			throw new NullPointerException(&quot;This data table does not contain entries for maturity &quot;+maturity);</span>
+		}
+	}
+
+	@Override
+	public TreeSet&lt;Integer&gt; getMaturitiesForTermination(final int termination) {
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">		if(terminationSet.contains(termination)) {</span>
+<span class="fc" id="L206">			final TreeSet&lt;Integer&gt; returnSet = new TreeSet&lt;&gt;();</span>
+<span class="fc bfc" id="L207" title="All 2 branches covered.">			for(final int maturity: maturitySet) {</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">				if(entries.containsKey(new DoubleKey(maturity,termination))) {</span>
+<span class="fc" id="L209">					returnSet.add(maturity);</span>
+				}
+<span class="fc" id="L211">			}</span>
+<span class="fc" id="L212">			return returnSet;</span>
+		} else {
+<span class="nc" id="L214">			throw new NullPointerException(&quot;This data table does not contain entries for termination &quot; +termination);</span>
+		}
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L220">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L225">		return referenceDate;</span>
+	}
+
+	@Override
+	public TableConvention getConvention() {
+<span class="fc" id="L230">		return convention;</span>
+	}
+
+	@Override
+	public SchedulePrototype getScheduleMetaData() {
+<span class="fc" id="L235">		return metaSchedule;</span>
+	}
+
+	@Override
+	public DataTableBasic clone() {
+<span class="nc" id="L240">		final DataTableBasic newTable = new DataTableBasic(name, convention, referenceDate, metaSchedule);</span>
+<span class="nc" id="L241">		newTable.entries.putAll(entries);</span>
+<span class="nc" id="L242">		newTable.maturitySet.addAll(maturitySet);</span>
+<span class="nc" id="L243">		newTable.terminationSet.addAll(terminationSet);</span>
+<span class="nc" id="L244">		return newTable;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L249">		return toString(1.0);</span>
+	}
+
+	public String toString(final double unit) {
+<span class="fc" id="L253">		final StringBuilder builder = new StringBuilder();</span>
+<span class="fc" id="L254">		builder.append(&quot;DataTableBasic [name=&quot;+name+&quot;, referenceDate=&quot;+referenceDate+&quot;, tableConvention=&quot; +convention+&quot;, scheduleMetaData=&quot;+ metaSchedule+&quot;values:\n&quot;);</span>
+<span class="fc bfc" id="L255" title="All 2 branches covered.">		for(final int termination : terminationSet) {</span>
+<span class="fc" id="L256">			builder.append(&quot;\t&quot;+termination);</span>
+<span class="fc" id="L257">		}</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">		for(final int maturity: maturitySet) {</span>
+<span class="fc" id="L259">			builder.append(&quot;\n&quot;+maturity);</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">			for(final int termination:terminationSet) {</span>
+<span class="fc" id="L261">				final DoubleKey key = new DoubleKey(maturity, termination);</span>
+<span class="fc" id="L262">				builder.append('\t');</span>
+<span class="pc bpc" id="L263" title="1 of 2 branches missed.">				if(entries.containsKey(key)) {</span>
+<span class="fc" id="L264">					builder.append(entries.get(key) * unit);</span>
+				}
+<span class="fc" id="L266">			}</span>
+<span class="fc" id="L267">		}</span>
+
+<span class="fc" id="L269">		return builder.toString();</span>
+	}
+
+	protected double getValue(final DoubleKey key) {
+<span class="nc" id="L273">		return entries.get(key);</span>
+	}
+
+	/**
+	 * Nested class to use as key in values map.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	protected class DoubleKey implements Serializable {
+
+		private static final long serialVersionUID = -2372959679853584772L;
+		private final double maturity;
+		private final double termination;
+
+		/**
+		 * Create key from int.
+		 *
+		 * @param maturity The maturity.
+		 * @param termination The termination.
+		 */
+<span class="fc" id="L295">		protected DoubleKey(final int maturity, final int termination){</span>
+<span class="fc" id="L296">			final LocalDate startDate = dateFromOffset(referenceDate, maturity);</span>
+<span class="fc" id="L297">			final LocalDate endDate = dateFromOffset(startDate, termination);</span>
+<span class="fc" id="L298">			final Schedule schedule = metaSchedule.generateSchedule(referenceDate, startDate, endDate);</span>
+<span class="fc" id="L299">			this.maturity = schedule.getFixing(0);</span>
+<span class="fc" id="L300">			this.termination = schedule.getPayment(schedule.getNumberOfPeriods()-1);</span>
+<span class="fc" id="L301">		}</span>
+
+		/**
+		 * Create key from double.
+		 *
+		 * @param maturity The maturtiy.
+		 * @param termination The termination.
+		 */
+<span class="fc" id="L309">		protected DoubleKey(final double maturity, final double termination){</span>
+<span class="fc" id="L310">			this.maturity = maturity;</span>
+<span class="fc" id="L311">			this.termination = termination;</span>
+<span class="fc" id="L312">		}</span>
+
+		private LocalDate dateFromOffset(final LocalDate startDate, final int offset) {
+<span class="fc" id="L315">			LocalDate date = null;</span>
+<span class="pc bpc" id="L316" title="4 of 5 branches missed.">			switch(convention) {</span>
+			case YEARS:
+<span class="nc" id="L318">				date = startDate.plusYears(offset);</span>
+<span class="nc" id="L319">				break;</span>
+			case MONTHS:
+<span class="fc" id="L321">				date = startDate.plusMonths(offset);</span>
+<span class="fc" id="L322">				break;</span>
+			case DAYS:
+<span class="nc" id="L324">				date = startDate.plusDays(offset);</span>
+<span class="nc" id="L325">				break;</span>
+			case WEEKS:
+<span class="nc" id="L327">				date = startDate.plusWeeks(offset);</span>
+<span class="nc" id="L328">				break;</span>
+			default:
+<span class="nc" id="L330">				throw new IllegalArgumentException(&quot;Unknown convention &quot; + convention + &quot;.&quot;);</span>
+			}
+<span class="fc" id="L332">			return date;</span>
+		}
+
+		@Override
+		public boolean equals(final Object other) {
+<span class="pc bpc" id="L337" title="1 of 2 branches missed.">			if(this == other) {</span>
+<span class="nc" id="L338">				return true;</span>
+			}
+
+<span class="pc bpc" id="L341" title="2 of 6 branches missed.">			if((other == null) || (other.getClass() != getClass()) || (maturity 	!= ((DoubleKey) other).maturity) ) {</span>
+<span class="fc" id="L342">				return false;</span>
+			}
+<span class="fc bfc" id="L344" title="All 2 branches covered.">			return (termination == ((DoubleKey) other).termination);</span>
+		}
+
+		@Override
+		public int hashCode() {
+<span class="fc" id="L349">			return (int) (maturity*termination);</span>
+		}
+
+		@Override
+		public String toString() {
+<span class="nc" id="L354">			return &quot;DoubleKey [maturity=&quot; + maturity + &quot;, termination=&quot; + termination + &quot;]&quot;;</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

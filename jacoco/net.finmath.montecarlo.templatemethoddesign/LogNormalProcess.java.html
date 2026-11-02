@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogNormalProcess.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.templatemethoddesign</a> &gt; <span class="el_source">LogNormalProcess.java</span></div><h1>LogNormalProcess.java</h1><pre class="source lang-java linenums">/*
+ * Created on 19.01.2004
+ */
+package net.finmath.montecarlo.templatemethoddesign;
+
+import net.finmath.montecarlo.BrownianMotion;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class is an abstract base class to implement an Euler scheme of a multi-dimensional multi-factor log-normal Ito process.
+ * The dimension is called &lt;code&gt;numberOfComponents&lt;/code&gt; here. The default for &lt;code&gt;numberOfFactors&lt;/code&gt; is 1.
+ *
+ * @author Christian Fries
+ * @date 19.04.2008
+ * @version 1.5
+ */
+public abstract class LogNormalProcess {
+
+<span class="nc" id="L21">	public enum Scheme { EULER, PREDICTOR_USING_EULERSTEP, PREDICTOR_USING_LASTREALIZATION }</span>
+
+	private BrownianMotion	brownianMotion;
+
+<span class="nc" id="L25">	private RandomVariable[][]     discreteProcess         = null;</span>
+<span class="nc" id="L26">	private RandomVariable[]       discreteProcessWeights  = null;</span>
+
+	private final TimeDiscretization	timeDiscretization;
+	private final int			numberOfComponents;
+	private final int			numberOfFactors;
+	private final int			numberOfPaths;
+
+<span class="nc" id="L33">	private Scheme		scheme = Scheme.EULER;</span>
+
+	/**
+	 * Create a log normal process.
+	 *
+	 * @param numberOfComponents The number of components (scalar processes).
+	 * @param brownianMotion A Brownian motion
+	 */
+	public LogNormalProcess(
+			final int numberOfComponents,
+			final BrownianMotion brownianMotion) {
+<span class="nc" id="L44">		super();</span>
+<span class="nc" id="L45">		timeDiscretization	= brownianMotion.getTimeDiscretization();</span>
+<span class="nc" id="L46">		this.numberOfComponents	= numberOfComponents;</span>
+<span class="nc" id="L47">		numberOfFactors	= brownianMotion.getNumberOfFactors();</span>
+<span class="nc" id="L48">		numberOfPaths		= brownianMotion.getNumberOfPaths();</span>
+<span class="nc" id="L49">		this.brownianMotion		= brownianMotion;</span>
+<span class="nc" id="L50">	}</span>
+
+	/**
+	 * Create a simulation of log normal process.
+	 *
+	 * @param timeDiscretization The time discretization of the process.
+	 * @param numberOfComponents The number of components (the dimension of the process).
+	 * @param numberOfPaths The number of path of the simulation.
+	 */
+	public LogNormalProcess(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfComponents,
+			final int numberOfPaths) {
+<span class="nc" id="L63">		super();</span>
+<span class="nc" id="L64">		this.timeDiscretization = timeDiscretization;</span>
+<span class="nc" id="L65">		this.numberOfComponents = numberOfComponents;</span>
+<span class="nc" id="L66">		numberOfFactors = 1;</span>
+<span class="nc" id="L67">		this.numberOfPaths = numberOfPaths;</span>
+
+		// Create a Brownian motion
+<span class="nc" id="L70">		brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(</span>
+				timeDiscretization,
+				numberOfFactors,
+				numberOfPaths,
+				3141 /* seed */);
+<span class="nc" id="L75">	}</span>
+
+	/**
+	 * Create a simulation of log normal process.
+	 *
+	 * @param timeDiscretization The time discretization of the process.
+	 * @param numberOfComponents The number of components (the dimension of the process).
+	 * @param numberOfFactors The number of factors of the process.
+	 * @param numberOfPaths The number of path of the simulation.
+	 * @param seed The seed of the underlying random number generator.
+	 */
+	public LogNormalProcess(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfComponents,
+			final int numberOfFactors,
+			final int numberOfPaths,
+			final int seed) {
+<span class="nc" id="L92">		super();</span>
+<span class="nc" id="L93">		this.timeDiscretization	= timeDiscretization;</span>
+<span class="nc" id="L94">		this.numberOfComponents	= numberOfComponents;</span>
+<span class="nc" id="L95">		this.numberOfFactors	= numberOfFactors;</span>
+<span class="nc" id="L96">		this.numberOfPaths		= numberOfPaths;</span>
+
+		// Create a Brownian motion
+<span class="nc" id="L99">		brownianMotion = new net.finmath.montecarlo.BrownianMotionLazyInit(</span>
+				timeDiscretization,
+				numberOfFactors,
+				numberOfPaths,
+				seed);
+<span class="nc" id="L104">	}</span>
+
+
+	public abstract RandomVariable[]	getInitialValue();
+	public abstract RandomVariable	getDrift(int timeIndex, int componentIndex, RandomVariable[] realizationAtTimeIndex, RandomVariable[] realizationPredictor);
+
+	/**
+	 * Get the the drift.
+	 *
+	 * @param timeIndex The time index (related to the model times discretization).
+	 * @param realizationAtTimeIndex The given realization at timeIndex
+	 * @param realizationPredictor The given realization at &lt;code&gt;timeIndex+1&lt;/code&gt; or null of no predictor is available.
+	 * @return The (average) drift from timeIndex to timeIndex+1
+	 */
+	public RandomVariable[] getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+
+<span class="nc" id="L120">		final RandomVariable[] drift = new RandomVariable[getNumberOfComponents()];</span>
+
+		/*
+		 * We implemented several different methods to calculate the drift
+		 */
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		for(int componentIndex=0; componentIndex&lt;getNumberOfComponents(); componentIndex++) {</span>
+<span class="nc" id="L126">			drift[componentIndex] = getDrift(timeIndex, componentIndex, realizationAtTimeIndex, realizationPredictor);</span>
+		}
+<span class="nc" id="L128">		return drift;</span>
+	}
+
+	/**
+	 * This method should be overwritten and return the factor loading, i.e.
+	 * the coeffient &amp;lambda;(i,j) such that &lt;br&gt;
+	 * dS(j) = (...) dt + S(j) * (&amp;lambda;(1,j) dW(1) + ... + &amp;lambda;(m,j) dW(m)) &lt;br&gt;
+	 * in an m-factor model. Here j denotes index of the component of the resulting
+	 * log-normal process and i denotes the index of the factor.&lt;p&gt;
+	 * Overwrite this method if you would like to implement a multi factor model.
+	 *
+	 * @param timeIndex The time index of the simulation time discretization.
+	 * @param factor The factor index.
+	 * @param component The component index.
+	 * @param realizationAtTimeIndex The realization at the current time index.
+	 * @return factor loading for given factor and component
+	 */
+	public abstract RandomVariable getFactorLoading(int timeIndex, int factor, int component, RandomVariable[] realizationAtTimeIndex);
+
+	/**
+	 * This method returns the realization of the process at a certain time index.
+	 *
+	 * @param timeIndex Time index at which the process should be observed
+	 * @return A vector of process realizations (on path)
+	 */
+	public RandomVariable[] getProcessValue(final int timeIndex)
+	{
+		// Thread safe lazy initialization
+<span class="nc" id="L156">		synchronized(this) {</span>
+<span class="nc bnc" id="L157" title="All 4 branches missed.">			if(discreteProcess == null || discreteProcess.length == 0)</span>
+			{
+<span class="nc" id="L159">				doPrecalculateProcess();</span>
+			}
+<span class="nc" id="L161">		}</span>
+
+		// Return value of process
+<span class="nc" id="L164">		return discreteProcess[timeIndex];</span>
+	}
+
+	/**
+	 * This method returns the realization of the process at a certain time index.
+	 *
+	 * @param timeIndex Time index at which the process should be observed
+	 * @param componentIndex Component of the process vector
+	 * @return A vector of process realizations (on path)
+	 */
+	public RandomVariable getProcessValue(final int timeIndex, final int componentIndex)
+	{
+<span class="nc bnc" id="L176" title="All 2 branches missed.">		if(timeIndex == 0) {</span>
+<span class="nc" id="L177">			return getInitialValue()[componentIndex];</span>
+		}
+
+		// Lazy initialization, synchronized for thread safety
+<span class="nc" id="L181">		synchronized(this) {</span>
+<span class="nc bnc" id="L182" title="All 4 branches missed.">			if(discreteProcess == null || discreteProcess.length == 0) {</span>
+<span class="nc" id="L183">				doPrecalculateProcess();</span>
+			}
+<span class="nc" id="L185">		}</span>
+
+		// Return value of process
+<span class="nc" id="L188">		return discreteProcess[timeIndex][componentIndex];</span>
+	}
+
+	/**
+	 * This method returns the weights of a weighted Monte Carlo method (the probability density).
+	 *
+	 * @param timeIndex Time index at which the process should be observed
+	 * @return A vector of positive weights which sums up to one
+	 */
+	public RandomVariable getMonteCarloWeights(final int timeIndex)
+	{
+		// Lazy initialization, synchronized for thread safety
+<span class="nc" id="L200">		synchronized(this) {</span>
+<span class="nc bnc" id="L201" title="All 4 branches missed.">			if(discreteProcessWeights == null || discreteProcessWeights.length == 0) {</span>
+<span class="nc" id="L202">				doPrecalculateProcess();</span>
+			}
+<span class="nc" id="L204">		}</span>
+
+		// Return value of process
+<span class="nc" id="L207">		return discreteProcessWeights[timeIndex];</span>
+	}
+
+	/**
+	 * Calculates the whole (discrete) process.
+	 */
+	private void doPrecalculateProcess()
+	{
+<span class="nc bnc" id="L215" title="All 4 branches missed.">		if(discreteProcess != null &amp;&amp; discreteProcess.length != 0) {</span>
+<span class="nc" id="L216">			return;</span>
+		}
+
+		// Allocate Memory
+<span class="nc" id="L220">		discreteProcess			= new RandomVariable[timeDiscretization.getNumberOfTimeSteps()+1][numberOfComponents];</span>
+<span class="nc" id="L221">		discreteProcessWeights	= new RandomVariable[getTimeDiscretization().getNumberOfTimeSteps()+1];</span>
+
+		// Set initial Monte-Carlo weights
+<span class="nc" id="L224">		discreteProcessWeights[0] = new RandomVariableFromDoubleArray(0.0, 1.0/numberOfPaths);</span>
+
+		// Store components
+<span class="nc" id="L227">		discreteProcess[0] = getInitialValue();</span>
+
+		// Evolve process
+<span class="nc bnc" id="L230" title="All 2 branches missed.">		for(int timeIndex = 1; timeIndex &lt; timeDiscretization.getNumberOfTimeSteps()+1; timeIndex++)</span>
+		{
+			// Generate process at timeIndex
+<span class="nc" id="L233">			final double deltaT = timeDiscretization.getTime(timeIndex) - timeDiscretization.getTime(timeIndex-1);</span>
+
+			// Temp storage for variance and diffusion
+<span class="nc" id="L236">			final RandomVariable[] variance   = new RandomVariable[numberOfComponents];</span>
+<span class="nc" id="L237">			final RandomVariable[] diffusion  = new RandomVariable[numberOfComponents];</span>
+
+			// Calculate new realization
+<span class="nc bnc" id="L240" title="All 2 branches missed.">			for(int componentIndex = numberOfComponents-1; componentIndex &gt;= 0; componentIndex--)</span>
+			{
+				// Calculate diffusion
+
+				// Temp storage for variance and diffusion
+<span class="nc" id="L245">				RandomVariable varianceOfComponent  = new RandomVariableFromDoubleArray(getTime(timeIndex-1),0.0);</span>
+<span class="nc" id="L246">				RandomVariable diffusionOfComponent = new RandomVariableFromDoubleArray(getTime(timeIndex-1),0.0);</span>
+
+				// Generate values for diffusionOfComponent and varianceOfComponent
+<span class="nc bnc" id="L249" title="All 2 branches missed.">				for(int factor=0; factor&lt;numberOfFactors; factor++) {</span>
+<span class="nc" id="L250">					final RandomVariable factorLoading       = getFactorLoading(timeIndex-1, factor, componentIndex, null);</span>
+<span class="nc" id="L251">					final RandomVariable brownianIncrement   = brownianMotion.getBrownianIncrement(timeIndex-1,factor);</span>
+
+<span class="nc" id="L253">					varianceOfComponent = varianceOfComponent.addProduct(factorLoading, factorLoading);</span>
+<span class="nc" id="L254">					diffusionOfComponent = diffusionOfComponent.addProduct(factorLoading, brownianIncrement);</span>
+				}
+
+<span class="nc" id="L257">				variance[componentIndex] = varianceOfComponent;</span>
+<span class="nc" id="L258">				diffusion[componentIndex] = diffusionOfComponent;</span>
+			}
+
+			RandomVariable[] drift;
+<span class="nc bnc" id="L262" title="All 2 branches missed.">			if(scheme == Scheme.PREDICTOR_USING_LASTREALIZATION) {</span>
+<span class="nc" id="L263">				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);</span>
+			} else {
+<span class="nc" id="L265">				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], null                      );</span>
+			}
+
+			// Calculate drift
+<span class="nc bnc" id="L269" title="All 2 branches missed.">			for(int componentIndex = numberOfComponents-1; componentIndex &gt;= 0; componentIndex--)</span>
+			{
+<span class="nc" id="L271">				final RandomVariable driftOfComponent  	= drift[componentIndex];</span>
+<span class="nc" id="L272">				final RandomVariable varianceOfComponent			= variance[componentIndex];</span>
+<span class="nc" id="L273">				final RandomVariable diffusionOfComponent		= diffusion[componentIndex];</span>
+
+<span class="nc bnc" id="L275" title="All 2 branches missed.">				if(driftOfComponent == null) {</span>
+<span class="nc" id="L276">					discreteProcess[timeIndex][componentIndex] = discreteProcess[timeIndex-1][componentIndex];</span>
+<span class="nc" id="L277">					continue;</span>
+				}
+
+				// Allocate memory for on path-realizations
+<span class="nc" id="L281">				final double[] newRealization			= new double[numberOfPaths];</span>
+
+				// Euler Scheme
+<span class="nc" id="L284">				final RandomVariable previouseRealization		= discreteProcess[timeIndex-1][componentIndex];</span>
+
+				// Generate values
+<span class="nc bnc" id="L287" title="All 2 branches missed.">				for(int pathIndex = 0; pathIndex &lt; numberOfPaths; pathIndex++)</span>
+				{
+<span class="nc" id="L289">					final double previousValue	= previouseRealization.get(pathIndex);</span>
+<span class="nc" id="L290">					final double driftOnPath		= driftOfComponent.get(pathIndex);</span>
+<span class="nc" id="L291">					final double varianceOnPath	= varianceOfComponent.get(pathIndex);</span>
+<span class="nc" id="L292">					final double diffusionOnPath	= diffusionOfComponent.get(pathIndex);</span>
+
+					// The scheme
+<span class="nc" id="L295">					newRealization[pathIndex]	 = previousValue * Math.exp(driftOnPath * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);</span>
+				}
+
+				// Store components
+<span class="nc" id="L299">				discreteProcess[timeIndex][componentIndex] = new RandomVariableFromDoubleArray(getTime(timeIndex),newRealization);</span>
+			}
+
+<span class="nc bnc" id="L302" title="All 2 branches missed.">			if(scheme == Scheme.PREDICTOR_USING_EULERSTEP) {</span>
+<span class="nc" id="L303">				final RandomVariable[] newRealization = new RandomVariableFromDoubleArray[numberOfComponents];</span>
+
+				// Note: This is actually more than a predictor corrector: The drift of componentIndex already uses the corrected predictor from the previous components
+<span class="nc" id="L306">				drift = getDrift(timeIndex-1, discreteProcess[timeIndex-1], discreteProcess[timeIndex]);</span>
+
+				// Apply corrector step to realizations at next time step
+<span class="nc bnc" id="L309" title="All 2 branches missed.">				for(int componentIndex = 0; componentIndex &lt; numberOfComponents; componentIndex++)</span>
+				{
+<span class="nc" id="L311">					final RandomVariable driftOfComponent	= drift[componentIndex];</span>
+<span class="nc" id="L312">					final RandomVariable varianceOfComponent			= variance[componentIndex];</span>
+<span class="nc" id="L313">					final RandomVariable diffusionOfComponent		= diffusion[componentIndex];</span>
+
+					// Euler Scheme with corrected drift
+<span class="nc" id="L316">					final RandomVariable previouseRealization 	= discreteProcess[timeIndex-1][componentIndex];</span>
+
+					// The scheme
+					// newValue = previousValue * Math.exp(driftValue * deltaT - 0.5 * varianceOnPath * deltaT + diffusionOnPath);
+<span class="nc" id="L320">					newRealization[componentIndex] = previouseRealization.mult((driftOfComponent.mult(deltaT).sub(varianceOfComponent.mult(0.5 * deltaT)).add(diffusionOfComponent)).exp());</span>
+				} // End for(componentIndex)
+
+				// Store predictor-corrector corrected process.
+<span class="nc" id="L324">				discreteProcess[timeIndex] = newRealization;</span>
+			} // End if(scheme == LogNormalProcess.SCHEME_PREDICTOR_USES_EULER)
+
+			// Set Monte-Carlo weights (since there is no Monte-Carlo weighting, the weights remain the same (namely 1.0/numberOfPaths).
+<span class="nc" id="L328">			discreteProcessWeights[timeIndex] = discreteProcessWeights[timeIndex-1];</span>
+		} // End for(timeIndex)
+<span class="nc" id="L330">	}</span>
+
+
+	/**
+	 * @return Returns the numberOfComponents.
+	 */
+	public int getNumberOfComponents() {
+<span class="nc" id="L337">		return numberOfComponents;</span>
+	}
+
+	/**
+	 * @return Returns the numberOfPaths.
+	 */
+	public int getNumberOfPaths() {
+<span class="nc" id="L344">		return numberOfPaths;</span>
+	}
+
+	/**
+	 * @return Returns the numberOfFactors.
+	 */
+	public int getNumberOfFactors() {
+<span class="nc" id="L351">		return numberOfFactors;</span>
+	}
+
+	/**
+	 * @return Returns the timeDiscretizationFromArray.
+	 */
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L358">		return timeDiscretization;</span>
+	}
+
+	/**
+	 * Returns the time for a given simulation time index.
+	 *
+	 * @param timeIndex Time index
+	 * @return Returns the time for a given time index.
+	 */
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L368">		return timeDiscretization.getTime(timeIndex);</span>
+	}
+
+	/**
+	 * Returns the time index for a given simulation time.
+	 *
+	 * @param time A simulation time
+	 * @return Returns the time index for a given time.
+	 */
+	public int getTimeIndex(final double time) {
+<span class="nc" id="L378">		return timeDiscretization.getTimeIndex(time);</span>
+	}
+
+	/**
+	 * @return Returns the Brownian motion used in the generation of the process
+	 */
+	public BrownianMotion getBrownianMotion() {
+<span class="nc" id="L385">		return brownianMotion;</span>
+	}
+
+	/**
+	 * @return Returns the scheme.
+	 */
+	public Scheme getScheme() {
+<span class="nc" id="L392">		return scheme;</span>
+	}
+
+	/**
+	 * A derived class may change the Brownian motion. This is only allowed prior to lazy initialization.
+	 * The method should be used only while constructing new object. Do not use in flight.
+	 *
+	 * @param brownianMotion The brownianMotion to set.
+	 */
+	protected synchronized void setBrownianMotion(final BrownianMotion brownianMotion) {
+<span class="nc bnc" id="L402" title="All 4 branches missed.">		if(discreteProcessWeights != null &amp;&amp; discreteProcessWeights.length != 0) {</span>
+<span class="nc" id="L403">			throw new RuntimeException(&quot;Tying to change lazy initialized immutable object after initialization.&quot;);</span>
+		}
+
+<span class="nc" id="L406">		this.brownianMotion			= brownianMotion;</span>
+<span class="nc" id="L407">	}</span>
+
+	/**
+	 * @param scheme The scheme to set.
+	 */
+	public synchronized  void setScheme(final Scheme scheme) {
+<span class="nc bnc" id="L413" title="All 4 branches missed.">		if(discreteProcessWeights != null &amp;&amp; discreteProcessWeights.length != 0) {</span>
+<span class="nc" id="L414">			throw new RuntimeException(&quot;Tying to change lazy initialized immutable object after initialization.&quot;);</span>
+		}
+
+<span class="nc" id="L417">		this.scheme = scheme;</span>
+<span class="nc" id="L418">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

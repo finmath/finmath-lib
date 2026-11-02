@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BestOfOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">BestOfOption.java</span></div><h1>BestOfOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Finite-difference valuation of a European option on the best of two assets.
+ *
+ * &lt;p&gt;
+ * Let {@code S1} and {@code S2} denote the two underlying assets and let
+ * {@code T} be the maturity. The best-of underlying is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * B(T) = max(S_1(T), S_2(T)).
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * The payoff is
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \left( \omega \left( B(T) - K \right) \right)^{+},
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code \omega = +1} for a call and {@code \omega = -1} for a put.
+ * Hence
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \left( max(S_1(T), S_2(T)) - K \right)^{+}
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * for a call, and
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * \left( K - max(S_1(T), S_2(T)) \right)^{+}
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * for a put.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * This product is genuinely non-linear in the two assets and cannot be reduced
+ * to the linear-combination basket class. The current implementation requires a
+ * two-dimensional model state and supports European exercise only.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BestOfOption implements FiniteDifferenceEquityProduct {
+
+	/**
+	 * The first underlying name.
+	 */
+	private final String firstUnderlyingName;
+	/**
+	 * The second underlying name.
+	 */
+	private final String secondUnderlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+
+	/**
+	 * Creates a European best-of option for two named underlyings.
+	 *
+	 * @param firstUnderlyingName Name of the first underlying.
+	 * @param secondUnderlyingName Name of the second underlying.
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPut Option type.
+	 */
+	public BestOfOption(
+			final String firstUnderlyingName,
+			final String secondUnderlyingName,
+			final double maturity,
+			final double strike,
+<span class="nc" id="L108">			final CallOrPut callOrPut) {</span>
+
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		if (callOrPut == null) {</span>
+<span class="nc" id="L111">			throw new IllegalArgumentException(&quot;callOrPut must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L113" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L114">			throw new IllegalArgumentException(&quot;maturity must be non-negative.&quot;);</span>
+		}
+
+<span class="nc" id="L117">		this.firstUnderlyingName = firstUnderlyingName;</span>
+<span class="nc" id="L118">		this.secondUnderlyingName = secondUnderlyingName;</span>
+<span class="nc" id="L119">		this.maturity = maturity;</span>
+<span class="nc" id="L120">		this.strike = strike;</span>
+<span class="nc" id="L121">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L122">		this.exercise = new EuropeanExercise(maturity);</span>
+<span class="nc" id="L123">	}</span>
+
+	/**
+	 * Creates a European best-of option for two named underlyings.
+	 *
+	 * @param firstUnderlyingName Name of the first underlying.
+	 * @param secondUnderlyingName Name of the second underlying.
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Payoff sign, where {@code 1.0} corresponds to a call
+	 *        and {@code -1.0} corresponds to a put.
+	 */
+	public BestOfOption(
+			final String firstUnderlyingName,
+			final String secondUnderlyingName,
+			final double maturity,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L141">		this(</span>
+				firstUnderlyingName,
+				secondUnderlyingName,
+				maturity,
+				strike,
+<span class="nc" id="L146">				mapCallOrPut(callOrPutSign)</span>
+				);
+<span class="nc" id="L148">	}</span>
+
+	/**
+	 * Creates a European best-of option with unnamed underlyings.
+	 *
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPut Option type.
+	 */
+	public BestOfOption(
+			final double maturity,
+			final double strike,
+			final CallOrPut callOrPut) {
+<span class="nc" id="L161">		this(null, null, maturity, strike, callOrPut);</span>
+<span class="nc" id="L162">	}</span>
+
+	/**
+	 * Creates a European best-of option with unnamed underlyings.
+	 *
+	 * @param maturity Maturity {@code T}.
+	 * @param strike Strike {@code K}.
+	 * @param callOrPutSign Payoff sign, where {@code 1.0} corresponds to a call
+	 *        and {@code -1.0} corresponds to a put.
+	 */
+	public BestOfOption(
+			final double maturity,
+			final double strike,
+			final double callOrPutSign) {
+<span class="nc" id="L176">		this(null, null, maturity, strike, mapCallOrPut(callOrPutSign));</span>
+<span class="nc" id="L177">	}</span>
+
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L181">		validateModel(model);</span>
+
+<span class="nc" id="L183">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+<span class="nc" id="L184">		return solver.getValue(</span>
+				evaluationTime,
+				maturity,
+				this::terminalPayoff
+				);
+	}
+
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L193">		validateModel(model);</span>
+
+<span class="nc" id="L195">		final FDMSolver solver = FDMSolverFactory.createSolver(model, this, exercise);</span>
+<span class="nc" id="L196">		return solver.getValues(</span>
+				maturity,
+				this::terminalPayoff
+				);
+	}
+
+	/**
+	 * Returns the terminal payoff.
+	 *
+	 * @param firstAssetValue Value of the first asset.
+	 * @param secondAssetValue Value of the second asset.
+	 * @return The terminal payoff.
+	 */
+	private double terminalPayoff(final double firstAssetValue, final double secondAssetValue) {
+<span class="nc" id="L210">		final double bestOfValue = Math.max(firstAssetValue, secondAssetValue);</span>
+<span class="nc" id="L211">		return Math.max(callOrPut.toInteger() * (bestOfValue - strike), 0.0);</span>
+	}
+
+	/**
+	 * Validates model compatibility.
+	 *
+	 * @param model The finite-difference model.
+	 */
+	private void validateModel(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L220" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L221">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+
+<span class="nc bnc" id="L224" title="All 2 branches missed.">		if (model.getSpaceTimeDiscretization().getNumberOfSpaceGrids() != 2) {</span>
+<span class="nc" id="L225">			throw new IllegalArgumentException(</span>
+					&quot;BestOfOption currently requires a two-dimensional space discretization.&quot;);
+		}
+
+<span class="nc bnc" id="L229" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 2) {</span>
+<span class="nc" id="L230">			throw new IllegalArgumentException(</span>
+					&quot;BestOfOption currently requires a two-dimensional model state.&quot;);
+		}
+<span class="nc" id="L233">	}</span>
+
+	/**
+	 * Maps the sign convention to the option type.
+	 *
+	 * @param sign Option sign.
+	 * @return The corresponding option type.
+	 */
+	private static CallOrPut mapCallOrPut(final double sign) {
+<span class="nc bnc" id="L242" title="All 2 branches missed.">		if (sign == 1.0) {</span>
+<span class="nc" id="L243">			return CallOrPut.CALL;</span>
+		}
+<span class="nc bnc" id="L245" title="All 2 branches missed.">		if (sign == -1.0) {</span>
+<span class="nc" id="L246">			return CallOrPut.PUT;</span>
+		}
+<span class="nc" id="L248">		throw new IllegalArgumentException(&quot;Unknown option type.&quot;);</span>
+	}
+
+	/**
+	 * Returns the name of the first underlying.
+	 *
+	 * @return The name of the first underlying, or {@code null} if unspecified.
+	 */
+	public String getFirstUnderlyingName() {
+<span class="nc" id="L257">		return firstUnderlyingName;</span>
+	}
+
+	/**
+	 * Returns the name of the second underlying.
+	 *
+	 * @return The name of the second underlying, or {@code null} if
+	 *     unspecified.
+	 */
+	public String getSecondUnderlyingName() {
+<span class="nc" id="L267">		return secondUnderlyingName;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L276">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the strike.
+	 *
+	 * @return The strike.
+	 */
+	public double getStrike() {
+<span class="nc" id="L285">		return strike;</span>
+	}
+
+	/**
+	 * Returns the option type.
+	 *
+	 * @return The option type.
+	 */
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L294">		return callOrPut;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L303">		return exercise;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

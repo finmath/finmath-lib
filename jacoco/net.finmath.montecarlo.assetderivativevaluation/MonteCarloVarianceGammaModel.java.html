@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloVarianceGammaModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation</a> &gt; <span class="el_source">MonteCarloVarianceGammaModel.java</span></div><h1>MonteCarloVarianceGammaModel.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.assetderivativevaluation;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.VarianceGammaProcess;
+import net.finmath.montecarlo.assetderivativevaluation.models.VarianceGammaModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class glues together a {@link VarianceGammaModel} and a Monte-Carlo implementation of a &lt;code&gt;MonteCarloProcessFromProcessModel&lt;/code&gt;
+ * and forms a Monte-Carlo implementation of the Variance Gamma Model by implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;.
+ *
+ * @author Alessandro Gnoatto
+ * @version 1.0
+ */
+public class MonteCarloVarianceGammaModel implements AssetModelMonteCarloSimulationModel {
+
+	private final VarianceGammaModel model;
+	private final MonteCarloProcess process;
+
+	private final double initialValue;
+	private final int seed;
+
+	/**
+	 * Create a Monte Carlo simulation using a given time discretization.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo paths to be used.
+	 * @param seed The seed used for the random number generator.
+	 * @param initialValue \( S_0 \) The spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param sigma The parameter \( \sigma \)
+	 * @param theta The parameter \( \theta \)
+	 * @param nu The parameter \( \nu \)
+	 */
+	public MonteCarloVarianceGammaModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double sigma,
+			final double theta,
+			final double nu) {
+<span class="fc" id="L51">		super();</span>
+
+<span class="fc" id="L53">		this.initialValue = initialValue;</span>
+<span class="fc" id="L54">		this.seed = seed;</span>
+
+		// Create the model
+<span class="fc" id="L57">		model = new VarianceGammaModel(initialValue,riskFreeRate,sigma,theta,nu);</span>
+
+		// Create a corresponding MC process
+<span class="fc" id="L60">		process = new EulerSchemeFromProcessModel(model, new VarianceGammaProcess(sigma, nu, theta,</span>
+				timeDiscretization, 1, numberOfPaths,seed));
+<span class="fc" id="L62">	}</span>
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L66">		throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
+<span class="fc" id="L71">		return getAssetValue(getTimeIndex(time), assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
+<span class="fc" id="L76">		return process.getProcessValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+<span class="nc" id="L81">		final double time = getTime(timeIndex);</span>
+
+<span class="nc" id="L83">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+<span class="fc" id="L88">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L93">		return getMonteCarloWeights(getTimeIndex(time));</span>
+	}
+
+	@Override
+	public int getNumberOfAssets() {
+<span class="nc" id="L98">		return 1;</span>
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		final double	newInitialTime	= dataModified.get(&quot;initialTime&quot;) != null	? ((Number)dataModified.get(&quot;initialTime&quot;)).doubleValue() : getTime(0);</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">		final double	newInitialValue	= dataModified.get(&quot;initialValue&quot;) != null	? ((Number)dataModified.get(&quot;initialValue&quot;)).doubleValue() : initialValue;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">		final double	newRiskFreeRate	= dataModified.get(&quot;riskFreeRate&quot;) != null	? ((Number)dataModified.get(&quot;riskFreeRate&quot;)).doubleValue() : model.getRiskFreeRate().doubleValue();</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">		final double	newSigma	= dataModified.get(&quot;sigma&quot;) != null	? ((Number)dataModified.get(&quot;sigma&quot;)).doubleValue()	: model.getSigma().doubleValue();</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">		final double	newTheta	= dataModified.get(&quot;theta&quot;) != null	? ((Number)dataModified.get(&quot;theta&quot;)).doubleValue()	: model.getTheta().doubleValue();</span>
+<span class="nc bnc" id="L111" title="All 2 branches missed.">		final double	newNu	= dataModified.get(&quot;nu&quot;) != null	? ((Number)dataModified.get(&quot;nu&quot;)).doubleValue()	: model.getNu().doubleValue();</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">		final int		newSeed				= dataModified.get(&quot;seed&quot;) != null			? ((Number)dataModified.get(&quot;seed&quot;)).intValue()				: seed;</span>
+
+<span class="nc" id="L114">		return new MonteCarloVarianceGammaModel(process.getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), process.getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newSigma, newTheta, newNu);</span>
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L119">		final Map&lt;String, Object&gt; dataModified = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L120">		dataModified.put(&quot;seed&quot;, new Integer(seed));</span>
+<span class="nc" id="L121">		return getCloneWithModifiedData(dataModified);</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L126">		return process.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L131">		return process.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L136">		return process.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L141">		return process.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L146">		return model.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="fc" id="L151">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,521 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CDS.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.cds</a> &gt; <span class="el_source">CDS.java</span></div><h1>CDS.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.cds;
+
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.AnalyticModelFromCurvesAndVols;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.DiscountCurveInterpolation;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.products.AbstractAnalyticProduct;
+import net.finmath.marketdata.products.AnalyticProduct;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.Period;
+import net.finmath.time.Schedule;
+import net.finmath.time.ScheduleFromPeriods;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendarExcludingWeekends;
+import net.finmath.time.daycount.DayCountConvention;
+
+/**
+ * Implements the valuation of a CDS (fixed-fee CDS, floating-fee CDS, with upfront or without)
+ * from the perspective of the protection buyer with unit notional of 1 using curves:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;a forward curve, if the bond has floating rate coupons&lt;/li&gt;
+ * 	&lt;li&gt;a discount curve as a base curve for discounting&lt;/li&gt;
+ * 	&lt;li&gt;a survival probability curve for additional credit risk related discount factor&lt;/li&gt;
+ * 	&lt;li&gt;a recovery rate curve to model a non-constant recovery rate term-structure&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Support for day counting is provided via the class implementing
+ * &lt;code&gt;ScheduleFromPeriods&lt;/code&gt;.
+ *
+ * @author Matthias Föhr
+ * @author Christian Fries
+ */
+public class CDS extends AbstractAnalyticProduct implements AnalyticProduct{
+
+	private final Schedule schedule;
+	private final String discountCurveName;
+	private final String forwardCurveName; //Set null if fixed-fee CDS
+	private final String survivalProbabilityCurveName;
+	private final String recoveryRateCurveName;
+	private final double fixedFee; //Set equal zero if floating rate CDS
+	private final double floatingFeeSpread;
+	private final double upfrontPayment; //From the perspective of the protection buyer (&lt;0 if upfront is recieved)! Set equal to 0 if conventional CDS spread is considered
+	private final LocalDate tradeDate; // Trading Date of the CDS contract
+	private final CDS.ValuationModel valuationModel; // Either DISCRETE, JPM or JPM_NOACCFEE (DISCRETE = fee and recovery payments only at tenor dates, JPM = fee and recovery payments every business day according to JP Morgan Modell, JPM_NOACCFEE = JPM with fee payments only at tenor dates)
+	private final CDS.DirtyCleanPrice dirtyCleanPrice; // Either CLEAN or DIRTY price
+	private final boolean useFinerDiscretization;
+
+	/**
+	 * Creates a CDS.
+	 *
+	 * @param schedule Schedule of the CDS.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
+	 * @param fixedFee The fixed fee of the CDS expressed as absolute value.
+	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
+	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
+	 * @param tradeDate Trading Date of the CDS contract
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
+	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
+	 */
+	private CDS(Schedule       schedule,
+			String                  discountCurveName,
+			String                  forwardCurveName,
+			String                  survivalProbabilityCurveName,
+			String                  recoveryRateCurveName,
+			double                  fixedFee,
+			double                  floatingFeeSpread,
+			double                  upfrontPayment,
+			LocalDate               tradeDate,
+			CDS.ValuationModel        valuationModel,
+			CDS.DirtyCleanPrice     dirtyCleanPrice,
+			boolean                 useFinerDiscretization)
+	{
+<span class="fc" id="L83">		super();</span>
+<span class="fc" id="L84">		this.schedule = schedule;</span>
+<span class="fc" id="L85">		this.discountCurveName = discountCurveName;</span>
+<span class="fc" id="L86">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L87">		this.survivalProbabilityCurveName = survivalProbabilityCurveName;</span>
+<span class="fc" id="L88">		this.recoveryRateCurveName = recoveryRateCurveName;</span>
+<span class="fc" id="L89">		this.fixedFee = fixedFee;</span>
+<span class="fc" id="L90">		this.floatingFeeSpread = floatingFeeSpread;</span>
+<span class="fc" id="L91">		this.upfrontPayment = upfrontPayment;</span>
+<span class="fc" id="L92">		this.tradeDate = tradeDate;</span>
+<span class="fc" id="L93">		this.valuationModel = valuationModel;</span>
+<span class="fc" id="L94">		this.dirtyCleanPrice = dirtyCleanPrice;</span>
+<span class="fc" id="L95">		this.useFinerDiscretization = useFinerDiscretization;</span>
+<span class="fc" id="L96">	}</span>
+
+	/**
+	 * Creates a CDS with a fixed fee, no upfront.
+	 *
+	 * @param schedule Schedule of the CDS.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
+	 * @param fixedFee The fixed fee of the CDS expressed as absolute value.
+	 * @param tradeDate Trading Date of the CDS contract
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
+	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
+	 */
+	public CDS(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+<span class="fc" id="L112">		this(schedule, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, 0, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );</span>
+<span class="fc" id="L113">	}</span>
+
+	/**
+	 * Creates a CDS with a fixed fee, with upfront.
+	 *
+	 * @param schedule Schedule of the CDS.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
+	 * @param fixedFee The fixed fee of the CDS expressed as absolute value.
+	 * @param tradeDate Trading Date of the CDS contract
+	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
+	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
+	 */
+	public CDS(Schedule schedule, String discountCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double fixedFee, double upfrontPayment, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+<span class="nc" id="L130">		this(schedule, discountCurveName, null,survivalProbabilityCurveName, recoveryRateCurveName, fixedFee, 0, upfrontPayment, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );</span>
+<span class="nc" id="L131">	}</span>
+
+	/**
+	 * Creates a CDS with a floating fee, no upfront.
+	 *
+	 * @param schedule Schedule of the CDS.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
+	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
+	 * @param tradeDate Trading Date of the CDS contract
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
+	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
+	 */
+	public CDS(ScheduleFromPeriods schedule, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+<span class="nc" id="L148">		this(schedule, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, 0, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );</span>
+<span class="nc" id="L149">	}</span>
+
+	/**
+	 * Creates a CDS with a floating fee, with upfront.
+	 *
+	 * @param schedule Schedule of the CDS.
+	 * @param discountCurveName Name of the discount curve.
+	 * @param forwardCurveName Name of the forward curve, leave empty if this is a fixed fee CDS
+	 * @param survivalProbabilityCurveName Name of the survival probability curve.
+	 * @param recoveryRateCurveName Name of the Recovery Rate CurveFromInterpolationPoints (1 Recovery Rate for each timestep in the scheduleFromPeriods).
+	 * @param floatingFeeSpread The floating fee spread of the CDS expressed as absolute value.
+	 * @param upfrontPayment The initial upfront payment of the CDS from the perspective of the protection buyer(Nonzero if fee != conventional CDS spread).
+	 * @param tradeDate Trading Date of the CDS contract
+	 * @param valuationModel Defines the valuation model used (DISCRETE, JPM, JPM_NOACCFEE)
+	 * @param dirtyCleanPrice Defines if CLEAN or DIRTY price is considered
+	 * @param useFinerDiscretization Boolean if finer Discretization (discountCurve Dates + CDS Dates) is used
+	 */
+	public CDS(ScheduleFromPeriods schedule, String discountCurveName, String forwardCurveName, String survivalProbabilityCurveName, String recoveryRateCurveName, double floatingFeeSpread, double upfrontPayment, LocalDate tradeDate, CDS.ValuationModel valuationModel, CDS.DirtyCleanPrice dirtyCleanPrice, boolean useFinerDiscretization) {
+<span class="nc" id="L167">		this(schedule, discountCurveName, forwardCurveName, survivalProbabilityCurveName, recoveryRateCurveName, 0, floatingFeeSpread, upfrontPayment, tradeDate, valuationModel, dirtyCleanPrice, useFinerDiscretization );</span>
+<span class="nc" id="L168">	}</span>
+
+
+	/**
+	 * Evaluates the CDS at the evaluationTime according to a Analytic Model.
+	 *
+	 * @param evaluationTime Evaluation time of the pricing.
+	 * @param model Analytic Model, within the CDS is priced.
+	 */
+	@Override
+	public double getValue(double evaluationTime, AnalyticModel model) {
+
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">		if(model==null) {</span>
+<span class="nc" id="L181">			throw new IllegalArgumentException(&quot;model==null&quot;);</span>
+		}
+
+<span class="fc" id="L184">		final ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);</span>
+<span class="pc bpc" id="L185" title="4 of 6 branches missed.">		if(forwardCurveInterpolation == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+<span class="nc" id="L186">			throw new IllegalArgumentException(&quot;No forward curve with name '&quot; + forwardCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+		// TODO Remove cast.
+<span class="fc" id="L190">		final DiscountCurveInterpolation discountCurve = (DiscountCurveInterpolation) model.getDiscountCurve(discountCurveName);</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">		if(discountCurve == null) {</span>
+<span class="nc" id="L192">			throw new IllegalArgumentException(&quot;No discount curve with name '&quot; + discountCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="fc" id="L195">		final Curve survivalProbabilityCurve = model.getCurve(survivalProbabilityCurveName);</span>
+<span class="pc bpc" id="L196" title="1 of 2 branches missed.">		if(survivalProbabilityCurve == null) {</span>
+<span class="nc" id="L197">			throw new IllegalArgumentException(&quot;No survival probability curve with name '&quot; + survivalProbabilityCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="fc" id="L200">		final Curve recoveryRateCurve = model.getCurve(recoveryRateCurveName);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">		if(recoveryRateCurve == null) {</span>
+<span class="nc" id="L202">			throw new IllegalArgumentException(&quot;No recovery rate curve with name '&quot; + recoveryRateCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="fc" id="L205">		final BusinessdayCalendarExcludingWeekends businessdayCalendarExcludingWeekends = new BusinessdayCalendarExcludingWeekends();</span>
+<span class="fc" id="L206">		final LocalDate effectiveDate = businessdayCalendarExcludingWeekends.getRolledDate(tradeDate, 1);     // Effective Date is Business Day after trading date [IGNORES HOLIDAYS]</span>
+
+
+		// Create joint array of discountfactor times and payment dates
+<span class="fc" id="L210">		final Set&lt;Double&gt; jointTimeDiscretizationSet = new HashSet&lt;Double&gt;();</span>
+<span class="fc" id="L211">		final double[] timesDiscountCurve = discountCurve.getTimes();</span>
+<span class="fc bfc" id="L212" title="All 2 branches covered.">		for(int i=0; i&lt;timesDiscountCurve.length; i++){</span>
+<span class="fc" id="L213">			jointTimeDiscretizationSet.add(timesDiscountCurve[i]);</span>
+		}
+<span class="fc bfc" id="L215" title="All 2 branches covered.">		for(int i=0; i&lt;schedule.getNumberOfPeriods();i++){</span>
+<span class="fc" id="L216">			jointTimeDiscretizationSet.add(schedule.getPeriodStart(i));</span>
+<span class="fc" id="L217">			jointTimeDiscretizationSet.add(schedule.getPeriodEnd(i));</span>
+		}
+<span class="fc" id="L219">		final Double[] jointTimeDiscretization = jointTimeDiscretizationSet.toArray(new Double[0]);</span>
+<span class="fc" id="L220">		Arrays.sort(jointTimeDiscretization);</span>
+
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">		final boolean upfrontIsNonzero = (upfrontPayment != 0);</span>
+
+<span class="fc" id="L224">		double value = 0.0;</span>
+
+<span class="fc bfc" id="L226" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex&lt;schedule.getNumberOfPeriods(); periodIndex++) {</span>
+
+			// Consider upfront payments if defined
+<span class="pc bpc" id="L229" title="3 of 4 branches missed.">			if (upfrontIsNonzero &amp;&amp; periodIndex == 0) {</span>
+				// Pay upfront on trade date.
+<span class="nc" id="L231">				final double upfrontPaymentDate = FloatingpointDate.getFloatingPointDateFromDate( schedule.getReferenceDate() , tradeDate );</span>
+<span class="nc" id="L232">				final double discountFactor = discountCurve.getDiscountFactor(model, upfrontPaymentDate);</span>
+<span class="nc" id="L233">				final double survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, upfrontPaymentDate);</span>
+<span class="nc" id="L234">				value += -upfrontPayment * discountFactor * survivalProbabilityFactor;</span>
+			}
+
+<span class="fc" id="L237">			final double paymentDate = schedule.getPayment(periodIndex);</span>
+<span class="fc" id="L238">			double periodLength = schedule.getPeriodLength(periodIndex);</span>
+
+			// When CLEAN Price =&gt; Adjust period Length in first period [First coupon not paid in full]
+<span class="pc bpc" id="L241" title="1 of 4 branches missed.">			if (periodIndex == 0 &amp;&amp; dirtyCleanPrice == DirtyCleanPrice.CLEAN) {</span>
+<span class="fc" id="L242">				periodLength = schedule.getDaycountconvention().getDaycountFraction(effectiveDate, schedule.getPeriod(0).getPeriodEnd());</span>
+			}
+			// Adjust period Length in last period by 1 businessday (CDS convention)
+<span class="fc bfc" id="L245" title="All 2 branches covered.">			if (periodIndex == schedule.getNumberOfPeriods() - 1) {</span>
+<span class="fc" id="L246">				periodLength += schedule.getDaycountconvention().getDaycountFraction(schedule.getPeriod(periodIndex).getPeriodEnd(), schedule.getPeriod(periodIndex).getPeriodEnd().plusDays(1));</span>
+			}
+
+			// The protection in the first period starts at the effective date = trade date + 1 business day
+<span class="fc bfc" id="L250" title="All 2 branches covered.">			final double previousPaymentDate = periodIndex &gt; 0 ? schedule.getPayment(periodIndex - 1) : 0.0 + schedule.getDaycountconvention().getDaycountFraction(tradeDate, effectiveDate);</span>
+
+<span class="pc bpc" id="L252" title="1 of 2 branches missed.">			double discountFactor = paymentDate &gt; evaluationTime ? discountCurve.getDiscountFactor(model, paymentDate) : 0.0;</span>
+<span class="pc bpc" id="L253" title="1 of 2 branches missed.">			double previousDiscountFactor = previousPaymentDate &gt; evaluationTime ? discountCurve.getDiscountFactor(model, previousPaymentDate) : 1.0;</span>
+
+<span class="pc bpc" id="L255" title="1 of 2 branches missed.">			double survivalProbabilityFactor = paymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(model, paymentDate) : 0.0;</span>
+<span class="pc bpc" id="L256" title="1 of 2 branches missed.">			double previousSurvivalProbabilityFactor = previousPaymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(model, previousPaymentDate) : 1.0;</span>
+
+			//Fee to be paid
+<span class="fc" id="L259">			double feePayment = fixedFee;</span>
+<span class="pc bpc" id="L260" title="1 of 2 branches missed.">			if (forwardCurveInterpolation != null) {</span>
+<span class="nc" id="L261">				feePayment = floatingFeeSpread + forwardCurveInterpolation.getForward(model, schedule.getFixing(periodIndex));</span>
+			}
+			// Recovery rate in case of default
+<span class="fc" id="L264">			final double recoveryRate = recoveryRateCurve.getValue(model, paymentDate);</span>
+
+			// Precomputation for JPM and JPM_NOACCFEE model
+<span class="fc" id="L267">			final double periodStartTime = Math.max(schedule.getPeriodStart(periodIndex), evaluationTime);</span>
+<span class="fc" id="L268">			final double periodEndTime = Math.max(schedule.getPeriodEnd(periodIndex), evaluationTime);</span>
+<span class="fc" id="L269">			double forwardInterestRateFactor = (Math.log(discountCurve.getValue(model, periodStartTime)) - Math.log(discountCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);</span>
+<span class="fc" id="L270">			double hazardRateFactor = (Math.log(survivalProbabilityCurve.getValue(model, periodStartTime)) - Math.log(survivalProbabilityCurve.getValue(model, periodEndTime))) / (periodEndTime - periodStartTime);</span>
+<span class="fc" id="L271">			double accruedFactorJPM = hazardRateFactor * (1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2) - ((periodEndTime - periodStartTime) / (forwardInterestRateFactor + hazardRateFactor) + 1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2)) * (Math.exp(-(forwardInterestRateFactor + hazardRateFactor) * (periodEndTime - periodStartTime))));</span>
+
+			// Switch valuation models
+<span class="pc bpc" id="L274" title="1 of 4 branches missed.">			switch (valuationModel) {</span>
+			case DISCRETE:
+<span class="fc" id="L276">				value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]</span>
+<span class="fc" id="L277">				value += Math.max(1.0 - recoveryRate,0) * discountFactor * (previousSurvivalProbabilityFactor - survivalProbabilityFactor); // Recovery payment [Protection Buyer View]</span>
+<span class="fc" id="L278">				break;</span>
+			case JPM:
+<span class="pc bpc" id="L280" title="1 of 2 branches missed.">				if (useFinerDiscretization) {</span>
+<span class="nc" id="L281">					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]</span>
+					// JPM Model on jointTimeDiscretization
+<span class="nc" id="L283">					final int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);		// was ArrayUtils.indexOf</span>
+<span class="nc" id="L284">					final int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);			// was ArrayUtils.indexOf</span>
+					// Loop over subperiods
+<span class="nc bnc" id="L286" title="All 2 branches missed.">					for (int subTimeIndex = startIndex; subTimeIndex &lt; endIndex; subTimeIndex++) {</span>
+<span class="nc" id="L287">						final double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];</span>
+<span class="nc" id="L288">						final double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];</span>
+<span class="nc" id="L289">						final double subPeriodLength = subPeriodEndTime - subPeriodStartTime;</span>
+<span class="nc" id="L290">						discountFactor = discountCurve.getDiscountFactor(model, subPeriodEndTime);</span>
+<span class="nc" id="L291">						previousDiscountFactor = discountCurve.getDiscountFactor(model, subPeriodStartTime);</span>
+<span class="nc" id="L292">						survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodEndTime);</span>
+<span class="nc" id="L293">						previousSurvivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodStartTime);</span>
+<span class="nc" id="L294">						forwardInterestRateFactor = (Math.log(discountCurve.getValue(model, subPeriodStartTime)) - Math.log(discountCurve.getValue(model, subPeriodEndTime))) / (subPeriodEndTime - subPeriodStartTime);</span>
+<span class="nc" id="L295">						hazardRateFactor = (Math.log(survivalProbabilityCurve.getValue(model, subPeriodStartTime)) - Math.log(survivalProbabilityCurve.getValue(model, subPeriodEndTime))) / (subPeriodEndTime - subPeriodStartTime);</span>
+<span class="nc" id="L296">						accruedFactorJPM = hazardRateFactor * (1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2) - ((subPeriodEndTime - subPeriodStartTime) / (forwardInterestRateFactor + hazardRateFactor) + 1 / Math.pow(forwardInterestRateFactor + hazardRateFactor, 2)) * (Math.exp(-(forwardInterestRateFactor + hazardRateFactor) * (subPeriodEndTime - subPeriodStartTime))));</span>
+<span class="nc" id="L297">						value += -feePayment * subPeriodLength * previousDiscountFactor * previousSurvivalProbabilityFactor * accruedFactorJPM; // Expected accrued fee according to JPM model</span>
+<span class="nc" id="L298">						value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]</span>
+					}
+<span class="nc" id="L300">				}</span>
+				else {
+<span class="fc" id="L302">					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]</span>
+<span class="fc" id="L303">					value += -feePayment * periodLength * previousDiscountFactor * previousSurvivalProbabilityFactor * accruedFactorJPM; // Expected accrued fee according to JPM model</span>
+<span class="fc" id="L304">					value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]</span>
+				}
+<span class="fc" id="L306">				break;</span>
+			case JPM_NOACCFEE:
+<span class="pc bpc" id="L308" title="1 of 2 branches missed.">				if (useFinerDiscretization) {</span>
+<span class="nc" id="L309">					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor;</span>
+					// JPM Model on jointTimeDiscretization
+<span class="nc" id="L311">					final int startIndex = Arrays.binarySearch(jointTimeDiscretization, periodStartTime);</span>
+<span class="nc" id="L312">					final int endIndex = Arrays.binarySearch(jointTimeDiscretization, periodEndTime);</span>
+					// Loop over subperiods
+<span class="nc bnc" id="L314" title="All 2 branches missed.">					for (int subTimeIndex = startIndex; subTimeIndex &lt; endIndex; subTimeIndex++) {</span>
+<span class="nc" id="L315">						final double subPeriodStartTime = jointTimeDiscretization[subTimeIndex];</span>
+<span class="nc" id="L316">						final double subPeriodEndTime = jointTimeDiscretization[subTimeIndex + 1];</span>
+<span class="nc" id="L317">						discountFactor = discountCurve.getDiscountFactor(model, subPeriodEndTime);</span>
+<span class="nc" id="L318">						previousDiscountFactor = discountCurve.getDiscountFactor(model, subPeriodStartTime);</span>
+<span class="nc" id="L319">						survivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodEndTime);</span>
+<span class="nc" id="L320">						previousSurvivalProbabilityFactor = survivalProbabilityCurve.getValue(model, subPeriodStartTime);</span>
+<span class="nc" id="L321">						forwardInterestRateFactor = (Math.log(discountCurve.getValue(model, subPeriodStartTime)) - Math.log(discountCurve.getValue(model, subPeriodEndTime))) / (subPeriodEndTime - subPeriodStartTime);</span>
+<span class="nc" id="L322">						hazardRateFactor = (Math.log(survivalProbabilityCurve.getValue(model, subPeriodStartTime)) - Math.log(survivalProbabilityCurve.getValue(model, subPeriodEndTime))) / (subPeriodEndTime - subPeriodStartTime);</span>
+<span class="nc" id="L323">						value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]</span>
+					}
+
+<span class="nc" id="L326">				}</span>
+				else{
+<span class="fc" id="L328">					value += -feePayment * periodLength * discountFactor * survivalProbabilityFactor; // Fee payment [Protection Buyer View]</span>
+<span class="fc" id="L329">					value += Math.max(1.0 - recoveryRate,0) * (previousDiscountFactor * previousSurvivalProbabilityFactor - discountFactor * survivalProbabilityFactor) * hazardRateFactor / (hazardRateFactor + forwardInterestRateFactor); // Adjusted Recovery payment [Protection Buyer View]</span>
+				}
+<span class="fc" id="L331">				break;</span>
+			default:
+<span class="nc" id="L333">				throw new UnsupportedOperationException(&quot;Unknown valuation model: &quot; + valuationModel);</span>
+			}
+		}
+
+<span class="fc" id="L337">		return value / discountCurve.getDiscountFactor(model, evaluationTime);</span>
+	}
+
+
+	/**
+	 * Calculates the conventional CDS spread, i.e. the fee payment such that the CDS is valued at 0 (and no upfront).
+	 * Treats conventional CDS spread as a FIXED fee,  not floating.
+	 *
+	 * @param evaluationTime Evaluation time of the pricing.
+	 * @param calibratedModelJPM Analytic Model, within the CDS is priced.
+	 * @return The conventional CDS spread.
+	 */
+	public double getConventionalSpread( double evaluationTime, AnalyticModel calibratedModelJPM ){
+
+<span class="fc" id="L351">		final ForwardCurve forwardCurveInterpolation = calibratedModelJPM.getForwardCurve(forwardCurveName);</span>
+<span class="pc bpc" id="L352" title="4 of 6 branches missed.">		if(forwardCurveInterpolation == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+<span class="nc" id="L353">			throw new IllegalArgumentException(&quot;No forward curve with name '&quot; + forwardCurveName + &quot;' was found in the model:\n&quot; + calibratedModelJPM.toString());</span>
+		}
+
+<span class="fc" id="L356">		final DiscountCurve discountCurveInterpolation = calibratedModelJPM.getDiscountCurve(discountCurveName);</span>
+<span class="pc bpc" id="L357" title="1 of 2 branches missed.">		if(discountCurveInterpolation == null) {</span>
+<span class="nc" id="L358">			throw new IllegalArgumentException(&quot;No discount curve with name '&quot; + discountCurveName + &quot;' was found in the model:\n&quot; + calibratedModelJPM.toString());</span>
+		}
+
+<span class="fc" id="L361">		final Curve survivalProbabilityCurve = calibratedModelJPM.getCurve(survivalProbabilityCurveName);</span>
+<span class="pc bpc" id="L362" title="1 of 2 branches missed.">		if(survivalProbabilityCurve == null) {</span>
+<span class="nc" id="L363">			throw new IllegalArgumentException(&quot;No survival probability curve with name '&quot; + survivalProbabilityCurveName + &quot;' was found in the model:\n&quot; + calibratedModelJPM.toString());</span>
+		}
+
+<span class="fc" id="L366">		final Curve recoveryRateCurve = calibratedModelJPM.getCurve(recoveryRateCurveName);</span>
+<span class="pc bpc" id="L367" title="1 of 2 branches missed.">		if(recoveryRateCurve == null) {</span>
+<span class="nc" id="L368">			throw new IllegalArgumentException(&quot;No recovery rate curve with name '&quot; + recoveryRateCurveName + &quot;' was found in the model:\n&quot; + calibratedModelJPM.toString());</span>
+		}
+
+<span class="fc" id="L371">		double valueFloatingLeg = 0.0;</span>
+<span class="fc" id="L372">		double valueFixedLeg = 0.0;</span>
+
+<span class="fc bfc" id="L374" title="All 2 branches covered.">		for(int periodIndex=0; periodIndex &lt; schedule.getNumberOfPeriods(); periodIndex++){</span>
+
+<span class="fc" id="L376">			final double paymentDate	= schedule.getPayment(periodIndex);</span>
+<span class="fc" id="L377">			final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+
+<span class="pc bpc" id="L379" title="1 of 2 branches missed.">			final double discountFactor	= paymentDate &gt; evaluationTime ? discountCurveInterpolation.getDiscountFactor(calibratedModelJPM, paymentDate) : 0.0;</span>
+<span class="pc bpc" id="L380" title="1 of 2 branches missed.">			final double survivalProbabilityFactor	= paymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, paymentDate) : 0.0;</span>
+
+<span class="fc" id="L382">			valueFixedLeg += periodLength * discountFactor * survivalProbabilityFactor;</span>
+
+<span class="fc" id="L384">			double previousPaymentDate = 0	;</span>
+<span class="fc bfc" id="L385" title="All 2 branches covered.">			if(periodIndex&gt;0) {</span>
+<span class="fc" id="L386">				previousPaymentDate	= schedule.getPayment(periodIndex-1);</span>
+			}
+
+<span class="fc bfc" id="L389" title="All 2 branches covered.">			final double previousSurvivalProbabilityFactor	= previousPaymentDate &gt; evaluationTime ? survivalProbabilityCurve.getValue(calibratedModelJPM, previousPaymentDate) : 1.0;</span>
+
+<span class="fc" id="L391">			valueFloatingLeg += (1.0 - recoveryRateCurve.getValue(calibratedModelJPM,paymentDate)) * discountFactor * (previousSurvivalProbabilityFactor- survivalProbabilityFactor);</span>
+		}
+
+<span class="fc" id="L394">		final double conventionalSpread = valueFloatingLeg/ valueFixedLeg;</span>
+
+<span class="fc" id="L396">		return conventionalSpread;</span>
+	}
+
+	/**
+	 * Returns the CDS fee payment of the period with the given index. The analytic model is needed in case of a floating fee.
+	 *
+	 * @param periodIndex The index of the period of interest.
+	 * @param model The model under which the product is valued.
+	 * @return The value of the fee payment in the given period.
+	 */
+	public double getFeePayment(int periodIndex, AnalyticModel model) {
+
+<span class="nc" id="L408">		final ForwardCurve forwardCurveInterpolation = model.getForwardCurve(forwardCurveName);</span>
+<span class="nc bnc" id="L409" title="All 6 branches missed.">		if(forwardCurveInterpolation == null &amp;&amp; forwardCurveName != null &amp;&amp; forwardCurveName.length() &gt; 0) {</span>
+<span class="nc" id="L410">			throw new IllegalArgumentException(&quot;No forward curve with name '&quot; + forwardCurveName + &quot;' was found in the model:\n&quot; + model.toString());</span>
+		}
+
+<span class="nc" id="L413">		final double periodLength	= schedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L414">		double couponPayment = fixedFee;</span>
+<span class="nc bnc" id="L415" title="All 2 branches missed.">		if(forwardCurveInterpolation != null ) {</span>
+<span class="nc" id="L416">			couponPayment = floatingFeeSpread+forwardCurveInterpolation.getForward(model, schedule.getFixing(periodIndex));</span>
+		}
+<span class="nc" id="L418">		return couponPayment*periodLength;</span>
+	}
+
+
+	/**
+	 * Returns the accrued fee of the CDS for a given date.
+	 *
+	 * @param date The date of interest.
+	 * @param model The model under which the product is valued.
+	 * @return The accrued fee.
+	 */
+	public double getAccruedFee(LocalDate date, AnalyticModel model) {
+<span class="nc" id="L430">		final int periodIndex=schedule.getPeriodIndex(date);</span>
+<span class="nc" id="L431">		final Period period=schedule.getPeriod(periodIndex);</span>
+<span class="nc" id="L432">		final DayCountConvention dcc= schedule.getDaycountconvention();</span>
+<span class="nc" id="L433">		final double accruedFee = getFeePayment(periodIndex, model)*(dcc.getDaycountFraction(period.getPeriodStart(), date))/schedule.getPeriodLength(periodIndex);</span>
+<span class="nc" id="L434">		return accruedFee;</span>
+	}
+
+	/**
+	 * Returns the accrued interest of the bond for a given time.
+	 *
+	 * @param time The time of interest as double.
+	 * @param model The model under which the product is valued.
+	 * @return The accrued interest.
+	 */
+	public double getAccruedFee(double time, AnalyticModelFromCurvesAndVols model) {
+<span class="nc" id="L445">		final LocalDate date= FloatingpointDate.getDateFromFloatingPointDate(schedule.getReferenceDate(), time);</span>
+<span class="nc" id="L446">		return getAccruedFee(date, model);</span>
+	}
+
+	public Schedule getSchedule() {
+<span class="nc" id="L450">		return schedule;</span>
+	}
+
+	public String getDiscountCurveName() {
+<span class="nc" id="L454">		return discountCurveName;</span>
+	}
+
+	public String getForwardCurveName() {
+<span class="nc" id="L458">		return forwardCurveName;</span>
+	}
+
+	public String getSurvivalProbabilityCurveName() {
+<span class="nc" id="L462">		return survivalProbabilityCurveName;</span>
+	}
+
+	public String getRecoveryRateCurveName() {
+<span class="nc" id="L466">		return recoveryRateCurveName;</span>
+	}
+
+	public double getFixedFee() {
+<span class="nc" id="L470">		return fixedFee;</span>
+	}
+
+	public double getFloatingFeeSpread() {
+<span class="nc" id="L474">		return floatingFeeSpread;</span>
+	}
+
+	public double getUpfrontPayment() {
+<span class="nc" id="L478">		return upfrontPayment;</span>
+	}
+
+<span class="nc" id="L481">	public LocalDate getTradeDate() { return tradeDate; }</span>
+
+<span class="nc" id="L483">	public ValuationModel getValuationModel() { return valuationModel; }</span>
+
+<span class="nc" id="L485">	public DirtyCleanPrice getDirtyCleanPrice() { return dirtyCleanPrice; }</span>
+
+<span class="nc" id="L487">	public boolean isUseFinerDiscretization() { return useFinerDiscretization; }</span>
+
+
+	@Override
+	public String toString() {
+<span class="nc" id="L492">		return &quot;CouponBond [ScheduleFromPeriods=&quot; + schedule</span>
+				+ &quot;, discountCurveName=&quot; + discountCurveName
+				+ &quot;, forwardCurveName=&quot; + forwardCurveName
+				+ &quot;, survivalProbabilityCurveName=&quot; + survivalProbabilityCurveName
+				+ &quot;, recoveryRateCurve=&quot; + recoveryRateCurveName
+				+ &quot;, fixedFee=&quot; + fixedFee
+				+ &quot;, floatingFeeSpread=&quot; + floatingFeeSpread
+				+ &quot;, upfrontPayment=&quot; + upfrontPayment
+				+ &quot;, tradeDate=&quot; + tradeDate
+				+ &quot;, pricingModel=&quot; + valuationModel
+				+ &quot;, dirtyCleanPrice=&quot; + dirtyCleanPrice
+				+ &quot;, useFinerDiscretization=&quot; + useFinerDiscretization + &quot;]&quot;;
+	}
+
+
+<span class="fc" id="L507">	public enum ValuationModel{</span>
+<span class="fc" id="L508">		DISCRETE,</span>
+<span class="fc" id="L509">		JPM,</span>
+<span class="fc" id="L510">		JPM_NOACCFEE</span>
+	}
+
+<span class="fc" id="L513">	public enum DirtyCleanPrice {</span>
+<span class="fc" id="L514">		CLEAN,</span>
+<span class="fc" id="L515">		DIRTY,</span>
+	}
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

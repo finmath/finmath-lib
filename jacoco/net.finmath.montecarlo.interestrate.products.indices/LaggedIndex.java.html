@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LaggedIndex.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.indices</a> &gt; <span class="el_source">LaggedIndex.java</span></div><h1>LaggedIndex.java</h1><pre class="source lang-java linenums">/*
+ * Created on 06.12.2009
+ *
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ */
+package net.finmath.montecarlo.interestrate.products.indices;
+
+import java.time.LocalDate;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+
+/**
+ * A time-lagged index paying index(t+fixingOffset)
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LaggedIndex extends AbstractIndex {
+
+	private static final long serialVersionUID = 4899043672016395530L;
+
+	private final AbstractProductComponent	index;
+
+	private final String fixingOffsetCode;
+	private final BusinessdayCalendar paymentBusinessdayCalendar;
+
+	private final double					fixingOffset;
+
+	public LaggedIndex(final AbstractProductComponent index, final String fixingOffsetCode,
+<span class="nc" id="L36">			final BusinessdayCalendar paymentBusinessdayCalendar) {</span>
+<span class="nc" id="L37">		this.index = index;</span>
+<span class="nc" id="L38">		this.fixingOffsetCode = fixingOffsetCode;</span>
+<span class="nc" id="L39">		this.paymentBusinessdayCalendar = paymentBusinessdayCalendar;</span>
+<span class="nc" id="L40">		fixingOffset = 0;</span>
+<span class="nc" id="L41">	}</span>
+
+	/**
+	 * Creates a time-lagged index paying index(t+fixingOffset).
+	 *
+	 * @param index An index.
+	 * @param fixingOffset Offset added to the fixing (evaluation time) of this index to fix the underlying index.
+	 */
+	public LaggedIndex(final AbstractProductComponent index, final double fixingOffset) {
+<span class="fc" id="L50">		super();</span>
+<span class="fc" id="L51">		this.index			= index;</span>
+<span class="fc" id="L52">		fixingOffsetCode = null;</span>
+<span class="fc" id="L53">		paymentBusinessdayCalendar = null;</span>
+<span class="fc" id="L54">		this.fixingOffset	= fixingOffset;</span>
+<span class="fc" id="L55">	}</span>
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L59">		return index.queryUnderlyings();</span>
+	}
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		if(fixingOffsetCode != null) {</span>
+<span class="nc" id="L65">			final LocalDate startDate = FloatingpointDate.getDateFromFloatingPointDate(model.getReferenceDate().toLocalDate(), evaluationTime);</span>
+<span class="nc" id="L66">			final LocalDate endDate =  paymentBusinessdayCalendar.getDateFromDateAndOffsetCode(startDate, fixingOffsetCode);</span>
+<span class="nc" id="L67">			final double fixingOffset = FloatingpointDate.getFloatingPointDateFromDate(model.getReferenceDate().toLocalDate(), endDate);</span>
+
+<span class="nc" id="L69">			return index.getValue(evaluationTime + fixingOffset, model);</span>
+		}
+		else {
+<span class="fc" id="L72">			return index.getValue(evaluationTime + fixingOffset, model);</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

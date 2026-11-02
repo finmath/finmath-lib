@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bond.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">Bond.java</span></div><h1>Bond.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 10.02.2004
+ */
+package net.finmath.montecarlo.interestrate.products;
+
+import java.time.LocalDateTime;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.FloatingpointDate;
+
+/**
+ * This class implements the valuation of a zero coupon bond, P(T).
+ *
+ * @author Christian Fries
+ * @version 1.1
+ */
+public class Bond extends AbstractTermStructureMonteCarloProduct {
+
+	static final double PAYMENT_TIME_TOLERANCE = 1E-12;
+
+	private final LocalDateTime referenceDate;
+	private double maturity;
+
+	/**
+	 * Create a zero coupon bond with maturity T.
+	 * Here T is specified as a double offset to a given reference date \( t = 0 \).
+	 *
+	 * @param referenceDate The date corresponding to \( t = 0 \).
+	 * @param maturity The maturity given as a double, following the
+	 *        {@link FloatingpointDate} convention as an offset to {@code referenceDate}.
+	 */
+	public Bond(final LocalDateTime referenceDate, final double maturity) {
+<span class="fc" id="L37">		super();</span>
+<span class="fc" id="L38">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L39">		this.maturity = maturity;</span>
+<span class="fc" id="L40">	}</span>
+
+	/**
+	 * @param maturity The maturity given as double.
+	 */
+	public Bond(final double maturity) {
+<span class="fc" id="L46">		super();</span>
+<span class="fc" id="L47">		this.referenceDate = null;</span>
+<span class="fc" id="L48">		this.maturity = maturity;</span>
+<span class="fc" id="L49">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L64">		final double productToModelTimeOffset = getProductToModelTimeOffset(model);</span>
+<span class="fc" id="L65">		final double paymentTime = productToModelTimeOffset + maturity;</span>
+
+<span class="pc bpc" id="L67" title="1 of 2 branches missed.">		if(paymentTime &lt; evaluationTime - PAYMENT_TIME_TOLERANCE) {</span>
+<span class="nc" id="L68">			return model.getRandomVariableForConstant(0.0);</span>
+		}
+<span class="fc bfc" id="L70" title="All 2 branches covered.">		if(paymentTime &lt;= evaluationTime + PAYMENT_TIME_TOLERANCE) {</span>
+<span class="fc" id="L71">			return model.getRandomVariableForConstant(1.0);</span>
+		}
+
+		// Get random variables
+<span class="fc" id="L75">		final RandomVariable	numeraire				= model.getNumeraire(paymentTime);</span>
+<span class="fc" id="L76">		final RandomVariable	monteCarloProbabilities	= model.getMonteCarloWeights(paymentTime);</span>
+
+		// Calculate numeraire relative value
+<span class="fc" id="L79">		RandomVariable values = model.getRandomVariableForConstant(1.0);</span>
+<span class="fc" id="L80">		values = values.div(numeraire).mult(monteCarloProbabilities);</span>
+
+		// Convert back to values
+<span class="fc" id="L83">		final RandomVariable	numeraireAtEvaluationTime				= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L84">		final RandomVariable	monteCarloProbabilitiesAtEvaluationTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L85">		values = values.mult(numeraireAtEvaluationTime).div(monteCarloProbabilitiesAtEvaluationTime);</span>
+
+		// Return values
+<span class="fc" id="L88">		return values;</span>
+	}
+
+	double getProductToModelTimeOffset(final TermStructureMonteCarloSimulationModel model) {
+<span class="fc bfc" id="L92" title="All 2 branches covered.">		if(referenceDate == null) {</span>
+<span class="fc" id="L93">			return 0.0;</span>
+		}
+
+		final LocalDateTime modelReferenceDate;
+		try {
+<span class="fc" id="L98">			modelReferenceDate = model.getReferenceDate();</span>
+		}
+<span class="nc" id="L100">		catch(final UnsupportedOperationException exception) {</span>
+<span class="nc" id="L101">			throw new IllegalArgumentException(</span>
+					&quot;The model must provide a reference date to value a date-based Bond.&quot;,
+					exception);
+<span class="fc" id="L104">		}</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if(modelReferenceDate == null) {</span>
+<span class="nc" id="L106">			throw new IllegalArgumentException(</span>
+					&quot;The model must provide a reference date to value a date-based Bond.&quot;);
+		}
+
+<span class="fc" id="L110">		return FloatingpointDate.getFloatingPointDateFromDate(modelReferenceDate, referenceDate);</span>
+	}
+
+	/**
+	 * @return The date relative to which maturity is specified, or null if
+	 *         maturity is already in model time.
+	 */
+	public LocalDateTime getReferenceDate() {
+<span class="fc" id="L118">		return referenceDate;</span>
+	}
+
+	/**
+	 * @return Returns the maturity.
+	 */
+	public double getMaturity() {
+<span class="fc" id="L125">		return maturity;</span>
+	}
+
+	/**
+	 * @param maturity The maturity to set.
+	 */
+	@Deprecated
+	public void setMaturity(final double maturity) {
+<span class="nc" id="L133">		this.maturity = maturity;</span>
+<span class="nc" id="L134">	}</span>
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+<span class="nc" id="L141">		return super.toString() + &quot;\n&quot; + &quot;maturity: &quot; + maturity;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

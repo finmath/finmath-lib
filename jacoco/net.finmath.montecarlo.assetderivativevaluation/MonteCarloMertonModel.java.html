@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloMertonModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation</a> &gt; <span class="el_source">MonteCarloMertonModel.java</span></div><h1>MonteCarloMertonModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.IndependentIncrements;
+import net.finmath.montecarlo.MertonJumpProcess;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.assetderivativevaluation.models.MertonModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel;
+import net.finmath.montecarlo.process.EulerSchemeFromProcessModel.Scheme;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class glues together a &lt;code&gt;MertonModel&lt;/code&gt; and a Monte-Carlo implementation of a &lt;code&gt;MonteCarloProcessFromProcessModel&lt;/code&gt;, namely &lt;code&gt;EulerSchemeFromProcessModel&lt;/code&gt;,
+ * and forms a Monte-Carlo implementation of the Merton model by implementing &lt;code&gt;AssetModelMonteCarloSimulationModel&lt;/code&gt;.
+ *
+ * The model is
+ * \[
+ * 	dS = \mu S dt + \sigma S dW + S dJ, \quad S(0) = S_{0},
+ * \]
+ * \[
+ * 	dN = r N dt, \quad N(0) = N_{0},
+ * \]
+ * where \( W \) is Brownian motion and \( J \)  is a jump process (compound Poisson process).
+ *
+ * The process \( J \) is given by \( J(t) = \sum_{i=1}^{N(t)} (Y_{i}-1) \), where
+ * \( \log(Y_{i}) \) are i.i.d. normals with mean \( a - \frac{1}{2} b^{2} \) and standard deviation \( b \).
+ * Here \( a \) is the jump size mean and \( b \) is the jump size std. dev.
+ *
+ * For details on the construction of the model see {@link net.finmath.montecarlo.assetderivativevaluation.models.MertonModel}.
+ *
+ * @author Christian Fries
+ * @see net.finmath.montecarlo.assetderivativevaluation.models.MertonModel
+ * @see net.finmath.montecarlo.process.MonteCarloProcess The interface for numerical schemes.
+ * @see net.finmath.montecarlo.model.ProcessModel The interface for models provinding parameters to numerical schemes.
+ * @version 1.0
+ */
+public class MonteCarloMertonModel implements AssetModelMonteCarloSimulationModel {
+
+	private final MertonModel model;
+	private final MonteCarloProcess process;
+
+	private final double initialValue;
+	private final int seed;
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed used for the random number generator.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 * @param randomVariableFactory The factory to be used to construct random variables.
+	 */
+	public MonteCarloMertonModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double jumpIntensity,
+			final double jumpSizeMean,
+			final double jumpSizeStDev,
+			final RandomVariableFactory randomVariableFactory
+			) {
+<span class="nc" id="L82">		super();</span>
+
+<span class="nc" id="L84">		this.initialValue = initialValue;</span>
+<span class="nc" id="L85">		this.seed = seed;</span>
+
+<span class="nc" id="L87">		final double discountRate = riskFreeRate;</span>
+
+		// Create the model
+<span class="nc" id="L90">		model = new MertonModel(initialValue, riskFreeRate, volatility, discountRate, jumpIntensity, jumpSizeMean, jumpSizeStDev, randomVariableFactory);</span>
+
+		// Create the Compound Poisson process
+<span class="nc" id="L93">		final IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);</span>
+
+		// Create a corresponding MC process
+<span class="nc" id="L96">		process = new EulerSchemeFromProcessModel(model, icrements, Scheme.EULER_FUNCTIONAL);</span>
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Create a Monte-Carlo simulation using given time discretization and given parameters.
+	 *
+	 * @param timeDiscretization The time discretization.
+	 * @param numberOfPaths The number of Monte-Carlo path to be used.
+	 * @param seed The seed used for the random number generator.
+	 * @param initialValue Spot value.
+	 * @param riskFreeRate The risk free rate.
+	 * @param volatility The log volatility.
+	 * @param jumpIntensity The intensity parameter lambda of the compound Poisson process.
+	 * @param jumpSizeMean The mean jump size of the normal distributes jump sizes of the compound Poisson process.
+	 * @param jumpSizeStDev The standard deviation of the normal distributes jump sizes of the compound Poisson process.
+	 */
+	public MonteCarloMertonModel(
+			final TimeDiscretization timeDiscretization,
+			final int numberOfPaths,
+			final int seed,
+			final double initialValue,
+			final double riskFreeRate,
+			final double volatility,
+			final double jumpIntensity,
+			final double jumpSizeMean,
+			final double jumpSizeStDev
+			) {
+<span class="fc" id="L123">		super();</span>
+
+<span class="fc" id="L125">		this.initialValue = initialValue;</span>
+<span class="fc" id="L126">		this.seed = seed;</span>
+
+		// Create the model
+<span class="fc" id="L129">		model = new MertonModel(initialValue, riskFreeRate, volatility, jumpIntensity, jumpSizeMean, jumpSizeStDev);</span>
+
+		// Create the Compound Poisson process
+<span class="fc" id="L132">		final IndependentIncrements icrements = new MertonJumpProcess(jumpIntensity, jumpSizeMean, jumpSizeStDev,timeDiscretization,numberOfPaths, seed);</span>
+
+		// Create a corresponding MC process
+<span class="fc" id="L135">		process = new EulerSchemeFromProcessModel(model, icrements, Scheme.EULER_FUNCTIONAL);</span>
+<span class="fc" id="L136">	}</span>
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L140">		throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final double time, final int assetIndex) throws CalculationException {
+<span class="fc" id="L145">		final int timeIndex = getTimeIndex(time);</span>
+<span class="pc bpc" id="L146" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L147">			throw new IllegalArgumentException(&quot;The model does not provide an interpolation of simulation time (time given was &quot; + time + &quot;).&quot;);</span>
+		}
+
+<span class="fc" id="L150">		return getAssetValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getAssetValue(final int timeIndex, final int assetIndex) throws CalculationException {
+<span class="fc" id="L155">		return process.getProcessValue(timeIndex, assetIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final int timeIndex) throws CalculationException {
+<span class="nc" id="L160">		final double time = getTime(timeIndex);</span>
+
+<span class="nc" id="L162">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+<span class="fc" id="L167">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L172">		return getMonteCarloWeights(getTimeIndex(time));</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel#getNumberOfAssets()
+	 */
+	@Override
+	public int getNumberOfAssets() {
+<span class="nc" id="L180">		return 1;</span>
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) {
+		/*
+		 * Determine the new model parameters from the provided parameter map.
+		 */
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		final double	newInitialTime	= dataModified.get(&quot;initialTime&quot;) != null	? ((Number)dataModified.get(&quot;initialTime&quot;)).doubleValue() : getTime(0);</span>
+<span class="nc bnc" id="L189" title="All 2 branches missed.">		final double	newInitialValue	= dataModified.get(&quot;initialValue&quot;) != null	? ((Number)dataModified.get(&quot;initialValue&quot;)).doubleValue() : initialValue;</span>
+<span class="nc bnc" id="L190" title="All 2 branches missed.">		final double	newRiskFreeRate	= dataModified.get(&quot;riskFreeRate&quot;) != null	? ((Number)dataModified.get(&quot;riskFreeRate&quot;)).doubleValue() : model.getRiskFreeRate().doubleValue();</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		final double	newVolatility	= dataModified.get(&quot;volatility&quot;) != null	? ((Number)dataModified.get(&quot;volatility&quot;)).doubleValue()	: model.getVolatility().doubleValue();</span>
+<span class="nc bnc" id="L192" title="All 2 branches missed.">		final double	newJumpIntensity	= dataModified.get(&quot;jumpIntensity&quot;) != null	? ((Number)dataModified.get(&quot;jumpIntensity&quot;)).doubleValue()	: model.getJumpIntensity().doubleValue();</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">		final double	newJumpSizeMean		= dataModified.get(&quot;jumpSizeMean&quot;) != null	? ((Number)dataModified.get(&quot;jumpSizeMean&quot;)).doubleValue()	: model.getVolatility().doubleValue();</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">		final double	newJumpSizeStdDev	= dataModified.get(&quot;jumpSizeStdDev&quot;) != null	? ((Number)dataModified.get(&quot;jumpSizeStdDev&quot;)).doubleValue()	: model.getVolatility().doubleValue();</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">		final int		newSeed				= dataModified.get(&quot;seed&quot;) != null			? ((Number)dataModified.get(&quot;seed&quot;)).intValue()				: seed;</span>
+
+<span class="nc" id="L197">		return new MonteCarloMertonModel(process.getTimeDiscretization().getTimeShiftedTimeDiscretization(newInitialTime-getTime(0)), process.getNumberOfPaths(), newSeed, newInitialValue, newRiskFreeRate, newVolatility, newJumpIntensity, newJumpSizeMean, newJumpSizeStdDev);</span>
+
+	}
+
+	@Override
+	public AssetModelMonteCarloSimulationModel getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L203">		final Map&lt;String, Object&gt; dataModified = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L204">		dataModified.put(&quot;seed&quot;, new Integer(seed));</span>
+<span class="nc" id="L205">		return getCloneWithModifiedData(dataModified);</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L210">		return process.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L215">		return process.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L220">		return process.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L225">		return process.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="nc" id="L230">		return model.getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="fc" id="L235">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

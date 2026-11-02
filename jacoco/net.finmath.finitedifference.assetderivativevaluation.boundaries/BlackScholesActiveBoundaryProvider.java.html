@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BlackScholesActiveBoundaryProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">BlackScholesActiveBoundaryProvider.java</span></div><h1>BlackScholesActiveBoundaryProvider.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.solvers.TwoStateActiveBoundaryProvider;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Active-state outer boundary provider for the direct two-state knock-in solver
+ * under a Black-Scholes-type equity model.
+ *
+ * &lt;p&gt;
+ * The active state represents the post-activation value, i.e. the corresponding
+ * vanilla European option after the barrier has been hit.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Boundary conventions:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ *   &lt;li&gt;Lower boundary:
+ *     &lt;ul&gt;
+ *       &lt;li&gt;call: 0&lt;/li&gt;
+ *       &lt;li&gt;put: K exp(-r(T-t))&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ *   &lt;li&gt;Upper boundary:
+ *     &lt;ul&gt;
+ *       &lt;li&gt;call: S exp(-q(T-t)) - K exp(-r(T-t))&lt;/li&gt;
+ *       &lt;li&gt;put: 0&lt;/li&gt;
+ *     &lt;/ul&gt;
+ *   &lt;/li&gt;
+ * &lt;/ul&gt;
+ */
+public class BlackScholesActiveBoundaryProvider implements TwoStateActiveBoundaryProvider {
+
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-10;
+
+	/**
+	 * The model.
+	 */
+	private final FiniteDifferenceEquityModel model;
+	/**
+	 * The strike.
+	 */
+	private final double strike;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The call or put.
+	 */
+	private final CallOrPut callOrPut;
+
+	/**
+	 * Performs the operation.
+	 *
+	 * @param model The value.
+	 * @param strike The value.
+	 * @param maturity The value.
+	 * @param callOrPut The value.
+	 */
+	public BlackScholesActiveBoundaryProvider(
+			final FiniteDifferenceEquityModel model,
+			final double strike,
+			final double maturity,
+<span class="nc" id="L70">			final CallOrPut callOrPut) {</span>
+<span class="nc" id="L71">		this.model = model;</span>
+<span class="nc" id="L72">		this.strike = strike;</span>
+<span class="nc" id="L73">		this.maturity = maturity;</span>
+<span class="nc" id="L74">		this.callOrPut = callOrPut;</span>
+<span class="nc" id="L75">	}</span>
+
+	@Override
+	public double getLowerBoundaryValue(final double time, final double stateVariable) {
+<span class="nc" id="L79">		final double t = Math.max(time, EPSILON);</span>
+<span class="nc" id="L80">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L81">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / t;</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L84">			return 0.0;</span>
+		} else {
+<span class="nc" id="L86">			return strike * Math.exp(-riskFreeRate * (maturity - time));</span>
+		}
+	}
+
+	@Override
+	public double getUpperBoundaryValue(final double time, final double stateVariable) {
+<span class="nc" id="L92">		final double t = Math.max(time, EPSILON);</span>
+<span class="nc" id="L93">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L94">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / t;</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">		if (callOrPut == CallOrPut.CALL) {</span>
+<span class="nc" id="L97">			final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(t);</span>
+<span class="nc" id="L98">			final double dividendYieldRate = -Math.log(discountFactorDividend) / t;</span>
+
+<span class="nc" id="L100">			return stateVariable * Math.exp(-dividendYieldRate * (maturity - time))</span>
+<span class="nc" id="L101">					- strike * Math.exp(-riskFreeRate * (maturity - time));</span>
+		} else {
+<span class="nc" id="L103">			return 0.0;</span>
+		}
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

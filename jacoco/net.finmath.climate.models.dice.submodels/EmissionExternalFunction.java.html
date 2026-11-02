@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EmissionExternalFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">EmissionExternalFunction.java</span></div><h1>EmissionExternalFunction.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.Function;
+
+/**
+ * The function that models external emissions as GtCO2 / year
+ * \(
+ * 	(t) \mapsto E_{\mathrm{ex}}(t) .
+ * \)
+ *
+ * @author Christian Fries
+ */
+public class EmissionExternalFunction implements Function&lt;Double, Double&gt; {
+
+	private final double externalEmissionsInitial;
+	private final double externalEmissionsDecay;	// per 5Y
+
+<span class="fc" id="L18">	private static double annualizedExternalEmissionsDecay = -Math.log(1-0.115)/5.0; //0.115 for 5 years, thus 1-5th_root(1-0.115)</span>
+
+	/**
+	 *
+	 * @param externalEmissionsInitial Initial value for the emissions per year. Unit: GtCO2 / year.
+	 * @param externalEmissionsDecay Exponential decay rate. Unit: 1/year.
+	 */
+	public EmissionExternalFunction(double externalEmissionsInitial, double externalEmissionsDecay) {
+<span class="fc" id="L26">		super();</span>
+<span class="fc" id="L27">		this.externalEmissionsInitial = externalEmissionsInitial;</span>
+<span class="fc" id="L28">		this.externalEmissionsDecay = externalEmissionsDecay;</span>
+<span class="fc" id="L29">	}</span>
+
+	public EmissionExternalFunction() {
+<span class="fc" id="L32">		this(2.6, annualizedExternalEmissionsDecay);</span>
+<span class="fc" id="L33">	}</span>
+
+	@Override
+	public Double apply(Double time) {
+<span class="fc" id="L37">		final double externalEmissions = externalEmissionsInitial * Math.exp(-externalEmissionsDecay * time);</span>
+
+<span class="fc" id="L39">		return externalEmissions;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

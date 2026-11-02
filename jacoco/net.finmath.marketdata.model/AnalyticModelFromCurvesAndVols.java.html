@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AnalyticModelFromCurvesAndVols.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model</a> &gt; <span class="el_source">AnalyticModelFromCurvesAndVols.java</span></div><h1>AnalyticModelFromCurvesAndVols.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 28.11.2012
+ */
+package net.finmath.marketdata.model;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import net.finmath.marketdata.calibration.ParameterObject;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface;
+
+/**
+ * Implements a collection of market data objects (e.g., discount curves, forward curve)
+ * which provide interpolation of market data or other derived quantities
+ * (&quot;calibrated curves&quot;). This can be seen as a model to be used in analytic pricing
+ * formulas - hence this class is termed &lt;code&gt;AnalyticModelFromCurvesAndVols&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class AnalyticModelFromCurvesAndVols implements AnalyticModel, Serializable, Cloneable {
+
+	private static final long serialVersionUID = 6906386712907555046L;
+
+	private final LocalDate referenceDate;
+
+<span class="pc" id="L38">	private final Map&lt;String, Curve&gt;				curvesMap				= new HashMap&lt;&gt;();</span>
+<span class="pc" id="L39">	private final Map&lt;String, VolatilitySurface&gt;	volatilitySurfaceMap	= new HashMap&lt;&gt;();</span>
+
+
+	/**
+	 * Create an empty analytic model.
+	 */
+<span class="fc" id="L45">	public AnalyticModelFromCurvesAndVols() {</span>
+<span class="fc" id="L46">		referenceDate = null;</span>
+<span class="fc" id="L47">	}</span>
+
+	/**
+	 * Create an empty analytic model for a specified date.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 */
+<span class="fc" id="L54">	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate) {</span>
+<span class="fc" id="L55">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L56">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves.
+	 *
+	 * @param curves The vector of curves.
+	 */
+<span class="fc" id="L63">	public AnalyticModelFromCurvesAndVols(final Curve[] curves) {</span>
+<span class="fc bfc" id="L64" title="All 2 branches covered.">		for (final Curve curve : curves) {</span>
+<span class="fc" id="L65">			curvesMap.put(curve.getName(), curve);</span>
+		}
+<span class="fc" id="L67">		referenceDate = null;</span>
+<span class="fc" id="L68">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves.
+	 *
+	 * @param curves A collection of curves.
+	 */
+<span class="nc" id="L75">	public AnalyticModelFromCurvesAndVols(final Collection&lt;Curve&gt; curves) {</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">		for (final Curve curve : curves) {</span>
+<span class="nc" id="L77">			curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L78">		}</span>
+<span class="nc" id="L79">		referenceDate = null;</span>
+<span class="nc" id="L80">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves for the specified reference date.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curves The vector of curves.
+	 */
+<span class="nc" id="L88">	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Curve[] curves) {</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">		for (final Curve curve : curves) {</span>
+<span class="nc" id="L90">			curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L91">			final LocalDate curveDate = curve.getReferenceDate();</span>
+<span class="nc bnc" id="L92" title="All 6 branches missed.">			if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate)) {</span>
+<span class="nc" id="L93">				throw new IllegalArgumentException(&quot;Reference date of curve &quot;+curve.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+		}
+<span class="nc" id="L96">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L97">	}</span>
+
+	/**
+	 * Create an analytic model with the given curves for the specified reference date.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curves A collection of curves.
+	 */
+<span class="nc" id="L105">	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Collection&lt;Curve&gt; curves) {</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">		for (final Curve curve : curves) {</span>
+<span class="nc" id="L107">			curvesMap.put(curve.getName(), curve);</span>
+<span class="nc" id="L108">			final LocalDate curveDate = curve.getReferenceDate();</span>
+<span class="nc bnc" id="L109" title="All 6 branches missed.">			if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate)) {</span>
+<span class="nc" id="L110">				throw new IllegalArgumentException(&quot;Reference date of curve &quot;+curve.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+<span class="nc" id="L112">		}</span>
+<span class="nc" id="L113">		this.referenceDate = referenceDate;</span>
+<span class="nc" id="L114">	}</span>
+
+	/**
+	 * Create an analytic model for the specified reference date, together with curves and volatility surfaces, each with their specific name.
+	 *
+	 * @param referenceDate The reference date that should be used for all curves and surfaces of this model.
+	 * @param curvesMap A map containing all curves, together with their names they should have in the model.
+	 * @param volatilitySurfaceMap A map containing all volatility surfaces, together with their names they should have in the model.
+	 */
+	public AnalyticModelFromCurvesAndVols(final LocalDate referenceDate, final Map&lt;String, Curve&gt; curvesMap, final Map&lt;String, VolatilitySurface&gt; volatilitySurfaceMap) {
+<span class="fc" id="L124">		this(referenceDate);</span>
+<span class="fc" id="L125">		this.curvesMap.putAll(curvesMap);</span>
+<span class="fc" id="L126">		this.volatilitySurfaceMap.putAll(volatilitySurfaceMap);</span>
+<span class="fc" id="L127">	}</span>
+
+	@Override
+	public Curve getCurve(final String name)
+	{
+<span class="fc" id="L132">		return curvesMap.get(name);</span>
+	}
+
+	@Override
+	public  Map&lt;String, Curve&gt; getCurves()
+	{
+<span class="fc" id="L138">		return Collections.unmodifiableMap(curvesMap);</span>
+	}
+
+	@Override
+	public AnalyticModel addCurve(final String name, final Curve curve) {
+<span class="fc" id="L143">		final LocalDate curveDate = curve.getReferenceDate();</span>
+
+<span class="pc bpc" id="L145" title="5 of 6 branches missed.">		if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate)) {</span>
+<span class="nc" id="L146">			throw new IllegalArgumentException(&quot;Reference date of curve does not match reference date of model.&quot;);</span>
+		}
+
+<span class="fc" id="L149">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="fc" id="L150">		newModel.curvesMap.put(name, curve);</span>
+
+<span class="fc" id="L152">		return newModel;</span>
+	}
+
+	public AnalyticModel addCurve(final Curve curve) {
+<span class="nc" id="L156">		final LocalDate curveDate = curve.getReferenceDate();</span>
+
+<span class="nc bnc" id="L158" title="All 6 branches missed.">		if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate)) {</span>
+<span class="nc" id="L159">			throw new IllegalArgumentException(&quot;Reference date of curve does not match reference date of model.&quot;);</span>
+		}
+
+<span class="nc" id="L162">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L163">		newModel.curvesMap.put(curve.getName(), curve);</span>
+
+<span class="nc" id="L165">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addCurves(final Curve... curves) {
+<span class="fc" id="L170">		final Map&lt;String, Curve&gt;	curvesMap	= new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L172" title="All 2 branches covered.">		for (final Curve curve : curves) {</span>
+<span class="fc" id="L173">			curvesMap.put(curve.getName(), curve);</span>
+
+<span class="fc" id="L175">			final LocalDate curveDate = curve.getReferenceDate();</span>
+<span class="pc bpc" id="L176" title="5 of 6 branches missed.">			if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate) ) {</span>
+<span class="nc" id="L177">				throw new IllegalArgumentException(&quot;Reference date of curve &quot;+curve.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+		}
+
+<span class="fc" id="L181">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="fc" id="L182">		newModel.curvesMap.putAll(curvesMap);</span>
+
+<span class="fc" id="L184">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addCurves(final Set&lt;Curve&gt; curves) {
+<span class="nc" id="L189">		final Map&lt;String, Curve&gt;	curvesMap	= new HashMap&lt;&gt;();</span>
+
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		for (final Curve curve : curves) {</span>
+<span class="nc" id="L192">			curvesMap.put(curve.getName(), curve);</span>
+
+<span class="nc" id="L194">			final LocalDate curveDate = curve.getReferenceDate();</span>
+<span class="nc bnc" id="L195" title="All 6 branches missed.">			if(referenceDate != null &amp;&amp; curveDate != null &amp;&amp; ! referenceDate.equals(curveDate) ) {</span>
+<span class="nc" id="L196">				throw new IllegalArgumentException(&quot;Reference date of curve &quot;+curve.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+<span class="nc" id="L198">		}</span>
+
+<span class="nc" id="L200">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L201">		newModel.curvesMap.putAll(curvesMap);</span>
+
+<span class="nc" id="L203">		return newModel;</span>
+	}
+
+	@Override
+	public DiscountCurve getDiscountCurve(final String discountCurveName) {
+<span class="fc" id="L208">		DiscountCurve discountCurve = null;</span>
+<span class="fc" id="L209">		final Curve curve = getCurve(discountCurveName);</span>
+<span class="fc bfc" id="L210" title="All 2 branches covered.">		if(DiscountCurve.class.isInstance(curve)) {</span>
+<span class="fc" id="L211">			discountCurve = (DiscountCurve)curve;</span>
+		}
+
+<span class="fc" id="L214">		return discountCurve;</span>
+	}
+
+	@Override
+	public ForwardCurve getForwardCurve(final String forwardCurveName) {
+<span class="fc" id="L219">		ForwardCurve forwardCurve = null;</span>
+<span class="fc" id="L220">		final Curve curve = getCurve(forwardCurveName);</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">		if(ForwardCurve.class.isInstance(curve)) {</span>
+<span class="fc" id="L222">			forwardCurve = (ForwardCurve)curve;</span>
+		}
+
+<span class="fc" id="L225">		return forwardCurve;</span>
+	}
+
+	@Override
+	public VolatilitySurface getVolatilitySurface(final String name) {
+<span class="fc" id="L230">		return volatilitySurfaceMap.get(name);</span>
+	}
+
+	@Override
+	public Map&lt;String, VolatilitySurface&gt; getVolatilitySurfaces() {
+<span class="fc" id="L235">		return Collections.unmodifiableMap(volatilitySurfaceMap);</span>
+	}
+
+	public AnalyticModel addVolatilitySurface(final VolatilitySurface volatilitySurface)
+	{
+<span class="nc" id="L240">		final LocalDate surfaceDate = volatilitySurface.getReferenceDate();</span>
+
+<span class="nc bnc" id="L242" title="All 6 branches missed.">		if(referenceDate != null &amp;&amp; surfaceDate != null &amp;&amp; ! referenceDate.equals(surfaceDate)) {</span>
+<span class="nc" id="L243">			throw new IllegalArgumentException(&quot;Reference date of surface does not match reference date of model.&quot;);</span>
+		}
+
+<span class="nc" id="L246">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc" id="L247">		newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+
+<span class="nc" id="L249">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addVolatilitySurfaces(final VolatilitySurface... volatilitySurfaces)
+	{
+<span class="fc" id="L255">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="fc bfc" id="L256" title="All 2 branches covered.">		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {</span>
+<span class="fc" id="L257">			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+
+<span class="fc" id="L259">			final LocalDate surfaceDate = volatilitySurface.getReferenceDate();</span>
+<span class="pc bpc" id="L260" title="5 of 6 branches missed.">			if(referenceDate != null &amp;&amp; surfaceDate != null &amp;&amp; ! referenceDate.equals(surfaceDate) ) {</span>
+<span class="nc" id="L261">				throw new IllegalArgumentException(&quot;Reference date of surface &quot;+volatilitySurface.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+		}
+<span class="fc" id="L264">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel addVolatilitySurfaces(final Set&lt;VolatilitySurface&gt; volatilitySurfaces) {
+<span class="nc" id="L269">		final AnalyticModelFromCurvesAndVols newModel = clone();</span>
+<span class="nc bnc" id="L270" title="All 2 branches missed.">		for(final VolatilitySurface volatilitySurface : volatilitySurfaces) {</span>
+<span class="nc" id="L271">			newModel.volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+
+<span class="nc" id="L273">			final LocalDate surfaceDate = volatilitySurface.getReferenceDate();</span>
+<span class="nc bnc" id="L274" title="All 6 branches missed.">			if(referenceDate != null &amp;&amp; surfaceDate != null &amp;&amp; ! referenceDate.equals(surfaceDate) ) {</span>
+<span class="nc" id="L275">				throw new IllegalArgumentException(&quot;Reference date of surface &quot;+volatilitySurface.getName()+&quot; does not match the reference date of the model.&quot;);</span>
+			}
+<span class="nc" id="L277">		}</span>
+<span class="nc" id="L278">		return newModel;</span>
+	}
+
+	private void setCurve(final Curve curve)
+	{
+<span class="fc" id="L283">		curvesMap.put(curve.getName(), curve);</span>
+<span class="fc" id="L284">	}</span>
+
+	private void setVolatilitySurface(final VolatilitySurface volatilitySurface)
+	{
+<span class="fc" id="L288">		volatilitySurfaceMap.put(volatilitySurface.getName(), volatilitySurface);</span>
+<span class="fc" id="L289">	}</span>
+
+	private void set(final Object marketDataObject) {
+<span class="fc bfc" id="L292" title="All 2 branches covered.">		if(marketDataObject instanceof Curve) {</span>
+<span class="fc" id="L293">			setCurve((Curve)marketDataObject);</span>
+<span class="pc bpc" id="L294" title="1 of 2 branches missed.">		} else if(marketDataObject instanceof VolatilitySurface) {</span>
+<span class="fc" id="L295">			setVolatilitySurface((VolatilitySurface)marketDataObject);</span>
+		} else {
+<span class="nc" id="L297">			throw new IllegalArgumentException(&quot;Provided object is not of supported type.&quot;);</span>
+		}
+<span class="fc" id="L299">	}</span>
+
+	@Override
+	public AnalyticModelFromCurvesAndVols clone()
+	{
+<span class="fc" id="L304">		final AnalyticModelFromCurvesAndVols newModel = new AnalyticModelFromCurvesAndVols(referenceDate);</span>
+<span class="fc" id="L305">		newModel.curvesMap.putAll(curvesMap);</span>
+<span class="fc" id="L306">		newModel.volatilitySurfaceMap.putAll(volatilitySurfaceMap);</span>
+<span class="fc" id="L307">		return newModel;</span>
+	}
+
+	@Override
+	public AnalyticModel getCloneForParameter(final Map&lt;ParameterObject, double[]&gt; curveParameterPairs) throws CloneNotSupportedException {
+
+		// Build the modified clone of this model
+<span class="fc" id="L314">		final AnalyticModelFromCurvesAndVols modelClone = clone();</span>
+
+		// Add modified clones of curves to model clone
+<span class="fc bfc" id="L317" title="All 2 branches covered.">		if(curveParameterPairs != null) {</span>
+<span class="fc bfc" id="L318" title="All 2 branches covered.">			for(final Entry&lt;ParameterObject,double[]&gt; curveParameterPair : curveParameterPairs.entrySet()) {</span>
+<span class="fc" id="L319">				final ParameterObject newCurve = curveParameterPair.getKey().getCloneForParameter(curveParameterPair.getValue());</span>
+<span class="fc" id="L320">				modelClone.set(newCurve);</span>
+<span class="fc" id="L321">			}</span>
+		}
+
+<span class="fc" id="L324">		return modelClone;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L329">		return &quot;AnalyticModelFromCurvesAndVols: referenceDate=&quot; + referenceDate + &quot;, curves=&quot; + curvesMap.keySet() + &quot;, volatilitySurfaces=&quot; + volatilitySurfaceMap.keySet();</span>
+	}
+
+	/**
+	 * Returns the reference date of the curves of this model.
+	 *
+	 * @return The reference date of the model.
+	 */
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L338">		return referenceDate;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

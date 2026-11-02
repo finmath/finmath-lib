@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JarrowRuddModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.models</a> &gt; <span class="el_source">JarrowRuddModel.java</span></div><h1>JarrowRuddModel.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.models;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.assetderivativevaluation.AbstractRecombiningTreeModel;
+
+/**
+ * This class represents the approximation of a Black-Scholes model via the Jarrow-Rudd model.
+ * It extends ApproximatingBinomialModel. The only method that is implemented here computes the values
+ * of the up and down movements of the Binomial model.
+ *
+ * @author Andrea Mazzon
+ *
+ */
+
+public class JarrowRuddModel extends AbstractRecombiningTreeModel {
+
+	/**
+	 * Constructs a Jarrow-Rudd model using an equidistant time step.
+	 *
+	 * @param spotPrice the initial price of the asset modeled by the process
+	 * @param riskFreeRate the number r such that the value of a risk-free bond at time T is e^(rT)
+	 * @param volatility the log-volatility of the Black-Scholes model
+	 * @param lastTime the last time T in the time discretization {@code 0=t_0&lt;...&lt;t_n=T}
+	 * @param timeStep the length t_k - t_{k-1} of the time step
+	 */
+	public JarrowRuddModel(double spotPrice, double riskFreeRate, double volatility, double lastTime, double timeStep) {
+<span class="nc" id="L28">		super(spotPrice, riskFreeRate, volatility, lastTime, timeStep);</span>
+<span class="nc" id="L29">	}</span>
+
+	/**
+	 * Constructs a Jarrow-Rudd model using a given number of time steps.
+	 *
+	 * @param spotPrice the initial price of the asset modeled by the process
+	 * @param riskFreeRate the number r such that the value of a risk-free bond at time T is e^(rT)
+	 * @param volatility the log-volatility of the Black-Scholes model
+	 * @param lastTime the last time T in the time discretization {@code 0=t_0&lt;...&lt;t_n=T}
+	 * @param numberOfTimes the number of equally spaced time steps
+	 */
+	public JarrowRuddModel(double spotPrice, double riskFreeRate, double volatility, double lastTime, int numberOfTimes) {
+<span class="fc" id="L41">		super(spotPrice, riskFreeRate, volatility, lastTime, numberOfTimes);</span>
+<span class="fc" id="L42">	}</span>
+
+	/** Abstract hook to implement in the underlying classes
+	 * Binomial: at k level there are k+1 states
+	 * @param  k level of depth
+	 * */
+	@Override
+	public int statesAt(int k) {
+<span class="fc" id="L50">		return k + 1;</span>
+	}
+	/** Build S_k[i] with agreement i = #down =&gt; S0 * u^(k-i) * d^i.
+	 * @param  k level of depth */
+	@Override
+	protected RandomVariable buildSpotLevel(int k) {
+<span class="fc" id="L56">		final double s0    = getInitialPrice();</span>
+<span class="fc" id="L57">		final double dt    = getTimeStep();</span>
+<span class="fc" id="L58">		final double sigma = getVolatility();</span>
+<span class="fc" id="L59">		final double r     = getRiskFreeRate();</span>
+
+<span class="fc" id="L61">		final double muStar = (r - 0.5*sigma*sigma) * dt;</span>
+<span class="fc" id="L62">		final double nu     = sigma * Math.sqrt(dt);</span>
+
+<span class="fc" id="L64">		final double u = Math.exp(muStar + nu);</span>
+<span class="fc" id="L65">		final double d = Math.exp(muStar - nu);</span>
+
+<span class="fc" id="L67">		final double[] level = new double[k + 1];</span>
+<span class="fc bfc" id="L68" title="All 2 branches covered.">		for (int i = 0; i &lt;= k; i++) {</span>
+<span class="fc" id="L69">			final int ups   = k - i;</span>
+<span class="fc" id="L70">			final int downs = i;</span>
+<span class="fc" id="L71">			level[i] = s0 * Math.pow(u, ups) * Math.pow(d, downs);</span>
+		}
+<span class="fc" id="L73">		return new RandomVariableFromDoubleArray(k * dt, level);</span>
+	}
+
+	/**
+	 * Discounted conditional expectation : V_k[i] = df() * ( q * V_{k+1}[i] + (1-q) * V_{k+1}[i+1] ).
+	 */
+	@Override
+	protected RandomVariable conditionalExpectation(RandomVariable vNext, int k) {
+<span class="fc" id="L81">		final double r = getRiskFreeRate();</span>
+<span class="fc" id="L82">		final double dt = getTimeStep();</span>
+
+<span class="fc" id="L84">		final double disc = Math.exp(-r * dt);</span>
+<span class="fc" id="L85">		final double p = 0.5;</span>
+
+<span class="fc" id="L87">		final double[] next = vNext.getRealizations();</span>
+<span class="fc" id="L88">		final int expected = k + 2;</span>
+<span class="pc bpc" id="L89" title="2 of 4 branches missed.">		if (next == null || next.length != expected) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">			throw new IllegalArgumentException(&quot;vNext length &quot; + (next == null ? &quot;null&quot; : next.length)</span>
+					+ &quot; != expected &quot; + expected + &quot; for time index k=&quot; + k);
+		}
+
+<span class="fc" id="L94">		final int nHere = statesAt(k);</span>
+<span class="fc" id="L95">		final double[] res = new double[nHere];</span>
+<span class="fc bfc" id="L96" title="All 2 branches covered.">		for (int i = 0; i &lt; nHere; i++) {</span>
+<span class="fc" id="L97">			res[i] = disc * (p * next[i] + (1.0 - p) * next[i + 1]);</span>
+		}
+
+<span class="fc" id="L100">		return new RandomVariableFromDoubleArray(k * dt, res);</span>
+	}
+
+	@Override
+	public int getNumberOfBranches(int timeIndex, int stateIndex) {
+<span class="nc" id="L105">		return 2;</span>
+	}
+
+	@Override
+	public double getTransitionProbability(int timeIndex, int stateIndex, int branchIndex) {
+		// Convention: 0 = up, 1 = down (Jarrow-Rudd uses p=0.5)
+<span class="nc bnc" id="L111" title="All 3 branches missed.">		switch(branchIndex) {</span>
+<span class="nc" id="L112">		case 0: return 0.5;</span>
+<span class="nc" id="L113">		case 1: return 0.5;</span>
+<span class="nc" id="L114">		default: throw new IllegalArgumentException(&quot;Invalid branchIndex &quot; + branchIndex + &quot; for binomial model.&quot;);</span>
+		}
+	}
+
+	@Override
+	public int[] getChildStateIndexShift() {
+		// Convention: childIndex = parentIndex + shift[branchIndex]
+		// For binomial recombining trees: up keeps index, down increases index by 1.
+<span class="nc" id="L122">		return new int[] { 0, 1 };</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

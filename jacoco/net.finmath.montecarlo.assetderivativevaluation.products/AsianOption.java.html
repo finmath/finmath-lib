@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsianOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">AsianOption.java</span></div><h1>AsianOption.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 23.11.2011
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements the valuation of an Asian option.
+ *
+ * Given a model for an asset &lt;i&gt;S&lt;/i&gt;, the Asian option with strike &lt;i&gt;K&lt;/i&gt;, maturity &lt;i&gt;T&lt;/i&gt;
+ * and averaging points &lt;i&gt;T&lt;sub&gt;i&lt;/sub&gt;&lt;/i&gt; for &lt;i&gt;i = 1,...,n&lt;/i&gt; pays
+ * &lt;br&gt;
+ * 	&lt;i&gt;max(A(T) - K , 0)&lt;/i&gt; in &lt;i&gt;T&lt;/i&gt;
+ * &lt;br&gt;
+ * where
+ * &lt;br&gt;
+ * 	&lt;i&gt;A(T) = 1/n (S(T&lt;sub&gt;1&lt;/sub&gt;)+ ... + S(T&lt;sub&gt;n&lt;/sub&gt;))&lt;/i&gt;
+ * &lt;br&gt;
+ *
+ * @author Christian Fries
+ * @version 1.2
+ */
+public class AsianOption extends AbstractAssetMonteCarloProduct {
+
+	private final double maturity;
+	private final double strike;
+	private final TimeDiscretization timesForAveraging;
+	private final Integer underlyingIndex;
+
+	/**
+	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
+	 *
+	 * @param strike The strike K in the option payoff max(A(T)-K,0).
+	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
+	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
+	 * @param underlyingIndex The index of the asset S to be fetched from the model
+	 */
+	public AsianOption(final double maturity, final double strike, final TimeDiscretization timesForAveraging, final Integer underlyingIndex) {
+<span class="fc" id="L46">		super();</span>
+<span class="fc" id="L47">		this.maturity = maturity;</span>
+<span class="fc" id="L48">		this.strike = strike;</span>
+<span class="fc" id="L49">		this.timesForAveraging = timesForAveraging;</span>
+<span class="fc" id="L50">		this.underlyingIndex = underlyingIndex;</span>
+<span class="fc" id="L51">	}</span>
+
+	/**
+	 * Construct a product representing an Asian option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * A(T) = 1/n sum_{i=1,...,n} S(t_i), where t_i are given observation times.
+	 *
+	 * @param strike The strike K in the option payoff max(A(T)-K,0).
+	 * @param maturity The maturity T in the option payoff maxAS(T)-K,0)
+	 * @param timesForAveraging The times t_i used in the calculation of A(T) = 1/n sum_{i=1,...,n} S(t_i).
+	 */
+	public AsianOption(final double maturity, final double strike, final TimeDiscretization timesForAveraging) {
+<span class="fc" id="L62">		this(maturity, strike, timesForAveraging, 0);</span>
+<span class="fc" id="L63">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+		// Calculate average
+<span class="fc" id="L78">		RandomVariable average = model.getRandomVariableForConstant(0.0);</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">		for(final double time : timesForAveraging) {</span>
+<span class="fc" id="L80">			final RandomVariable underlying	= model.getAssetValue(time, underlyingIndex);</span>
+<span class="fc" id="L81">			average = average.add(underlying);</span>
+<span class="fc" id="L82">		}</span>
+<span class="fc" id="L83">		average = average.div(timesForAveraging.getNumberOfTimes());</span>
+
+		// The payoff: values = max(underlying - strike, 0)
+<span class="fc" id="L86">		RandomVariable values = average.sub(strike).floor(0.0);</span>
+
+		// Discounting...
+<span class="fc" id="L89">		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);</span>
+<span class="fc" id="L90">		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);</span>
+<span class="fc" id="L91">		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);</span>
+
+		// ...to evaluation time.
+<span class="fc" id="L94">		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L95">		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L96">		values = values.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);</span>
+
+<span class="fc" id="L98">		return values;</span>
+	}
+
+	/**
+	 * Returns the maturity of the option.
+	 *
+	 * @return the maturity of the option.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L107">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the strike of the option.
+	 *
+	 * @return the strike of the option.
+	 */
+	public double getStrike() {
+<span class="nc" id="L116">		return strike;</span>
+	}
+
+	/**
+	 * Returns the TimeDiscretization used for averaging in the asian option.
+	 *
+	 * @return the TimeDiscretization used for averaging in the asian option.
+	 */
+	public TimeDiscretization getTimesForAveraging() {
+<span class="nc" id="L125">		return timesForAveraging;</span>
+	}
+
+	/**
+	 * Returns the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 *
+	 * @return the index of the asset requested from model.getUnderlying(time, assetIndex) to get the underlying.
+	 */
+	public Integer getUnderlyingIndex() {
+<span class="nc" id="L134">		return underlyingIndex;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AffineDividend.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.marketdata</a> &gt; <span class="el_source">AffineDividend.java</span></div><h1>AffineDividend.java</h1><pre class="source lang-java linenums">package net.finmath.equities.marketdata;
+
+import java.time.LocalDate;
+
+/**
+ * Class to store and handle an affine dividend, i.e. a dividend consisting of a cash part (fixed amount)
+ * and a proportional part (fixed proportion of the stock price prevailing at the dividend date.
+ * The convention follows Buehler's 2007 paper, i.e. the dividend amount paid such that the stock price
+ * after dividend payment at t is given by
+ *   S(t) = S(t-eps) * (1 - propDividendFactor) - cashDividend
+ *
+ * @author Andreas Grotz
+ */
+
+public class AffineDividend {
+
+	private final LocalDate date;
+	private final double cashDividend;
+	private final double propDividendFactor;
+
+	public AffineDividend(
+			final LocalDate date,
+			final double cashDividend,
+			final double propDividendFactor)
+<span class="fc" id="L25">	{</span>
+<span class="fc" id="L26">		this.date = date;</span>
+<span class="fc" id="L27">		this.cashDividend = cashDividend;</span>
+<span class="fc" id="L28">		this.propDividendFactor = propDividendFactor;</span>
+<span class="fc" id="L29">	}</span>
+
+	public LocalDate getDate()
+	{
+<span class="fc" id="L33">		return date;</span>
+	}
+
+	public double getProportionalDividendFactor()
+	{
+<span class="fc" id="L38">		return propDividendFactor;</span>
+	}
+
+	public double getCashDividend()
+	{
+<span class="fc" id="L43">		return cashDividend;</span>
+	}
+
+	public double getDividend(final double stockPrice)
+	{
+<span class="nc" id="L48">		return propDividendFactor * stockPrice + cashDividend;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

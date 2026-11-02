@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SwaptionATM.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products</a> &gt; <span class="el_source">SwaptionATM.java</span></div><h1>SwaptionATM.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.interestrate.products;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.marketdata.products.SwapAnnuity;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.RegularSchedule;
+import net.finmath.time.TimeDiscretization;
+import net.finmath.time.TimeDiscretizationFromArray;
+
+/**
+ * A lightweight ATM swaption product used for calibration.
+ *
+ * @author Stefan Sedlmair
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class SwaptionATM extends AbstractTermStructureMonteCarloProduct implements net.finmath.modelling.products.Swaption {
+
+	private final TimeDiscretization	tenor;
+	private final ValueUnit						valueUnit;
+
+	public SwaptionATM(final double[] swapTenor, final ValueUnit valueUnit) {
+<span class="fc" id="L27">		super();</span>
+<span class="fc" id="L28">		tenor = new TimeDiscretizationFromArray(swapTenor);</span>
+<span class="fc" id="L29">		this.valueUnit = valueUnit;</span>
+<span class="fc" id="L30">	}</span>
+
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="fc" id="L35">		final ForwardCurve forwardCurve	 = model.getModel().getForwardRateCurve();</span>
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">		final DiscountCurve discountCurve = model.getModel().getAnalyticModel() != null ? model.getModel().getAnalyticModel().getDiscountCurve(forwardCurve.getDiscountCurveName()) : null;</span>
+
+<span class="fc" id="L38">		final double optionMaturity = tenor.getTime(0);</span>
+<span class="pc bpc" id="L39" title="1 of 2 branches missed.">		final double swapAnnuity = discountCurve != null ? SwapAnnuity.getSwapAnnuity(tenor, discountCurve) : SwapAnnuity.getSwapAnnuity(tenor, forwardCurve);</span>
+
+		// Swaption is per definition at the money in this class
+<span class="fc" id="L42">		final double parSwapRate = Swap.getForwardSwapRate(new RegularSchedule(tenor), new RegularSchedule(tenor), forwardCurve, model.getModel().getAnalyticModel());</span>
+
+		// define an atm swaption
+<span class="fc" id="L45">		final TermStructureMonteCarloProduct swaption = new Swaption(tenor.getTime(0), tenor, parSwapRate);</span>
+
+		// get swaption value
+<span class="fc" id="L48">		final RandomVariable optionValue = swaption.getValue(evaluationTime, model);</span>
+
+<span class="pc bpc" id="L50" title="2 of 4 branches missed.">		switch (valueUnit) {</span>
+		case VALUE:
+<span class="fc" id="L52">			return optionValue;</span>
+		case VOLATILITYNORMAL:
+<span class="fc" id="L54">			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity);</span>
+		case INTEGRATEDVARIANCENORMAL:
+		case INTEGRATEDNORMALVARIANCE:
+<span class="nc" id="L57">			return getImpliedBachelierATMOptionVolatility(optionValue, optionMaturity, swapAnnuity).squared().mult(optionMaturity);</span>
+		default:
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;Unknown valueUnit: &quot; + valueUnit.name());</span>
+		}
+	}
+
+	/**
+	 * 	Calculates ATM Bachelier implied volatilities.
+	 *
+	 * @see net.finmath.functions.AnalyticFormulas#bachelierOptionImpliedVolatility(double, double, double, double, double)
+	 *
+	 * @param optionValue RandomVarable representing the value of the option
+	 * @param optionMaturity Time to maturity.
+	 * @param swapAnnuity The swap annuity as seen on valuation time.
+	 * @return The Bachelier implied volatility.
+	 */
+	public RandomVariable getImpliedBachelierATMOptionVolatility(final RandomVariable optionValue, final double optionMaturity, final double swapAnnuity){
+<span class="fc" id="L74">		return optionValue.average().mult(Math.sqrt(2.0 * Math.PI / optionMaturity) / swapAnnuity);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

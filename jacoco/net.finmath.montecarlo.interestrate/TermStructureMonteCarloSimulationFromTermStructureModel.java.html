@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TermStructureMonteCarloSimulationFromTermStructureModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate</a> &gt; <span class="el_source">TermStructureMonteCarloSimulationFromTermStructureModel.java</span></div><h1>TermStructureMonteCarloSimulationFromTermStructureModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 09.02.2004
+ */
+package net.finmath.montecarlo.interestrate;
+
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.process.MonteCarloProcess;
+import net.finmath.montecarlo.process.MonteCarloProcessFromProcessModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Implements convenient methods for a LIBOR market model,
+ * based on a given &lt;code&gt;LIBORMarketModelFromCovarianceModel&lt;/code&gt; model
+ * and &lt;code&gt;AbstractLogNormalProcess&lt;/code&gt; process.
+ *
+ * @author Christian Fries
+ * @version 0.9
+ */
+public class TermStructureMonteCarloSimulationFromTermStructureModel implements TermStructureMonteCarloSimulationModel {
+
+	private final TermStructureModel model;
+	private final MonteCarloProcess process;
+
+	/**
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcessFromProcessModel.
+	 *
+	 * @param model The LIBORMarketModelFromCovarianceModel.
+	 * @param process The process.
+	 */
+	public TermStructureMonteCarloSimulationFromTermStructureModel(final TermStructureModel model, final MonteCarloProcess process) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.model		= model;</span>
+<span class="fc" id="L40">		this.process	= process;</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * Create a LIBOR Monte-Carlo Simulation from a given LIBORMarketModelFromCovarianceModel and an MonteCarloProcessFromProcessModel.
+	 *
+	 * @param process The process creating the model.
+	 */
+	public TermStructureMonteCarloSimulationFromTermStructureModel(final MonteCarloProcess process) {
+<span class="nc" id="L49">		this((TermStructureModel)process.getModel(), process);</span>
+<span class="nc" id="L50">	}</span>
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final int timeIndex) throws CalculationException {
+<span class="nc" id="L54">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	@Override
+	public RandomVariable getMonteCarloWeights(final double time) throws CalculationException {
+<span class="fc" id="L59">		int timeIndex = getTimeIndex(time);</span>
+<span class="pc bpc" id="L60" title="1 of 2 branches missed.">		if(timeIndex &lt; 0) {</span>
+<span class="nc" id="L61">			timeIndex = (-timeIndex-1)-1;</span>
+		}
+<span class="fc" id="L63">		return process.getMonteCarloWeights(timeIndex);</span>
+	}
+
+	@Override
+	public int getNumberOfFactors() {
+<span class="nc" id="L68">		return process.getNumberOfFactors();</span>
+	}
+
+	@Override
+	public int getNumberOfPaths() {
+<span class="nc" id="L73">		return process.getNumberOfPaths();</span>
+	}
+
+	@Override
+	public LocalDateTime getReferenceDate() {
+<span class="nc" id="L78">		throw new UnsupportedOperationException(&quot;This model does not provide a reference date. Reference dates will be mandatory in a future version.&quot;);</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="nc" id="L83">		return process.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="nc" id="L88">		return process.getTimeDiscretization();</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L93">		return process.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public RandomVariable getRandomVariableForConstant(final double value) {
+<span class="fc" id="L98">		return process.getStochasticDriver().getRandomVariableForConstant(value);</span>
+	}
+
+	@Override
+	public RandomVariable getForwardRate(final double time, final double periodStart, final double periodEnd) throws CalculationException
+	{
+<span class="fc" id="L104">		return model.getForwardRate(process, time, periodStart, periodEnd);</span>
+	}
+
+	public int getNumberOfComponents() {
+<span class="nc" id="L108">		return model.getNumberOfComponents();</span>
+	}
+
+	@Override
+	public RandomVariable getNumeraire(final double time) throws CalculationException {
+<span class="fc" id="L113">		return model.getNumeraire(process, time);</span>
+	}
+
+	@Override
+	public TermStructureModel getModel() {
+<span class="fc" id="L118">		return model;</span>
+	}
+
+	@Override
+	public MonteCarloProcess getProcess() {
+<span class="nc" id="L123">		return process;</span>
+	}
+
+	@Override
+	public Object getCloneWithModifiedSeed(final int seed) {
+<span class="nc" id="L128">		final MonteCarloProcessFromProcessModel process = (MonteCarloProcessFromProcessModel) ((MonteCarloProcessFromProcessModel)getProcess()).getCloneWithModifiedSeed(seed);</span>
+<span class="nc" id="L129">		return new TermStructureMonteCarloSimulationFromTermStructureModel(model, process);</span>
+	}
+
+	@Override
+	public TermStructureMonteCarloSimulationModel getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified) throws CalculationException {
+<span class="nc" id="L134">		final TermStructureModel modelClone = model.getCloneWithModifiedData(dataModified);</span>
+<span class="nc bnc" id="L135" title="All 4 branches missed.">		if(dataModified.containsKey(&quot;discountCurve&quot;) &amp;&amp; dataModified.size() == 1) {</span>
+			// In this case we may re-use the underlying process
+<span class="nc" id="L137">			final TermStructureMonteCarloSimulationFromTermStructureModel lmmSimClone = new TermStructureMonteCarloSimulationFromTermStructureModel(modelClone, process);</span>
+<span class="nc" id="L138">			return lmmSimClone;</span>
+		}
+		else {
+<span class="nc" id="L141">			return new TermStructureMonteCarloSimulationFromTermStructureModel(modelClone, getProcess().clone());</span>
+		}
+	}
+
+	/**
+	 * Create a clone of this simulation modifying one of its properties (if any).
+	 *
+	 * @param entityKey The entity to modify.
+	 * @param dataModified The data which should be changed in the new model
+	 * @return Returns a clone of this model, where the specified part of the data is modified data (then it is no longer a clone :-)
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	public TermStructureMonteCarloSimulationModel getCloneWithModifiedData(final String entityKey, final Object dataModified) throws CalculationException
+	{
+<span class="nc" id="L155">		final Map&lt;String, Object&gt; dataModifiedMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L156">		dataModifiedMap.put(entityKey, dataModified);</span>
+<span class="nc" id="L157">		return getCloneWithModifiedData(dataModifiedMap);</span>
+	}
+
+	@Override
+	public Map&lt;String, RandomVariable&gt; getModelParameters() {
+		// TODO Add implementation
+<span class="nc" id="L163">		throw new UnsupportedOperationException();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

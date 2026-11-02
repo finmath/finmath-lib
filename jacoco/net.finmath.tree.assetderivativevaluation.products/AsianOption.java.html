@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AsianOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.products</a> &gt; <span class="el_source">AsianOption.java</span></div><h1>AsianOption.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.products;
+
+/**
+ * Fixed-strike Asian option using FULL non-recombining tree expansion.
+ *
+ * State variables:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;state[0] = running sum of fixing spots&lt;/li&gt;
+ * 	&lt;li&gt;state[1] = fixing count&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Payoff at maturity:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;max((sum / count) - K, 0)&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * The averaging can be performed on any subset of the time grid by specifying fixingTimeIndices.
+ *
+ * No path compression: number of nodes at level j is B^j.
+ */
+public class AsianOption extends AbstractPathDependentProduct {
+
+	private final double strike;
+
+	/**
+	 * @param maturity Maturity in model time units.
+	 * @param strike Strike K.
+	 * @param fixingTimeIndices Subset of model time indices included in the average.
+	 */
+	public AsianOption(
+			final double maturity,
+			final double strike,
+			final int[] fixingTimeIndices) {
+<span class="fc" id="L34">		super(maturity, fixingTimeIndices);</span>
+<span class="fc" id="L35">		this.strike = strike;</span>
+<span class="fc" id="L36">	}</span>
+
+	@Override
+	protected int getNumberOfStateVariables() {
+<span class="fc" id="L40">		return 2; // sum, count</span>
+	}
+
+	@Override
+	protected void initializeState(
+			final double spotAtNode,
+			final int timeIndex,
+			final boolean isFixing,
+			final double[] stateOut) {
+
+<span class="pc bpc" id="L50" title="1 of 2 branches missed.">		stateOut[0] = isFixing ? spotAtNode : 0.0; // sum</span>
+<span class="pc bpc" id="L51" title="1 of 2 branches missed.">		stateOut[1] = isFixing ? 1.0 : 0.0;        // count stored as double for simplicity</span>
+<span class="fc" id="L52">	}</span>
+
+	@Override
+	protected void evolveState(
+			final double[] parentState,
+			final double spotAtChild,
+			final int timeIndexChild,
+			final boolean isFixingChild,
+			final double[] childStateOut) {
+
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">		childStateOut[0] = parentState[0] + (isFixingChild ? spotAtChild : 0.0);</span>
+<span class="pc bpc" id="L63" title="1 of 2 branches missed.">		childStateOut[1] = parentState[1] + (isFixingChild ? 1.0 : 0.0);</span>
+<span class="fc" id="L64">	}</span>
+
+	@Override
+	protected double payoff(final double[] terminalState, final double spotAtMaturity) {
+<span class="fc" id="L68">		final double sum = terminalState[0];</span>
+<span class="fc" id="L69">		final double cnt = terminalState[1];</span>
+
+<span class="pc bpc" id="L71" title="1 of 2 branches missed.">		final double avg = (cnt &gt; 0.0) ? (sum / cnt) : 0.0;</span>
+
+<span class="fc" id="L73">		return Math.max(avg - strike, 0.0);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BondHullWhiteModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.interestrate.boundaries</a> &gt; <span class="el_source">BondHullWhiteModelBoundary.java</span></div><h1>BondHullWhiteModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.interestrate.boundaries;
+
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.finitedifference.interestrate.models.FDMHullWhiteModel;
+import net.finmath.finitedifference.interestrate.products.Bond;
+import net.finmath.finitedifference.interestrate.products.FiniteDifferenceInterestRateProduct;
+
+/**
+ * Exact boundary conditions for {@link Bond} under {@link FDMHullWhiteModel}.
+ *
+ * &lt;p&gt;
+ * Since the reduced-scope {@link Bond} product consists only of deterministic
+ * fixed cashflows, its value under Hull-White is known exactly as
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;
+ * V(t,x) = \sum_{i:\,T_i \ge t} C_i P(t,T_i;x),
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * where {@code C_i} are the remaining deterministic bond cashflows and
+ * {@code P(t,T_i;x)} is the model discount bond conditional on the current
+ * state variable {@code x}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Hence both lower and upper boundaries can be imposed by exact Dirichlet
+ * conditions.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class BondHullWhiteModelBoundary implements FiniteDifferenceInterestRateBoundary {
+
+	/**
+	 * The time tolerance.
+	 */
+	private static final double TIME_TOLERANCE = 1E-12;
+
+	/**
+	 * The model.
+	 */
+	private final FDMHullWhiteModel model;
+
+	/**
+	 * Creates the exact Hull-White boundary for deterministic-cashflow bonds.
+	 *
+	 * @param model The Hull-White model.
+	 */
+<span class="nc" id="L53">	public BondHullWhiteModelBoundary(final FDMHullWhiteModel model) {</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L55">			throw new IllegalArgumentException(&quot;model must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L57" title="All 4 branches missed.">		if (model.getInitialValue() == null || model.getInitialValue().length != 1) {</span>
+<span class="nc" id="L58">			throw new IllegalArgumentException(</span>
+					&quot;BondHullWhiteModelBoundary requires a one-dimensional Hull-White model.&quot;);
+		}
+
+<span class="nc" id="L62">		this.model = model;</span>
+<span class="nc" id="L63">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L71">		final Bond bond = validateAndCastProduct(product);</span>
+<span class="nc" id="L72">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L74">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L75">				StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L76">						getExactBondValue(bond, time, stateVariables[0])</span>
+						)
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceInterestRateProduct product,
+			final double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L87">		final Bond bond = validateAndCastProduct(product);</span>
+<span class="nc" id="L88">		validateStateVariables(stateVariables);</span>
+
+<span class="nc" id="L90">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L91">				StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L92">						getExactBondValue(bond, time, stateVariables[0])</span>
+						)
+		};
+	}
+
+	private Bond validateAndCastProduct(final FiniteDifferenceInterestRateProduct product) {
+<span class="nc bnc" id="L98" title="All 2 branches missed.">		if (!(product instanceof Bond)) {</span>
+<span class="nc" id="L99">			throw new IllegalArgumentException(</span>
+					&quot;BondHullWhiteModelBoundary requires a Bond product.&quot;);
+		}
+
+<span class="nc" id="L103">		return (Bond) product;</span>
+	}
+
+	private void validateStateVariables(final double[] stateVariables) {
+<span class="nc bnc" id="L107" title="All 4 branches missed.">		if (stateVariables == null || stateVariables.length != 1) {</span>
+<span class="nc" id="L108">			throw new IllegalArgumentException(&quot;Exactly one state variable is required.&quot;);</span>
+		}
+<span class="nc" id="L110">	}</span>
+
+	private double getExactBondValue(
+			final Bond bond,
+			final double time,
+			final double stateVariable) {
+
+<span class="nc" id="L117">		double value = 0.0;</span>
+
+<span class="nc bnc" id="L119" title="All 2 branches missed.">		for (int periodIndex = 0; periodIndex &lt; bond.getSchedule().getNumberOfPeriods(); periodIndex++) {</span>
+<span class="nc" id="L120">			final double paymentTime = bond.getSchedule().getPayment(periodIndex);</span>
+
+<span class="nc bnc" id="L122" title="All 2 branches missed.">			if (paymentTime &lt; time - TIME_TOLERANCE) {</span>
+<span class="nc" id="L123">				continue;</span>
+			}
+
+<span class="nc" id="L126">			final double cashflow = bond.getCashflow(periodIndex);</span>
+<span class="nc" id="L127">			final double discountBond = model.getDiscountBond(time, paymentTime, stateVariable);</span>
+
+<span class="nc" id="L129">			value += cashflow * discountBond;</span>
+		}
+
+<span class="nc" id="L132">		return value;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SchedulePrototype.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time</a> &gt; <span class="el_source">SchedulePrototype.java</span></div><h1>SchedulePrototype.java</h1><pre class="source lang-java linenums">package net.finmath.time;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+
+import net.finmath.modelling.descriptor.ScheduleDescriptor;
+import net.finmath.time.ScheduleGenerator.DaycountConvention;
+import net.finmath.time.ScheduleGenerator.Frequency;
+import net.finmath.time.ScheduleGenerator.ShortPeriodConvention;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar;
+import net.finmath.time.businessdaycalendar.BusinessdayCalendar.DateRollConvention;
+
+/**
+ * Class to store any relevant information to generate schedules, which have different period structure but otherwise follow the same conventions.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ */
+public class SchedulePrototype implements Serializable {
+
+	private static final long serialVersionUID = 1547837440284116534L;
+
+	/**
+	 * Possible offset units to be used for schedule generation.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+<span class="fc" id="L30">	enum OffsetUnit {</span>
+<span class="fc" id="L31">		MONTHS,</span>
+<span class="fc" id="L32">		YEARS,</span>
+<span class="fc" id="L33">		DAYS,</span>
+<span class="fc" id="L34">		WEEKS</span>
+	}
+
+	private final Frequency frequency;
+	private final DaycountConvention daycountConvention;
+	private final ShortPeriodConvention shortPeriodConvention;
+	private final DateRollConvention dateRollConvention;
+	private final BusinessdayCalendar businessdayCalendar;
+	private final int	fixingOffsetDays;
+	private final int	paymentOffsetDays;
+	private final boolean isUseEndOfMonth;
+
+	/**
+	 * Determines the offset code of a forward contract from a schedule. Rounds the average period length to full months.
+	 *
+	 * @param schedule The schedule.
+	 * @return The offset code as String
+	 */
+	public static String getOffsetCodeFromSchedule(final Schedule schedule) {
+
+<span class="nc" id="L54">		double doubleLength = 0;</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">		for(int i = 0; i &lt; schedule.getNumberOfPeriods(); i ++) {</span>
+<span class="nc" id="L56">			doubleLength += schedule.getPeriodLength(i);</span>
+		}
+<span class="nc" id="L58">		doubleLength /= schedule.getNumberOfPeriods();</span>
+
+<span class="nc" id="L60">		doubleLength *= 12;</span>
+<span class="nc" id="L61">		final int periodLength = (int) Math.round(doubleLength);</span>
+
+
+<span class="nc" id="L64">		final String offsetCode = periodLength + &quot;M&quot;;</span>
+<span class="nc" id="L65">		return offsetCode;</span>
+	}
+
+	/**
+	 * Determines the offset code of a forward contract from the name of a forward curve.
+	 * This method will extract a group of one or more digits together with the first letter behind them, if any.
+	 * If there are multiple groups of digits in the name, this method will extract the last.
+	 * If there is no number in the string, this method will return null.
+	 *
+	 * @param curveName The name of the curve.
+	 * @return The offset code as String
+	 */
+	public static String getOffsetCodeFromCurveName(final String curveName) {
+<span class="nc bnc" id="L78" title="All 4 branches missed.">		if(curveName == null || curveName.length() == 0) {</span>
+<span class="nc" id="L79">			return null;</span>
+		}
+<span class="nc" id="L81">		final String[] splits = curveName.split(&quot;(?&lt;=\\D)(?=\\d)&quot;);</span>
+<span class="nc" id="L82">		String offsetCode = splits[splits.length-1];</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">		if(!Character.isDigit(offsetCode.charAt(0))) {</span>
+<span class="nc" id="L84">			return null;</span>
+		}
+
+<span class="nc" id="L87">		offsetCode = offsetCode.split(&quot;(?&lt;=[A-Za-z])(?=.)&quot;, 2)[0];</span>
+<span class="nc" id="L88">		offsetCode = offsetCode.replaceAll( &quot;[\\W_]&quot;, &quot;&quot; );</span>
+<span class="nc" id="L89">		return offsetCode;</span>
+	}
+
+	/**
+	 * Construct the ScheduleMetaData.
+	 *
+	 * @param frequency The default frequency.
+	 * @param daycountConvention The daycount convention.
+	 * @param shortPeriodConvention If short period exists, have it first or last.
+	 * @param dateRollConvention Adjustment to be applied to the all dates.
+	 * @param businessdayCalendar Businessday calendar (holiday calendar) to be used for date roll adjustment.
+	 * @param fixingOffsetDays Number of business days to be added to period start to get the fixing date.
+	 * @param paymentOffsetDays Number of business days to be added to period end to get the payment date.
+	 * @param isUseEndOfMonth If ShortPeriodConvention is LAST and startDate is an end of month date, all period will be adjusted to EOM. If ShortPeriodConvention is FIRST and maturityDate is an end of month date, all period will be adjusted to EOM.
+	 */
+	public SchedulePrototype(final Frequency frequency, final DaycountConvention daycountConvention,
+			final ShortPeriodConvention shortPeriodConvention, final DateRollConvention dateRollConvention,
+			final BusinessdayCalendar businessdayCalendar, final int fixingOffsetDays, final int paymentOffsetDays,
+			final boolean isUseEndOfMonth) {
+<span class="fc" id="L108">		super();</span>
+<span class="fc" id="L109">		this.frequency = frequency;</span>
+<span class="fc" id="L110">		this.daycountConvention = daycountConvention;</span>
+<span class="fc" id="L111">		this.shortPeriodConvention = shortPeriodConvention;</span>
+<span class="fc" id="L112">		this.dateRollConvention = dateRollConvention;</span>
+<span class="fc" id="L113">		this.businessdayCalendar = businessdayCalendar;</span>
+<span class="fc" id="L114">		this.fixingOffsetDays = fixingOffsetDays;</span>
+<span class="fc" id="L115">		this.paymentOffsetDays = paymentOffsetDays;</span>
+<span class="fc" id="L116">		this.isUseEndOfMonth = isUseEndOfMonth;</span>
+<span class="fc" id="L117">	}</span>
+
+	/**
+	 * Generate a schedule descriptor for the given start and end date.
+	 *
+	 * @param startDate The start date.
+	 * @param endDate The end date.
+	 * @return The schedule descriptor
+	 */
+	public ScheduleDescriptor generateScheduleDescriptor(final LocalDate startDate, final LocalDate endDate) {
+<span class="nc" id="L127">		return new ScheduleDescriptor(startDate, endDate, getFrequency(), getDaycountConvention(), getShortPeriodConvention(), getDateRollConvention(),</span>
+<span class="nc" id="L128">				getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());</span>
+	}
+
+	/**
+	 * Generate a schedule for the given start and end date.
+	 *
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
+	 * @param startDate The start date.
+	 * @param endDate The end date.
+	 * @return The schedule
+	 */
+	public Schedule generateSchedule(final LocalDate referenceDate, final LocalDate startDate, final LocalDate endDate) {
+<span class="fc" id="L140">		return ScheduleGenerator.createScheduleFromConventions(referenceDate, startDate, endDate, getFrequency(), getDaycountConvention(),</span>
+<span class="fc" id="L141">				getShortPeriodConvention(), getDateRollConvention(), getBusinessdayCalendar(), getFixingOffsetDays(), getPaymentOffsetDays(), isUseEndOfMonth());</span>
+	}
+
+	/**
+	 * Generate a schedule with start / end date determined by an offset in months from the reference date.
+	 *
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
+	 * @param maturity Offset of the start date to the reference date in months
+	 * @param termination Offset of the end date to the start date
+	 * @return The schedule
+	 */
+	public Schedule generateSchedule(final LocalDate referenceDate, final int maturity, final int termination) {
+<span class="fc" id="L153">		return generateSchedule(referenceDate, maturity, termination, OffsetUnit.MONTHS);</span>
+	}
+
+	/**
+	 * Generate a schedule with start / end date determined by an offset from the reference date.
+	 *
+	 * @param referenceDate The reference date (corresponds to \( t = 0 \).
+	 * @param maturity Offset of the start date to the reference date
+	 * @param termination Offset of the end date to the start date
+	 * @param unit The convention to use for the offset
+	 * @return The schedule
+	 */
+	public Schedule generateSchedule(final LocalDate referenceDate, final int maturity, final int termination, final OffsetUnit unit) {
+
+		LocalDate startDate;
+		LocalDate endDate;
+
+<span class="pc bpc" id="L170" title="4 of 5 branches missed.">		switch(unit) {</span>
+<span class="nc" id="L171">		case YEARS :	startDate = referenceDate.plusYears(maturity);		endDate = startDate.plusYears(termination); break;</span>
+<span class="fc" id="L172">		case MONTHS :	startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;</span>
+<span class="nc" id="L173">		case DAYS :		startDate = referenceDate.plusDays(maturity);		endDate = startDate.plusDays(termination); break;</span>
+<span class="nc" id="L174">		case WEEKS :	startDate = referenceDate.plusDays(maturity *7);	endDate = startDate.plusDays(termination *7); break;</span>
+<span class="nc" id="L175">		default :		startDate = referenceDate.plusMonths(maturity);		endDate = startDate.plusMonths(termination); break;</span>
+		}
+
+<span class="fc" id="L178">		return generateSchedule(referenceDate, startDate, endDate);</span>
+	}
+
+	/**
+	 * @return the frequency
+	 */
+	public Frequency getFrequency() {
+<span class="fc" id="L185">		return frequency;</span>
+	}
+
+	/**
+	 * @return the daycountConvention
+	 */
+	public DaycountConvention getDaycountConvention() {
+<span class="fc" id="L192">		return daycountConvention;</span>
+	}
+
+	/**
+	 * @return the shortPeriodConvention
+	 */
+	public ShortPeriodConvention getShortPeriodConvention() {
+<span class="fc" id="L199">		return shortPeriodConvention;</span>
+	}
+
+	/**
+	 * @return the dateRollConvention
+	 */
+	public DateRollConvention getDateRollConvention() {
+<span class="fc" id="L206">		return dateRollConvention;</span>
+	}
+
+	/**
+	 * @return the businessdayCalendar
+	 */
+	public BusinessdayCalendar getBusinessdayCalendar() {
+<span class="fc" id="L213">		return businessdayCalendar;</span>
+	}
+
+	/**
+	 * @return the fixingOffsetDays
+	 */
+	public int getFixingOffsetDays() {
+<span class="fc" id="L220">		return fixingOffsetDays;</span>
+	}
+
+	/**
+	 * @return the paymentOffsetDays
+	 */
+	public int getPaymentOffsetDays() {
+<span class="fc" id="L227">		return paymentOffsetDays;</span>
+	}
+
+	/**
+	 * @return the isUseEndOfMonth
+	 */
+	public boolean isUseEndOfMonth() {
+<span class="fc" id="L234">		return isUseEndOfMonth;</span>
+	}
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableDifferentiable.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation</a> &gt; <span class="el_source">RandomVariableDifferentiable.java</span></div><h1>RandomVariableDifferentiable.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 17.06.2017
+ */
+package net.finmath.montecarlo.automaticdifferentiation;
+
+import java.util.Map;
+import java.util.Set;
+
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Interface providing additional methods for
+ * random variable implementing &lt;code&gt;RandomVariable&lt;/code&gt;
+ * allowing automatic differentiation.
+ *
+ * The interface will introduce three additional methods:
+ * &lt;code&gt;Long getID()&lt;/code&gt; and
+ * &lt;code&gt;Map&amp;lt;Long, RandomVariable&amp;gt; getGradient()&lt;/code&gt;
+ * and
+ * &lt;code&gt;Map&amp;lt;Long, RandomVariable&amp;gt; getTangents()&lt;/code&gt;.
+ *
+ * The method &lt;code&gt;getGradient&lt;/code&gt; will return a map providing the first order
+ * differentiation of the given random variable (this) with respect to
+ * &lt;i&gt;all&lt;/i&gt; its input &lt;code&gt;RandomVariableDifferentiable&lt;/code&gt;s.
+ *
+ * The method &lt;code&gt;getTangents&lt;/code&gt; will return a map providing the first order
+ * differentiation of &lt;i&gt;all&lt;/i&gt; dependent random variables with respect to the
+ * given random variable (this).
+ *
+ * To get the differentiation dY/dX of Y with respect to a specific object X using backward mode (getGradient) use
+ * &lt;code&gt;
+ * 		Map gradient = Y.getGradient();
+ * 		RandomVariable derivative = Y.get(X.getID());
+ * &lt;/code&gt;
+ *
+ * To get the differentiation dY/dX of Y with respect to a specific object X using forward mode (getTanget) use
+ * &lt;code&gt;
+ * 		Map tangent = X.getTangent();
+ * 		RandomVariable derivative = X.get(Y.getID());
+ * &lt;/code&gt;
+ *
+ * Note: Some implementations may allow limit the result of the gradient to leave nodes or the result of the tangent to terminal nodes.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public interface RandomVariableDifferentiable extends RandomVariable {
+
+	/**
+	 * A unique id for this random variable. Will be used in &lt;code&gt;getGradient&lt;/code&gt;.
+	 *
+	 * @return The id for this random variable.
+	 */
+	Long getID();
+
+	/**
+	 * Returns the gradient of this random variable with respect to all its leaf nodes.
+	 * The method calculates the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes &lt;code&gt;this&lt;/code&gt;.
+	 *
+	 * @return The gradient map.
+	 */
+	default Map&lt;Long, RandomVariable&gt; getGradient() {
+<span class="fc" id="L65">		return getGradient(null);</span>
+	}
+
+	/**
+	 * Returns the gradient of this random variable with respect to the given IDs.
+	 * The method calculates the map \( v \mapsto \frac{d u}{d v} \) where \( u \) denotes &lt;code&gt;this&lt;/code&gt;.
+	 *
+	 * @param independentIDs {@link Set} of IDs of random variables \( v \) with respect to which the gradients \( \frac{d u}{d v} \) will be calculated. If null, derivatives w.r.t. all known independents are returned.
+	 * @return The gradient map.
+	 */
+	Map&lt;Long, RandomVariable&gt; getGradient(Set&lt;Long&gt; independentIDs);
+
+	/**
+	 * Returns the tangents of this random variable with respect to all its dependent nodes.
+	 * The method calculated the map \( u \mapsto \frac{d u}{d v} \) where \( v \) denotes &lt;code&gt;this&lt;/code&gt;.
+	 *
+	 * @return The map of all tangents .
+	 */
+	default Map&lt;Long, RandomVariable&gt; getTangents() {
+<span class="nc" id="L84">		return getTangents(null);</span>
+	}
+
+	/**
+	 * Returns the tangents of this random variable with respect to the given dependent node IDs (if dependent).
+	 * The method calculated the map \( u \mapsto \frac{d u}{d v} \) where \( v \) denotes &lt;code&gt;this&lt;/code&gt;.
+	 *
+	 * @param dependentIDs {@link Set} of IDs of random variables \( u \) with respect to which the differentials \( \frac{d u}{d v} \) will be calculated.
+	 * If null, derivatives w.r.t. all known dependents are returned.
+	 * @return The map of differentials.
+	 */
+	Map&lt;Long, RandomVariable&gt; getTangents(Set&lt;Long&gt; dependentIDs);
+
+	/**
+	 * Returns a clone of this differentiable random variable with a new ID. This implies that the
+	 * random variable is a leaf node and independent from all previous calculations.
+	 *
+	 * @return A clone of this differentiable random variable with a new ID.
+	 */
+	default RandomVariableDifferentiable getCloneIndependent() {
+<span class="nc" id="L104">		throw new UnsupportedOperationException(&quot;Cloning not supported. Please add implementation of getCloneIndependent.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOptionMertonModelBoundary.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.boundaries</a> &gt; <span class="el_source">EuropeanOptionMertonModelBoundary.java</span></div><h1>EuropeanOptionMertonModelBoundary.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.boundaries;
+
+import net.finmath.finitedifference.assetderivativevaluation.models.FDMMertonModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.EuropeanOption;
+import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
+import net.finmath.finitedifference.boundaries.BoundaryCondition;
+import net.finmath.finitedifference.boundaries.StandardBoundaryCondition;
+import net.finmath.modelling.products.CallOrPut;
+
+/**
+ * Boundary conditions for {@link EuropeanOption} under the
+ * {@link FDMMertonModel}.
+ *
+ * &lt;p&gt;
+ * The class follows the standard factory naming convention
+ * {@code &lt;ProductSimpleName&gt;&lt;ModelCoreName&gt;Boundary}, so that it can be
+ * instantiated automatically by {@link FDBoundaryFactory}.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Since the finite-difference Merton model is formulated in the stock variable,
+ * the standard one-dimensional vanilla outer-domain asymptotics are used.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class EuropeanOptionMertonModelBoundary implements FiniteDifferenceBoundary {
+
+	/**
+	 * The model.
+	 */
+	private final FDMMertonModel model;
+	/**
+	 * The epsilon.
+	 */
+	private static final double EPSILON = 1E-6;
+
+	/**
+	 * Creates the boundary condition associated with a given
+	 * {@link FDMMertonModel}.
+	 *
+	 * @param model The Merton model used to determine risk-free and dividend
+	 *              discount factors.
+	 */
+<span class="nc" id="L45">	public EuropeanOptionMertonModelBoundary(final FDMMertonModel model) {</span>
+<span class="nc" id="L46">		this.model = model;</span>
+<span class="nc" id="L47">	}</span>
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L55">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="nc" id="L56">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">		if (sign == CallOrPut.CALL) {</span>
+<span class="nc" id="L59">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L60">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L64">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L66">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L67">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L69">		final double strike = option.getStrike();</span>
+<span class="nc" id="L70">		final double maturity = option.getMaturity();</span>
+
+<span class="nc" id="L72">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L73">				StandardBoundaryCondition.dirichlet(</span>
+<span class="nc" id="L74">						strike * Math.exp(-riskFreeRate * (maturity - time))</span>
+						)
+		};
+	}
+
+	@Override
+	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
+			final FiniteDifferenceEquityProduct product,
+			double time,
+			final double... stateVariables) {
+
+<span class="nc" id="L85">		final EuropeanOption option = (EuropeanOption) product;</span>
+<span class="nc" id="L86">		final CallOrPut sign = option.getCallOrPut();</span>
+
+<span class="nc bnc" id="L88" title="All 2 branches missed.">		if (sign == CallOrPut.PUT) {</span>
+<span class="nc" id="L89">			return new BoundaryCondition[] {</span>
+<span class="nc" id="L90">					StandardBoundaryCondition.dirichlet(0.0)</span>
+			};
+		}
+
+<span class="nc" id="L94">		time = Math.max(time, EPSILON);</span>
+
+<span class="nc" id="L96">		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L97">		final double riskFreeRate = -Math.log(discountFactorRiskFree) / time;</span>
+
+<span class="nc" id="L99">		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(time);</span>
+<span class="nc" id="L100">		final double dividendYieldRate = -Math.log(discountFactorDividend) / time;</span>
+
+<span class="nc" id="L102">		final double strike = option.getStrike();</span>
+<span class="nc" id="L103">		final double maturity = option.getMaturity();</span>
+<span class="nc" id="L104">		final double stock = stateVariables[0];</span>
+
+<span class="nc" id="L106">		final double dividendAdjustedStockPrice =</span>
+<span class="nc" id="L107">				stock * Math.exp(-dividendYieldRate * (maturity - time));</span>
+
+<span class="nc" id="L109">		return new BoundaryCondition[] {</span>
+<span class="nc" id="L110">				StandardBoundaryCondition.dirichlet(</span>
+						dividendAdjustedStockPrice
+<span class="nc" id="L112">						- strike * Math.exp(-riskFreeRate * (maturity - time))</span>
+						)
+		};
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

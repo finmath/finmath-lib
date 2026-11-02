@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BusinessdayCalendarExcludingGivenHolidays.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.businessdaycalendar</a> &gt; <span class="el_source">BusinessdayCalendarExcludingGivenHolidays.java</span></div><h1>BusinessdayCalendarExcludingGivenHolidays.java</h1><pre class="source lang-java linenums">package net.finmath.time.businessdaycalendar;
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.Set;
+
+/**
+ * An abstract base class for a business day calendar, where every day is a business day, except
+ * weekends days provided by a &lt;code&gt;Set&lt;/code&gt; provided by the method &lt;code&gt;getHolidays&lt;/code&gt;.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public abstract class BusinessdayCalendarExcludingGivenHolidays extends AbstractBusinessdayCalendar {
+
+	private static final long serialVersionUID = -7060298609732249650L;
+
+	private final String name;
+	private final BusinessdayCalendar baseCalendar;
+	private final boolean isExcludeWeekends;
+
+	public BusinessdayCalendarExcludingGivenHolidays(final String name, final BusinessdayCalendar baseCalendar, final boolean isExcludeWeekends) {
+<span class="fc" id="L23">		super();</span>
+<span class="fc" id="L24">		this.name = name;</span>
+<span class="fc" id="L25">		this.baseCalendar = baseCalendar;</span>
+<span class="fc" id="L26">		this.isExcludeWeekends = isExcludeWeekends;</span>
+<span class="fc" id="L27">	}</span>
+
+	/**
+	 * @return A name of the calendar (e.g. to identify the calendar).
+	 */
+	public String getName() {
+<span class="nc" id="L33">		return name;</span>
+	}
+
+	/**
+	 * @return A base calendar, if any. May be null.
+	 */
+	public BusinessdayCalendar getBaseCalendar() {
+<span class="nc" id="L40">		return baseCalendar;</span>
+	}
+
+	/**
+	 * @return If true, DayOfWeek.SATURDAY and  DayOfWeek.SUNDAY are excluded (no-business days)
+	 */
+<span class="fc" id="L46">	public boolean isExcludingWeekends() { return isExcludeWeekends; }</span>
+
+	/**
+	 * @return A set of (additional) holidays.
+	 */
+	public abstract Set&lt;LocalDate&gt; getHolidays();
+
+	@Override
+	public boolean isBusinessday(final LocalDate date) {
+<span class="fc bfc" id="L55" title="All 4 branches covered.">		return	(baseCalendar == null || baseCalendar.isBusinessday(date))</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">				&amp;&amp; (isExcludingWeekends()</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">						&amp;&amp; date.getDayOfWeek() != DayOfWeek.SATURDAY</span>
+<span class="pc bpc" id="L58" title="1 of 2 branches missed.">						&amp;&amp; date.getDayOfWeek() != DayOfWeek.SUNDAY</span>
+						)
+<span class="fc bfc" id="L60" title="All 2 branches covered.">				&amp;&amp; !getHolidays().contains(date);</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="nc" id="L65">		return getClass().getSimpleName() + &quot; [baseCalendar=&quot; + getBaseCalendar() + &quot;]&quot;;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

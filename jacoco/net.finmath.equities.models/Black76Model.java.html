@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Black76Model.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.equities.models</a> &gt; <span class="el_source">Black76Model.java</span></div><h1>Black76Model.java</h1><pre class="source lang-java linenums">package net.finmath.equities.models;
+
+import java.util.function.Function;
+
+import net.finmath.functions.NormalDistribution;
+
+/**
+ * This class implements formulas for the Black76 model.
+ *
+ * @author Andreas Grotz
+ */
+
+<span class="fc" id="L13">public final class Black76Model {</span>
+
+	private Black76Model()
+	{
+		// This constructor will never be invoked
+	}
+
+	/**
+	 * Calculates the Black76 option price and sensitivities of a call or put.
+	 */
+	public static double optionPrice(
+			final double forward,
+			final double optionStrike,
+			final double optionMaturity,
+			final double volatility,
+			final boolean isCall,
+			final double discountFactor)
+	{
+<span class="fc bfc" id="L31" title="All 2 branches covered.">		final double callFactor = isCall ? 1.0 : -1.0;</span>
+		double valueAnalytic;
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L34">			valueAnalytic = 0;</span>
+		}
+<span class="fc bfc" id="L36" title="All 4 branches covered.">		else if(volatility == 0.0 || optionMaturity == 0.0)</span>
+		{
+<span class="fc" id="L38">			valueAnalytic = Math.max(callFactor * (forward - optionStrike),0);</span>
+		}
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">		else if(volatility == Double.POSITIVE_INFINITY)</span>
+		{
+<span class="nc bnc" id="L42" title="All 2 branches missed.">			valueAnalytic = isCall ? forward : optionStrike;</span>
+		}
+		else
+		{
+<span class="fc" id="L46">			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity)</span>
+<span class="fc" id="L47">					/ (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L48">			final double dMinus = dPlus - volatility * Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L49">			valueAnalytic = callFactor * (forward * NormalDistribution.cumulativeDistribution(callFactor * dPlus)</span>
+<span class="fc" id="L50">					- optionStrike * NormalDistribution.cumulativeDistribution(callFactor * dMinus));</span>
+		}
+<span class="fc" id="L52">		return valueAnalytic * discountFactor;</span>
+	}
+
+	public static double optionDelta(
+			final double forward,
+			final double optionStrike,
+			final double optionMaturity,
+			final double volatility,
+			final boolean isCall,
+			final double discountFactor)
+	{
+<span class="fc bfc" id="L63" title="All 2 branches covered.">		final double callFactor = isCall ? 1.0 : -1.0;</span>
+		double valueAnalytic;
+<span class="pc bpc" id="L65" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L66">			valueAnalytic =  0;</span>
+		}
+<span class="pc bpc" id="L68" title="2 of 4 branches missed.">		else if(volatility == 0.0 || optionMaturity == 0.0)</span>
+		{
+<span class="nc bnc" id="L70" title="All 4 branches missed.">			valueAnalytic = (forward == optionStrike) ? 0.5 : (callFactor * (forward - optionStrike) &gt; 0.0 ? callFactor : 0.0);</span>
+		}
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		else if(volatility == Double.POSITIVE_INFINITY)</span>
+		{
+<span class="nc bnc" id="L74" title="All 2 branches missed.">			valueAnalytic = isCall ? 1.0 : 0.0;</span>
+		}
+		else
+		{
+<span class="fc" id="L78">			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * Math.sqrt(optionMaturity));</span>
+<span class="fc" id="L79">			valueAnalytic = callFactor * NormalDistribution.cumulativeDistribution(callFactor * dPlus);</span>
+		}
+<span class="fc" id="L81">		return valueAnalytic * discountFactor;</span>
+	}
+
+	public static double optionVega(
+			final double forward,
+			final double optionStrike,
+			final double optionMaturity,
+			final double volatility,
+			final boolean isCall,
+			final double discountFactor)
+	{
+		double valueAnalytic;
+<span class="pc bpc" id="L93" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L94">			valueAnalytic = 0;</span>
+		}
+<span class="pc bpc" id="L96" title="2 of 4 branches missed.">		else if(volatility == 0.0 || optionMaturity == 0.0)</span>
+		{
+<span class="nc" id="L98">			valueAnalytic = 0;</span>
+		}
+<span class="pc bpc" id="L100" title="1 of 2 branches missed.">		else if(volatility == Double.POSITIVE_INFINITY)</span>
+		{
+<span class="nc" id="L102">			valueAnalytic = 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L106">			final double sqrtT = Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L107">			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / (volatility * sqrtT);</span>
+<span class="fc" id="L108">			valueAnalytic =   forward * sqrtT * NormalDistribution.density(dPlus);</span>
+		}
+<span class="fc" id="L110">		return valueAnalytic * discountFactor;</span>
+	}
+
+	public static double optionGamma(
+			final double forward,
+			final double optionStrike,
+			final double optionMaturity,
+			final double volatility,
+			final boolean isCall,
+			final double discountFactor)
+	{
+		double valueAnalytic;
+<span class="pc bpc" id="L122" title="1 of 2 branches missed.">		if(optionMaturity &lt; 0) {</span>
+<span class="nc" id="L123">			valueAnalytic = 0;</span>
+		}
+<span class="pc bpc" id="L125" title="2 of 4 branches missed.">		else if(volatility == 0.0 || optionMaturity == 0.0)</span>
+		{
+<span class="nc" id="L127">			valueAnalytic = 0;</span>
+		}
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">		else if(volatility == Double.POSITIVE_INFINITY)</span>
+		{
+<span class="nc" id="L131">			valueAnalytic = 0;</span>
+		}
+		else
+		{
+<span class="fc" id="L135">			final double sDev = volatility * Math.sqrt(optionMaturity);</span>
+<span class="fc" id="L136">			final double dPlus = (Math.log(forward / optionStrike) + 0.5 * volatility * volatility * optionMaturity) / sDev;</span>
+<span class="fc" id="L137">			valueAnalytic =  NormalDistribution.density(dPlus) / forward / sDev;</span>
+		}
+<span class="fc" id="L139">		return valueAnalytic * discountFactor;</span>
+	}
+
+	public static double optionTheta(
+			final double forward,
+			final double optionStrike,
+			final double optionMaturity,
+			final double volatility,
+			final boolean isCall,
+			final double discountFactor,
+			final double discountRate)
+	{
+<span class="fc" id="L151">		double valueAnalytic = discountRate * optionPrice(</span>
+				forward,
+				optionStrike,
+				optionMaturity,
+				volatility,
+				isCall,
+				discountFactor);
+<span class="fc" id="L158">		valueAnalytic -= 0.5 * forward * forward * volatility * volatility * optionGamma(</span>
+				forward,
+				optionStrike,
+				optionMaturity,
+				volatility,
+				isCall,
+				discountFactor);
+<span class="fc" id="L165">		return valueAnalytic;</span>
+	}
+
+	/**
+	 * Determine the implied volatility of a call or put, given its (undiscounted) market price.
+	 * Implementation according to Jaeckel's 2016 paper.
+	 * NOTE: The special cases of the Black-Scholes function from Section 6 in Jaeckel's paper
+	 * are not implemented. Thus, the double precision convergence after
+	 * two Householder steps cannot be guaranteed for all possible inputs.
+	 */
+	public static double optionImpliedVolatility(
+			double forward,
+			double optionStrike,
+			double optionMaturity,
+			double undiscountedPrice,
+			boolean isCall)
+	{
+		final double x, beta, bMax;
+<span class="fc" id="L183">		final double xTemp = Math.log(forward / optionStrike);</span>
+<span class="fc" id="L184">		final double betaTemp = undiscountedPrice / Math.sqrt(forward * optionStrike);</span>
+<span class="fc" id="L185">		final double bMaxTemp = Math.exp(0.5 * xTemp);</span>
+		// Convert to case of OTM Call
+<span class="fc bfc" id="L187" title="All 2 branches covered.">		if (isCall)</span>
+		{
+<span class="fc bfc" id="L189" title="All 2 branches covered.">			if (xTemp &gt; 0.0)</span>
+			{
+				// ITM call
+<span class="fc" id="L192">				x = -xTemp;</span>
+<span class="fc" id="L193">				bMax = Math.exp(0.5 * x);</span>
+<span class="fc" id="L194">				beta = betaTemp + 2.0 * Math.sinh(0.5 * x);</span>
+			}
+			else
+			{
+<span class="fc" id="L198">				x = xTemp;</span>
+<span class="fc" id="L199">				beta = betaTemp;</span>
+<span class="fc" id="L200">				bMax = bMaxTemp;</span>
+			}
+		}
+		else
+		{
+<span class="pc bpc" id="L205" title="1 of 2 branches missed.">			if (xTemp &gt;= 0.0)</span>
+			{
+				// OTM put
+<span class="fc" id="L208">				x = -xTemp;</span>
+<span class="fc" id="L209">				beta = betaTemp;</span>
+<span class="fc" id="L210">				bMax = Math.exp(0.5 * x);</span>
+			}
+			else
+			{
+				// ITM put
+<span class="nc" id="L215">				x = xTemp;</span>
+<span class="nc" id="L216">				beta = betaTemp + 2.0 * Math.sinh(0.5 * x);</span>
+<span class="nc" id="L217">				bMax = bMaxTemp;</span>
+			}
+		}
+<span class="pc bpc" id="L220" title="2 of 4 branches missed.">		assert beta &gt;= 0.0 &amp;&amp; beta &lt;= bMax : &quot;The price &quot; + undiscountedPrice</span>
+				+ &quot;is not attainable in Black-Scholes given the other parameters provided.&quot;;
+<span class="pc bpc" id="L222" title="1 of 2 branches missed.">		if (x == 0.0) {</span>
+<span class="nc" id="L223">			return 2.0 * NormalDistribution.inverseCumulativeDistribution(0.5 * (beta + 1.0));</span>
+		}
+		// Initial guess using rational interpolation
+<span class="fc" id="L226">		final double sqrtPi = Math.sqrt(2.0 * Math.PI);</span>
+<span class="fc" id="L227">		final double sigmaCentral = Math.sqrt(-2.0 * x);</span>
+<span class="fc" id="L228">		final double d1Central = x / sigmaCentral;</span>
+<span class="fc" id="L229">		final double d2Central = 0.5 * sigmaCentral;</span>
+<span class="fc" id="L230">		final double bCentral = NormalDistribution.cumulativeDistribution(d1Central + d2Central) * bMax -</span>
+<span class="fc" id="L231">				NormalDistribution.cumulativeDistribution(d1Central - d2Central) / bMax;</span>
+<span class="fc" id="L232">		final double bPrimeCentral = Math.exp(-0.5 * (d1Central * d1Central + d2Central * d2Central)) / sqrtPi;</span>
+<span class="fc" id="L233">		final double sigmaLower = sigmaCentral - bCentral / bPrimeCentral;</span>
+<span class="fc" id="L234">		final double d1Lower = x / sigmaLower;</span>
+<span class="fc" id="L235">		final double d2Lower = 0.5 * sigmaLower;</span>
+<span class="fc" id="L236">		final double bLower = NormalDistribution.cumulativeDistribution(d1Lower + d2Lower) * bMax -</span>
+<span class="fc" id="L237">				NormalDistribution.cumulativeDistribution(d1Lower - d2Lower) / bMax;</span>
+<span class="fc" id="L238">		final double sigmaUpper = sigmaCentral + (bMax - bCentral) / bPrimeCentral;</span>
+<span class="fc" id="L239">		final double d1Upper = x / sigmaUpper;</span>
+<span class="fc" id="L240">		final double d2Upper = 0.5 * sigmaUpper;</span>
+<span class="fc" id="L241">		final double bUpper = NormalDistribution.cumulativeDistribution(d1Upper + d2Upper) * bMax -</span>
+<span class="fc" id="L242">				NormalDistribution.cumulativeDistribution(d1Upper - d2Upper) / bMax;</span>
+
+		double impliedSdev;
+<span class="fc bfc" id="L245" title="All 2 branches covered.">		if (beta &lt; bLower)</span>
+		{
+<span class="fc" id="L247">			final double sqrtThree = Math.sqrt(3.0);</span>
+<span class="fc" id="L248">			final double twoPi = 2.0 * Math.PI;</span>
+<span class="fc" id="L249">			final double z = x / sigmaLower / sqrtThree;</span>
+<span class="fc" id="L250">			final double normDistOfZ = NormalDistribution.cumulativeDistribution(z);</span>
+<span class="fc" id="L251">			final double fOfZ = -twoPi * x * normDistOfZ * normDistOfZ * normDistOfZ / 3.0 / sqrtThree;</span>
+<span class="fc" id="L252">			final double sigmaLowerSquare = sigmaLower * sigmaLower;</span>
+<span class="fc" id="L253">			final double zSquare = z * z;</span>
+<span class="fc" id="L254">			final double fPrime = twoPi * zSquare * normDistOfZ * normDistOfZ * Math.exp(zSquare + sigmaLowerSquare / 8.0);</span>
+<span class="fc" id="L255">			final double fPrime2 = Math.PI * zSquare * normDistOfZ * Math.exp(2.0 * zSquare + sigmaLowerSquare / 4.0)</span>
+					/ 6.0 / sigmaLowerSquare / sigmaLower
+					* (-8 * sqrtThree * sigmaLower * x
+<span class="fc" id="L258">							+ (3.0 * sigmaLowerSquare * (sigmaLowerSquare - 8.0) - 8.0 * x * x) * normDistOfZ / NormalDistribution.density(z));</span>
+<span class="fc" id="L259">			final double r = (0.5 * fPrime2 * bLower + fPrime - 1.0) / (fPrime - fOfZ / bLower);</span>
+<span class="fc" id="L260">			final double fRationalCubic = rationalCubicInterpol(beta, 0.0, bLower, 0.0, fOfZ, 1.0, fPrime, r);</span>
+<span class="fc" id="L261">			impliedSdev = NormalDistribution.inverseCumulativeDistribution(sqrtThree * Math.pow(Math.abs(fRationalCubic / twoPi / x), 1.0 / 3.0));</span>
+<span class="fc" id="L262">			impliedSdev = Math.abs(x / sqrtThree / impliedSdev);</span>
+<span class="fc" id="L263">		}</span>
+<span class="fc bfc" id="L264" title="All 2 branches covered.">		else if (beta &lt;= bCentral)</span>
+		{
+<span class="fc" id="L266">			final double bPrimeLower1 = Math.exp(0.5 * (d1Lower * d1Lower + d2Lower * d2Lower)) * sqrtPi;</span>
+<span class="fc" id="L267">			final double bPrimeCentral1 = 1.0 / bPrimeCentral;</span>
+<span class="fc" id="L268">			final double r = (bPrimeCentral1 - bPrimeLower1) / (bPrimeCentral1 - (sigmaCentral - sigmaLower) / (bCentral - bLower) );</span>
+<span class="fc" id="L269">			impliedSdev = rationalCubicInterpol(beta, bLower, bCentral, sigmaLower, sigmaCentral, bPrimeLower1, bPrimeCentral1, r);</span>
+<span class="fc" id="L270">		}</span>
+<span class="fc bfc" id="L271" title="All 2 branches covered.">		else if (beta &lt;= bUpper)</span>
+		{
+<span class="fc" id="L273">			final double bPrimeUpper1 = Math.exp(0.5 * (d1Upper * d1Upper + d2Upper * d2Upper)) * sqrtPi;</span>
+<span class="fc" id="L274">			final double bPrimeCentral1 = 1.0 / bPrimeCentral;</span>
+<span class="fc" id="L275">			final double r = (bPrimeUpper1 - bPrimeCentral1) / ((sigmaUpper - sigmaCentral) / (bUpper - bCentral) - bPrimeCentral1);</span>
+<span class="fc" id="L276">			impliedSdev = rationalCubicInterpol(beta, bCentral, bUpper, sigmaCentral, sigmaUpper, bPrimeCentral1, bPrimeUpper1, r);</span>
+<span class="fc" id="L277">		}</span>
+		else
+		{
+<span class="fc" id="L280">			final double f = NormalDistribution.cumulativeDistribution(-0.5 * sigmaUpper);</span>
+<span class="fc" id="L281">			final double sigmaUpper2 = sigmaUpper * sigmaUpper;</span>
+<span class="fc" id="L282">			final double xSigma = x * x / sigmaUpper2;</span>
+<span class="fc" id="L283">			final double fPrime = -0.5 * Math.exp(0.5 * xSigma);</span>
+<span class="fc" id="L284">			final double fPrime2 = Math.sqrt(0.5 * Math.PI) * xSigma / sigmaUpper * Math.exp(xSigma + sigmaUpper2 / 8);</span>
+<span class="fc" id="L285">			final double h = bMax - bUpper;</span>
+<span class="fc" id="L286">			final double r = (0.5 * fPrime2 * h - 0.5 - fPrime) / (-f / h - fPrime);</span>
+<span class="fc" id="L287">			final double fRC = rationalCubicInterpol(beta, bUpper, bMax, f, 0.0, fPrime, -0.5, r);</span>
+<span class="fc" id="L288">			impliedSdev = -2.0 * NormalDistribution.inverseCumulativeDistribution(fRC);</span>
+		}
+
+		// Third-order Householder steps using three branch rational objective function
+<span class="fc" id="L292">		final double bMaxHalf = 0.5 * bMax;</span>
+<span class="pc bpc" id="L293" title="1 of 2 branches missed.">		final double bTildeUpper = (bUpper &gt;= bMaxHalf) ? bUpper : bMaxHalf;</span>
+
+		// Efficient implementation of Black derivatives
+		// We have b(x) = b0, db(x)/dx = b1, d^2b(x)/dx^2 = b2 * b1, d^3b(x)/dx^3 = b3 * b1
+<span class="fc" id="L297">		final Function&lt;Double, Double[]&gt; BlackFunctionDerivatives = sigma -&gt; {</span>
+<span class="fc" id="L298">			final double d1 = x / sigma;</span>
+<span class="fc" id="L299">			final double d2 = 0.5 * sigma;</span>
+<span class="fc" id="L300">			final double d1Square = d1 * d1;</span>
+<span class="fc" id="L301">			final double d2Square = d2 * d2;</span>
+<span class="fc" id="L302">			final double b0 = NormalDistribution.cumulativeDistribution(d1 + d2) * bMax - NormalDistribution.cumulativeDistribution(d1 - d2) / bMax;</span>
+<span class="fc" id="L303">			final double b1 = Math.exp(-0.5 * (d1Square + d2Square)) / sqrtPi;</span>
+<span class="fc" id="L304">			final double b2 = d1Square / sigma - 0.25 * sigma;</span>
+<span class="fc" id="L305">			final double b3 = b2 * b2 - 0.75 * d1Square / d2Square - 0.25;</span>
+<span class="fc" id="L306">			return new Double[] {b0, b1, b2, b3};</span>
+		};
+
+<span class="fc bfc" id="L309" title="All 2 branches covered.">		if (beta &lt;= bLower)</span>
+		{
+<span class="fc" id="L311">			final Function&lt;Double, Double&gt; HouseholderStep = sigma -&gt;</span>
+			{
+<span class="fc" id="L313">				final Double[] derivatives = BlackFunctionDerivatives.apply(sigma);</span>
+<span class="fc" id="L314">				final double b0 = derivatives[0];</span>
+<span class="fc" id="L315">				final double b1 = derivatives[1];</span>
+<span class="fc" id="L316">				final double b2 = derivatives[2];</span>
+<span class="fc" id="L317">				final double b3 = derivatives[3];</span>
+<span class="fc" id="L318">				final double lnOfB = Math.log(b0);</span>
+<span class="fc" id="L319">				final double bLnOfB = b0 * lnOfB;</span>
+<span class="fc" id="L320">				final double bLnOfBSquare = bLnOfB * bLnOfB;</span>
+<span class="fc" id="L321">				final double nu = bLnOfB * (1.0 - lnOfB / Math.log(beta)) / b1;</span>
+<span class="fc" id="L322">				final double gamma = (b0 * b2 * lnOfB - b1 * (lnOfB + 2.0)) / bLnOfB;</span>
+<span class="fc" id="L323">				final double delta = (bLnOfBSquare * b3 + 2.0 * b1 * b1 * (lnOfB * lnOfB + 3.0 * lnOfB + 3.0)</span>
+						- 3.0 * bLnOfB * b1 * b2 * (lnOfB + 2.0)) / bLnOfBSquare;
+<span class="fc" id="L325">				return sigma + nu * (1.0 + 0.5 * nu * gamma) / (1.0 + nu * (gamma + delta * nu / 6.0));</span>
+			};
+<span class="fc" id="L327">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+<span class="fc" id="L328">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+<span class="fc" id="L329">		}</span>
+<span class="fc bfc" id="L330" title="All 2 branches covered.">		else if (beta &lt;= bTildeUpper)</span>
+		{
+<span class="fc" id="L332">			final Function&lt;Double, Double&gt; HouseholderStep = sigma -&gt;</span>
+			{
+<span class="fc" id="L334">				final Double[] deriv = BlackFunctionDerivatives.apply(sigma);</span>
+<span class="fc" id="L335">				final double b0 = deriv[0] - beta;</span>
+<span class="fc" id="L336">				final double b1 = deriv[1];</span>
+<span class="fc" id="L337">				final double b2 = deriv[2];</span>
+<span class="fc" id="L338">				final double b3 = deriv[3];</span>
+<span class="fc" id="L339">				final double nu = -b0 / b1;</span>
+<span class="fc" id="L340">				final double gamma = b2;</span>
+<span class="fc" id="L341">				final double delta = b3;</span>
+<span class="fc" id="L342">				return sigma + nu * (1.0 + 0.5 * nu * gamma) / (1.0 + nu * (gamma + delta * nu / 6.0));</span>
+			};
+<span class="fc" id="L344">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+<span class="fc" id="L345">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+<span class="fc" id="L346">		}</span>
+		else
+		{
+<span class="fc" id="L349">			final Function&lt;Double, Double&gt; HouseholderStep = sigma -&gt;</span>
+			{
+<span class="fc" id="L351">				final Double[] deriv = BlackFunctionDerivatives.apply(sigma);</span>
+<span class="fc" id="L352">				final double b0 = deriv[0];</span>
+<span class="fc" id="L353">				final double b1 = deriv[1];</span>
+<span class="fc" id="L354">				final double b2 = deriv[2];</span>
+<span class="fc" id="L355">				final double b3 = deriv[3];</span>
+<span class="fc" id="L356">				final double bmaxb0 = bMax - b0;</span>
+<span class="fc" id="L357">				final double nu = bmaxb0 * Math.log(bmaxb0 / (bMax - beta)) / b1;</span>
+<span class="fc" id="L358">				final double gamma = b2 + b1 / bmaxb0;</span>
+<span class="fc" id="L359">				final double delta = b3 + 3.0 * b1 * b2 / bmaxb0 + 2.0 * b1 * b1 / bmaxb0 / bmaxb0;</span>
+<span class="fc" id="L360">				return sigma + nu * (1.0 + 0.5 * nu * gamma) / (1.0 + nu * (gamma + delta * nu / 6.0));</span>
+			};
+<span class="fc" id="L362">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+<span class="fc" id="L363">			impliedSdev = HouseholderStep.apply(impliedSdev);</span>
+		}
+
+		// Return implied volatility
+<span class="fc" id="L367">		return impliedSdev / Math.sqrt(optionMaturity);</span>
+	}
+
+	/**
+	 * Helper function for rational cubic interpolation in implied volatility calculations
+	 */
+	private static double rationalCubicInterpol(double xValue, double xLeft, double xRight, double fLeft, double fRight, double fPrimeLeft, double fPrimeRight, double blend)
+	{
+<span class="fc" id="L375">		final double h = xRight - xLeft;</span>
+<span class="fc" id="L376">		final double s = (xValue - xLeft) / h;</span>
+<span class="fc" id="L377">		final double sMinusOne = 1.0 - s;</span>
+<span class="fc" id="L378">		return (fRight * s * s * s + (blend * fRight - h * fPrimeRight) * s * s * sMinusOne</span>
+				+ (blend * fLeft + h * fPrimeLeft) * s * sMinusOne * sMinusOne + fLeft * sMinusOne * sMinusOne * sMinusOne)
+				/ (1 + (blend - 3) * s * sMinusOne);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbstractPathDependentProduct.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.tree.assetderivativevaluation.products</a> &gt; <span class="el_source">AbstractPathDependentProduct.java</span></div><h1>AbstractPathDependentProduct.java</h1><pre class="source lang-java linenums">package net.finmath.tree.assetderivativevaluation.products;
+
+import java.util.Arrays;
+
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.tree.AbstractTreeProduct;
+import net.finmath.tree.TreeModel;
+
+/**
+ * Base class for full (non-recombining) path-dependent products on a tree.
+ *
+ * Key property:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;The number of nodes grows exponentially with the number of time steps:
+ * 		level j has branchingFactor^j nodes.&lt;/li&gt;
+ * 	&lt;li&gt;No recombination / compression / bucketing.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * This class builds a full path tree of:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;An underlying recombining state index (for reading spot from the model's spot level).&lt;/li&gt;
+ * 	&lt;li&gt;Product-specific path state variables (e.g. running sum/count for Asian).&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * After the forward loop, it prices by backward induction using the {@link TreeModel}'s transition API:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;p = model.getTransitionProbability(timeIndex, recombStateIndex, branchIndex)&lt;/li&gt;
+ * 	&lt;li&gt;df = model.getOneStepDiscountFactor(timeIndex)&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Design choices:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;State variables are kept in primitive arrays for speed and to avoid per-node objects.&lt;/li&gt;
+ * 	&lt;li&gt;The model's spot is treated as a function of (timeIndex, recombStateIndex), so no explicit
+ * 		spot multipliers are required.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * IMPORTANT:
+ * &lt;ul&gt;
+ * 	&lt;li&gt;To evolve the recombining state index along a branch, we require a &quot;child state shift&quot; convention.
+ * 		For the existing models (CRR/JR/Boyle) this matches their internal layout:
+ * 		&lt;ul&gt;
+ * 			&lt;li&gt;Binomial: childShift = {0, 1}&lt;/li&gt;
+ * 			&lt;li&gt;Trinomial (Boyle): childShift = {0, 1, 2}&lt;/li&gt;
+ * 		&lt;/ul&gt;
+ * 		For a general multinomial model, childShift must be provided explicitly.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public abstract class AbstractPathDependentProduct extends AbstractTreeProduct {
+
+	/**
+	 * Fixing time indices on the model grid, e.g. {1,2,3,4,5}.
+	 * These determine when path-state should be updated with spot.
+	 */
+	private final int[] fixingTimeIndices;
+
+	protected AbstractPathDependentProduct(
+			final double maturity,
+			final int[] fixingTimeIndices) {
+<span class="fc" id="L63">		super(maturity);</span>
+<span class="pc bpc" id="L64" title="1 of 2 branches missed.">		this.fixingTimeIndices = fixingTimeIndices != null ? fixingTimeIndices.clone() : new int[0];</span>
+<span class="fc" id="L65">		Arrays.sort(this.fixingTimeIndices);</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * Number of (double-valued) path-state variables required by the product.
+	 */
+	protected abstract int getNumberOfStateVariables();
+
+	/**
+	 * Initialize product path-state at the root node.
+	 */
+	protected abstract void initializeState(
+			double spotAtNode,
+			int timeIndex,
+			boolean isFixing,
+			double[] stateOut);
+
+	/**
+	 * Evolve product path-state from parent to a child node.
+	 */
+	protected abstract void evolveState(
+			double[] parentState,
+			double spotAtChild,
+			int timeIndexChild,
+			boolean isFixingChild,
+			double[] childStateOut);
+
+	/**
+	 * Terminal payoff at maturity.
+	 */
+	protected abstract double payoff(
+			double[] terminalState,
+			double spotAtMaturity);
+
+	/**
+	 * Converts a double time to a time index by rounding.
+	 */
+	protected final int timeToIndex(final double time, final TreeModel model) {
+<span class="fc" id="L103">		return (int) Math.round(time / model.getTimeStep());</span>
+	}
+
+	/**
+	 * Returns whether a given time index is a fixing time.
+	 */
+	protected final boolean isFixingTimeIndex(final int timeIndex) {
+<span class="pc bpc" id="L110" title="1 of 2 branches missed.">		return Arrays.binarySearch(fixingTimeIndices, timeIndex) &gt;= 0;</span>
+	}
+
+	/**
+	 * Determine branching factor and childStateShift convention.
+	 */
+	private int[] resolveChildShift(final TreeModel model, final int timeIndex, final int stateIndex) {
+<span class="fc" id="L117">		final int branchingFactor = model.getNumberOfBranches(timeIndex, stateIndex);</span>
+<span class="fc" id="L118">		final int[] childStateShift = model.getChildStateIndexShift();</span>
+
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">		if(childStateShift != null) {</span>
+<span class="pc bpc" id="L121" title="1 of 2 branches missed.">			if(childStateShift.length != branchingFactor) {</span>
+<span class="nc" id="L122">				throw new IllegalArgumentException(</span>
+						&quot;childStateShift length (&quot; + childStateShift.length + &quot;) &quot;
+								+ &quot;does not match branching factor (&quot; + branchingFactor + &quot;).&quot;);
+			}
+<span class="fc" id="L126">			return childStateShift;</span>
+		}
+
+<span class="nc" id="L129">		throw new IllegalArgumentException(</span>
+				&quot;No childStateShift provided for branching factor &quot; + branchingFactor + &quot;.&quot;);
+	}
+
+	@Override
+	public final RandomVariable[] getValues(final double evaluationTime, final TreeModel model) {
+
+<span class="fc" id="L136">		final int k0 = timeToIndex(evaluationTime, model);</span>
+<span class="fc" id="L137">		final int n = timeToIndex(getMaturity(), model);</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">		if(n &lt; k0) {</span>
+<span class="nc" id="L139">			throw new IllegalArgumentException(&quot;Maturity is before evaluation time.&quot;);</span>
+		}
+
+<span class="fc" id="L142">		final int rootRecombState = 0;</span>
+
+<span class="fc" id="L144">		final int[] childShift = resolveChildShift(model, k0, rootRecombState);</span>
+<span class="fc" id="L145">		final int B = childShift.length;</span>
+
+<span class="fc" id="L147">		final int steps = n - k0;</span>
+
+<span class="fc" id="L149">		final RandomVariable[] levels = new RandomVariable[steps + 1];</span>
+
+<span class="fc" id="L151">		final int[][] recombIndex = new int[steps + 1][];</span>
+<span class="fc" id="L152">		final double[][] state = new double[steps + 1][];</span>
+
+<span class="fc" id="L154">		final int m = getNumberOfStateVariables();</span>
+
+<span class="fc" id="L156">		recombIndex[0] = new int[] { rootRecombState };</span>
+<span class="fc" id="L157">		state[0] = new double[m];</span>
+
+<span class="fc" id="L159">		final double spot0 = model.getSpotAtGivenTimeIndexRV(k0).get(rootRecombState);</span>
+<span class="fc" id="L160">		initializeState(spot0, k0, isFixingTimeIndex(k0), state[0]);</span>
+
+<span class="fc bfc" id="L162" title="All 2 branches covered.">		for(int j = 1; j &lt;= steps; j++) {</span>
+
+<span class="fc" id="L164">			final int timeIndex = k0 + j;</span>
+
+<span class="fc" id="L166">			final int nodes = powInt(B, j);</span>
+<span class="fc" id="L167">			final int parentNodes = powInt(B, j - 1);</span>
+
+<span class="fc" id="L169">			recombIndex[j] = new int[nodes];</span>
+<span class="fc" id="L170">			state[j] = new double[nodes * m];</span>
+
+<span class="fc" id="L172">			final RandomVariable spotRV = model.getSpotAtGivenTimeIndexRV(timeIndex);</span>
+
+<span class="fc bfc" id="L174" title="All 2 branches covered.">			for(int parent = 0; parent &lt; parentNodes; parent++) {</span>
+
+<span class="fc" id="L176">				final int parentRecomb = recombIndex[j - 1][parent];</span>
+<span class="fc" id="L177">				final int parentStateOffset = parent * m;</span>
+
+<span class="fc bfc" id="L179" title="All 2 branches covered.">				for(int b = 0; b &lt; B; b++) {</span>
+
+<span class="fc" id="L181">					final int child = parent * B + b;</span>
+<span class="fc" id="L182">					final int childRecomb = parentRecomb + childShift[b];</span>
+
+<span class="fc" id="L184">					recombIndex[j][child] = childRecomb;</span>
+
+<span class="fc" id="L186">					final double spotChild = spotRV.get(childRecomb);</span>
+<span class="fc" id="L187">					final int childStateOffset = child * m;</span>
+
+<span class="fc" id="L189">					evolveState(</span>
+							state[j - 1],
+							parentStateOffset,
+							spotChild,
+							timeIndex,
+<span class="fc" id="L194">							isFixingTimeIndex(timeIndex),</span>
+							state[j],
+							childStateOffset);
+				}
+			}
+		}
+
+<span class="fc" id="L201">		final int terminalNodes = powInt(B, steps);</span>
+<span class="fc" id="L202">		final double[] vTerminal = new double[terminalNodes];</span>
+
+<span class="fc" id="L204">		final RandomVariable spotN = model.getSpotAtGivenTimeIndexRV(n);</span>
+
+<span class="fc bfc" id="L206" title="All 2 branches covered.">		for(int node = 0; node &lt; terminalNodes; node++) {</span>
+
+<span class="fc" id="L208">			final int recomb = recombIndex[steps][node];</span>
+<span class="fc" id="L209">			final double spotAtMaturity = spotN.get(recomb);</span>
+
+<span class="fc" id="L211">			final double[] tmp = new double[m];</span>
+<span class="fc" id="L212">			System.arraycopy(state[steps], node * m, tmp, 0, m);</span>
+
+<span class="fc" id="L214">			vTerminal[node] = payoff(tmp, spotAtMaturity);</span>
+		}
+
+<span class="fc" id="L217">		levels[steps] = new RandomVariableFromDoubleArray(n * model.getTimeStep(), vTerminal);</span>
+
+<span class="fc" id="L219">		double[] vNext = vTerminal;</span>
+
+<span class="fc bfc" id="L221" title="All 2 branches covered.">		for(int j = steps - 1; j &gt;= 0; j--) {</span>
+
+<span class="fc" id="L223">			final int timeIndex = k0 + j;</span>
+<span class="fc" id="L224">			final int nodesHere = powInt(B, j);</span>
+
+<span class="fc" id="L226">			final double[] vHere = new double[nodesHere];</span>
+<span class="fc" id="L227">			final double df = model.getOneStepDiscountFactor(timeIndex);</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">			for(int node = 0; node &lt; nodesHere; node++) {</span>
+
+<span class="fc" id="L231">				final int parentRecomb = recombIndex[j][node];</span>
+<span class="fc" id="L232">				double sum = 0.0;</span>
+
+<span class="fc bfc" id="L234" title="All 2 branches covered.">				for(int b = 0; b &lt; B; b++) {</span>
+
+<span class="fc" id="L236">					final int child = node * B + b;</span>
+<span class="fc" id="L237">					final double p = model.getTransitionProbability(timeIndex, parentRecomb, b);</span>
+
+<span class="fc" id="L239">					sum += p * vNext[child];</span>
+				}
+
+<span class="fc" id="L242">				vHere[node] = df * sum;</span>
+			}
+
+<span class="fc" id="L245">			levels[j] = new RandomVariableFromDoubleArray(timeIndex * model.getTimeStep(), vHere);</span>
+<span class="fc" id="L246">			vNext = vHere;</span>
+		}
+
+<span class="fc" id="L249">		return levels;</span>
+	}
+
+	private void evolveState(
+			final double[] parentStateFlat,
+			final int parentOffset,
+			final double spotChild,
+			final int timeIndexChild,
+			final boolean isFixingChild,
+			final double[] childStateFlat,
+			final int childOffset) {
+
+<span class="fc" id="L261">		final int m = getNumberOfStateVariables();</span>
+
+<span class="fc" id="L263">		final double[] parent = new double[m];</span>
+<span class="fc" id="L264">		System.arraycopy(parentStateFlat, parentOffset, parent, 0, m);</span>
+
+<span class="fc" id="L266">		final double[] child = new double[m];</span>
+<span class="fc" id="L267">		evolveState(parent, spotChild, timeIndexChild, isFixingChild, child);</span>
+
+<span class="fc" id="L269">		System.arraycopy(child, 0, childStateFlat, childOffset, m);</span>
+<span class="fc" id="L270">	}</span>
+
+	private static int powInt(final int base, final int exp) {
+<span class="pc bpc" id="L273" title="1 of 2 branches missed.">		if(exp &lt; 0) {</span>
+<span class="nc" id="L274">			throw new IllegalArgumentException(&quot;exp &lt; 0&quot;);</span>
+		}
+<span class="fc" id="L276">		int r = 1;</span>
+<span class="fc bfc" id="L277" title="All 2 branches covered.">		for(int i = 0; i &lt; exp; i++) {</span>
+<span class="fc" id="L278">			r = Math.multiplyExact(r, base);</span>
+		}
+<span class="fc" id="L280">		return r;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

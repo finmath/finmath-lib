@@ -1,0 +1,1252 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DoubleBarrierBinaryOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.finitedifference.assetderivativevaluation.products</a> &gt; <span class="el_source">DoubleBarrierBinaryOption.java</span></div><h1>DoubleBarrierBinaryOption.java</h1><pre class="source lang-java linenums">package net.finmath.finitedifference.assetderivativevaluation.products;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.DoubleBinaryOperator;
+
+import net.finmath.finitedifference.FiniteDifferenceExerciseUtil;
+import net.finmath.finitedifference.assetderivativevaluation.models.FiniteDifferenceEquityModel;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.ActivatedVectorEventState;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.DiscreteMonitoringSupport;
+import net.finmath.finitedifference.assetderivativevaluation.products.internal.ProductEventStateStack;
+import net.finmath.finitedifference.grids.Grid;
+import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.solvers.FDMSolver;
+import net.finmath.finitedifference.solvers.FDMSolverFactory;
+import net.finmath.finitedifference.solvers.FDMThetaMethod1D;
+import net.finmath.finitedifference.solvers.adi.AbstractADI2D;
+import net.finmath.modelling.EuropeanExercise;
+import net.finmath.modelling.Exercise;
+import net.finmath.modelling.products.DoubleBarrierType;
+import net.finmath.modelling.products.MonitoringType;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * Finite-difference valuation of a double-barrier cash binary option.
+ *
+ * &lt;p&gt;
+ * The contract is defined by a maturity &lt;i&gt;T&lt;/i&gt;, a cash amount &lt;i&gt;C&lt;/i&gt;, and
+ * two barriers
+ * &lt;i&gt;L &amp;lt; U&lt;/i&gt;. Let &lt;i&gt;S(t)&lt;/i&gt; denote the underlying and let
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;&amp;tau;&lt;sub&gt;L&lt;/sub&gt; = inf { t in [0,T] : S(t) &amp;le; L }&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;&amp;tau;&lt;sub&gt;U&lt;/sub&gt; = inf { t in [0,T] : S(t) &amp;ge; U }&lt;/i&gt;,
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * with the alive band given by
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;L &amp;lt; S(t) &amp;lt; U&lt;/i&gt;.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * Supported barrier styles:
+ * &lt;/p&gt;
+ * &lt;ul&gt;
+ * &lt;li&gt;{@link DoubleBarrierType#KNOCK_OUT}: pays &lt;i&gt;C&lt;/i&gt; if neither barrier is
+ * hit before maturity,&lt;/li&gt;
+ * &lt;li&gt;{@link DoubleBarrierType#KNOCK_IN}: pays &lt;i&gt;C&lt;/i&gt; if either barrier is
+ * hit before or at maturity,&lt;/li&gt;
+ * &lt;li&gt;{@link DoubleBarrierType#KIKO}: pays &lt;i&gt;C&lt;/i&gt; if the lower barrier is hit
+ * first while the upper barrier acts as knock-out,&lt;/li&gt;
+ * &lt;li&gt;{@link DoubleBarrierType#KOKI}: pays &lt;i&gt;C&lt;/i&gt; if the upper barrier is hit
+ * first while the lower barrier acts as knock-out.&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * &lt;p&gt;
+ * For continuous monitoring, the implementation remains a direct one-state
+ * constrained PDE.
+ * For discrete monitoring, barrier activation / knock-out is applied only at
+ * the supplied
+ * monitoring dates via vector-level event conditions.
+ * &lt;/p&gt;
+ *
+ * &lt;p&gt;
+ * For discretely monitored knock-in / KIKO / KOKI cases, the activated branch
+ * is represented
+ * by cached activated cash vectors. The cache is stored in a thread-local stack
+ * so that nested
+ * valuations and concurrent valuations of the same product instance do not
+ * overwrite each other.
+ * &lt;/p&gt;
+ *
+ * @author Alessandro Gnoatto
+ */
+public class DoubleBarrierBinaryOption implements
+FiniteDifferenceEquityEventProduct,
+FiniteDifferenceInternalStateConstraint {
+
+	/**
+	 * The underlying name.
+	 */
+	private final String underlyingName;
+	/**
+	 * The maturity.
+	 */
+	private final double maturity;
+	/**
+	 * The cash payoff.
+	 */
+	private final double cashPayoff;
+	/**
+	 * The lower barrier.
+	 */
+	private final double lowerBarrier;
+	/**
+	 * The upper barrier.
+	 */
+	private final double upperBarrier;
+	/**
+	 * The double barrier type.
+	 */
+	private final DoubleBarrierType doubleBarrierType;
+	/**
+	 * The exercise.
+	 */
+	private final Exercise exercise;
+	/**
+	 * The monitoring type.
+	 */
+	private final MonitoringType monitoringType;
+	/**
+	 * The monitoring times.
+	 */
+	private final double[] monitoringTimes;
+
+	/**
+	 * The activated vector event state stack.
+	 */
+	private transient ProductEventStateStack&lt;ActivatedVectorEventState&gt; activatedVectorEventStateStack;
+
+	/**
+	 * Creates a double-barrier cash binary option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 */
+	public DoubleBarrierBinaryOption(
+			final String underlyingName,
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise) {
+<span class="nc" id="L148">		this(</span>
+				underlyingName,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				exercise,
+				MonitoringType.CONTINUOUS,
+				null
+				);
+<span class="nc" id="L159">	}</span>
+
+	/**
+	 * Creates a double-barrier cash binary option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierBinaryOption(
+			final String underlyingName,
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise,
+			final MonitoringType monitoringType,
+<span class="nc" id="L183">			final double[] monitoringTimes) {</span>
+
+<span class="nc bnc" id="L185" title="All 2 branches missed.">		if (doubleBarrierType == null) {</span>
+<span class="nc" id="L186">			throw new IllegalArgumentException(&quot;Double barrier type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L188" title="All 2 branches missed.">		if (exercise == null) {</span>
+<span class="nc" id="L189">			throw new IllegalArgumentException(&quot;Exercise must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L191" title="All 2 branches missed.">		if (monitoringType == null) {</span>
+<span class="nc" id="L192">			throw new IllegalArgumentException(&quot;Monitoring type must not be null.&quot;);</span>
+		}
+<span class="nc bnc" id="L194" title="All 6 branches missed.">		if (!exercise.isEuropean() &amp;&amp; !exercise.isBermudan() &amp;&amp; !exercise.isAmerican()) {</span>
+<span class="nc" id="L195">			throw new IllegalArgumentException(</span>
+					&quot;DoubleBarrierBinaryOption currently supports only European, Bermudan, and American exercise.&quot;);
+		}
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		if (maturity &lt; 0.0) {</span>
+<span class="nc" id="L199">			throw new IllegalArgumentException(&quot;Maturity must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (cashPayoff &lt; 0.0) {</span>
+<span class="nc" id="L202">			throw new IllegalArgumentException(&quot;Cash payoff must be non-negative.&quot;);</span>
+		}
+<span class="nc bnc" id="L204" title="All 4 branches missed.">		if (lowerBarrier &lt;= 0.0 || upperBarrier &lt;= 0.0) {</span>
+<span class="nc" id="L205">			throw new IllegalArgumentException(&quot;Barriers must be positive.&quot;);</span>
+		}
+<span class="nc bnc" id="L207" title="All 2 branches missed.">		if (lowerBarrier &gt;= upperBarrier) {</span>
+<span class="nc" id="L208">			throw new IllegalArgumentException(&quot;lowerBarrier must be &lt; upperBarrier.&quot;);</span>
+		}
+
+<span class="nc" id="L211">		this.underlyingName = underlyingName;</span>
+<span class="nc" id="L212">		this.maturity = maturity;</span>
+<span class="nc" id="L213">		this.cashPayoff = cashPayoff;</span>
+<span class="nc" id="L214">		this.lowerBarrier = lowerBarrier;</span>
+<span class="nc" id="L215">		this.upperBarrier = upperBarrier;</span>
+<span class="nc" id="L216">		this.doubleBarrierType = doubleBarrierType;</span>
+<span class="nc" id="L217">		this.exercise = exercise;</span>
+<span class="nc" id="L218">		this.monitoringType = monitoringType;</span>
+<span class="nc bnc" id="L219" title="All 2 branches missed.">		this.monitoringTimes = monitoringTimes == null ? null : monitoringTimes.clone();</span>
+
+<span class="nc" id="L221">		validateMonitoringSpecification();</span>
+<span class="nc" id="L222">	}</span>
+
+	/**
+	 * Creates a European double-barrier cash binary option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 */
+	public DoubleBarrierBinaryOption(
+			final String underlyingName,
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType) {
+<span class="nc" id="L241">		this(</span>
+				underlyingName,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L250">	}</span>
+
+	/**
+	 * Creates a European double-barrier cash binary option.
+	 *
+	 * @param underlyingName Name of the underlying. May be {@code null}.
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierBinaryOption(
+			final String underlyingName,
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L273">		this(</span>
+				underlyingName,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				new EuropeanExercise(maturity),
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L284">	}</span>
+
+	/**
+	 * Creates a European double-barrier cash binary option with anonymous
+	 * underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 */
+	public DoubleBarrierBinaryOption(
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType) {
+<span class="nc" id="L302">		this(</span>
+				null,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				new EuropeanExercise(maturity)
+				);
+<span class="nc" id="L311">	}</span>
+
+	/**
+	 * Creates a European double-barrier cash binary option with anonymous
+	 * underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierBinaryOption(
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L333">		this(</span>
+				null,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				new EuropeanExercise(maturity),
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L344">	}</span>
+
+	/**
+	 * Creates a double-barrier cash binary option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 */
+	public DoubleBarrierBinaryOption(
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise) {
+<span class="nc" id="L363">		this(</span>
+				null,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				exercise
+				);
+<span class="nc" id="L372">	}</span>
+
+	/**
+	 * Creates a double-barrier cash binary option with anonymous underlying.
+	 *
+	 * @param maturity Option maturity.
+	 * @param cashPayoff Cash payoff amount.
+	 * @param lowerBarrier Lower barrier.
+	 * @param upperBarrier Upper barrier.
+	 * @param doubleBarrierType Double-barrier type.
+	 * @param exercise Exercise specification.
+	 * @param monitoringType Monitoring type.
+	 * @param monitoringTimes Monitoring times for discrete monitoring.
+	 */
+	public DoubleBarrierBinaryOption(
+			final double maturity,
+			final double cashPayoff,
+			final double lowerBarrier,
+			final double upperBarrier,
+			final DoubleBarrierType doubleBarrierType,
+			final Exercise exercise,
+			final MonitoringType monitoringType,
+			final double[] monitoringTimes) {
+<span class="nc" id="L395">		this(</span>
+				null,
+				maturity,
+				cashPayoff,
+				lowerBarrier,
+				upperBarrier,
+				doubleBarrierType,
+				exercise,
+				monitoringType,
+				monitoringTimes
+				);
+<span class="nc" id="L406">	}</span>
+
+	private ProductEventStateStack&lt;ActivatedVectorEventState&gt; getActivatedVectorEventStateStack() {
+<span class="nc bnc" id="L409" title="All 2 branches missed.">		if (activatedVectorEventStateStack == null) {</span>
+<span class="nc" id="L410">			activatedVectorEventStateStack = new ProductEventStateStack&lt;&gt;();</span>
+		}
+
+<span class="nc" id="L413">		return activatedVectorEventStateStack;</span>
+	}
+
+	private ActivatedVectorEventState createActivatedVectorEventState(
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L419">		return new ActivatedVectorEventState(</span>
+<span class="nc" id="L420">				buildActivatedVectorsAtEventTimes(model),</span>
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+	}
+
+	private ActivatedVectorEventState getCurrentActivatedVectorEventState() {
+<span class="nc" id="L426">		final ActivatedVectorEventState state =</span>
+<span class="nc" id="L427">				getActivatedVectorEventStateStack().currentOrNull();</span>
+
+<span class="nc bnc" id="L429" title="All 2 branches missed.">		if (state == null) {</span>
+<span class="nc" id="L430">			throw new IllegalStateException(</span>
+					&quot;Discrete knock-in event condition requires cached activated vectors.&quot;
+					);
+		}
+
+<span class="nc" id="L435">		return state;</span>
+	}
+
+	/**
+	 * Returns the values at the specified evaluation time on the model space
+	 * grid.
+	 *
+	 * @param evaluationTime Evaluation time.
+	 * @param model The finite-difference model.
+	 * @return The value vector at the requested evaluation time.
+	 */
+	@Override
+	public double[] getValue(final double evaluationTime, final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L448">		final double[][] values = getValues(model);</span>
+
+<span class="nc" id="L450">		final SpaceTimeDiscretization valuationDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L451">		final double tau = maturity - evaluationTime;</span>
+<span class="nc" id="L452">		final int timeIndex = valuationDiscretization.getTimeDiscretization()</span>
+<span class="nc" id="L453">				.getTimeIndexNearestLessOrEqual(tau);</span>
+
+<span class="nc" id="L455">		final double[] column = new double[values.length];</span>
+<span class="nc bnc" id="L456" title="All 2 branches missed.">		for (int i = 0; i &lt; values.length; i++) {</span>
+<span class="nc" id="L457">			column[i] = values[i][timeIndex];</span>
+		}
+
+<span class="nc bnc" id="L460" title="All 4 branches missed.">		if (usesDiscreteMonitoring() &amp;&amp; isMonitoringTime(evaluationTime)) {</span>
+<span class="nc" id="L461">			return applyEvaluationTimeDiscreteCondition(evaluationTime, column, model);</span>
+		}
+
+<span class="nc" id="L464">		return column;</span>
+	}
+
+	/**
+	 * Returns the full value surface.
+	 *
+	 * @param model The finite-difference model.
+	 * @return The value surface indexed by space point and time index.
+	 */
+	@Override
+	public double[][] getValues(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L475">		validateProductConfiguration(model);</span>
+
+<span class="nc" id="L477">		final FiniteDifferenceEquityModel effectiveModel = getEffectiveModelForValuation(model);</span>
+<span class="nc" id="L478">		final SpaceTimeDiscretization valuationDiscretization = effectiveModel.getSpaceTimeDiscretization();</span>
+
+<span class="nc bnc" id="L480" title="All 2 branches missed.">		if (cashPayoff == 0.0) {</span>
+<span class="nc" id="L481">			return buildZeroValueSurface(valuationDiscretization);</span>
+		}
+
+<span class="nc" id="L484">		final int dims = valuationDiscretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L486" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L487">			return getValues1D(effectiveModel, valuationDiscretization);</span>
+<span class="nc bnc" id="L488" title="All 2 branches missed.">		} else if (dims == 2) {</span>
+<span class="nc" id="L489">			return getValues2D(effectiveModel, valuationDiscretization);</span>
+		} else {
+<span class="nc" id="L491">			throw new IllegalArgumentException(&quot;DoubleBarrierBinaryOption currently supports only 1D and 2D models.&quot;);</span>
+		}
+	}
+
+	private double[][] getValues1D(
+			final FiniteDifferenceEquityModel model,
+			final SpaceTimeDiscretization valuationDiscretization) {
+
+<span class="nc bnc" id="L499" title="All 4 branches missed.">		if (usesDiscreteMonitoring() &amp;&amp; requiresActivatedEventState()) {</span>
+<span class="nc" id="L500">			try(ProductEventStateStack.Scope ignored =</span>
+<span class="nc" id="L501">					getActivatedVectorEventStateStack().push(createActivatedVectorEventState(model))) {</span>
+<span class="nc" id="L502">				return getValues1DInternal(model, valuationDiscretization);</span>
+			}
+		}
+
+<span class="nc" id="L506">		return getValues1DInternal(model, valuationDiscretization);</span>
+	}
+
+	private double[][] getValues1DInternal(
+			final FiniteDifferenceEquityModel model,
+			final SpaceTimeDiscretization valuationDiscretization) {
+
+<span class="nc" id="L513">		final Exercise solverExercise = getSolverExerciseForValuation();</span>
+
+<span class="nc" id="L515">		final FDMSolver solver = new FDMThetaMethod1D(</span>
+				model,
+				this,
+				valuationDiscretization,
+				solverExercise
+				);
+
+<span class="nc bnc" id="L522" title="All 2 branches missed.">		final double[] terminalValues = usesDiscreteMonitoring()</span>
+<span class="nc" id="L523">				? buildDiscreteTerminalValues1D(valuationDiscretization)</span>
+<span class="nc" id="L524">						: buildCellAveragedTerminalValues(valuationDiscretization);</span>
+
+<span class="nc bnc" id="L526" title="All 2 branches missed.">		if (solverExercise.isEuropean()) {</span>
+<span class="nc" id="L527">			return solver.getValues(maturity, terminalValues);</span>
+		}
+
+<span class="nc" id="L530">		return solver.getValues(</span>
+				maturity,
+				terminalValues,
+				this::pointwiseExercisePayoff
+				);
+	}
+
+	private double[][] getValues2D(
+			final FiniteDifferenceEquityModel model,
+			final SpaceTimeDiscretization valuationDiscretization) {
+
+<span class="nc bnc" id="L541" title="All 4 branches missed.">		if (usesDiscreteMonitoring() &amp;&amp; requiresActivatedEventState()) {</span>
+<span class="nc" id="L542">			try(ProductEventStateStack.Scope ignored =</span>
+<span class="nc" id="L543">					getActivatedVectorEventStateStack().push(createActivatedVectorEventState(model))) {</span>
+<span class="nc" id="L544">				return getValues2DInternal(model, valuationDiscretization);</span>
+			}
+		}
+
+<span class="nc" id="L548">		return getValues2DInternal(model, valuationDiscretization);</span>
+	}
+
+	private double[][] getValues2DInternal(
+			final FiniteDifferenceEquityModel model,
+			final SpaceTimeDiscretization valuationDiscretization) {
+
+<span class="nc" id="L555">		final Exercise solverExercise = getSolverExerciseForValuation();</span>
+
+<span class="nc" id="L557">		final FDMSolver solver = FDMSolverFactory.createSolver(</span>
+				model,
+				this,
+				valuationDiscretization,
+				solverExercise
+				);
+
+<span class="nc bnc" id="L564" title="All 2 branches missed.">		final DoubleBinaryOperator terminalPayoff2D = usesDiscreteMonitoring()</span>
+<span class="nc" id="L565">				? getDiscreteTerminalPayoff2D()</span>
+<span class="nc" id="L566">						: (assetValue, secondState) -&gt; pointwiseTerminalPayoff(assetValue);</span>
+
+<span class="nc bnc" id="L568" title="All 2 branches missed.">						if (solverExercise.isEuropean()) {</span>
+<span class="nc" id="L569">							return solver.getValues(maturity, terminalPayoff2D);</span>
+						}
+
+<span class="nc bnc" id="L572" title="All 2 branches missed.">						if (!(solver instanceof AbstractADI2D)) {</span>
+<span class="nc" id="L573">							throw new IllegalArgumentException(</span>
+									&quot;Two-dimensional Bermudan/American double-barrier binary pricing requires an ADI solver.&quot;);
+						}
+
+<span class="nc" id="L577">						return ((AbstractADI2D) solver).getValues(</span>
+								maturity,
+								terminalPayoff2D,
+<span class="nc" id="L580">								(runningTime, assetValue, secondState) -&gt; pointwiseExercisePayoff(assetValue)</span>
+								);
+	}
+
+	@Override
+	public double[] getEventTimes() {
+<span class="nc bnc" id="L586" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L587">			return new double[0];</span>
+		}
+
+<span class="nc bnc" id="L590" title="All 2 branches missed.">		return monitoringTimes == null ? new double[0] : monitoringTimes.clone();</span>
+	}
+
+	@Override
+	public double[] applyEventCondition(
+			final double time,
+			final double[] valuesAfterEvent,
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc bnc" id="L599" title="All 2 branches missed.">		if (!usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L600">			return valuesAfterEvent;</span>
+		}
+
+<span class="nc" id="L603">		final int dims = model.getSpaceTimeDiscretization().getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L605" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L606">			final double[] xGrid = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+
+<span class="nc bnc" id="L608" title="All 2 branches missed.">			if (valuesAfterEvent.length != xGrid.length) {</span>
+<span class="nc" id="L609">				throw new IllegalArgumentException(</span>
+						&quot;Value vector length does not match the one-dimensional spatial grid.&quot;);
+			}
+
+<span class="nc" id="L613">			return applyDiscreteEvent1D(time, valuesAfterEvent, xGrid);</span>
+		}
+
+<span class="nc bnc" id="L616" title="All 2 branches missed.">		if (dims == 2) {</span>
+<span class="nc" id="L617">			final double[] x0 = model.getSpaceTimeDiscretization().getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L618">			final double[] x1 = model.getSpaceTimeDiscretization().getSpaceGrid(1).getGrid();</span>
+
+<span class="nc bnc" id="L620" title="All 2 branches missed.">			if (valuesAfterEvent.length != x0.length * x1.length) {</span>
+<span class="nc" id="L621">				throw new IllegalArgumentException(</span>
+						&quot;Value vector length does not match the two-dimensional spatial grid.&quot;);
+			}
+
+<span class="nc" id="L625">			return applyDiscreteEvent2D(time, valuesAfterEvent, x0, x1);</span>
+		}
+
+<span class="nc" id="L628">		throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+	}
+
+	private double[] applyDiscreteEvent1D(
+			final double time,
+			final double[] valuesAfterEvent,
+			final double[] xGrid) {
+
+<span class="nc" id="L636">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+<span class="nc bnc" id="L637" title="All 2 branches missed.">		final double[] activatedVector = requiresActivatedEventState()</span>
+<span class="nc" id="L638">				? getCurrentActivatedVectorEventState().getActivatedVector(time)</span>
+<span class="nc" id="L639">						: null;</span>
+
+<span class="nc bnc" id="L641" title="All 2 branches missed.">		for (int i = 0; i &lt; xGrid.length; i++) {</span>
+<span class="nc" id="L642">			final double assetValue = xGrid[i];</span>
+
+<span class="nc bnc" id="L644" title="All 5 branches missed.">			switch (doubleBarrierType) {</span>
+			case KNOCK_OUT:
+<span class="nc bnc" id="L646" title="All 2 branches missed.">				if (!isInsideBarrierBand(assetValue)) {</span>
+<span class="nc" id="L647">					valuesBeforeEvent[i] = 0.0;</span>
+				}
+				break;
+
+			case KNOCK_IN:
+<span class="nc bnc" id="L652" title="All 2 branches missed.">				if (!isInsideBarrierBand(assetValue)) {</span>
+<span class="nc" id="L653">					valuesBeforeEvent[i] = activatedVector[i];</span>
+				}
+				break;
+
+			case KIKO:
+<span class="nc bnc" id="L658" title="All 2 branches missed.">				if (isBelowLowerBarrier(assetValue)) {</span>
+<span class="nc" id="L659">					valuesBeforeEvent[i] = activatedVector[i];</span>
+<span class="nc bnc" id="L660" title="All 2 branches missed.">				} else if (isAboveUpperBarrier(assetValue)) {</span>
+<span class="nc" id="L661">					valuesBeforeEvent[i] = 0.0;</span>
+				}
+				break;
+
+			case KOKI:
+<span class="nc bnc" id="L666" title="All 2 branches missed.">				if (isAboveUpperBarrier(assetValue)) {</span>
+<span class="nc" id="L667">					valuesBeforeEvent[i] = activatedVector[i];</span>
+<span class="nc bnc" id="L668" title="All 2 branches missed.">				} else if (isBelowLowerBarrier(assetValue)) {</span>
+<span class="nc" id="L669">					valuesBeforeEvent[i] = 0.0;</span>
+				}
+				break;
+
+			default:
+<span class="nc" id="L674">				throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+			}
+		}
+
+<span class="nc" id="L678">		return valuesBeforeEvent;</span>
+	}
+
+	private double[] applyDiscreteEvent2D(
+			final double time,
+			final double[] valuesAfterEvent,
+			final double[] x0,
+			final double[] x1) {
+
+<span class="nc" id="L687">		final double[] valuesBeforeEvent = valuesAfterEvent.clone();</span>
+<span class="nc bnc" id="L688" title="All 2 branches missed.">		final double[] activatedVector = requiresActivatedEventState()</span>
+<span class="nc" id="L689">				? getCurrentActivatedVectorEventState().getActivatedVector(time)</span>
+<span class="nc" id="L690">						: null;</span>
+
+<span class="nc" id="L692">		final int n0 = x0.length;</span>
+
+<span class="nc bnc" id="L694" title="All 2 branches missed.">		for (int j = 0; j &lt; x1.length; j++) {</span>
+<span class="nc bnc" id="L695" title="All 2 branches missed.">			for (int i = 0; i &lt; x0.length; i++) {</span>
+<span class="nc" id="L696">				final int index = flatten(i, j, n0);</span>
+<span class="nc" id="L697">				final double assetValue = x0[i];</span>
+
+<span class="nc bnc" id="L699" title="All 5 branches missed.">				switch (doubleBarrierType) {</span>
+				case KNOCK_OUT:
+<span class="nc bnc" id="L701" title="All 2 branches missed.">					if (!isInsideBarrierBand(assetValue)) {</span>
+<span class="nc" id="L702">						valuesBeforeEvent[index] = 0.0;</span>
+					}
+					break;
+
+				case KNOCK_IN:
+<span class="nc bnc" id="L707" title="All 2 branches missed.">					if (!isInsideBarrierBand(assetValue)) {</span>
+<span class="nc" id="L708">						valuesBeforeEvent[index] = activatedVector[index];</span>
+					}
+					break;
+
+				case KIKO:
+<span class="nc bnc" id="L713" title="All 2 branches missed.">					if (isBelowLowerBarrier(assetValue)) {</span>
+<span class="nc" id="L714">						valuesBeforeEvent[index] = activatedVector[index];</span>
+<span class="nc bnc" id="L715" title="All 2 branches missed.">					} else if (isAboveUpperBarrier(assetValue)) {</span>
+<span class="nc" id="L716">						valuesBeforeEvent[index] = 0.0;</span>
+					}
+					break;
+
+				case KOKI:
+<span class="nc bnc" id="L721" title="All 2 branches missed.">					if (isAboveUpperBarrier(assetValue)) {</span>
+<span class="nc" id="L722">						valuesBeforeEvent[index] = activatedVector[index];</span>
+<span class="nc bnc" id="L723" title="All 2 branches missed.">					} else if (isBelowLowerBarrier(assetValue)) {</span>
+<span class="nc" id="L724">						valuesBeforeEvent[index] = 0.0;</span>
+					}
+					break;
+
+				default:
+<span class="nc" id="L729">					throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+				}
+			}
+		}
+
+<span class="nc" id="L734">		return valuesBeforeEvent;</span>
+	}
+
+	private double[] applyEvaluationTimeDiscreteCondition(
+			final double evaluationTime,
+			final double[] valuesAtEvaluationTime,
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc bnc" id="L742" title="All 2 branches missed.">		if (!requiresActivatedEventState()) {</span>
+<span class="nc" id="L743">			return applyEventCondition(evaluationTime, valuesAtEvaluationTime, model);</span>
+		}
+
+<span class="nc" id="L746">		final Map&lt;Double, double[]&gt; activatedVectorsAtEventTimes = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L747">		activatedVectorsAtEventTimes.put(</span>
+<span class="nc" id="L748">				evaluationTime,</span>
+<span class="nc" id="L749">				buildActivatedCashVectorAtEventTime(</span>
+						evaluationTime,
+						model,
+						valuesAtEvaluationTime.length
+						)
+				);
+
+<span class="nc" id="L756">		final ActivatedVectorEventState state = new ActivatedVectorEventState(</span>
+				activatedVectorsAtEventTimes,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+
+<span class="nc" id="L761">		try(ProductEventStateStack.Scope ignored =</span>
+<span class="nc" id="L762">				getActivatedVectorEventStateStack().push(state)) {</span>
+<span class="nc" id="L763">			return applyEventCondition(evaluationTime, valuesAtEvaluationTime, model);</span>
+		}
+	}
+
+	private Map&lt;Double, double[]&gt; buildActivatedVectorsAtEventTimes(
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L770">		final Map&lt;Double, double[]&gt; activatedVectorsAtEventTimes = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L771">		final int numberOfSpacePoints =</span>
+<span class="nc" id="L772">				getTotalNumberOfSpacePoints(model.getSpaceTimeDiscretization());</span>
+
+<span class="nc bnc" id="L774" title="All 2 branches missed.">		for (final double eventTime : monitoringTimes) {</span>
+<span class="nc" id="L775">			activatedVectorsAtEventTimes.put(</span>
+<span class="nc" id="L776">					eventTime,</span>
+<span class="nc" id="L777">					buildActivatedCashVectorAtEventTime(</span>
+							eventTime,
+							model,
+							numberOfSpacePoints
+							)
+					);
+		}
+
+<span class="nc" id="L785">		return activatedVectorsAtEventTimes;</span>
+	}
+
+	private double[] buildActivatedCashVectorAtEventTime(
+			final double eventTime,
+			final FiniteDifferenceEquityModel model,
+			final int numberOfSpacePoints) {
+
+<span class="nc" id="L793">		final double activatedValue = getActivatedCashValueAt(eventTime, model);</span>
+<span class="nc" id="L794">		final double[] activatedVector = new double[numberOfSpacePoints];</span>
+
+<span class="nc" id="L796">		Arrays.fill(activatedVector, activatedValue);</span>
+
+<span class="nc" id="L798">		return activatedVector;</span>
+	}
+
+	private double getActivatedCashValueAt(
+			final double eventTime,
+			final FiniteDifferenceEquityModel model) {
+
+<span class="nc" id="L805">		final double tolerance = DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE;</span>
+
+<span class="nc" id="L807">		double cashReceiptTime = maturity;</span>
+
+<span class="nc bnc" id="L809" title="All 2 branches missed.">		if (exercise.isExerciseAllowed(eventTime)) {</span>
+<span class="nc" id="L810">			cashReceiptTime = eventTime;</span>
+		} else {
+<span class="nc bnc" id="L812" title="All 2 branches missed.">			for (final double exerciseTime : exercise.getExerciseTimes()) {</span>
+<span class="nc bnc" id="L813" title="All 2 branches missed.">				if (exerciseTime &gt;= eventTime - tolerance) {</span>
+<span class="nc" id="L814">					cashReceiptTime = exerciseTime;</span>
+<span class="nc" id="L815">					break;</span>
+				}
+			}
+		}
+
+<span class="nc" id="L820">		final double discountAtEventTime =</span>
+<span class="nc" id="L821">				model.getRiskFreeCurve().getDiscountFactor(eventTime);</span>
+<span class="nc" id="L822">		final double discountAtCashReceiptTime =</span>
+<span class="nc" id="L823">				model.getRiskFreeCurve().getDiscountFactor(cashReceiptTime);</span>
+
+<span class="nc" id="L825">		return cashPayoff * discountAtCashReceiptTime / discountAtEventTime;</span>
+	}
+
+	private Exercise getSolverExerciseForValuation() {
+<span class="nc bnc" id="L829" title="All 4 branches missed.">		if (usesDiscreteMonitoring() &amp;&amp; requiresActivatedEventState()) {</span>
+<span class="nc" id="L830">			return new EuropeanExercise(maturity);</span>
+		}
+
+<span class="nc" id="L833">		return exercise;</span>
+	}
+
+	private boolean requiresActivatedEventState() {
+<span class="nc bnc" id="L837" title="All 6 branches missed.">		return doubleBarrierType == DoubleBarrierType.KNOCK_IN</span>
+				|| doubleBarrierType == DoubleBarrierType.KIKO
+				|| doubleBarrierType == DoubleBarrierType.KOKI;
+	}
+
+	private double[] buildDiscreteTerminalValues1D(final SpaceTimeDiscretization discretization) {
+
+<span class="nc" id="L844">		final double[] terminalValues = new double[discretization.getSpaceGrid(0).getGrid().length];</span>
+
+<span class="nc bnc" id="L846" title="All 2 branches missed.">		if (doubleBarrierType == DoubleBarrierType.KNOCK_OUT) {</span>
+<span class="nc" id="L847">			Arrays.fill(terminalValues, cashPayoff);</span>
+		}
+
+<span class="nc" id="L850">		return terminalValues;</span>
+	}
+
+	private DoubleBinaryOperator getDiscreteTerminalPayoff2D() {
+
+<span class="nc bnc" id="L855" title="All 2 branches missed.">		if (doubleBarrierType == DoubleBarrierType.KNOCK_OUT) {</span>
+<span class="nc" id="L856">			return (assetValue, secondState) -&gt; cashPayoff;</span>
+		}
+
+<span class="nc" id="L859">		return (assetValue, secondState) -&gt; 0.0;</span>
+	}
+
+	private void validateProductConfiguration(final FiniteDifferenceEquityModel model) {
+<span class="nc bnc" id="L863" title="All 2 branches missed.">		if (model == null) {</span>
+<span class="nc" id="L864">			throw new IllegalArgumentException(&quot;Model must not be null.&quot;);</span>
+		}
+
+<span class="nc" id="L867">		final SpaceTimeDiscretization valuationDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+<span class="nc" id="L868">		final int dims = valuationDiscretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L870" title="All 4 branches missed.">		if (dims != 1 &amp;&amp; dims != 2) {</span>
+<span class="nc" id="L871">			throw new IllegalArgumentException(&quot;DoubleBarrierBinaryOption currently supports only 1D and 2D models.&quot;);</span>
+		}
+
+<span class="nc" id="L874">		final double[] spotGrid = valuationDiscretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L875">		final double gridMin = spotGrid[0];</span>
+<span class="nc" id="L876">		final double gridMax = spotGrid[spotGrid.length - 1];</span>
+
+<span class="nc bnc" id="L878" title="All 4 branches missed.">		if (lowerBarrier &lt; gridMin || upperBarrier &gt; gridMax) {</span>
+<span class="nc" id="L879">			throw new IllegalArgumentException(</span>
+					&quot;Both double barriers must lie inside the first state-variable grid domain of the supplied model.&quot;);
+		}
+<span class="nc" id="L882">	}</span>
+
+	private double[][] buildZeroValueSurface(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L885">		final int numberOfSpacePoints = getTotalNumberOfSpacePoints(discretization);</span>
+<span class="nc" id="L886">		final int numberOfTimePoints = discretization.getTimeDiscretization().getNumberOfTimeSteps() + 1;</span>
+
+<span class="nc" id="L888">		final double[][] zeroValues = new double[numberOfSpacePoints][numberOfTimePoints];</span>
+
+<span class="nc bnc" id="L890" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpacePoints; i++) {</span>
+<span class="nc bnc" id="L891" title="All 2 branches missed.">			for (int j = 0; j &lt; numberOfTimePoints; j++) {</span>
+<span class="nc" id="L892">				zeroValues[i][j] = 0.0;</span>
+			}
+		}
+
+<span class="nc" id="L896">		return zeroValues;</span>
+	}
+
+	private double[] buildCellAveragedTerminalValues(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L900">		final double[] sGrid = discretization.getSpaceGrid(0).getGrid();</span>
+<span class="nc" id="L901">		final double[] terminalValues = new double[sGrid.length];</span>
+
+<span class="nc bnc" id="L903" title="All 2 branches missed.">		for (int i = 0; i &lt; sGrid.length; i++) {</span>
+<span class="nc" id="L904">			final double leftEdge = getLeftDualCellEdge(sGrid, i);</span>
+<span class="nc" id="L905">			final double rightEdge = getRightDualCellEdge(sGrid, i);</span>
+
+<span class="nc" id="L907">			terminalValues[i] = cellAveragedTerminalPayoff(leftEdge, rightEdge);</span>
+		}
+
+<span class="nc" id="L910">		return terminalValues;</span>
+	}
+
+	private double cellAveragedTerminalPayoff(final double leftEdge, final double rightEdge) {
+<span class="nc bnc" id="L914" title="All 2 branches missed.">		if (!(leftEdge &lt; rightEdge)) {</span>
+<span class="nc" id="L915">			throw new IllegalArgumentException(&quot;Require leftEdge &lt; rightEdge.&quot;);</span>
+		}
+
+<span class="nc" id="L918">		final double cellLength = rightEdge - leftEdge;</span>
+
+<span class="nc" id="L920">		final double belowLowerLength =</span>
+<span class="nc" id="L921">				Math.max(0.0, Math.min(rightEdge, lowerBarrier) - leftEdge);</span>
+<span class="nc" id="L922">		final double aboveUpperLength =</span>
+<span class="nc" id="L923">				Math.max(0.0, rightEdge - Math.max(leftEdge, upperBarrier));</span>
+<span class="nc" id="L924">		final double insideBandLength =</span>
+<span class="nc" id="L925">				Math.max(0.0, Math.min(rightEdge, upperBarrier) - Math.max(leftEdge, lowerBarrier));</span>
+
+<span class="nc bnc" id="L927" title="All 5 branches missed.">		switch (doubleBarrierType) {</span>
+		case KNOCK_OUT:
+<span class="nc" id="L929">			return cashPayoff * insideBandLength / cellLength;</span>
+
+		case KNOCK_IN:
+<span class="nc" id="L932">			return cashPayoff * (belowLowerLength + aboveUpperLength) / cellLength;</span>
+
+		case KIKO:
+<span class="nc" id="L935">			return cashPayoff * belowLowerLength / cellLength;</span>
+
+		case KOKI:
+<span class="nc" id="L938">			return cashPayoff * aboveUpperLength / cellLength;</span>
+
+		default:
+<span class="nc" id="L941">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+	}
+
+	private double pointwiseTerminalPayoff(final double assetValue) {
+<span class="nc bnc" id="L946" title="All 5 branches missed.">		switch (doubleBarrierType) {</span>
+		case KNOCK_OUT:
+<span class="nc bnc" id="L948" title="All 2 branches missed.">			return isInsideBarrierBand(assetValue) ? cashPayoff : 0.0;</span>
+
+		case KNOCK_IN:
+<span class="nc bnc" id="L951" title="All 2 branches missed.">			return isInsideBarrierBand(assetValue) ? 0.0 : cashPayoff;</span>
+
+		case KIKO:
+<span class="nc bnc" id="L954" title="All 2 branches missed.">			return assetValue &lt;= lowerBarrier ? cashPayoff : 0.0;</span>
+
+		case KOKI:
+<span class="nc bnc" id="L957" title="All 2 branches missed.">			return assetValue &gt;= upperBarrier ? cashPayoff : 0.0;</span>
+
+		default:
+<span class="nc" id="L960">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+	}
+
+	/**
+	 * Returns the immediate exercise payoff under the current binary state.
+	 *
+	 * &lt;p&gt;
+	 * For continuous monitoring, this matches the terminal state
+	 * classification.
+	 * For discrete knock-in-like products, the pre-hit branch is solved as a
+	 * European
+	 * continuation problem; exercise rights are carried by the activated cash
+	 * branch.
+	 * &lt;/p&gt;
+	 *
+	 * @param assetValue Current underlying level.
+	 * @return The immediate exercise payoff.
+	 */
+	private double pointwiseExercisePayoff(final double assetValue) {
+
+<span class="nc bnc" id="L981" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc bnc" id="L982" title="All 2 branches missed.">			if (doubleBarrierType == DoubleBarrierType.KNOCK_OUT) {</span>
+<span class="nc" id="L983">				return cashPayoff;</span>
+			}
+
+<span class="nc" id="L986">			return 0.0;</span>
+		}
+
+<span class="nc" id="L989">		return pointwiseTerminalPayoff(assetValue);</span>
+	}
+
+	private double getLeftDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L993" title="All 2 branches missed.">		if (i == 0) {</span>
+<span class="nc" id="L994">			return grid[0];</span>
+		}
+
+<span class="nc" id="L997">		return 0.5 * (grid[i - 1] + grid[i]);</span>
+	}
+
+	private double getRightDualCellEdge(final double[] grid, final int i) {
+<span class="nc bnc" id="L1001" title="All 2 branches missed.">		if (i == grid.length - 1) {</span>
+<span class="nc" id="L1002">			return grid[grid.length - 1];</span>
+		}
+
+<span class="nc" id="L1005">		return 0.5 * (grid[i] + grid[i + 1]);</span>
+	}
+
+	private boolean isInsideBarrierBand(final double assetValue) {
+<span class="nc bnc" id="L1009" title="All 4 branches missed.">		return assetValue &gt; lowerBarrier &amp;&amp; assetValue &lt; upperBarrier;</span>
+	}
+
+	private boolean isBelowLowerBarrier(final double assetValue) {
+<span class="nc bnc" id="L1013" title="All 2 branches missed.">		return assetValue &lt;= lowerBarrier;</span>
+	}
+
+	private boolean isAboveUpperBarrier(final double assetValue) {
+<span class="nc bnc" id="L1017" title="All 2 branches missed.">		return assetValue &gt;= upperBarrier;</span>
+	}
+
+	/**
+	 * Returns whether the internal constrained regime is active.
+	 *
+	 * @param time Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return {@code true} if the underlying is outside the alive band.
+	 */
+	@Override
+	public boolean isConstraintActive(final double time, final double... stateVariables) {
+
+<span class="nc bnc" id="L1030" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1031">			return false;</span>
+		}
+
+<span class="nc" id="L1034">		final double underlyingLevel = stateVariables[0];</span>
+
+<span class="nc bnc" id="L1036" title="All 4 branches missed.">		return isBelowLowerBarrier(underlyingLevel) || isAboveUpperBarrier(underlyingLevel);</span>
+	}
+
+	/**
+	 * Returns the constrained value in the barrier region.
+	 *
+	 * @param time Evaluation time.
+	 * @param stateVariables State variables.
+	 * @return The constrained value.
+	 */
+	@Override
+	public double getConstrainedValue(final double time, final double... stateVariables) {
+<span class="nc" id="L1048">		final double underlyingLevel = stateVariables[0];</span>
+
+<span class="nc bnc" id="L1050" title="All 5 branches missed.">		switch (doubleBarrierType) {</span>
+		case KNOCK_OUT:
+<span class="nc" id="L1052">			return 0.0;</span>
+
+		case KNOCK_IN:
+<span class="nc" id="L1055">			return cashPayoff;</span>
+
+		case KIKO:
+<span class="nc bnc" id="L1058" title="All 2 branches missed.">			return isBelowLowerBarrier(underlyingLevel) ? cashPayoff : 0.0;</span>
+
+		case KOKI:
+<span class="nc bnc" id="L1061" title="All 2 branches missed.">			return isAboveUpperBarrier(underlyingLevel) ? cashPayoff : 0.0;</span>
+
+		default:
+<span class="nc" id="L1064">			throw new IllegalArgumentException(&quot;Unsupported double barrier type.&quot;);</span>
+		}
+	}
+
+	private boolean usesDiscreteMonitoring() {
+<span class="nc" id="L1069">		return DiscreteMonitoringSupport.usesDiscreteMonitoring(monitoringType);</span>
+	}
+
+	private boolean isMonitoringTime(final double time) {
+<span class="nc" id="L1073">		return DiscreteMonitoringSupport.isMonitoringTime(</span>
+				time,
+				monitoringTimes,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+	}
+
+	private void validateMonitoringSpecification() {
+<span class="nc" id="L1081">		DiscreteMonitoringSupport.validateMonitoringSpecification(</span>
+				monitoringType,
+				monitoringTimes,
+				maturity,
+				DiscreteMonitoringSupport.DEFAULT_MONITORING_TIME_TOLERANCE
+				);
+<span class="nc" id="L1087">	}</span>
+
+	private SpaceTimeDiscretization getValuationSpaceTimeDiscretization(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1090">		final SpaceTimeDiscretization base = model.getSpaceTimeDiscretization();</span>
+
+<span class="nc" id="L1092">		TimeDiscretization refinedTimeDiscretization = base.getTimeDiscretization();</span>
+<span class="nc" id="L1093">		boolean requiresModifiedDiscretization = false;</span>
+
+<span class="nc bnc" id="L1095" title="All 2 branches missed.">		if (exercise.isBermudan()) {</span>
+<span class="nc" id="L1096">			refinedTimeDiscretization =</span>
+<span class="nc" id="L1097">					FiniteDifferenceExerciseUtil.refineTimeDiscretization(</span>
+							refinedTimeDiscretization,
+							exercise
+							);
+<span class="nc" id="L1101">			requiresModifiedDiscretization = true;</span>
+		}
+
+<span class="nc bnc" id="L1104" title="All 2 branches missed.">		if (usesDiscreteMonitoring()) {</span>
+<span class="nc" id="L1105">			refinedTimeDiscretization =</span>
+<span class="nc" id="L1106">					DiscreteMonitoringSupport.refineTimeDiscretizationWithMonitoring(</span>
+							refinedTimeDiscretization,
+							maturity,
+							monitoringTimes
+							);
+<span class="nc" id="L1111">			requiresModifiedDiscretization = true;</span>
+		}
+
+<span class="nc bnc" id="L1114" title="All 2 branches missed.">		if (!requiresModifiedDiscretization) {</span>
+<span class="nc" id="L1115">			return base;</span>
+		}
+
+<span class="nc bnc" id="L1118" title="All 2 branches missed.">		if (base.getNumberOfSpaceGrids() == 1) {</span>
+<span class="nc" id="L1119">			return new SpaceTimeDiscretization(</span>
+<span class="nc" id="L1120">					base.getSpaceGrid(0),</span>
+					refinedTimeDiscretization,
+<span class="nc" id="L1122">					base.getTheta(),</span>
+<span class="nc" id="L1123">					new double[] {base.getCenter(0) }</span>
+					);
+		}
+
+<span class="nc" id="L1127">		final int numberOfSpaceGrids = base.getNumberOfSpaceGrids();</span>
+<span class="nc" id="L1128">		final Grid[] spaceGrids = new Grid[numberOfSpaceGrids];</span>
+<span class="nc" id="L1129">		final double[] center = new double[numberOfSpaceGrids];</span>
+
+<span class="nc bnc" id="L1131" title="All 2 branches missed.">		for (int i = 0; i &lt; numberOfSpaceGrids; i++) {</span>
+<span class="nc" id="L1132">			spaceGrids[i] = base.getSpaceGrid(i);</span>
+<span class="nc" id="L1133">			center[i] = base.getCenter(i);</span>
+		}
+
+<span class="nc" id="L1136">		return new SpaceTimeDiscretization(</span>
+				spaceGrids,
+				refinedTimeDiscretization,
+<span class="nc" id="L1139">				base.getTheta(),</span>
+				center
+				);
+	}
+
+	private FiniteDifferenceEquityModel getEffectiveModelForValuation(final FiniteDifferenceEquityModel model) {
+<span class="nc" id="L1145">		final SpaceTimeDiscretization effectiveDiscretization = getValuationSpaceTimeDiscretization(model);</span>
+
+<span class="nc bnc" id="L1147" title="All 2 branches missed.">		if (effectiveDiscretization == model.getSpaceTimeDiscretization()) {</span>
+<span class="nc" id="L1148">			return model;</span>
+		}
+
+<span class="nc" id="L1151">		return model.getCloneWithModifiedSpaceTimeDiscretization(effectiveDiscretization);</span>
+	}
+
+	private int getTotalNumberOfSpacePoints(final SpaceTimeDiscretization discretization) {
+<span class="nc" id="L1155">		final int dims = discretization.getNumberOfSpaceGrids();</span>
+
+<span class="nc bnc" id="L1157" title="All 2 branches missed.">		if (dims == 1) {</span>
+<span class="nc" id="L1158">			return discretization.getSpaceGrid(0).getGrid().length;</span>
+<span class="nc bnc" id="L1159" title="All 2 branches missed.">		} else if (dims == 2) {</span>
+<span class="nc" id="L1160">			return discretization.getSpaceGrid(0).getGrid().length</span>
+<span class="nc" id="L1161">					* discretization.getSpaceGrid(1).getGrid().length;</span>
+		} else {
+<span class="nc" id="L1163">			throw new IllegalArgumentException(&quot;Only 1D and 2D grids are supported.&quot;);</span>
+		}
+	}
+
+	private int flatten(final int i, final int j, final int n0) {
+<span class="nc" id="L1168">		return i + n0 * j;</span>
+	}
+
+	/**
+	 * Returns the underlying name.
+	 *
+	 * @return The underlying name, possibly {@code null}.
+	 */
+	public String getUnderlyingName() {
+<span class="nc" id="L1177">		return underlyingName;</span>
+	}
+
+	/**
+	 * Returns the maturity.
+	 *
+	 * @return The maturity.
+	 */
+	public double getMaturity() {
+<span class="nc" id="L1186">		return maturity;</span>
+	}
+
+	/**
+	 * Returns the cash payoff.
+	 *
+	 * @return The cash payoff.
+	 */
+	public double getCashPayoff() {
+<span class="nc" id="L1195">		return cashPayoff;</span>
+	}
+
+	/**
+	 * Returns the lower barrier.
+	 *
+	 * @return The lower barrier.
+	 */
+	public double getLowerBarrier() {
+<span class="nc" id="L1204">		return lowerBarrier;</span>
+	}
+
+	/**
+	 * Returns the upper barrier.
+	 *
+	 * @return The upper barrier.
+	 */
+	public double getUpperBarrier() {
+<span class="nc" id="L1213">		return upperBarrier;</span>
+	}
+
+	/**
+	 * Returns the double-barrier type.
+	 *
+	 * @return The double-barrier type.
+	 */
+	public DoubleBarrierType getDoubleBarrierType() {
+<span class="nc" id="L1222">		return doubleBarrierType;</span>
+	}
+
+	/**
+	 * Returns the exercise specification.
+	 *
+	 * @return The exercise specification.
+	 */
+	public Exercise getExercise() {
+<span class="nc" id="L1231">		return exercise;</span>
+	}
+
+	/**
+	 * Returns the monitoring type.
+	 *
+	 * @return The monitoring type.
+	 */
+	public MonitoringType getMonitoringType() {
+<span class="nc" id="L1240">		return monitoringType;</span>
+	}
+
+	/**
+	 * Returns the monitoring times.
+	 *
+	 * @return The monitoring times, or {@code null} for continuous monitoring.
+	 */
+	public double[] getMonitoringTimes() {
+<span class="nc bnc" id="L1249" title="All 2 branches missed.">		return monitoringTimes == null ? null : monitoringTimes.clone();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExpectedTailLoss.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.products.components</a> &gt; <span class="el_source">ExpectedTailLoss.java</span></div><h1>ExpectedTailLoss.java</h1><pre class="source lang-java linenums">/*
+ * Created on 22.11.2009
+ */
+package net.finmath.montecarlo.interestrate.products.components;
+
+import java.util.ArrayList;
+import java.util.Set;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.conditionalexpectation.MonteCarloConditionalExpectationRegression;
+import net.finmath.montecarlo.interestrate.LIBORModelMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.TermStructureMonteCarloProduct;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * The expected tail loss.
+ * Provides the function underlying(exerciseDate) &amp;ge; quantileValue ? underlying : 0.0,
+ * where quantileValue is such that P(underlying &amp;gt; quantileValue) = quantile
+ *
+ * @author Christian Fries
+ * @version 1.1
+ * @since finmath-lib 4.1.0
+ */
+public class ExpectedTailLoss extends AbstractProductComponent {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 3211126102506873636L;
+	private final double exerciseDate;
+	private final double quantile;
+	private final TermStructureMonteCarloProduct underlying;
+
+	/**
+	 * Creates the function underlying(exerciseDate) &amp;ge; quantileValue ? underlying : 0.0,
+	 * where quantileValue is such that P(underlying &amp;gt; quantileValue) = quantile
+	 *
+	 * @param exerciseDate The date at which the underlying should be observed.
+	 * @param quantile The quantile value.
+	 * @param underlying The underlying.
+	 */
+	public ExpectedTailLoss(final double exerciseDate,
+			final double quantile,
+			final TermStructureMonteCarloProduct underlying) {
+<span class="nc" id="L48">		super();</span>
+<span class="nc" id="L49">		this.exerciseDate = exerciseDate;</span>
+<span class="nc" id="L50">		this.quantile = quantile;</span>
+<span class="nc" id="L51">		this.underlying = underlying;</span>
+<span class="nc" id="L52">	}</span>
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		if(underlying instanceof AbstractProductComponent) {</span>
+<span class="nc" id="L57">			return ((AbstractProductComponent)underlying).queryUnderlyings();</span>
+		} else {
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;Underlying cannot be queried for underlyings.&quot;);</span>
+		}
+	}
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final TermStructureMonteCarloSimulationModel model) throws CalculationException {
+
+		// &gt;=?
+<span class="nc bnc" id="L77" title="All 2 branches missed.">		if(evaluationTime &gt; exerciseDate) {</span>
+<span class="nc" id="L78">			return new RandomVariableFromDoubleArray(0.0);</span>
+		}
+
+		// Values
+<span class="nc" id="L82">		RandomVariable values = underlying.getValue(exerciseDate, model);</span>
+
+
+		// Remove foresight through conditional expectation
+<span class="nc" id="L86">		final MonteCarloConditionalExpectationRegression conditionalExpectationOperator = new MonteCarloConditionalExpectationRegression(getRegressionBasisFunctions(exerciseDate, (LIBORModelMonteCarloSimulationModel) model));</span>
+
+		// Calculate cond. expectation. Note that no discounting (numeraire division) is required!
+<span class="nc" id="L89">		final RandomVariable underlyingExpectedValues = values.getConditionalExpectation(conditionalExpectationOperator);</span>
+
+<span class="nc" id="L91">		final double quantileValue = underlyingExpectedValues.getQuantile(quantile);</span>
+
+		// Apply floor
+<span class="nc" id="L94">		values = values.sub(quantileValue).choose(values, new Scalar(0.0));</span>
+
+		// Discount to evaluation time
+<span class="nc bnc" id="L97" title="All 2 branches missed.">		if(evaluationTime != exerciseDate) {</span>
+<span class="nc" id="L98">			final RandomVariable	numeraireAtEval			= model.getNumeraire(evaluationTime);</span>
+<span class="nc" id="L99">			final RandomVariable	numeraire				= model.getNumeraire(exerciseDate);</span>
+<span class="nc" id="L100">			values = values.div(numeraire).mult(numeraireAtEval);</span>
+		}
+
+		// Return values
+<span class="nc" id="L104">		return values;</span>
+	}
+
+	/**
+	 * @param exerciseDate
+	 * @param model
+	 * @return
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	private RandomVariable[] getRegressionBasisFunctions(final double exerciseDate, final LIBORModelMonteCarloSimulationModel model) throws CalculationException {
+
+<span class="nc" id="L115">		final ArrayList&lt;RandomVariable&gt; basisFunctions = new ArrayList&lt;&gt;();</span>
+
+		RandomVariable basisFunction;
+
+		// Constant
+<span class="nc" id="L120">		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);</span>
+<span class="nc" id="L121">		basisFunctions.add(basisFunction);</span>
+
+		// LIBORs
+		int liborPeriodIndex, liborPeriodIndexEnd;
+		RandomVariable rate;
+
+		// 1 Period
+<span class="nc" id="L128">		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);</span>
+<span class="nc" id="L129">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="nc" id="L130">		liborPeriodIndexEnd = liborPeriodIndex+1;</span>
+<span class="nc" id="L131">		final double periodLength1 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="nc" id="L133">		rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="nc" id="L134">		basisFunction = basisFunction.discount(rate, periodLength1);</span>
+<span class="nc" id="L135">		basisFunctions.add(basisFunction);</span>
+
+<span class="nc" id="L137">		basisFunction = basisFunction.discount(rate, periodLength1);</span>
+<span class="nc" id="L138">		basisFunctions.add(basisFunction);</span>
+
+		// n/2 Period
+<span class="nc" id="L141">		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);</span>
+<span class="nc" id="L142">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="nc" id="L143">		liborPeriodIndexEnd = (liborPeriodIndex + model.getNumberOfLibors())/2;</span>
+
+<span class="nc" id="L145">		final double periodLength2 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="nc bnc" id="L147" title="All 2 branches missed.">		if(periodLength2 != periodLength1) {</span>
+<span class="nc" id="L148">			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="nc" id="L149">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+<span class="nc" id="L150">			basisFunctions.add(basisFunction);</span>
+
+<span class="nc" id="L152">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+<span class="nc" id="L153">			basisFunctions.add(basisFunction);</span>
+
+<span class="nc" id="L155">			basisFunction = basisFunction.discount(rate, periodLength2);</span>
+<span class="nc" id="L156">			basisFunctions.add(basisFunction);</span>
+		}
+
+
+		// n Period
+<span class="nc" id="L161">		basisFunction = new RandomVariableFromDoubleArray(exerciseDate, 1.0);</span>
+<span class="nc" id="L162">		liborPeriodIndex = model.getLiborPeriodIndex(exerciseDate);</span>
+<span class="nc" id="L163">		liborPeriodIndexEnd = model.getNumberOfLibors();</span>
+<span class="nc" id="L164">		final double periodLength3 = model.getLiborPeriod(liborPeriodIndexEnd) - model.getLiborPeriod(liborPeriodIndex);</span>
+
+<span class="nc bnc" id="L166" title="All 4 branches missed.">		if(periodLength3 != periodLength1 &amp;&amp; periodLength3 != periodLength2) {</span>
+<span class="nc" id="L167">			rate = model.getForwardRate(exerciseDate, model.getLiborPeriod(liborPeriodIndex), model.getLiborPeriod(liborPeriodIndexEnd));</span>
+<span class="nc" id="L168">			basisFunction = basisFunction.discount(rate, periodLength3);</span>
+<span class="nc" id="L169">			basisFunctions.add(basisFunction);</span>
+
+<span class="nc" id="L171">			basisFunction = basisFunction.discount(rate, periodLength3);</span>
+<span class="nc" id="L172">			basisFunctions.add(basisFunction);</span>
+		}
+
+<span class="nc" id="L175">		return basisFunctions.toArray(new RandomVariable[0]);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

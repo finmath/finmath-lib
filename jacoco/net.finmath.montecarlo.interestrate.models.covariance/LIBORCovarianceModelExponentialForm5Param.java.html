@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LIBORCovarianceModelExponentialForm5Param.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.covariance</a> &gt; <span class="el_source">LIBORCovarianceModelExponentialForm5Param.java</span></div><h1>LIBORCovarianceModelExponentialForm5Param.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2006
+ */
+package net.finmath.montecarlo.interestrate.models.covariance;
+
+import java.util.Arrays;
+import java.util.Map;
+import java.util.function.ToDoubleFunction;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.RandomVariableFactory;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * The five parameter covariance model consisting of an
+ * {@link LIBORVolatilityModelMaturityDependentFourParameterExponentialForm}
+ * and an
+ * {@link LIBORCorrelationModelExponentialDecay}.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class LIBORCovarianceModelExponentialForm5Param extends AbstractLIBORCovarianceModelParametric {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -6538642489767323201L;
+
+<span class="fc" id="L35">	private RandomVariable[] parameter = new RandomVariable[5];</span>
+
+	private LIBORVolatilityModel		volatilityModel;
+	private LIBORCorrelationModel	correlationModel;
+
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final RandomVariable[] parameters) {
+<span class="fc" id="L41">		super(timeDiscretization, liborPeriodDiscretization, numberOfFactors);</span>
+
+<span class="fc" id="L43">		parameter = parameters.clone();</span>
+<span class="fc" id="L44">		volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameter[0], parameter[1], parameter[2], parameter[3], false);</span>
+<span class="fc" id="L45">		correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameter[4].doubleValue(), false);</span>
+<span class="fc" id="L46">	}</span>
+
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors, final double[] parameters) {
+<span class="fc" id="L49">		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, Scalar.arrayOf(parameters));</span>
+<span class="fc" id="L50">	}</span>
+
+	public LIBORCovarianceModelExponentialForm5Param(final TimeDiscretization timeDiscretization, final TimeDiscretization liborPeriodDiscretization, final int numberOfFactors) {
+<span class="fc" id="L53">		this(timeDiscretization, liborPeriodDiscretization, numberOfFactors, new double[] { 0.20, 0.05, 0.10, 0.20, 0.10});</span>
+<span class="fc" id="L54">	}</span>
+	@Override
+	public Object clone() {
+<span class="fc" id="L57">		final LIBORCovarianceModelExponentialForm5Param model = new LIBORCovarianceModelExponentialForm5Param(this.getTimeDiscretization(), this.getLiborPeriodDiscretization(), this.getNumberOfFactors(), this.getParameter());</span>
+<span class="fc" id="L58">		model.parameter = parameter;</span>
+<span class="fc" id="L59">		model.volatilityModel = volatilityModel;</span>
+<span class="fc" id="L60">		model.correlationModel = correlationModel;</span>
+<span class="fc" id="L61">		return model;</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final RandomVariable[] parameters) {
+<span class="fc" id="L66">		final LIBORCovarianceModelExponentialForm5Param model = (LIBORCovarianceModelExponentialForm5Param)this.clone();</span>
+
+<span class="fc" id="L68">		model.parameter = parameters;</span>
+<span class="pc bpc" id="L69" title="7 of 8 branches missed.">		if(parameters[0] != parameter[0] || parameters[1] != parameter[1] || parameters[2] != parameter[2] || parameters[3] != parameter[3]) {</span>
+<span class="fc" id="L70">			model.volatilityModel	= new LIBORVolatilityModelFourParameterExponentialForm(getTimeDiscretization(), getLiborPeriodDiscretization(), parameters[0], parameters[1], parameters[2], parameters[3], false);</span>
+		}
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">		if(parameters[4] != parameter[4]) {</span>
+<span class="fc" id="L73">			model.correlationModel	= new LIBORCorrelationModelExponentialDecay(getLiborPeriodDiscretization(), getLiborPeriodDiscretization(), getNumberOfFactors(), parameters[4].doubleValue(), false);</span>
+		}
+
+<span class="fc" id="L76">		return model;</span>
+	}
+
+	@Override
+	public RandomVariable[] getParameter() {
+<span class="fc" id="L81">		return parameter.clone();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedParameters(final double[] parameters) {
+<span class="fc" id="L86">		return getCloneWithModifiedParameters(Scalar.arrayOf(parameters));</span>
+	}
+
+	@Override
+	public double[] getParameterAsDouble() {
+<span class="fc" id="L91">		final RandomVariable[] parameters = getParameter();</span>
+<span class="fc" id="L92">		final double[] parametersAsDouble = new double[parameters.length];</span>
+<span class="fc bfc" id="L93" title="All 2 branches covered.">		for(int i=0; i&lt;parameters.length; i++) {</span>
+<span class="fc" id="L94">			parametersAsDouble[i] = parameters[i].doubleValue();</span>
+		}
+<span class="fc" id="L96">		return parametersAsDouble;</span>
+	}
+
+	@Override
+	public RandomVariable[] getFactorLoading(final int timeIndex, final int component, final RandomVariable[] realizationAtTimeIndex) {
+<span class="fc" id="L101">		final RandomVariable[] factorLoading = new RandomVariable[correlationModel.getNumberOfFactors()];</span>
+<span class="fc bfc" id="L102" title="All 2 branches covered.">		for (int factorIndex = 0; factorIndex &lt; factorLoading.length; factorIndex++) {</span>
+<span class="fc" id="L103">			final RandomVariable volatility = volatilityModel.getVolatility(timeIndex, component);</span>
+<span class="fc" id="L104">			factorLoading[factorIndex] = volatility</span>
+<span class="fc" id="L105">					.mult(correlationModel.getFactorLoading(timeIndex, factorIndex, component));</span>
+		}
+
+<span class="fc" id="L108">		return factorLoading;</span>
+	}
+
+	@Override
+	public RandomVariableFromDoubleArray getFactorLoadingPseudoInverse(final int timeIndex, final int component, final int factor, final RandomVariable[] realizationAtTimeIndex) {
+<span class="nc" id="L113">		throw new UnsupportedOperationException();</span>
+	}
+
+	@Override
+	public AbstractLIBORCovarianceModelParametric getCloneWithModifiedData(final Map&lt;String, Object&gt; dataModified)
+			throws CalculationException {
+<span class="nc" id="L119">		TimeDiscretization timeDiscretization = this.getTimeDiscretization();</span>
+<span class="nc" id="L120">		TimeDiscretization liborPeriodDiscretization = this.getLiborPeriodDiscretization();</span>
+<span class="nc" id="L121">		int numberOfFactors = this.getNumberOfFactors();</span>
+<span class="nc" id="L122">		RandomVariable[] parameter = this.parameter;</span>
+<span class="nc" id="L123">		RandomVariableFactory randomVariableFactory = null;</span>
+
+<span class="nc bnc" id="L125" title="All 2 branches missed.">		if(dataModified != null) {</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">			if(dataModified.containsKey(&quot;randomVariableFactory&quot;)) {</span>
+<span class="nc" id="L127">				randomVariableFactory = (RandomVariableFactory)dataModified.get(&quot;randomVariableFactory&quot;);</span>
+<span class="nc" id="L128">				parameter = randomVariableFactory.createRandomVariableArray(Arrays.stream(parameter).mapToDouble(new ToDoubleFunction&lt;RandomVariable&gt;() {</span>
+					@Override
+					public double applyAsDouble(final RandomVariable para) {
+<span class="nc" id="L131">						return para.doubleValue();</span>
+					}
+<span class="nc" id="L133">				}).toArray());</span>
+			}
+
+<span class="nc" id="L136">			timeDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;timeDiscretization&quot;, timeDiscretization);</span>
+<span class="nc" id="L137">			liborPeriodDiscretization = (TimeDiscretization)dataModified.getOrDefault(&quot;liborPeriodDiscretization&quot;, liborPeriodDiscretization);</span>
+<span class="nc" id="L138">			numberOfFactors = (int)dataModified.getOrDefault(&quot;numberOfFactors&quot;, numberOfFactors);</span>
+
+<span class="nc bnc" id="L140" title="All 2 branches missed.">			if(dataModified.getOrDefault(&quot;parameter&quot;, parameter) instanceof RandomVariable[]) {</span>
+<span class="nc" id="L141">				parameter = (RandomVariable[])dataModified.getOrDefault(&quot;parameter&quot;, parameter);</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">			}else if(randomVariableFactory==null){</span>
+<span class="nc" id="L143">				parameter = Scalar.arrayOf((double[])dataModified.get(&quot;parameter&quot;));</span>
+			}else {
+<span class="nc" id="L145">				parameter = randomVariableFactory.createRandomVariableArray((double[])dataModified.get(&quot;parameter&quot;));</span>
+			}
+		}
+
+<span class="nc" id="L149">		final AbstractLIBORCovarianceModelParametric newModel = new LIBORCovarianceModelExponentialForm5Param(timeDiscretization, liborPeriodDiscretization, numberOfFactors, parameter);</span>
+<span class="nc" id="L150">		return newModel;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

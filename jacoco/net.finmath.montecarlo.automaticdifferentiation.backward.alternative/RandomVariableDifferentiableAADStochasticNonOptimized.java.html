@@ -1,0 +1,954 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RandomVariableDifferentiableAADStochasticNonOptimized.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.automaticdifferentiation.backward.alternative</a> &gt; <span class="el_source">RandomVariableDifferentiableAADStochasticNonOptimized.java</span></div><h1>RandomVariableDifferentiableAADStochasticNonOptimized.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christianfries.com.
+ *
+ * Created on 17.06.2017
+ */
+package net.finmath.montecarlo.automaticdifferentiation.backward.alternative;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
+import java.util.function.Function;
+import java.util.function.IntToDoubleFunction;
+import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+
+import net.finmath.functions.DoubleTernaryOperator;
+import net.finmath.montecarlo.RandomVariableFromDoubleArray;
+import net.finmath.montecarlo.automaticdifferentiation.RandomVariableDifferentiable;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implementation of &lt;code&gt;RandomVariableDifferentiable&lt;/code&gt; using
+ * the backward algorithmic differentiation (adjoint algorithmic differentiation, AAD).
+ *
+ * @author Christian Fries
+ * @author Stefan Sedlmair
+ * @version 1.0
+ */
+public class RandomVariableDifferentiableAADStochasticNonOptimized implements RandomVariableDifferentiable {
+
+	private static final long serialVersionUID = 2459373647785530657L;
+
+<span class="nc" id="L39">	private static AtomicLong indexOfNextRandomVariable = new AtomicLong(0);</span>
+
+<span class="nc" id="L41">	private enum OperatorType {</span>
+<span class="nc" id="L42">		ADD, MULT, DIV, SUB, SQUARED, SQRT, LOG, SIN, COS, EXP, INVERT, CAP, FLOOR, ABS,</span>
+<span class="nc" id="L43">		ADDPRODUCT, ADDRATIO, SUBRATIO, BARRIER, DISCOUNT, ACCRUE, POW, MIN, MAX, AVERAGE, VARIANCE,</span>
+<span class="nc" id="L44">		STDEV, STDERROR, SVARIANCE, AVERAGE2, VARIANCE2,</span>
+<span class="nc" id="L45">		STDEV2, STDERROR2</span>
+	}
+
+	private static class OperatorTreeNode {
+		private final Long id;
+		private final OperatorType operator;
+		private final List&lt;OperatorTreeNode&gt; arguments;
+		private final List&lt;RandomVariable&gt; argumentValues;
+
+		OperatorTreeNode(final OperatorType operator, final List&lt;RandomVariable&gt; arguments) {
+<span class="nc" id="L55">			this(operator,</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">					arguments != null ? arguments.stream().map(new Function&lt;RandomVariable, OperatorTreeNode&gt;() {</span>
+						@Override
+						public OperatorTreeNode apply(final RandomVariable x) {
+<span class="nc bnc" id="L59" title="All 4 branches missed.">							return (x != null &amp;&amp; x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getOperatorTreeNode(): null;</span>
+						}
+<span class="nc" id="L61">					}).collect(Collectors.toList()) : null,</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">							arguments != null ? arguments.stream().map(new Function&lt;RandomVariable, RandomVariable&gt;() {</span>
+								@Override
+								public RandomVariable apply(final RandomVariable x) {
+<span class="nc bnc" id="L65" title="All 4 branches missed.">									return (x != null &amp;&amp; x instanceof RandomVariableDifferentiableAADStochasticNonOptimized) ? ((RandomVariableDifferentiableAADStochasticNonOptimized)x).getValues() : x;</span>
+								}
+<span class="nc" id="L67">							}).collect(Collectors.toList()) : null</span>
+					);
+
+<span class="nc" id="L70">		}</span>
+		OperatorTreeNode(final OperatorType operator, final List&lt;OperatorTreeNode&gt; arguments, final List&lt;RandomVariable&gt; argumentValues) {
+<span class="nc" id="L72">			super();</span>
+<span class="nc" id="L73">			id = indexOfNextRandomVariable.getAndIncrement();</span>
+<span class="nc" id="L74">			this.operator = operator;</span>
+<span class="nc" id="L75">			this.arguments = arguments;</span>
+<span class="nc" id="L76">			this.argumentValues = argumentValues;</span>
+<span class="nc" id="L77">		}</span>
+
+		private void propagateDerivativesFromResultToArgument(final Map&lt;Long, RandomVariable&gt; derivatives) {
+
+<span class="nc bnc" id="L81" title="All 2 branches missed.">			for(final OperatorTreeNode argument : arguments) {</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">				if(argument != null) {</span>
+<span class="nc" id="L83">					final Long argumentID = argument.id;</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">					if(!derivatives.containsKey(argumentID)) {</span>
+<span class="nc" id="L85">						derivatives.put(argumentID, new RandomVariableFromDoubleArray(0.0));</span>
+					}
+
+<span class="nc" id="L88">					final RandomVariable partialDerivative	= getPartialDerivative(argument);</span>
+<span class="nc" id="L89">					final RandomVariable derivative			= derivatives.get(id);</span>
+<span class="nc" id="L90">					RandomVariable argumentDerivative	= derivatives.get(argumentID);</span>
+
+<span class="nc" id="L92">					argumentDerivative = argumentDerivative.addProduct(partialDerivative, derivative);</span>
+
+<span class="nc" id="L94">					derivatives.put(argumentID, argumentDerivative);</span>
+				}
+<span class="nc" id="L96">			}</span>
+<span class="nc" id="L97">		}</span>
+
+		private RandomVariable getPartialDerivative(final OperatorTreeNode differential){
+
+<span class="nc bnc" id="L101" title="All 2 branches missed.">			if(!arguments.contains(differential)) {</span>
+<span class="nc" id="L102">				return new RandomVariableFromDoubleArray(0.0);</span>
+			}
+
+<span class="nc" id="L105">			final int differentialIndex = arguments.indexOf(differential);</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">			final RandomVariable X = arguments.size() &gt; 0 &amp;&amp; argumentValues != null ? argumentValues.get(0) : null;</span>
+<span class="nc bnc" id="L107" title="All 4 branches missed.">			final RandomVariable Y = arguments.size() &gt; 1 &amp;&amp; argumentValues != null ? argumentValues.get(1) : null;</span>
+<span class="nc bnc" id="L108" title="All 4 branches missed.">			final RandomVariable Z = arguments.size() &gt; 2 &amp;&amp; argumentValues != null ? argumentValues.get(2) : null;</span>
+
+<span class="nc" id="L110">			RandomVariable resultrandomvariable = null;</span>
+
+<span class="nc bnc" id="L112" title="All 32 branches missed.">			switch(operator) {</span>
+			/* functions with one argument  */
+			case SQUARED:
+<span class="nc" id="L115">				resultrandomvariable = X.mult(2.0);</span>
+<span class="nc" id="L116">				break;</span>
+			case SQRT:
+<span class="nc" id="L118">				resultrandomvariable = X.sqrt().invert().mult(0.5);</span>
+<span class="nc" id="L119">				break;</span>
+			case EXP:
+<span class="nc" id="L121">				resultrandomvariable = X.exp();</span>
+<span class="nc" id="L122">				break;</span>
+			case LOG:
+<span class="nc" id="L124">				resultrandomvariable = X.invert();</span>
+<span class="nc" id="L125">				break;</span>
+			case SIN:
+<span class="nc" id="L127">				resultrandomvariable = X.cos();</span>
+<span class="nc" id="L128">				break;</span>
+			case COS:
+<span class="nc" id="L130">				resultrandomvariable = X.sin().mult(-1.0);</span>
+<span class="nc" id="L131">				break;</span>
+			case AVERAGE:
+<span class="nc" id="L133">				resultrandomvariable = new RandomVariableFromDoubleArray(X.size()).invert();</span>
+<span class="nc" id="L134">				break;</span>
+			case VARIANCE:
+<span class="nc" id="L136">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size());</span>
+<span class="nc" id="L137">				break;</span>
+			case STDEV:
+<span class="nc" id="L139">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance()));</span>
+<span class="nc" id="L140">				break;</span>
+			case MIN:
+<span class="nc" id="L142">				final double min = X.getMin();</span>
+<span class="nc" id="L143">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L146" title="All 2 branches missed.">						return (x == min) ? 1.0 : 0.0;</span>
+					}
+				});
+<span class="nc" id="L149">				break;</span>
+			case MAX:
+<span class="nc" id="L151">				final double max = X.getMax();</span>
+<span class="nc" id="L152">				resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+					@Override
+					public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">						return (x == max) ? 1.0 : 0.0;</span>
+					}
+				});
+<span class="nc" id="L158">				break;</span>
+			case ABS:
+<span class="nc" id="L160">				resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(-1.0));</span>
+<span class="nc" id="L161">				break;</span>
+			case STDERROR:
+<span class="nc" id="L163">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/X.size()).mult(0.5).div(Math.sqrt(X.getVariance() * X.size()));</span>
+<span class="nc" id="L164">				break;</span>
+			case SVARIANCE:
+<span class="nc" id="L166">				resultrandomvariable = X.sub(X.getAverage()*(2.0*X.size()-1.0)/X.size()).mult(2.0/(X.size()-1));</span>
+<span class="nc" id="L167">				break;</span>
+			case ADD:
+<span class="nc" id="L169">				resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc" id="L170">				break;</span>
+			case SUB:
+<span class="nc bnc" id="L172" title="All 2 branches missed.">				resultrandomvariable = new RandomVariableFromDoubleArray(differentialIndex == 0 ? 1.0 : -1.0);</span>
+<span class="nc" id="L173">				break;</span>
+			case MULT:
+<span class="nc bnc" id="L175" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y : X;</span>
+<span class="nc" id="L176">				break;</span>
+			case DIV:
+<span class="nc bnc" id="L178" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y.invert() : X.div(Y.squared()).mult(-1);</span>
+<span class="nc" id="L179">				break;</span>
+			case CAP:
+<span class="nc bnc" id="L181" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L182">					resultrandomvariable = X.sub(Y).choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0));</span>
+				}
+				else {
+<span class="nc" id="L185">					resultrandomvariable = X.sub(Y).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+				}
+<span class="nc" id="L187">				break;</span>
+			case FLOOR:
+<span class="nc bnc" id="L189" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L190">					resultrandomvariable = X.sub(Y).choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+				}
+				else {
+<span class="nc" id="L193">					resultrandomvariable = X.sub(Y).choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0));</span>
+				}
+<span class="nc" id="L195">				break;</span>
+			case AVERAGE2:
+<span class="nc bnc" id="L197" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y : X;</span>
+<span class="nc" id="L198">				break;</span>
+			case VARIANCE2:
+<span class="nc bnc" id="L200" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))) :</span>
+<span class="nc" id="L201">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X))));</span>
+<span class="nc" id="L202">				break;</span>
+			case STDEV2:
+<span class="nc bnc" id="L204" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y))) :</span>
+<span class="nc" id="L205">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X)));</span>
+<span class="nc" id="L206">				break;</span>
+			case STDERROR2:
+<span class="nc bnc" id="L208" title="All 2 branches missed.">				resultrandomvariable = differentialIndex == 0 ? Y.mult(2.0).mult(X.mult(Y.add(X.getAverage(Y)*(X.size()-1)).sub(X.getAverage(Y)))).div(Math.sqrt(X.getVariance(Y) * X.size())) :</span>
+<span class="nc" id="L209">					X.mult(2.0).mult(Y.mult(X.add(Y.getAverage(X)*(X.size()-1)).sub(Y.getAverage(X)))).div(Math.sqrt(Y.getVariance(X) * Y.size()));</span>
+<span class="nc" id="L210">				break;</span>
+			case POW:
+				/* second argument will always be deterministic and constant! */
+<span class="nc bnc" id="L213" title="All 2 branches missed.">				resultrandomvariable = (differentialIndex == 0) ? Y.mult(X.pow(Y.getAverage() - 1.0)) : new RandomVariableFromDoubleArray(0.0);</span>
+<span class="nc" id="L214">				break;</span>
+			case ADDPRODUCT:
+<span class="nc bnc" id="L216" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L217">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L219">					resultrandomvariable = Z;</span>
+				} else {
+<span class="nc" id="L221">					resultrandomvariable = Y;</span>
+				}
+<span class="nc" id="L223">				break;</span>
+			case ADDRATIO:
+<span class="nc bnc" id="L225" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L226">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L227" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L228">					resultrandomvariable = Z.invert();</span>
+				} else {
+<span class="nc" id="L230">					resultrandomvariable = Y.div(Z.squared());</span>
+				}
+<span class="nc" id="L232">				break;</span>
+			case SUBRATIO:
+<span class="nc bnc" id="L234" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L235">					resultrandomvariable = new RandomVariableFromDoubleArray(1.0);</span>
+<span class="nc bnc" id="L236" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L237">					resultrandomvariable = Z.invert().mult(-1.0);</span>
+				} else {
+<span class="nc" id="L239">					resultrandomvariable = Y.div(Z.squared()).mult(-1.0);</span>
+				}
+<span class="nc" id="L241">				break;</span>
+			case ACCRUE:
+<span class="nc bnc" id="L243" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L244">					resultrandomvariable = Y.mult(Z).add(1.0);</span>
+<span class="nc bnc" id="L245" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L246">					resultrandomvariable = X.mult(Z);</span>
+				} else {
+<span class="nc" id="L248">					resultrandomvariable = X.mult(Y);</span>
+				}
+<span class="nc" id="L250">				break;</span>
+			case DISCOUNT:
+<span class="nc bnc" id="L252" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L253">					resultrandomvariable = Y.mult(Z).add(1.0).invert();</span>
+<span class="nc bnc" id="L254" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L255">					resultrandomvariable = X.mult(Z).div(Y.mult(Z).add(1.0).squared());</span>
+				} else {
+<span class="nc" id="L257">					resultrandomvariable = X.mult(Y).div(Y.mult(Z).add(1.0).squared());</span>
+				}
+<span class="nc" id="L259">				break;</span>
+			case BARRIER:
+<span class="nc bnc" id="L261" title="All 2 branches missed.">				if(differentialIndex == 0) {</span>
+<span class="nc" id="L262">					resultrandomvariable = X.apply(new DoubleUnaryOperator() {</span>
+						@Override
+						public double applyAsDouble(final double x) {
+<span class="nc bnc" id="L265" title="All 2 branches missed.">							return (x == 0.0) ? Double.POSITIVE_INFINITY : 0.0;</span>
+						}
+					});
+<span class="nc bnc" id="L268" title="All 2 branches missed.">				} else if(differentialIndex == 1) {</span>
+<span class="nc" id="L269">					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(1.0), new RandomVariableFromDoubleArray(0.0));</span>
+				} else {
+<span class="nc" id="L271">					resultrandomvariable = X.choose(new RandomVariableFromDoubleArray(0.0), new RandomVariableFromDoubleArray(1.0));</span>
+				}
+			default:
+				break;
+			}
+
+<span class="nc" id="L277">			return resultrandomvariable;</span>
+		}
+	}
+
+	private final RandomVariable values;
+	private final OperatorTreeNode operatorTreeNode;
+
+	public static RandomVariableDifferentiableAADStochasticNonOptimized of(final double value) {
+<span class="nc" id="L285">		return new RandomVariableDifferentiableAADStochasticNonOptimized(value);</span>
+	}
+
+	public static RandomVariableDifferentiableAADStochasticNonOptimized of(final RandomVariable randomVariable) {
+<span class="nc" id="L289">		return new RandomVariableDifferentiableAADStochasticNonOptimized(randomVariable);</span>
+	}
+
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final double value) {
+<span class="nc" id="L293">		this(new RandomVariableFromDoubleArray(value), null, null);</span>
+<span class="nc" id="L294">	}</span>
+
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final double time, final double[] realisations) {
+<span class="nc" id="L297">		this(new RandomVariableFromDoubleArray(time, realisations), null, null);</span>
+<span class="nc" id="L298">	}</span>
+
+	public RandomVariableDifferentiableAADStochasticNonOptimized(final RandomVariable randomVariable) {
+<span class="nc" id="L301">		this(randomVariable, null, null);</span>
+<span class="nc" id="L302">	}</span>
+
+	private RandomVariableDifferentiableAADStochasticNonOptimized(final RandomVariable values, final List&lt;RandomVariable&gt; arguments, final OperatorType operator) {
+<span class="nc" id="L305">		super();</span>
+<span class="nc" id="L306">		this.values = values;</span>
+<span class="nc" id="L307">		operatorTreeNode = new OperatorTreeNode(operator, arguments);</span>
+<span class="nc" id="L308">	}</span>
+
+	public RandomVariable getRandomVariable() {
+<span class="nc" id="L311">		return values;</span>
+	}
+
+	public OperatorTreeNode getOperatorTreeNode() {
+<span class="nc" id="L315">		return operatorTreeNode;</span>
+	}
+
+	@Override
+	public Long getID(){
+<span class="nc" id="L320">		return getOperatorTreeNode().id;</span>
+	}
+
+	@Override
+	public Map&lt;Long, RandomVariable&gt; getGradient(final Set&lt;Long&gt; independentIDs) {
+
+		// The map maintaining the derivatives id -&gt; derivative
+<span class="nc" id="L327">		final Map&lt;Long, RandomVariable&gt; derivatives = new HashMap&lt;&gt;();</span>
+
+		// Put derivative of this node w.r.t. itself
+<span class="nc" id="L330">		derivatives.put(getID(), new RandomVariableFromDoubleArray(1.0));</span>
+
+		// The set maintaining the independents. Note: TreeMap is maintaining a sort on the keys.
+<span class="nc" id="L333">		final TreeMap&lt;Long, OperatorTreeNode&gt; independents = new TreeMap&lt;&gt;();</span>
+<span class="nc" id="L334">		independents.put(getID(), getOperatorTreeNode());</span>
+
+<span class="nc bnc" id="L336" title="All 2 branches missed.">		while(independents.size() &gt; 0) {</span>
+			// Process node with the highest id in independents
+<span class="nc" id="L338">			final Map.Entry&lt;Long, OperatorTreeNode&gt; independentEntry = independents.lastEntry();</span>
+<span class="nc" id="L339">			final Long id = independentEntry.getKey();</span>
+<span class="nc" id="L340">			final OperatorTreeNode independent = independentEntry.getValue();</span>
+
+			// Get arguments of this node and propagate derivative to arguments
+<span class="nc" id="L343">			final List&lt;OperatorTreeNode&gt; arguments = independent.arguments;</span>
+<span class="nc bnc" id="L344" title="All 4 branches missed.">			if(arguments != null &amp;&amp; arguments.size() &gt; 0) {</span>
+<span class="nc" id="L345">				independent.propagateDerivativesFromResultToArgument(derivatives);</span>
+
+				// Add all non constant arguments to the list of independents
+<span class="nc bnc" id="L348" title="All 2 branches missed.">				for(final OperatorTreeNode argument : arguments) {</span>
+<span class="nc bnc" id="L349" title="All 2 branches missed.">					if(argument != null) {</span>
+<span class="nc" id="L350">						final Long argumentId = argument.id;</span>
+<span class="nc" id="L351">						independents.put(argumentId, argument);</span>
+					}
+<span class="nc" id="L353">				}</span>
+
+				// Remove id from derivatives - keep only leaf nodes.
+<span class="nc" id="L356">				derivatives.remove(id);</span>
+			}
+
+			// Done with processing. Remove from map.
+<span class="nc" id="L360">			independents.remove(id);</span>
+<span class="nc" id="L361">		}</span>
+
+<span class="nc" id="L363">		return derivatives;</span>
+	}
+
+	@Override
+	public Map&lt;Long, RandomVariable&gt; getTangents(final Set&lt;Long&gt; dependentIDs) {
+<span class="nc" id="L368">		throw new UnsupportedOperationException();</span>
+	}
+
+	/* for all functions that need to be differentiated and are returned as double in the Interface, write a method to return it as RandomVariableAAD
+	 * that is deterministic by its nature. For their double-returning pendant just return the average of the deterministic RandomVariableAAD  */
+
+	public RandomVariable getAverageAsRandomVariableAAD(final RandomVariable probabilities) {
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L376">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L377">				new RandomVariableFromDoubleArray(getAverage(probabilities)),</span>
+<span class="nc" id="L378">				Arrays.asList(this, new RandomVariableFromDoubleArray(probabilities)),</span>
+				OperatorType.AVERAGE2);
+	}
+
+	public RandomVariable getVarianceAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L384">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L385">				new RandomVariableFromDoubleArray(getVariance(probabilities)),</span>
+<span class="nc" id="L386">				Arrays.asList(this, new RandomVariableFromDoubleArray(probabilities)),</span>
+				OperatorType.VARIANCE2);
+	}
+
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L392">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L393">				new RandomVariableFromDoubleArray(getStandardDeviation(probabilities)),</span>
+<span class="nc" id="L394">				Arrays.asList(this, new RandomVariableFromDoubleArray(probabilities)),</span>
+				OperatorType.STDEV2);
+	}
+
+	public RandomVariable 	getStandardErrorAsRandomVariableAAD(final RandomVariable probabilities){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L400">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L401">				new RandomVariableFromDoubleArray(getStandardError(probabilities)),</span>
+<span class="nc" id="L402">				Arrays.asList(this, new RandomVariableFromDoubleArray(probabilities)),</span>
+				OperatorType.STDERROR2);
+	}
+
+	public RandomVariable getAverageAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L408">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L409">				new RandomVariableFromDoubleArray(getAverage()),</span>
+<span class="nc" id="L410">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.AVERAGE);
+	}
+
+	public RandomVariable getVarianceAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L416">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L417">				new RandomVariableFromDoubleArray(getVariance()),</span>
+<span class="nc" id="L418">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.VARIANCE);
+	}
+
+	public RandomVariable getSampleVarianceAsRandomVariableAAD() {
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L424">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L425">				new RandomVariableFromDoubleArray(getSampleVariance()),</span>
+<span class="nc" id="L426">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SVARIANCE);
+	}
+
+	public RandomVariable 	getStandardDeviationAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L432">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L433">				new RandomVariableFromDoubleArray(getStandardDeviation()),</span>
+<span class="nc" id="L434">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.STDEV);
+	}
+
+	public RandomVariable getStandardErrorAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L440">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L441">				new RandomVariableFromDoubleArray(getStandardError()),</span>
+<span class="nc" id="L442">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.STDERROR);
+	}
+
+	public RandomVariable 	getMinAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L448">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L449">				new RandomVariableFromDoubleArray(getMin()),</span>
+<span class="nc" id="L450">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.MIN);
+	}
+
+	public RandomVariable 	getMaxAsRandomVariableAAD(){
+		/*returns deterministic AAD random variable */
+<span class="nc" id="L456">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L457">				new RandomVariableFromDoubleArray(getMax()),</span>
+<span class="nc" id="L458">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.MAX);
+	}
+
+	@Override
+	public RandomVariable getValues(){
+<span class="nc" id="L464">		return values;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#equals(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public boolean equals(final RandomVariable randomVariable) {
+<span class="nc" id="L472">		return getValues().equals(randomVariable);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getFiltrationTime()
+	 */
+	@Override
+	public double getFiltrationTime() {
+<span class="nc" id="L480">		return getValues().getFiltrationTime();</span>
+	}
+
+	@Override
+	public int getTypePriority() {
+<span class="nc" id="L485">		return 3;</span>
+	}
+
+	@Override
+	public double get(final int pathOrState) {
+<span class="nc" id="L490">		return getValues().get(pathOrState);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#size()
+	 */
+	@Override
+	public int size() {
+<span class="nc" id="L498">		return getValues().size();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#isDeterministic()
+	 */
+	@Override
+	public boolean isDeterministic() {
+<span class="nc" id="L506">		return getValues().isDeterministic();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getRealizations()
+	 */
+	@Override
+	public double[] getRealizations() {
+<span class="nc" id="L514">		return getValues().getRealizations();</span>
+	}
+
+	@Override
+	public Double doubleValue() {
+<span class="nc" id="L519">		return getValues().doubleValue();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMin()
+	 */
+	@Override
+	public double getMin() {
+<span class="nc" id="L527">		return getValues().getMin();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getMax()
+	 */
+	@Override
+	public double getMax() {
+<span class="nc" id="L535">		return getValues().getMax();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage()
+	 */
+	@Override
+	public double getAverage() {
+<span class="nc" id="L543">		return getValues().getAverage();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getAverage(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getAverage(final RandomVariable probabilities) {
+<span class="nc" id="L551">		return getValues().getAverage(probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance()
+	 */
+	@Override
+	public double getVariance() {
+<span class="nc" id="L559">		return getValues().getVariance();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getVariance(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getVariance(final RandomVariable probabilities) {
+<span class="nc" id="L567">		return getValues().getVariance(probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getSampleVariance()
+	 */
+	@Override
+	public double getSampleVariance() {
+<span class="nc" id="L575">		return getValues().getSampleVariance();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation()
+	 */
+	@Override
+	public double getStandardDeviation() {
+<span class="nc" id="L583">		return getValues().getStandardDeviation();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardDeviation(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardDeviation(final RandomVariable probabilities) {
+<span class="nc" id="L591">		return getValues().getStandardDeviation(probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError()
+	 */
+	@Override
+	public double getStandardError() {
+<span class="nc" id="L599">		return getValues().getStandardError();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getStandardError(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getStandardError(final RandomVariable probabilities) {
+<span class="nc" id="L607">		return getValues().getStandardError(probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double)
+	 */
+	@Override
+	public double getQuantile(final double quantile) {
+<span class="nc" id="L615">		return getValues().getQuantile(quantile);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantile(double, net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public double getQuantile(final double quantile, final RandomVariable probabilities) {
+<span class="nc" id="L623">		return ((RandomVariableDifferentiableAADStochasticNonOptimized) getValues()).getValues().getQuantile(quantile, probabilities);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getQuantileExpectation(double, double)
+	 */
+	@Override
+	public double getQuantileExpectation(final double quantileStart, final double quantileEnd) {
+<span class="nc" id="L631">		return ((RandomVariableDifferentiableAADStochasticNonOptimized) getValues()).getValues().getQuantileExpectation(quantileStart, quantileEnd);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(double[])
+	 */
+	@Override
+	public double[] getHistogram(final double[] intervalPoints) {
+<span class="nc" id="L639">		return getValues().getHistogram(intervalPoints);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#getHistogram(int, double)
+	 */
+	@Override
+	public double[][] getHistogram(final int numberOfPoints, final double standardDeviations) {
+<span class="nc" id="L647">		return getValues().getHistogram(numberOfPoints, standardDeviations);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cache()
+	 */
+	@Override
+	public RandomVariable cache() {
+<span class="nc" id="L655">		return this;</span>
+	}
+
+	@Override
+	public RandomVariable cap(final double cap) {
+<span class="nc" id="L660">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L661">				getValues().cap(cap),</span>
+<span class="nc" id="L662">				Arrays.asList(this, new RandomVariableFromDoubleArray(cap)),</span>
+				OperatorType.CAP);
+	}
+
+	@Override
+	public RandomVariable floor(final double floor) {
+<span class="nc" id="L668">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L669">				getValues().floor(floor),</span>
+<span class="nc" id="L670">				Arrays.asList(this, new RandomVariableFromDoubleArray(floor)),</span>
+				OperatorType.FLOOR);
+	}
+
+	@Override
+	public RandomVariable add(final double value) {
+<span class="nc" id="L676">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L677">				getValues().add(value),</span>
+<span class="nc" id="L678">				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),</span>
+				OperatorType.ADD);
+	}
+
+	@Override
+	public RandomVariable sub(final double value) {
+<span class="nc" id="L684">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L685">				getValues().sub(value),</span>
+<span class="nc" id="L686">				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),</span>
+				OperatorType.SUB);
+	}
+
+	@Override
+	public RandomVariable mult(final double value) {
+<span class="nc" id="L692">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L693">				getValues().mult(value),</span>
+<span class="nc" id="L694">				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),</span>
+				OperatorType.MULT);
+	}
+
+	@Override
+	public RandomVariable div(final double value) {
+<span class="nc" id="L700">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L701">				getValues().div(value),</span>
+<span class="nc" id="L702">				Arrays.asList(this, new RandomVariableFromDoubleArray(value)),</span>
+				OperatorType.DIV);
+	}
+
+	@Override
+	public RandomVariable pow(final double exponent) {
+<span class="nc" id="L708">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L709">				getValues().pow(exponent),</span>
+<span class="nc" id="L710">				Arrays.asList(this, new RandomVariableFromDoubleArray(exponent)),</span>
+				OperatorType.POW);
+	}
+
+	@Override
+	public RandomVariable average() {
+<span class="nc" id="L716">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L717">				getValues().average(),</span>
+<span class="nc" id="L718">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.AVERAGE);
+	}
+
+	@Override
+	public RandomVariable squared() {
+<span class="nc" id="L724">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L725">				getValues().squared(),</span>
+<span class="nc" id="L726">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SQUARED);
+	}
+
+	@Override
+	public RandomVariable sqrt() {
+<span class="nc" id="L732">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L733">				getValues().sqrt(),</span>
+<span class="nc" id="L734">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SQRT);
+	}
+
+	@Override
+	public RandomVariable exp() {
+<span class="nc" id="L740">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L741">				getValues().exp(),</span>
+<span class="nc" id="L742">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.EXP);
+	}
+
+	@Override
+	public RandomVariable log() {
+<span class="nc" id="L748">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L749">				getValues().log(),</span>
+<span class="nc" id="L750">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.LOG);
+	}
+
+	@Override
+	public RandomVariable sin() {
+<span class="nc" id="L756">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L757">				getValues().sin(),</span>
+<span class="nc" id="L758">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.SIN);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#cos()
+	 */
+	@Override
+	public RandomVariable cos() {
+<span class="nc" id="L767">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L768">				getValues().cos(),</span>
+<span class="nc" id="L769">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.COS);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#add(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable add(final RandomVariable randomVariable) {
+<span class="nc" id="L778">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L779">				getValues().add(randomVariable),</span>
+<span class="nc" id="L780">				Arrays.asList(this, randomVariable),</span>
+				OperatorType.ADD);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#sub(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariable sub(final RandomVariable randomVariable) {
+<span class="nc" id="L789">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L790">				getValues().sub(randomVariable),</span>
+<span class="nc" id="L791">				Arrays.asList(this, randomVariable),</span>
+				OperatorType.SUB);
+	}
+
+	@Override
+	public RandomVariable bus(final RandomVariable randomVariable) {
+<span class="nc" id="L797">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L798">				getValues().bus(randomVariable),</span>
+<span class="nc" id="L799">				Arrays.asList(randomVariable, this), // SUB with switched arguments</span>
+				OperatorType.SUB);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#mult(net.finmath.stochastic.RandomVariable)
+	 */
+	@Override
+	public RandomVariableDifferentiable mult(final RandomVariable randomVariable) {
+<span class="nc" id="L808">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L809">				getValues().mult(randomVariable),</span>
+<span class="nc" id="L810">				Arrays.asList(this, randomVariable),</span>
+				OperatorType.MULT);
+	}
+
+	@Override
+	public RandomVariable div(final RandomVariable randomVariable) {
+<span class="nc" id="L816">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L817">				getValues().div(randomVariable),</span>
+<span class="nc" id="L818">				Arrays.asList(this, randomVariable),</span>
+				OperatorType.DIV);
+	}
+
+	@Override
+	public RandomVariable vid(final RandomVariable randomVariable) {
+<span class="nc" id="L824">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L825">				getValues().vid(randomVariable),</span>
+<span class="nc" id="L826">				Arrays.asList(randomVariable, this), // DIV with switched arguments</span>
+				OperatorType.DIV);
+	}
+
+	@Override
+	public RandomVariable cap(final RandomVariable cap) {
+<span class="nc" id="L832">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L833">				getValues().cap(cap),</span>
+<span class="nc" id="L834">				Arrays.asList(this, cap),</span>
+				OperatorType.CAP);
+	}
+
+	@Override
+	public RandomVariable floor(final RandomVariable floor) {
+<span class="nc" id="L840">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L841">				getValues().cap(floor),</span>
+<span class="nc" id="L842">				Arrays.asList(this, floor),</span>
+				OperatorType.FLOOR);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#accrue(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable accrue(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L851">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L852">				getValues().accrue(rate, periodLength),</span>
+<span class="nc" id="L853">				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),</span>
+				OperatorType.ACCRUE);
+	}
+
+	@Override
+	public RandomVariable discount(final RandomVariable rate, final double periodLength) {
+<span class="nc" id="L859">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L860">				getValues().discount(rate, periodLength),</span>
+<span class="nc" id="L861">				Arrays.asList(this, rate, new RandomVariableFromDoubleArray(periodLength)),</span>
+				OperatorType.DISCOUNT);
+	}
+
+	@Override
+	public RandomVariable choose(final RandomVariable valueIfTriggerNonNegative, final RandomVariable valueIfTriggerNegative) {
+<span class="nc" id="L867">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L868">				getValues().choose(valueIfTriggerNonNegative.getValues(), valueIfTriggerNegative.getValues()),</span>
+<span class="nc" id="L869">				Arrays.asList(this, valueIfTriggerNonNegative, valueIfTriggerNegative),</span>
+				OperatorType.BARRIER);
+	}
+
+	@Override
+	public RandomVariable invert() {
+<span class="nc" id="L875">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L876">				getValues().invert(),</span>
+<span class="nc" id="L877">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.INVERT);
+	}
+
+	@Override
+	public RandomVariable abs() {
+<span class="nc" id="L883">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L884">				getValues().abs(),</span>
+<span class="nc" id="L885">				Arrays.asList(new RandomVariable[]{ this }),</span>
+				OperatorType.ABS);
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.stochastic.RandomVariable#addProduct(net.finmath.stochastic.RandomVariable, double)
+	 */
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final double factor2) {
+<span class="nc" id="L894">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L895">				getValues().addProduct(factor1, factor2),</span>
+<span class="nc" id="L896">				Arrays.asList(this, factor1, new RandomVariableFromDoubleArray(factor2)),</span>
+				OperatorType.ADDPRODUCT);
+	}
+
+	@Override
+	public RandomVariable addProduct(final RandomVariable factor1, final RandomVariable factor2) {
+<span class="nc" id="L902">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L903">				getValues().addProduct(factor1, factor2),</span>
+<span class="nc" id="L904">				Arrays.asList(this, factor1, factor2),</span>
+				OperatorType.ADDPRODUCT);
+	}
+
+	@Override
+	public RandomVariable addRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L910">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L911">				getValues().addRatio(numerator, denominator),</span>
+<span class="nc" id="L912">				Arrays.asList(this, numerator, denominator),</span>
+				OperatorType.ADDRATIO);
+	}
+
+	@Override
+	public RandomVariable subRatio(final RandomVariable numerator, final RandomVariable denominator) {
+<span class="nc" id="L918">		return new RandomVariableDifferentiableAADStochasticNonOptimized(</span>
+<span class="nc" id="L919">				getValues().subRatio(numerator, denominator),</span>
+<span class="nc" id="L920">				Arrays.asList(this, numerator, denominator),</span>
+				OperatorType.SUBRATIO);
+	}
+
+	@Override
+	public RandomVariable isNaN() {
+<span class="nc" id="L926">		return getValues().isNaN();</span>
+	}
+
+	@Override
+	public IntToDoubleFunction getOperator() {
+<span class="nc" id="L931">		return getValues().getOperator();</span>
+	}
+
+	@Override
+	public DoubleStream getRealizationsStream() {
+<span class="nc" id="L936">		return getValues().getRealizationsStream();</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleUnaryOperator operator) {
+<span class="nc" id="L941">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleBinaryOperator operator, final RandomVariable argument) {
+<span class="nc" id="L946">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+
+	@Override
+	public RandomVariable apply(final DoubleTernaryOperator operator, final RandomVariable argument1, final RandomVariable argument2) {
+<span class="nc" id="L951">		throw new UnsupportedOperationException(&quot;Applying functions is not supported.&quot;);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EuropeanOption.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.assetderivativevaluation.products</a> &gt; <span class="el_source">EuropeanOption.java</span></div><h1>EuropeanOption.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 21.01.2004
+ */
+package net.finmath.montecarlo.assetderivativevaluation.products;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.modelling.Model;
+import net.finmath.modelling.products.CallOrPut;
+import net.finmath.montecarlo.assetderivativevaluation.AssetModelMonteCarloSimulationModel;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Implements the valuation of a European option on a single asset.
+ *
+ * Given a model for an asset &lt;i&gt;S&lt;/i&gt;, the European option with strike &lt;i&gt;K&lt;/i&gt;, maturity &lt;i&gt;T&lt;/i&gt;
+ * pays
+ * &lt;br&gt;
+ * 	&lt;i&gt;V(T) = max((S(T) - K) * CallOrPut , 0)&lt;/i&gt; in &lt;i&gt;T&lt;/i&gt;.
+ * &lt;br&gt;
+ *
+ * The &lt;code&gt;getValue&lt;/code&gt; method of this class will return the random variable &lt;i&gt;N(t) * V(T) / N(T)&lt;/i&gt;,
+ * where &lt;i&gt;N&lt;/i&gt; is the numeraire provided by the model. If &lt;i&gt;N(t)&lt;/i&gt; is deterministic,
+ * calling &lt;code&gt;getAverage&lt;/code&gt; on this random variable will result in the value. Otherwise a
+ * conditional expectation has to be applied.
+ *
+ * @author Christian Fries
+ * @version 1.3
+ */
+public class EuropeanOption extends AbstractAssetMonteCarloProduct {
+
+	private final double maturity;
+	private final double strike;
+	private final CallOrPut callOrPutSign;
+	private final Integer underlyingIndex;
+	private final String nameOfUnderliyng;
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(sign * (S(T)-K),0).
+	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final double callOrPutSign) {
+<span class="fc" id="L50">		super();</span>
+<span class="fc" id="L51">		nameOfUnderliyng	= underlyingName;</span>
+<span class="fc" id="L52">		this.maturity		= maturity;</span>
+<span class="fc" id="L53">		this.strike			= strike;</span>
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">		if(callOrPutSign == 1.0) {</span>
+<span class="fc" id="L55">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">		}else if(callOrPutSign == - 1.0) {</span>
+<span class="nc" id="L57">			this.callOrPutSign = CallOrPut.PUT;</span>
+		}else {
+<span class="nc" id="L59">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+<span class="fc" id="L61">		underlyingIndex		= 0;</span>
+<span class="fc" id="L62">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(sign * (S(T)-K),0).
+	 * @param strike The strike K in the option payoff max(sign * (S(T)-K),0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike, final CallOrPut callOrPutSign) {
+<span class="nc" id="L72">		super();</span>
+<span class="nc" id="L73">		nameOfUnderliyng	= underlyingName;</span>
+<span class="nc" id="L74">		this.maturity		= maturity;</span>
+<span class="nc" id="L75">		this.strike			= strike;</span>
+<span class="nc" id="L76">		this.callOrPutSign	= callOrPutSign;</span>
+<span class="nc" id="L77">		underlyingIndex		= 0;</span>
+<span class="nc" id="L78">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final double callOrPutSign, final int underlyingIndex) {
+<span class="fc" id="L88">		super();</span>
+<span class="fc" id="L89">		this.maturity			= maturity;</span>
+<span class="fc" id="L90">		this.strike				= strike;</span>
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">		if(callOrPutSign == 1.0) {</span>
+<span class="fc" id="L92">			this.callOrPutSign = CallOrPut.CALL;</span>
+<span class="nc bnc" id="L93" title="All 2 branches missed.">		}else if(callOrPutSign == - 1.0) {</span>
+<span class="nc" id="L94">			this.callOrPutSign = CallOrPut.PUT;</span>
+		}else {
+<span class="nc" id="L96">			throw new IllegalArgumentException(&quot;Unknown option type&quot;);</span>
+		}
+<span class="fc" id="L98">		this.underlyingIndex	= underlyingIndex;</span>
+<span class="fc" id="L99">		nameOfUnderliyng	= null;		// Use underlyingIndex</span>
+<span class="fc" id="L100">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign, final int underlyingIndex) {
+<span class="nc" id="L110">		super();</span>
+<span class="nc" id="L111">		this.maturity			= maturity;</span>
+<span class="nc" id="L112">		this.strike				= strike;</span>
+<span class="nc" id="L113">		this.callOrPutSign		= callOrPutSign;</span>
+<span class="nc" id="L114">		this.underlyingIndex	= underlyingIndex;</span>
+<span class="nc" id="L115">		nameOfUnderliyng	= null;		// Use underlyingIndex</span>
+<span class="nc" id="L116">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index &lt;code&gt;underlyingIndex&lt;/code&gt; from the model - single asset case).
+	 * @param underlyingName Name of the underlying
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public EuropeanOption(final String underlyingName, final double maturity, final double strike) {
+<span class="fc" id="L125">		this(underlyingName, maturity, strike, 1.0);</span>
+<span class="fc" id="L126">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param underlyingIndex The index of the underlying to be fetched from the model.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final int underlyingIndex) {
+<span class="fc" id="L135">		this(maturity, strike, 1.0, underlyingIndex);</span>
+<span class="fc" id="L136">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 */
+	public EuropeanOption(final double maturity, final double strike) {
+<span class="fc" id="L144">		this(maturity, strike, 0);</span>
+<span class="fc" id="L145">	}</span>
+
+	/**
+	 * Construct a product representing an European option on an asset S (where S the asset with index 0 from the model - single asset case).
+	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
+	 * @param strike The strike K in the option payoff max(S(T)-K,0).
+	 * @param callOrPutSign The sign in the payoff.
+	 */
+	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
+<span class="fc" id="L154">		super();</span>
+<span class="fc" id="L155">		this.maturity			= maturity;</span>
+<span class="fc" id="L156">		this.strike				= strike;</span>
+<span class="fc" id="L157">		this.callOrPutSign		= callOrPutSign;</span>
+<span class="fc" id="L158">		this.underlyingIndex	= 0;</span>
+<span class="fc" id="L159">		nameOfUnderliyng	= null;		// Use underlyingIndex</span>
+<span class="fc" id="L160">	}</span>
+
+	/**
+	 * This method returns the value random variable of the product within the specified model, evaluated at a given evalutationTime.
+	 * Note: For a lattice this is often the value conditional to evalutationTime, for a Monte-Carlo simulation this is the (sum of) value discounted to evaluation time.
+	 * Cashflows prior evaluationTime are not considered.
+	 *
+	 * @param evaluationTime The time on which this products value should be observed.
+	 * @param model The model used to price the product.
+	 * @return The random variable representing the value of the product discounted to evaluation time
+	 * @throws net.finmath.exception.CalculationException Thrown if the valuation fails, specific cause may be available via the &lt;code&gt;cause()&lt;/code&gt; method.
+	 */
+	@Override
+	public RandomVariable getValue(final double evaluationTime, final AssetModelMonteCarloSimulationModel model) throws CalculationException {
+		// Get underlying and numeraire
+
+		// Get S(T)
+<span class="fc" id="L177">		final RandomVariable underlyingAtMaturity	= model.getAssetValue(maturity, underlyingIndex);</span>
+
+		// The payoff: values = max(underlying - strike, 0) = V(T) = max(S(T)-K,0)
+<span class="fc" id="L180">		RandomVariable values = underlyingAtMaturity.sub(strike).mult(callOrPutSign.toInteger()).floor(0.0);</span>
+
+		// Discounting...
+<span class="fc" id="L183">		final RandomVariable numeraireAtMaturity	= model.getNumeraire(maturity);</span>
+<span class="fc" id="L184">		final RandomVariable monteCarloWeights		= model.getMonteCarloWeights(maturity);</span>
+<span class="fc" id="L185">		values = values.div(numeraireAtMaturity).mult(monteCarloWeights);</span>
+
+		// ...to evaluation time.
+<span class="fc" id="L188">		final RandomVariable	numeraireAtEvalTime			= model.getNumeraire(evaluationTime);</span>
+<span class="fc" id="L189">		final RandomVariable	monteCarloWeightsAtEvalTime	= model.getMonteCarloWeights(evaluationTime);</span>
+<span class="fc" id="L190">		values = values.mult(numeraireAtEvalTime).div(monteCarloWeightsAtEvalTime);</span>
+
+<span class="fc" id="L192">		return values;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getValues(final double evaluationTime, final Model model) {
+<span class="fc" id="L197">		final Map&lt;String, Object&gt;  result = new HashMap&lt;&gt;();</span>
+
+		try {
+<span class="fc" id="L200">			final double value = getValue(evaluationTime, (AssetModelMonteCarloSimulationModel) model).getAverage();</span>
+<span class="fc" id="L201">			result.put(&quot;value&quot;, value);</span>
+<span class="nc" id="L202">		} catch (final CalculationException e) {</span>
+<span class="nc" id="L203">			result.put(&quot;exception&quot;, e);</span>
+<span class="fc" id="L204">		}</span>
+
+<span class="fc" id="L206">		return result;</span>
+	}
+
+	@Override
+	public String toString() {
+<span class="fc" id="L211">		return &quot;EuropeanOption [maturity=&quot; + maturity + &quot;, strike=&quot; + strike + &quot;, underlyingIndex=&quot; + underlyingIndex</span>
+				+ &quot;, nameOfUnderliyng=&quot; + nameOfUnderliyng + &quot;]&quot;;
+	}
+
+	public double getMaturity() {
+<span class="fc" id="L216">		return maturity;</span>
+	}
+
+	public double getStrike() {
+<span class="fc" id="L220">		return strike;</span>
+	}
+
+	public CallOrPut getCallOrPut() {
+<span class="nc" id="L224">		return callOrPutSign;</span>
+	}
+
+	public Integer getUnderlyingIndex() {
+<span class="nc" id="L228">		return underlyingIndex;</span>
+	}
+
+	public String getNameOfUnderliyng() {
+<span class="nc" id="L232">		return nameOfUnderliyng;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

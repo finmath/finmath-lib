@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiscountCurveFromForwardCurve.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.curves</a> &gt; <span class="el_source">DiscountCurveFromForwardCurve.java</span></div><h1>DiscountCurveFromForwardCurve.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.curves;
+
+import java.io.Serializable;
+
+import net.finmath.marketdata.model.AnalyticModel;
+
+/**
+ * A discount curve derived from a given forward curve.
+ *
+ * The discount factors &lt;i&gt;df(t)&lt;/i&gt; are defined at &lt;i&gt;t = k * d&lt;/i&gt;
+ * for integers &lt;i&gt;k&lt;/i&gt; via
+ * &lt;i&gt;df(t+d) = df(t) / (1 + f(t) * d)&lt;/i&gt; and
+ * for &lt;i&gt;t = k * d&lt;/i&gt; and &lt;i&gt;0 &amp;lt; r &amp;lt; d&lt;/i&gt;
+ * via &lt;i&gt;df(t+r) = df(t) / (1 + f(t) * r)&lt;/i&gt;
+ * where &lt;i&gt;d&lt;/i&gt; is a given the payment offset and &lt;i&gt;f(t)&lt;/i&gt; is the forward curve.
+ *
+ * &lt;p&gt;
+ * &lt;i&gt;Note that a special interpolation is performed for in-between points.
+ * Hence, creating a {@link ForwardCurveFromDiscountCurve} and from it
+ * a DiscountCurveFromForwardCurve will not recover the original curve
+ * since interpolation points may be lost.
+ * &lt;/i&gt;
+ * &lt;/p&gt;
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DiscountCurveFromForwardCurve extends AbstractCurve implements Serializable, DiscountCurve {
+
+	private static final long serialVersionUID = -4126228588123963885L;
+
+	private String					forwardCurveName;
+	private ForwardCurve	forwardCurve;
+
+	private final double			timeScaling;
+
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &amp;lt; r &amp;lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 *
+	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
+	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
+	 */
+	public DiscountCurveFromForwardCurve(final String forwardCurveName, final double periodLengthTimeScaling) {
+<span class="fc" id="L54">		super(&quot;DiscountCurveFromForwardCurve(&quot; + forwardCurveName + &quot;)&quot;, null);</span>
+
+<span class="fc" id="L56">		this.forwardCurveName	= forwardCurveName;</span>
+<span class="fc" id="L57">		timeScaling		= periodLengthTimeScaling;</span>
+<span class="fc" id="L58">	}</span>
+
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &amp;lt; r &amp;lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 *
+	 * @param forwardCurve The forward curve used for calculation of the discount factors.
+	 * @param periodLengthTimeScaling A scaling factor applied to d, adjusting for the internal double time to the period length daycount fraction (note that this may only be an approximate solution to capture daycount effects).
+	 */
+	public DiscountCurveFromForwardCurve(final ForwardCurve forwardCurve, final double periodLengthTimeScaling) {
+<span class="fc" id="L72">		super(&quot;DiscountCurveFromForwardCurve&quot; + forwardCurve.getName() + &quot;)&quot;, forwardCurve.getReferenceDate());</span>
+
+<span class="fc" id="L74">		this.forwardCurve	= forwardCurve;</span>
+<span class="fc" id="L75">		timeScaling	= periodLengthTimeScaling;</span>
+<span class="fc" id="L76">	}</span>
+
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &amp;lt; r &amp;lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 *
+	 * @param forwardCurveName The name of the forward curve used for calculation of the discount factors.
+	 */
+	public DiscountCurveFromForwardCurve(final String forwardCurveName) {
+<span class="fc" id="L89">		this(forwardCurveName, 1.0);</span>
+<span class="fc" id="L90">	}</span>
+
+	/**
+	 * Create a discount curve using a given forward curve.
+	 * The discount factors df(t) are defined at t = k * d for integers k
+	 * via df(t+d) = df(t) / (1 + f(t) * d) and
+	 * for t = k * d and 0 &amp;lt; r &amp;lt; d
+	 * via df(t+r) = df(t) / (1 + f(t) * r)
+	 * where d is a given the payment offset and f(t) is the forward curve.
+	 *
+	 * @param forwardCurve The forward curve used for calculation of the discount factors.
+	 */
+	public DiscountCurveFromForwardCurve(final ForwardCurve forwardCurve) {
+<span class="fc" id="L103">		this(forwardCurve, 1.0);</span>
+<span class="fc" id="L104">	}</span>
+
+	@Override
+	public double getDiscountFactor(final double maturity) {
+<span class="fc" id="L108">		return getDiscountFactor(null, maturity);</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.DiscountCurveInterface#getDiscountFactor(double)
+	 */
+	@Override
+	public double getDiscountFactor(final AnalyticModel model, final double maturity) {
+		ForwardCurve	forwardCurve;
+<span class="fc bfc" id="L117" title="All 2 branches covered.">		if(this.forwardCurve != null) {</span>
+<span class="fc" id="L118">			forwardCurve = this.forwardCurve;</span>
+		} else {
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">			if(model == null) {</span>
+<span class="nc" id="L121">				throw new IllegalArgumentException(&quot;The curve &quot; + getName() + &quot; requires an &quot; + AnalyticModel.class.getSimpleName() + &quot; but none was provided.&quot;);</span>
+			}
+<span class="fc" id="L123">			forwardCurve = model.getForwardCurve(forwardCurveName);</span>
+		}
+
+<span class="pc bpc" id="L126" title="1 of 2 branches missed.">		if(forwardCurve == null) {</span>
+<span class="nc" id="L127">			throw new IllegalArgumentException(&quot;No forward curve given and no forward curve found in the model under the name &quot; + forwardCurveName + &quot;.&quot;);</span>
+		}
+
+<span class="fc" id="L130">		double	time			= 0;</span>
+<span class="fc" id="L131">		double	discountFactor	= 1.0;</span>
+<span class="fc" id="L132">		double paymentOffset = 0;</span>
+<span class="fc bfc" id="L133" title="All 2 branches covered.">		while(time &lt; maturity) {</span>
+<span class="fc" id="L134">			paymentOffset	= forwardCurve.getPaymentOffset(time);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if(paymentOffset &lt;= 0) {</span>
+<span class="nc" id="L136">				throw new RuntimeException(&quot;Trying to calculate a discount curve from a forward curve with non-positive payment offset.&quot;);</span>
+			}
+<span class="fc" id="L138">			discountFactor /= 1.0 + forwardCurve.getForward(model, time) * Math.min(paymentOffset, maturity-time) * timeScaling;</span>
+<span class="fc" id="L139">			time += paymentOffset;</span>
+		}
+
+<span class="fc" id="L142">		return discountFactor;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.marketdata.model.curves.CurveInterface#getValue(double)
+	 */
+	@Override
+	public double getValue(final AnalyticModel model, final double time) {
+<span class="nc" id="L150">		return getDiscountFactor(model, time);</span>
+	}
+
+	@Override
+	public double[] getParameter() {
+<span class="nc" id="L155">		return null;</span>
+	}
+
+	@Override
+	public void setParameter(final double[] parameter) {
+<span class="nc" id="L160">	}</span>
+
+	@Override
+	public CurveBuilder getCloneBuilder() throws CloneNotSupportedException {
+<span class="nc" id="L164">		throw new CloneNotSupportedException();</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+<span class="nc" id="L172">		final int prime = 31;</span>
+<span class="nc" id="L173">		int result = 1;</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">		result = prime * result + ((forwardCurve == null) ? 0 : forwardCurve.hashCode());</span>
+<span class="nc bnc" id="L175" title="All 2 branches missed.">		result = prime * result + ((forwardCurveName == null) ? 0 : forwardCurveName.hashCode());</span>
+		long temp;
+<span class="nc" id="L177">		temp = Double.doubleToLongBits(timeScaling);</span>
+<span class="nc" id="L178">		result = prime * result + (int) (temp ^ (temp &gt;&gt;&gt; 32));</span>
+<span class="nc" id="L179">		return result;</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(final Object obj) {
+<span class="nc bnc" id="L187" title="All 2 branches missed.">		if (this == obj) {</span>
+<span class="nc" id="L188">			return true;</span>
+		}
+<span class="nc bnc" id="L190" title="All 4 branches missed.">		if ((obj == null) || (getClass() != obj.getClass())) {</span>
+<span class="nc" id="L191">			return false;</span>
+		}
+<span class="nc" id="L193">		final DiscountCurveFromForwardCurve other = (DiscountCurveFromForwardCurve) obj;</span>
+<span class="nc bnc" id="L194" title="All 2 branches missed.">		if (forwardCurve == null) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">			if (other.forwardCurve != null) {</span>
+<span class="nc" id="L196">				return false;</span>
+			}
+<span class="nc bnc" id="L198" title="All 2 branches missed.">		} else if (!forwardCurve.equals(other.forwardCurve)) {</span>
+<span class="nc" id="L199">			return false;</span>
+		}
+<span class="nc bnc" id="L201" title="All 2 branches missed.">		if (forwardCurveName == null) {</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">			if (other.forwardCurveName != null) {</span>
+<span class="nc" id="L203">				return false;</span>
+			}
+<span class="nc bnc" id="L205" title="All 2 branches missed.">		} else if (!forwardCurveName.equals(other.forwardCurveName)) {</span>
+<span class="nc" id="L206">			return false;</span>
+		}
+<span class="nc" id="L208">		return Double.doubleToLongBits(timeScaling) == Double</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">				.doubleToLongBits(other.timeScaling);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

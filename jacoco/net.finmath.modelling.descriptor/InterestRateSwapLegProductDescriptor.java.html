@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InterestRateSwapLegProductDescriptor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.descriptor</a> &gt; <span class="el_source">InterestRateSwapLegProductDescriptor.java</span></div><h1>InterestRateSwapLegProductDescriptor.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.descriptor;
+
+import java.util.Arrays;
+
+import net.finmath.modelling.InterestRateProductDescriptor;
+
+/**
+ * Product descriptor for an interest rate swap leg.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ * @version 1.0
+ */
+public class InterestRateSwapLegProductDescriptor implements InterestRateProductDescriptor {
+
+	private static final String productName = &quot;Interest Rate Swap Leg&quot;;
+
+	private final String forwardCurveName;
+	private final String discountCurveName;
+
+	private final ScheduleDescriptor			legSchedule;
+	private final double[]						notionals;
+	private final double[]						spreads;
+	//	private final boolean						couponFlow;
+	private final boolean						isNotionalExchanged;
+	//	private final boolean						isNotionalAccruing;
+
+	/**
+	 * Create the descriptor with period uniform notional and spread.
+	 *
+	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
+	 * @param discountCurveName The name of the curve this leg is to be discounted with.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
+	 * @param notional The notional.
+	 * @param spread Fixed spread on the forward or fix rate.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
+	public InterestRateSwapLegProductDescriptor(final String forwardCurveName, final String discountCurveName, final ScheduleDescriptor legSchedule, final double notional, final double spread, final boolean isNotionalExchanged) {
+<span class="fc" id="L39">		super();</span>
+<span class="fc" id="L40">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L41">		this.discountCurveName = discountCurveName;</span>
+
+<span class="fc" id="L43">		this.legSchedule = legSchedule;</span>
+<span class="fc" id="L44">		final double[] notionals = new double[legSchedule.getNumberOfPeriods()];</span>
+<span class="fc" id="L45">		Arrays.fill(notionals, notional);</span>
+<span class="fc" id="L46">		this.notionals = notionals;</span>
+<span class="fc" id="L47">		final double[] spreads = new double[legSchedule.getNumberOfPeriods()];</span>
+<span class="fc" id="L48">		Arrays.fill(spreads, spread);</span>
+<span class="fc" id="L49">		this.spreads = spreads;</span>
+		//		this.couponFlow = couponFlow;
+<span class="fc" id="L51">		this.isNotionalExchanged = isNotionalExchanged;</span>
+		//		this.isNotionalAccruing = isNotionalAccruing;
+<span class="fc" id="L53">	}</span>
+
+	/**
+	 * Create the descriptor with notional and spread variable between periods.
+	 *
+	 * @param forwardCurveName The name of the forward curve this leg is quoted on. (Or null/empty)
+	 * @param discountCurveName The name of the curve this leg is to be discounted with.
+	 * @param legSchedule ScheduleFromPeriods of the leg.
+	 * @param notionals Array of notionals for each period.
+	 * @param spreads Array of fixed spreads on the forward or fix rates for each period.
+	 * @param isNotionalExchanged If true, the leg will pay notional at the beginning of the swap and receive notional at the end of the swap.
+	 */
+	public InterestRateSwapLegProductDescriptor(final String forwardCurveName, final String discountCurveName, final ScheduleDescriptor legSchedule, final double[] notionals, final double[] spreads, final boolean isNotionalExchanged) {
+<span class="nc" id="L66">		super();</span>
+<span class="nc" id="L67">		this.forwardCurveName = forwardCurveName;</span>
+<span class="nc" id="L68">		this.discountCurveName = discountCurveName;</span>
+
+<span class="nc" id="L70">		this.legSchedule = legSchedule;</span>
+<span class="nc" id="L71">		this.notionals = notionals;</span>
+<span class="nc" id="L72">		this.spreads = spreads;</span>
+		//		this.couponFlow = couponFlow;
+<span class="nc" id="L74">		this.isNotionalExchanged = isNotionalExchanged;</span>
+		//		this.isNotionalAccruing = isNotionalAccruing;
+<span class="nc" id="L76">	}</span>
+
+	/**
+	 * Return the name of the forward curve in this descriptor.
+	 *
+	 * @return Name of the forward curve.
+	 */
+	public String getForwardCurveName() {
+<span class="fc" id="L84">		return forwardCurveName;</span>
+	}
+
+	/**
+	 * Return the name of the discount curve in this descriptor.
+	 *
+	 * @return Name of the discount curve.
+	 */
+	public String getDiscountCurveName() {
+<span class="fc" id="L93">		return discountCurveName;</span>
+	}
+
+	/**
+	 * Return the descriptor of the schedule of this product descriptor.
+	 *
+	 * @return The schedule descriptor.
+	 */
+	public ScheduleDescriptor getLegScheduleDescriptor() {
+<span class="fc" id="L102">		return legSchedule;</span>
+	}
+
+	/**
+	 * Return the notionals per period of this descriptor.
+	 *
+	 * @return Array of notionals.
+	 */
+	public double[] getNotionals() {
+<span class="fc" id="L111">		return notionals.clone();</span>
+	}
+
+	/**
+	 * Return the spreads per period of this descriptor.
+	 *
+	 * @return Array of spreads.
+	 */
+	public double[] getSpreads() {
+<span class="fc" id="L120">		return spreads;</span>
+	}
+
+	/**
+	 * Indicates whether the leg exchanges notional.
+	 *
+	 * @return true, if the leg pays notional at the beginning of the swap and reveives notional at the end.
+	 */
+	public boolean isNotionalExchanged() {
+<span class="fc" id="L129">		return isNotionalExchanged;</span>
+	}
+
+	@Override
+	public Integer version() {
+<span class="nc" id="L134">		return 1;</span>
+	}
+
+	@Override
+	public String name() {
+<span class="nc" id="L139">		return productName;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

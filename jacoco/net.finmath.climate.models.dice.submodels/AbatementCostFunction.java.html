@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AbatementCostFunction.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">AbatementCostFunction.java</span></div><h1>AbatementCostFunction.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import java.util.function.BiFunction;
+
+/**
+ * The function that maps (relative) abatement coefficient to (relative) cost.
+ * &lt;ul&gt;
+ * 	&lt;li&gt;
+ * 		The abatement coefficient &amp;mu; is the faction of yearly emissions that are abated.
+ * 	&lt;/li&gt;
+ * 	&lt;li&gt;
+ * 		The abatement function gives the price (in 10^12 USD) per GtCO2 for the abatement
+ * 		of the corresponding fraction in the corresponding year.
+ * 	&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * Function of (time, abatement).
+ *
+ * Note: The emission intensity (&amp;sigma;) factor (emission intensity) is missing here (moved to the outside). In the orignal
+ * model the abatement cost are a fraction of the GDP, which we get if we multiply this function with
+ * the &amp;sigma;
+ *
+ * @author Christian Fries
+ */
+public class AbatementCostFunction implements BiFunction&lt;Double, Double, Double&gt; {
+
+	private final double backstopPriceInitial;		// Initial cost for backstop
+	private final double backstopRate;				// Decay of backstop cost (parameter from original
+	private final double abatementExponent;			// Exponent abatement in cost function (GAMS expcost2)
+
+	/**
+	 *
+	 * @param backstopPriceInitial USD per ton CO2 to abate 100% per year.
+	 * @param backstopRate Annual rate by which the price declines.
+	 * @param abatementExponent Exponent for &amp;mu; (sometimes called theta_2)
+	 */
+	public AbatementCostFunction(double backstopPriceInitial, double backstopRate, double abatementExponent) {
+<span class="fc" id="L38">		super();</span>
+<span class="fc" id="L39">		this.backstopPriceInitial = backstopPriceInitial;	// USD per ton CO2 to abate 100%</span>
+<span class="fc" id="L40">		this.backstopRate = backstopRate;</span>
+<span class="fc" id="L41">		this.abatementExponent = abatementExponent;</span>
+<span class="fc" id="L42">	}</span>
+
+	public AbatementCostFunction() {
+		// Parameters from original paper. Note that the rate is a &quot;per 5 year&quot; rate.
+<span class="fc" id="L46">		this(550.0/1000.0, -Math.log(1-0.025)/5.0, 2.6);</span>
+<span class="fc" id="L47">	}</span>
+
+	@Override
+	public Double apply(Double time, Double abatement) {
+<span class="fc" id="L51">		final double backstopPrice = backstopPriceInitial * Math.exp(-backstopRate * time);</span>
+<span class="fc" id="L52">		final double abatementCost = backstopPrice * Math.pow(abatement, abatementExponent)/abatementExponent;</span>
+
+<span class="fc" id="L54">		return abatementCost;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

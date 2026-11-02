@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CarbonConcentration3DScalar.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.climate.models.dice.submodels</a> &gt; <span class="el_source">CarbonConcentration3DScalar.java</span></div><h1>CarbonConcentration3DScalar.java</h1><pre class="source lang-java linenums">package net.finmath.climate.models.dice.submodels;
+
+import org.apache.commons.lang3.Validate;
+
+import net.finmath.climate.models.CarbonConcentration;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * State vector representing carbon concentration in units of GtC.
+ *
+ * @author Christian Fries
+ */
+public class CarbonConcentration3DScalar implements CarbonConcentration {
+
+	private final double carbonConcentrationInAtmosphere;
+	private final double carbonConcentrationInShallowOcean;
+	private final double carbonConcentrationInLowerOcean;
+
+
+	/**
+	 * Create a state vector representing carbon concentration in units of GtC.
+	 */
+	public CarbonConcentration3DScalar(double carbonConcentrationInAtmosphere, double carbonConcentrationInShallowOcean, double carbonConcentrationInLowerOcean) {
+<span class="fc" id="L25">		super();</span>
+<span class="pc bpc" id="L26" title="1 of 2 branches missed.">		Validate.isTrue(carbonConcentrationInAtmosphere &gt;= 0, &quot;carbonConcentrationInAtmosphere must not be negative.&quot;, carbonConcentrationInAtmosphere);</span>
+<span class="pc bpc" id="L27" title="1 of 2 branches missed.">		Validate.isTrue(carbonConcentrationInShallowOcean &gt;= 0, &quot;carbonConcentrationInShallowOcean must not be negative.&quot;, carbonConcentrationInShallowOcean);</span>
+<span class="pc bpc" id="L28" title="1 of 2 branches missed.">		Validate.isTrue(carbonConcentrationInLowerOcean &gt;= 0, &quot;carbonConcentrationInLowerOcean must not be negative.&quot;, carbonConcentrationInLowerOcean);</span>
+<span class="fc" id="L29">		this.carbonConcentrationInAtmosphere = carbonConcentrationInAtmosphere;</span>
+<span class="fc" id="L30">		this.carbonConcentrationInShallowOcean = carbonConcentrationInShallowOcean;</span>
+<span class="fc" id="L31">		this.carbonConcentrationInLowerOcean = carbonConcentrationInLowerOcean;</span>
+<span class="fc" id="L32">	}</span>
+
+	public CarbonConcentration3DScalar(double[] carbonConcentration) {
+<span class="fc" id="L35">		this(carbonConcentration[0], carbonConcentration[1], carbonConcentration[2]);</span>
+<span class="fc" id="L36">	}</span>
+
+	/**
+	 * Create a state vector with 851 GtC in atmosphere, 460 GtC in shallow ocean, 1740 in lower ocean.
+	 */
+	public CarbonConcentration3DScalar() {
+<span class="nc" id="L42">		this(851, 460, 1740);		// GtC</span>
+<span class="nc" id="L43">	}</span>
+
+	@Override
+	public Double getExpectedCarbonConcentrationInAtmosphere() {
+<span class="fc" id="L47">		return carbonConcentrationInAtmosphere;</span>
+	}
+
+	@Override
+	public RandomVariable getCarbonConcentrationInAtmosphere() {
+<span class="nc" id="L52">		return Scalar.of(carbonConcentrationInAtmosphere);</span>
+	}
+
+	public double getCarbonConcentrationInShallowOcean() {
+<span class="nc" id="L56">		return carbonConcentrationInShallowOcean;</span>
+	}
+
+	public double getCarbonConcentrationInLowerOcean() {
+<span class="nc" id="L60">		return carbonConcentrationInLowerOcean;</span>
+	}
+
+	public double[] getAsDoubleArray() {
+<span class="fc" id="L64">		return new double[] { carbonConcentrationInAtmosphere, carbonConcentrationInShallowOcean, carbonConcentrationInLowerOcean };</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

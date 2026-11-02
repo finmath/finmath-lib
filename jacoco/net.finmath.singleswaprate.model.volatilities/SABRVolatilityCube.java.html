@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SABRVolatilityCube.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">SABRVolatilityCube.java</span></div><h1>SABRVolatilityCube.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+import net.finmath.functions.AnalyticFormulas;
+import net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention;
+import net.finmath.singleswaprate.data.DataTable;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+
+/**
+ * A volatility cube that uses a grid of SABR models for the calculation of the volatility with different strikes. The SABR parameters \( \beta \) and displacement are globally set for the entire cube.
+ * For the other SABR parameters the cube stores a grid of maturity x termination and a set of parameters for each node of this grid. Between the nodes of this grid, the SABR parameters are interpolated.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SABRVolatilityCube implements VolatilityCube, Serializable {
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = -3359125061963953634L;
+	private final String name;
+	private final LocalDate referenceDate;
+
+	private final DataTable underlyingTable;
+
+
+	//SABR parameters
+	private final double sabrDisplacement;
+	private final double sabrBeta;
+
+	private final DataTable rhoTable;
+	private final DataTable baseVolTable;
+	private final DataTable volvolTable;
+
+	// for use with the multi curve piterbarg annuity mapping
+	private final double iborOisDecorrelation;
+
+	//for later use in VolVolCube
+	private final double correlationDecay;
+
+<span class="fc" id="L47">	private final QuotingConvention quotingConvention = QuotingConvention.VOLATILITYNORMAL;</span>
+
+	/**
+	 * Create the cube. With ibor ois decorrelation set to 1.0.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param swapRateTable Table containing base swap rates.
+	 * @param sabrDisplacement Displacement for the entire cube.
+	 * @param sabrBeta Beta for the entire cube.
+	 * @param rhoTable Table containing rhos.
+	 * @param baseVolTable Table containing initial volatilities.
+	 * @param volvolTable Table containing volvols.
+	 * @param correlationDecay The correlation decay parameters of this cube.
+	 */
+	public SABRVolatilityCube(final String name, final LocalDate referenceDate, final DataTable swapRateTable,
+			final double sabrDisplacement, final double sabrBeta, final DataTable rhoTable,
+			final DataTable baseVolTable, final DataTable volvolTable, final double correlationDecay) {
+<span class="fc" id="L65">		this(name, referenceDate, swapRateTable, sabrDisplacement, sabrBeta, rhoTable, baseVolTable, volvolTable, correlationDecay, 1.0);</span>
+<span class="fc" id="L66">	}</span>
+
+	/**
+	 * Create the cube.
+	 *
+	 * @param name The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param swapRateTable Table containing base swap rates.
+	 * @param sabrDisplacement Displacement for the entire cube.
+	 * @param sabrBeta Beta for the entire cube.
+	 * @param rhoTable Table containing rhos.
+	 * @param baseVolTable Table containing initial volatilities.
+	 * @param volvolTable Table containing volvols.
+	 * @param correlationDecay The correlation decay parameters of this cube.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of this cube.
+	 */
+	public SABRVolatilityCube(final String name, final LocalDate referenceDate, final DataTable swapRateTable,
+			final double sabrDisplacement, final double sabrBeta, final DataTable rhoTable,
+			final DataTable baseVolTable, final DataTable volvolTable, final double correlationDecay, final double iborOisDecorrelation) {
+<span class="fc" id="L85">		super();</span>
+<span class="fc" id="L86">		this.name = name;</span>
+<span class="fc" id="L87">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L88">		this.underlyingTable = swapRateTable;</span>
+<span class="fc" id="L89">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="fc" id="L90">		this.sabrBeta = sabrBeta;</span>
+<span class="fc" id="L91">		this.rhoTable = rhoTable;</span>
+<span class="fc" id="L92">		this.baseVolTable = baseVolTable;</span>
+<span class="fc" id="L93">		this.volvolTable = volvolTable;</span>
+<span class="fc" id="L94">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L95">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+<span class="fc" id="L96">	}</span>
+
+	@Override
+	public double getValue(final VolatilityCubeModel model, final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+
+<span class="pc bpc" id="L101" title="1 of 2 branches missed.">		if(termination&lt;maturity) {</span>
+<span class="nc" id="L102">			throw new IllegalArgumentException(&quot;Termination has to be larger (or equal) maturity. Was termination=&quot;+termination+&quot;, maturity=&quot;+maturity);</span>
+		}
+
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">		if(quotingConvention != this.quotingConvention) {</span>
+<span class="nc" id="L106">			throw new IllegalArgumentException(&quot;This cube supports only the Quoting Convention &quot; +this.quotingConvention);</span>
+		}
+
+<span class="fc" id="L109">		final double underlying = underlyingTable.getValue(maturity, termination);</span>
+<span class="fc" id="L110">		final double sabrRho = rhoTable.getValue(maturity, termination);</span>
+<span class="fc" id="L111">		final double baseVol = baseVolTable.getValue(maturity, termination);</span>
+<span class="fc" id="L112">		final double sabrVolvol = volvolTable.getValue(maturity, termination);</span>
+
+<span class="fc" id="L114">		return AnalyticFormulas.sabrBerestyckiNormalVolatilityApproximation(baseVol, sabrBeta, sabrRho, sabrVolvol,</span>
+				sabrDisplacement, underlying, strike, maturity);
+	}
+
+	@Override
+	public double getValue(final double termination, final double maturity, final double strike, final QuotingConvention quotingConvention) {
+<span class="fc" id="L120">		return getValue(null, termination, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public String getName() {
+<span class="fc" id="L125">		return name;</span>
+	}
+
+	@Override
+	public LocalDate getReferenceDate() {
+<span class="fc" id="L130">		return referenceDate;</span>
+	}
+
+	@Override
+	public double getCorrelationDecay() {
+<span class="fc" id="L135">		return correlationDecay;</span>
+	}
+
+	@Override
+	public Map&lt;String, Object&gt; getParameters() {
+<span class="fc" id="L140">		final Map&lt;String,Object&gt; map = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L141">		map.put(&quot;sabrBeta&quot;, sabrBeta);</span>
+<span class="fc" id="L142">		map.put(&quot;sabrDisplacement&quot;, sabrDisplacement);</span>
+<span class="fc" id="L143">		map.put(&quot;underlyingTable&quot;, underlyingTable.clone());</span>
+<span class="fc" id="L144">		map.put(&quot;baseVolTable&quot;, baseVolTable.clone());</span>
+<span class="fc" id="L145">		map.put(&quot;volvolTable&quot;, volvolTable.clone());</span>
+<span class="fc" id="L146">		map.put(&quot;rhoTable&quot;, rhoTable.clone());</span>
+<span class="fc" id="L147">		map.put(&quot;Inherent correlationDecay&quot;, correlationDecay);</span>
+<span class="fc" id="L148">		map.put(&quot;iborOisDecorrelation&quot;, iborOisDecorrelation);</span>
+
+<span class="fc" id="L150">		return map;</span>
+	}
+
+	@Override
+	public double getLowestStrike(final VolatilityCubeModel model) {
+<span class="fc" id="L155">		return -sabrDisplacement;</span>
+	}
+
+	@Override
+	public double getIborOisDecorrelation() {
+<span class="fc" id="L160">		return iborOisDecorrelation;</span>
+	}
+
+	/**
+	 * @return The table of swap rates.
+	 */
+	public DataTable getUnderlyingTable() {
+<span class="fc" id="L167">		return underlyingTable.clone();</span>
+	}
+
+	/**
+	 * @return The table of rhos.
+	 */
+	public DataTable getRhoTable() {
+<span class="fc" id="L174">		return rhoTable.clone();</span>
+	}
+
+	/**
+	 * @return The table containing initial volatilities.
+	 */
+	public DataTable getBaseVolTable() {
+<span class="fc" id="L181">		return baseVolTable.clone();</span>
+	}
+
+	/**
+	 * @return The table containing volvols.
+	 */
+	public DataTable getVolvolTable() {
+<span class="fc" id="L188">		return volvolTable.clone();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

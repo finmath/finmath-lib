@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>VolatilityCubeFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">VolatilityCubeFactory.java</span></div><h1>VolatilityCubeFactory.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.time.LocalDate;
+
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.optimizer.SolverException;
+import net.finmath.singleswaprate.annuitymapping.AnnuityMapping.AnnuityMappingType;
+import net.finmath.singleswaprate.calibration.SABRCubeCalibration;
+import net.finmath.singleswaprate.calibration.SABRShiftedSmileCalibration;
+import net.finmath.singleswaprate.data.DataTable;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * A factory for all volatility cubes, based on common input.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class VolatilityCubeFactory {
+
+	//input
+	private final LocalDate referenceDate;
+
+	private final double displacement;
+	private final double beta;
+
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
+
+	private final SwaptionDataLattice cashPayerPremiums;
+	private final SwaptionDataLattice cashReceiverPremiums;
+	private final SwaptionDataLattice physicalPremiumsATM;
+
+	private final AnnuityMappingType annuityMappingType;
+
+<span class="fc" id="L38">	private int maxIterations = 250;</span>
+<span class="fc" id="L39">	private int numberOfThreads = Runtime.getRuntime().availableProcessors();</span>
+
+<span class="fc" id="L41">	private final boolean replicationUseAsOffset = true;</span>
+<span class="fc" id="L42">	private double replicationLowerBound   = -0.15;</span>
+<span class="fc" id="L43">	private double replicationUpperBound   = 0.15;</span>
+<span class="fc" id="L44">	private int replicationNumberOfEvaluationPoints = 500;</span>
+
+
+	/**
+	 * Create the factory.
+	 *
+	 * @param referenceDate The reference date the cubes will have.
+	 * @param cashPayerPremiums The lattice containing market targets for cash settled payer swaptions. The lattice needs to be quoted in QuotingConvention.PRICE.
+	 * @param cashReceiverPremiums The lattice containing market targets for cash settled receiver swaptions. The lattice needs to be quoted in QuotingConvention.PRICE.
+	 * @param physicalPremiumsATM Table containing physical settled swaption atm premiums.
+	 * @param displacement The displacement a cube should use.
+	 * @param beta The SABR beta parameter SABR cube should use.
+	 * @param correlationDecay The correlation decay parameter a cube should use.
+	 * @param iborOisDecorrelation The ibor ois decorrelation a cube should use.
+	 * @param annuityMappingType The type of annuity mapping to use when building the cube.
+	 */
+	public VolatilityCubeFactory(final LocalDate referenceDate, final SwaptionDataLattice cashPayerPremiums, final SwaptionDataLattice cashReceiverPremiums, final SwaptionDataLattice physicalPremiumsATM,
+			final double displacement, final double beta, final double correlationDecay, final double iborOisDecorrelation, final AnnuityMappingType annuityMappingType) {
+<span class="fc" id="L62">		super();</span>
+
+<span class="fc" id="L64">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L65">		this.cashPayerPremiums = cashPayerPremiums;</span>
+<span class="fc" id="L66">		this.cashReceiverPremiums = cashReceiverPremiums;</span>
+<span class="fc" id="L67">		this.physicalPremiumsATM = physicalPremiumsATM;</span>
+<span class="fc" id="L68">		this.displacement = displacement;</span>
+<span class="fc" id="L69">		this.beta = beta;</span>
+<span class="fc" id="L70">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L71">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+<span class="fc" id="L72">		this.annuityMappingType = annuityMappingType;</span>
+<span class="fc" id="L73">	}</span>
+
+	/**
+	 * Build a {@link SABRVolatilityCubeParallel} from parameters via {@link SABRVolatilityCubeParallelFactory}.
+	 *
+	 * @param name The name of the cube.
+	 * @param rho The SABR parameter rho.
+	 * @param volvol The SABR volvol parameter.
+	 * @param physicalATMSwaptions Lattice containing at-the-money values of physically settled swaptions.
+	 * @param model The model for context.
+	 * @return The cube.
+	 */
+	public SABRVolatilityCubeParallel buildParallelSABRCube(final String name, final double rho, final double volvol, final SwaptionDataLattice physicalATMSwaptions,
+			final VolatilityCubeModel model) {
+
+<span class="nc" id="L88">		final SchedulePrototype fixMetaSchedule 	= cashPayerPremiums.getFixMetaSchedule();</span>
+<span class="nc" id="L89">		final SchedulePrototype floatMetaSchedule 	= cashReceiverPremiums.getFloatMetaSchedule();</span>
+<span class="nc" id="L90">		final String forwardCurveName 			= cashPayerPremiums.getForwardCurveName();</span>
+<span class="nc" id="L91">		return SABRVolatilityCubeParallelFactory.createSABRVolatilityCubeParallel(name, referenceDate, fixMetaSchedule, floatMetaSchedule, displacement, beta, rho, volvol,</span>
+				correlationDecay, iborOisDecorrelation, physicalATMSwaptions, model, forwardCurveName);
+	}
+
+	/**
+	 * Build a {@link SABRVolatilityCube} by calibration via {@link SABRShiftedSmileCalibration}.
+	 *
+	 * @param name The name of the cube.
+	 * @param model The model for context.
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown when solvers fail to find suitable parameters.
+	 */
+	public SABRVolatilityCube buildShiftedSmileSABRCube(final String name, final VolatilityCubeModel model)
+			throws SolverException {
+
+<span class="fc" id="L107">		final SABRShiftedSmileCalibration calibrator = new SABRShiftedSmileCalibration(referenceDate,</span>
+				cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model, displacement, beta, correlationDecay, iborOisDecorrelation);
+<span class="fc" id="L109">		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);</span>
+
+<span class="fc" id="L111">		return calibrator.build(name);</span>
+	}
+
+	/**
+	 * Build a {@link SABRVolatilityCube} by calibration via {@link SABRCubeCalibration}.
+	 *
+	 * @param name The name of the cube.
+	 * @param model The model for context.
+	 * @param terminations The terminations to calibrate to in each slice.
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown when either the calibration of final or initial parameters (if not provided) fails.
+	 */
+	public SABRVolatilityCube buildSABRVolatilityCube(final String name, final VolatilityCubeModel model, final int[] terminations) throws SolverException {
+
+<span class="nc" id="L126">		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,</span>
+				annuityMappingType,	displacement, beta, correlationDecay, iborOisDecorrelation);
+<span class="nc" id="L128">		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);</span>
+<span class="nc" id="L129">		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);</span>
+
+<span class="nc" id="L131">		return calibrator.calibrate(name, terminations);</span>
+	}
+
+	/**
+	 * Build a {@link SABRVolatilityCube} by calibration via {@link SABRCubeCalibration}.
+	 *
+	 * @param name The name of the cube.
+	 * @param model The model for context.
+	 * @param terminations The terminations to calibrate to in each slice.
+	 * @param initialRhos Table containing initial rhos for the calibration.
+	 * @param initialBaseVols Table containing initial base volatilities for the calibration.
+	 * @param initialVolvols Table containing initial volvols for the calibration.
+	 * @return The calibrated cube.
+	 *
+	 * @throws SolverException Thrown when either the calibration of final or initial parameters (if not provided) fails.
+	 */
+	public SABRVolatilityCube buildSABRVolatilityCube(final String name, final VolatilityCubeModel model, final int[] terminations,
+			final DataTable initialRhos, final DataTable initialBaseVols, final DataTable initialVolvols) throws SolverException {
+
+<span class="nc" id="L150">		final SABRCubeCalibration calibrator = new SABRCubeCalibration(referenceDate, cashPayerPremiums, cashReceiverPremiums, physicalPremiumsATM, model,</span>
+				annuityMappingType,	displacement, beta, correlationDecay, iborOisDecorrelation);
+<span class="nc" id="L152">		calibrator.setCalibrationParameters(maxIterations, numberOfThreads);</span>
+<span class="nc" id="L153">		calibrator.setReplicationParameters(replicationUseAsOffset, replicationLowerBound, replicationUpperBound, replicationNumberOfEvaluationPoints);</span>
+<span class="nc" id="L154">		calibrator.setInitialParameters(initialRhos, initialBaseVols, initialVolvols);</span>
+
+<span class="nc" id="L156">		return calibrator.calibrate(name, terminations);</span>
+	}
+
+	/**
+	 * @return The number of threads for calibration.
+	 */
+	public int getNumberOfThreads() {
+<span class="nc" id="L163">		return numberOfThreads;</span>
+	}
+	/**
+	 * @return The maximum number of iterations during calibration.
+	 */
+	public int getMaxIterations() {
+<span class="nc" id="L169">		return maxIterations;</span>
+	}
+
+	/**
+	 * Set the parameters for calibration.
+	 *
+	 * @param maxIterations The maximum number of iterations done during calibration.
+	 * @param numberOfThreads The number of processor threads to be used.
+	 */
+	public void setCalibrationParameters( final int maxIterations, final int numberOfThreads) {
+<span class="nc" id="L179">		this.maxIterations		= maxIterations;</span>
+<span class="nc" id="L180">		this.numberOfThreads 	= numberOfThreads;</span>
+<span class="nc" id="L181">	}</span>
+
+	/**
+	 * Set the parameters for replication.
+	 *
+	 * @param lowerBound The lowest swap rate to be evaluated.
+	 * @param upperBound The highest swap rate to be evaluated.
+	 * @param numberOfEvaluationPoints The number of points to be evaluated during replication.
+	 */
+	public void setReplicationParameters(final double lowerBound, final double upperBound, final int numberOfEvaluationPoints) {
+<span class="nc" id="L191">		this.replicationLowerBound = lowerBound;</span>
+<span class="nc" id="L192">		this.replicationUpperBound = upperBound;</span>
+<span class="nc" id="L193">		this.replicationNumberOfEvaluationPoints = numberOfEvaluationPoints;</span>
+<span class="nc" id="L194">	}</span>
+
+	/**
+	 * @return The lowest swap rate to be evaluated during replication.
+	 */
+	public double getReplicationLowerBound() {
+<span class="nc" id="L200">		return replicationLowerBound;</span>
+	}
+
+	/**
+	 * @return The highest swap rate to be evaluated during replication.
+	 */
+	public double getReplicationUpperBound() {
+<span class="nc" id="L207">		return replicationUpperBound;</span>
+	}
+
+	/**
+	 * @return The number of points to be evaluated during replication.
+	 */
+	public double getReplicationNumberOfEvaluationPoints() {
+<span class="nc" id="L214">		return replicationNumberOfEvaluationPoints;</span>
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

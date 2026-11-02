@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SABRVolatilityCubeParallelFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.singleswaprate.model.volatilities</a> &gt; <span class="el_source">SABRVolatilityCubeParallelFactory.java</span></div><h1>SABRVolatilityCubeParallelFactory.java</h1><pre class="source lang-java linenums">package net.finmath.singleswaprate.model.volatilities;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice;
+import net.finmath.marketdata.model.volatilities.SwaptionDataLattice.QuotingConvention;
+import net.finmath.marketdata.products.Swap;
+import net.finmath.singleswaprate.data.DataTable;
+import net.finmath.singleswaprate.data.DataTable.TableConvention;
+import net.finmath.singleswaprate.data.DataTableInterpolated;
+import net.finmath.singleswaprate.model.VolatilityCubeModel;
+import net.finmath.time.Schedule;
+import net.finmath.time.SchedulePrototype;
+
+/**
+ * Build a {@link SABRVolatilityCubeParallel} from given shared parameters and marketdata.
+ * This factory does not calibrate the cube, instead with the given parameters a SABR smile is being build onto every node on the tenor grid.
+ * The market date is used to adjust the smile to match market values at atm level.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class SABRVolatilityCubeParallelFactory {
+
+	//input
+	private final String cubeName;
+	private final LocalDate referenceDate;
+	private final SchedulePrototype floatMetaSchedule;
+	private final SchedulePrototype   fixMetaSchedule;
+
+
+	private final double sabrBeta;
+	private final double sabrDisplacement;
+
+	private final double sabrRho;
+	private final double sabrVolvol;
+	private final double correlationDecay;
+	private final double iborOisDecorrelation;
+
+	private final VolatilityCubeModel model;
+	private final String forwardCurveName;
+
+	// calculations
+	private DataTable baseVolTable;
+	private DataTable swapRateTable;
+
+	private final SwaptionDataLattice physicalATMSwaptionsVolatilities;
+
+
+	/**
+	 * Build a {@link SABRVolatilityCubeParallel} from given shared parameters and marketdata.
+	 * This factory does not calibrate the cube, instead with the given parameters a SABR smile is being build onto every node on the tenor grid.
+	 * The market date is used to adjust the smile to match market values at atm level.
+	 *
+	 * @param cubeName The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param fixMetaSchedule The schedule meta data to use on the fix legs to match the target market data.
+	 * @param floatMetaSchedule The schedule meta data to use on the float legs to match the target market data.
+	 * @param sabrDisplacement The displacement of the SABR curves of the cube.
+	 * @param sabrBeta The SABR beta parameter of the cube.
+	 * @param sabrRho The SABR rho parameter of the cube.
+	 * @param sabrVolvol The SABR volvol parameter of the cube.
+	 * @param correlationDecay The correlation decay parameter of the cube.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
+	 * @param physicalATMSwaptions Lattice containing at-the-money values of physically settled swaptions.
+	 * @param model The model for context.
+	 * @param forwardCurveName The name of the forward curve to use, when fitting the atm level.
+	 * @return The cube.
+	 */
+	public static SABRVolatilityCubeParallel createSABRVolatilityCubeParallel(final String cubeName, final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule,
+			final SchedulePrototype floatMetaSchedule, final double sabrDisplacement, final double sabrBeta, final double sabrRho, final double sabrVolvol, final double correlationDecay, final double iborOisDecorrelation,
+			final SwaptionDataLattice physicalATMSwaptions, final VolatilityCubeModel model, final String forwardCurveName) {
+
+<span class="fc" id="L76">		final SABRVolatilityCubeParallelFactory factory = new SABRVolatilityCubeParallelFactory(cubeName, referenceDate, fixMetaSchedule, floatMetaSchedule, sabrDisplacement, sabrBeta,</span>
+<span class="fc" id="L77">				sabrRho, sabrVolvol, correlationDecay, iborOisDecorrelation, physicalATMSwaptions.convertLattice(QuotingConvention.PAYERVOLATILITYNORMAL, model), model,</span>
+				forwardCurveName);
+
+<span class="fc" id="L80">		return factory.buildParallel();</span>
+	}
+
+	/**
+	 * Private constructor.
+	 *
+	 * @param cubeName The name of the cube.
+	 * @param referenceDate The reference date of the cube.
+	 * @param fixMetaSchedule The schedule meta data to use on the fix legs to match the target market data.
+	 * @param floatMetaSchedule The schedule meta data to use on the float legs to match the target market data.
+	 * @param sabrDisplacement The displacement of the SABR curves of the cube.
+	 * @param sabrBeta The SABR beta parameter of the cube.
+	 * @param sabrRho The SABR rho parameter of the cube.
+	 * @param sabrVolvol The SABR volvol parameter of the cube.
+	 * @param correlationDecay The correlation decay parameter of the cube.
+	 * @param iborOisDecorrelation The ibor ois decorrelation parameter of the cube.
+	 * @param physicalATMSwaptionVolatilities Lattice containing at-the-money normal volatilities of physically settled swaptions.
+	 * @param model The model for context.
+	 * @param forwardCurveName The name of the forward curve to use, when fitting the atm level.
+	 */
+	private SABRVolatilityCubeParallelFactory(final String cubeName, final LocalDate referenceDate, final SchedulePrototype fixMetaSchedule, final SchedulePrototype floatMetaSchedule,
+			final double sabrDisplacement, final double sabrBeta, final double sabrRho, final double sabrVolvol, final double correlationDecay, final double iborOisDecorrelation,
+			final SwaptionDataLattice physicalATMSwaptionVolatilities, final VolatilityCubeModel model, final String forwardCurveName) {
+<span class="fc" id="L103">		super();</span>
+<span class="fc" id="L104">		this.cubeName = cubeName;</span>
+<span class="fc" id="L105">		this.referenceDate = referenceDate;</span>
+<span class="fc" id="L106">		this.fixMetaSchedule = fixMetaSchedule;</span>
+<span class="fc" id="L107">		this.floatMetaSchedule = floatMetaSchedule;</span>
+<span class="fc" id="L108">		this.sabrBeta = sabrBeta;</span>
+<span class="fc" id="L109">		this.sabrDisplacement = sabrDisplacement;</span>
+<span class="fc" id="L110">		this.sabrRho = sabrRho;</span>
+<span class="fc" id="L111">		this.sabrVolvol = sabrVolvol;</span>
+<span class="fc" id="L112">		this.correlationDecay = correlationDecay;</span>
+<span class="fc" id="L113">		this.iborOisDecorrelation = iborOisDecorrelation;</span>
+<span class="fc" id="L114">		this.physicalATMSwaptionsVolatilities = physicalATMSwaptionVolatilities;</span>
+<span class="fc" id="L115">		this.model = model;</span>
+<span class="fc" id="L116">		this.forwardCurveName = forwardCurveName;</span>
+<span class="fc" id="L117">	}</span>
+
+	/**
+	 * Build the cube.
+	 *
+	 * @return The cube.
+	 */
+	private SABRVolatilityCubeParallel buildParallel() {
+
+<span class="fc" id="L126">		swapRateTable = makeSwapRateTable();</span>
+<span class="fc" id="L127">		baseVolTable = makeBaseVolTable();</span>
+
+<span class="fc" id="L129">		return new SABRVolatilityCubeParallel(cubeName, referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho, sabrVolvol,</span>
+				baseVolTable, correlationDecay, iborOisDecorrelation);
+	}
+
+	/**
+	 * @return Swap rate table as underlying for the cube.
+	 */
+	private DataTable makeSwapRateTable() {
+
+<span class="fc" id="L138">		final ArrayList&lt;Integer&gt; maturitiesList	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L139">		final ArrayList&lt;Integer&gt; terminationsList	= new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L140">		final ArrayList&lt;Double&gt; swapRateList		= new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L142" title="All 2 branches covered.">		for(final int maturity : physicalATMSwaptionsVolatilities.getMaturities(0)) {</span>
+<span class="fc bfc" id="L143" title="All 2 branches covered.">			for(final int termination : physicalATMSwaptionsVolatilities.getTenors(0, maturity)) {</span>
+<span class="fc" id="L144">				maturitiesList.add(maturity);</span>
+<span class="fc" id="L145">				terminationsList.add(termination);</span>
+
+<span class="fc" id="L147">				final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L148">				final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L150">				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L151">				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L152">				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+
+<span class="fc" id="L154">				swapRateList.add(swapRate);</span>
+			}
+		}
+
+<span class="fc" id="L158">		return new DataTableInterpolated(&quot;Swap Rates&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesList, terminationsList,</span>
+				swapRateList);
+	}
+
+	/**
+	 * Create a table of base volatilities for the SABR smiles to match the market observed atm volatilities.
+	 *
+	 * @return Table of base volatilities.
+	 */
+	private DataTable makeBaseVolTable() {
+
+<span class="fc" id="L169">		final int[] maturitiesArray = new int[swapRateTable.size()];</span>
+<span class="fc" id="L170">		final int[] terminationsArray = new int[swapRateTable.size()];</span>
+<span class="fc" id="L171">		final double[] valuesArray = new double[swapRateTable.size()];</span>
+
+<span class="fc" id="L173">		int index = 0;</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">		for(final int maturity : swapRateTable.getMaturities()) {</span>
+<span class="fc bfc" id="L175" title="All 2 branches covered.">			for(final int termination : swapRateTable.getTerminationsForMaturity(maturity)) {</span>
+<span class="fc" id="L176">				maturitiesArray[index] = maturity;</span>
+<span class="fc" id="L177">				terminationsArray[index] = termination;</span>
+
+<span class="fc" id="L179">				valuesArray[index++] = 0.01;</span>
+<span class="fc" id="L180">			}</span>
+<span class="fc" id="L181">		}</span>
+
+<span class="fc" id="L183">		final DataTableInterpolated tempTable = new DataTableInterpolated(&quot;Temp Volatilities&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule,</span>
+				maturitiesArray, terminationsArray, valuesArray);
+
+<span class="fc" id="L186">		final VolatilityCube tempCube = new SABRVolatilityCubeParallel(&quot;tempCube&quot;, referenceDate, swapRateTable, sabrDisplacement, sabrBeta, sabrRho,</span>
+				sabrVolvol, tempTable, correlationDecay, iborOisDecorrelation);
+
+<span class="fc" id="L189">		index = 0;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">		for(final int maturity : swapRateTable.getMaturities()) {</span>
+<span class="fc bfc" id="L191" title="All 2 branches covered.">			for(final int termination : swapRateTable.getTerminationsForMaturity(maturity)) {</span>
+
+<span class="fc" id="L193">				final LocalDate maturityDate = referenceDate.plusMonths(maturity);</span>
+<span class="fc" id="L194">				final LocalDate terminationDate = maturityDate.plusMonths(termination);</span>
+
+<span class="fc" id="L196">				final Schedule floatSchedule = floatMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L197">				final Schedule fixSchedule = fixMetaSchedule.generateSchedule(referenceDate, maturityDate, terminationDate);</span>
+<span class="fc" id="L198">				final double swapRate = Swap.getForwardSwapRate(fixSchedule, floatSchedule, model.getForwardCurve(forwardCurveName), model);</span>
+
+<span class="fc" id="L200">				final double matFraction = floatSchedule.getPeriodStart(0);</span>
+<span class="fc" id="L201">				final double termFraction = floatSchedule.getPeriodEnd(floatSchedule.getNumberOfPeriods()-1);</span>
+<span class="fc" id="L202">				valuesArray[index++] = 0.01 * physicalATMSwaptionsVolatilities.getValue(maturity, termination, 0)</span>
+<span class="fc" id="L203">						/ tempCube.getValue(termFraction, matFraction, swapRate, net.finmath.marketdata.model.volatilities.VolatilitySurface.QuotingConvention.VOLATILITYNORMAL);</span>
+<span class="fc" id="L204">			}</span>
+<span class="fc" id="L205">		}</span>
+
+<span class="fc" id="L207">		return new DataTableInterpolated(&quot;Base Volatilities&quot;, TableConvention.MONTHS, referenceDate, floatMetaSchedule, maturitiesArray, terminationsArray,</span>
+				valuesArray);
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

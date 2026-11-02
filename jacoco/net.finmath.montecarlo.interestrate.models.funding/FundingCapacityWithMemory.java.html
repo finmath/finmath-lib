@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FundingCapacityWithMemory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.interestrate.models.funding</a> &gt; <span class="el_source">FundingCapacityWithMemory.java</span></div><h1>FundingCapacityWithMemory.java</h1><pre class="source lang-java linenums">package net.finmath.montecarlo.interestrate.models.funding;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+
+import net.finmath.exception.CalculationException;
+import net.finmath.montecarlo.interestrate.TermStructureMonteCarloSimulationModel;
+import net.finmath.montecarlo.interestrate.products.components.AbstractProductComponent;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.stochastic.Scalar;
+
+/**
+ * Models the notional dependent survival probability and default compensation
+ * of a funding capacity (funding provider)
+ * using a piecewise constant function for the instantaneous survival probability.
+ *
+ * The piecewise constant instantaneous survival probability has to be provided
+ * by a SortedMap&amp;lt;Double, Double&amp;gt; instantaneouseSurvivalProbability.
+ *
+ * This map defines the mapping \( x_{i} \mapsto q_{i} \). Defining
+ * \[ q(x) = q_{i} \text{\ for\ } x \in (x_{i-1}-x_{i}] \] the
+ * &lt;code&gt;getDefaultFactors&lt;/code&gt; method of this class calculates
+ * for a given argument \( (t,x) \):
+ * &lt;dl&gt;
+ * 	&lt;dt&gt;
+ * 		the effective survival probability
+ * 	&lt;/dt&gt;
+ * 	&lt;dd&gt;
+ * 		\[ \frac{1}{x} \int_{a}^{a+x} q(\xi) \mathrm{d}\xi \],
+ *
+ * 		where a denotes the current level of fund provided by this capacity, and
+ * 	&lt;/dd&gt;
+ * 	&lt;dt&gt;
+ * 		the effective default compensation factor R, such that
+ * 	&lt;/dt&gt;
+ * 	&lt;dd&gt;
+ * 		\[ \frac{1}{x} \int_{a}^{a+R x} q(\xi) \mathrm{d}\xi \ = \ 1 \],
+ * 	&lt;/dd&gt;
+ * &lt;/dl&gt;
+ *
+ * &lt;b&gt;Important:&lt;/b&gt;
+ *
+ *  &lt;ul&gt;
+ *  	&lt;li&gt;
+ *  		Since the class keeps track of past fundings
+ *  		used, it is mandatory that the factors are calculated in
+ * 			time-sequential order.
+ * 		&lt;/li&gt;
+ *  	&lt;li&gt;
+ *  		The map instantaneouseSurvivalProbability \( x_{i} \mapsto q_{i} \)
+ *  		defines the survival probability for \( (x_{i-1},x_{i} \).
+ *
+ *  		For funding above the last discretization point \( x_{n-1} \) a value of \( q_{n} = 0 \)
+ *  		is used.
+ *  		Hence, to avoid this extrapolation, set a very large value of \( x_{n-1} \), e.g.
+ *  		Double.MAX_VALLUE
+ * 		&lt;/li&gt;
+ * &lt;/ul&gt;
+ *
+ * @author Christian Fries
+ */
+public class FundingCapacityWithMemory extends AbstractProductComponent implements FundingCapacity {
+
+	private static final long serialVersionUID = 6863200178588875665L;
+
+	private final SortedMap&lt;Double, Double&gt;	instantaneousSurvivalProbability;
+
+	private Double				currentTime;
+	private RandomVariable		currentCapacity;
+
+	public FundingCapacityWithMemory(String currency, RandomVariable intialCapacity, SortedMap&lt;Double, Double&gt; instantaneouseSurvivalProbability) {
+<span class="fc" id="L73">		super(currency);</span>
+<span class="fc" id="L74">		this.currentTime = 0.0;</span>
+<span class="fc" id="L75">		this.currentCapacity = intialCapacity;</span>
+<span class="fc" id="L76">		this.instantaneousSurvivalProbability = instantaneouseSurvivalProbability;</span>
+<span class="fc" id="L77">	}</span>
+
+	/**
+	 * Apply a new funding requirement to this funding capacity
+	 * and return the associated &lt;code&gt;DefaultFactors&lt;/code&gt;.
+	 *
+	 * @param time The time at which the funding is required.
+	 * @param fundingRequirement The required funding.
+	 * @return A &lt;code&gt;DefaultFactors&lt;/code&gt; that reflects the amount that has to be contracted to secure the funding.
+	 */
+	@Override
+	public DefaultFactors getDefaultFactors(double time, RandomVariable fundingRequirement) {
+
+		/*
+		 * Determine integral bounds (synchronized for thread safety)
+		 */
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
+<span class="fc" id="L94">		synchronized (currentTime) {</span>
+<span class="pc bpc" id="L95" title="1 of 2 branches missed.">			if(time &lt; currentTime) {</span>
+<span class="nc" id="L96">				throw new IllegalStateException(&quot;The method must be called in time-successive order.&quot;);</span>
+			}
+<span class="fc" id="L98">			currentTime = time;</span>
+
+			/*
+			 * The fundingRequirement may be negative, in which case funding is returned to the provider.
+			 * We first calculate the lower and upper integral bounds from the fundingRequirement.
+			 * The integral calculated is always positive, since we require only the factor.
+			 */
+<span class="fc" id="L105">			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);</span>
+<span class="fc" id="L106">			fundingIntervalLeft		= currentCapacity.cap(newCapacity);		// min(current,new)</span>
+<span class="fc" id="L107">			fundingIntervalRight	= currentCapacity.floor(newCapacity);	// max(current,new)</span>
+<span class="fc" id="L108">			currentCapacity = newCapacity;</span>
+<span class="fc" id="L109">		}</span>
+
+<span class="fc" id="L111">		RandomVariable integratedSurvivalProbability = new Scalar(0.0);</span>
+<span class="fc" id="L112">		RandomVariable integratedDefaultCompensation = new Scalar(0.0);</span>
+
+<span class="fc" id="L114">		double previousFundingLevel = -Double.MAX_VALUE;</span>
+<span class="fc" id="L115">		double previousProvidedLevel = -Double.MAX_VALUE;</span>
+<span class="fc bfc" id="L116" title="All 2 branches covered.">		for(final Map.Entry&lt;Double, Double&gt; entry : instantaneousSurvivalProbability.entrySet()) {</span>
+<span class="fc" id="L117">			final double fundingLevel = entry.getKey();</span>
+<span class="fc" id="L118">			final double survivalProbability = entry.getValue();</span>
+
+<span class="fc" id="L120">			final double providedLevel = Math.max(previousProvidedLevel,0) + (fundingLevel-Math.max(previousFundingLevel,0)) * survivalProbability;</span>
+
+<span class="fc" id="L122">			integratedDefaultCompensation = integratedDefaultCompensation.add(</span>
+<span class="fc" id="L123">					fundingIntervalRight.cap(providedLevel)</span>
+<span class="fc" id="L124">					.sub(fundingIntervalLeft.floor(previousProvidedLevel))</span>
+<span class="fc" id="L125">					.floor(0.0)</span>
+<span class="fc" id="L126">					.div(survivalProbability));</span>
+
+<span class="fc" id="L128">			integratedSurvivalProbability = integratedSurvivalProbability.add(</span>
+<span class="fc" id="L129">					fundingIntervalRight.cap(fundingLevel)</span>
+<span class="fc" id="L130">					.sub(fundingIntervalLeft.floor(previousFundingLevel))</span>
+<span class="fc" id="L131">					.floor(0.0)</span>
+<span class="fc" id="L132">					.mult(survivalProbability));</span>
+
+<span class="fc" id="L134">			previousFundingLevel = fundingLevel;</span>
+<span class="fc" id="L135">			previousProvidedLevel = providedLevel;</span>
+
+<span class="fc" id="L137">		}</span>
+
+		// The cap is used to map to avoid 0*infty to zero.
+<span class="fc" id="L140">		final RandomVariable oneOverFundingAmount = fundingIntervalRight.sub(fundingIntervalLeft).invert().cap(Double.MAX_VALUE);</span>
+<span class="fc" id="L141">		integratedSurvivalProbability = integratedSurvivalProbability.mult(oneOverFundingAmount);</span>
+<span class="fc" id="L142">		integratedDefaultCompensation = integratedDefaultCompensation.mult(oneOverFundingAmount);</span>
+
+<span class="fc" id="L144">		return new DefaultFactors(integratedSurvivalProbability, integratedDefaultCompensation);</span>
+	}
+
+	@Deprecated
+	public RandomVariable getDefaultCompensationForRequiredFunding(double time, RandomVariable fundingRequirement) {
+
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
+<span class="nc" id="L151">		synchronized (currentTime) {</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">			if(time &lt; currentTime) {</span>
+<span class="nc" id="L153">				throw new IllegalStateException(&quot;The method must be called in time-successive order.&quot;);</span>
+			}
+<span class="nc" id="L155">			currentTime = time;</span>
+
+			/*
+			 * The fundingRequirement may be negative, in which case funding is retured to the provides.
+			 * We first calculate the lower and upper integral bounds from the fundingRequirement.
+			 * The integral calculated is always positive, the correct sign of the integral will be checked later.
+			 */
+<span class="nc" id="L162">			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);</span>
+<span class="nc" id="L163">			fundingIntervalLeft					= currentCapacity.cap(newCapacity);		// min(current,new)</span>
+<span class="nc" id="L164">			fundingIntervalRight				= currentCapacity.floor(newCapacity);	// max(current,new)</span>
+<span class="nc" id="L165">			currentCapacity = newCapacity;</span>
+<span class="nc" id="L166">		}</span>
+
+<span class="nc" id="L168">		RandomVariable integratedSurvivalProbability = new Scalar(0.0);</span>
+<span class="nc" id="L169">		double previousFundingLevel = -Double.MAX_VALUE;</span>
+<span class="nc" id="L170">		final double previousProvidedLevel = -Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">		for(final Map.Entry&lt;Double, Double&gt; entry : instantaneousSurvivalProbability.entrySet()) {</span>
+<span class="nc" id="L172">			final double fundingLevel = entry.getKey();</span>
+<span class="nc" id="L173">			final double survivalProbability = entry.getValue();</span>
+
+<span class="nc" id="L175">			final double providedLevel = Math.max(previousProvidedLevel,0) + (fundingLevel-Math.max(previousFundingLevel,0)) * survivalProbability;</span>
+
+<span class="nc" id="L177">			integratedSurvivalProbability = integratedSurvivalProbability.add(</span>
+<span class="nc" id="L178">					fundingIntervalRight.cap(providedLevel)</span>
+<span class="nc" id="L179">					.sub(fundingIntervalLeft.floor(previousProvidedLevel))</span>
+<span class="nc" id="L180">					.floor(0.0)</span>
+<span class="nc" id="L181">					.div(survivalProbability));</span>
+<span class="nc" id="L182">			previousFundingLevel = fundingLevel;</span>
+<span class="nc" id="L183">		}</span>
+<span class="nc" id="L184">		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervalRight.sub(fundingIntervalLeft));</span>
+
+
+<span class="nc" id="L187">		return integratedSurvivalProbability;</span>
+	}
+
+	@Deprecated
+	public RandomVariable getSurvivalProbabilityRequiredFunding(double time, RandomVariable fundingRequirement) {
+
+		RandomVariable fundingIntervalLeft, fundingIntervalRight;
+<span class="nc" id="L194">		synchronized (currentTime) {</span>
+<span class="nc bnc" id="L195" title="All 2 branches missed.">			if(time &lt; currentTime) {</span>
+<span class="nc" id="L196">				throw new IllegalStateException(&quot;The method getSurvivalProbabilityRequiredFunding must be called in successive order.&quot;);</span>
+			}
+
+<span class="nc" id="L199">			currentTime = time;</span>
+
+			/*
+			 * The fundingRequirement may be negative, in which case funding is retured to the provides.
+			 * We first calculate the lower and upper integral bounds from the fundingRequirement.
+			 * The integral calculated is always positive, the correct sign of the integral will be checked later.
+			 */
+<span class="nc" id="L206">			final RandomVariable newCapacity	= currentCapacity.add(fundingRequirement);</span>
+<span class="nc" id="L207">			fundingIntervalLeft		= currentCapacity.cap(newCapacity);		// min(current,new)</span>
+<span class="nc" id="L208">			fundingIntervalRight		= currentCapacity.floor(newCapacity);	// max(current,new)</span>
+<span class="nc" id="L209">			currentCapacity = newCapacity;</span>
+<span class="nc" id="L210">		}</span>
+
+<span class="nc" id="L212">		RandomVariable integratedSurvivalProbability = new Scalar(0.0);</span>
+<span class="nc" id="L213">		double previousFundingLevel = -Double.MAX_VALUE;</span>
+<span class="nc bnc" id="L214" title="All 2 branches missed.">		for(final Map.Entry&lt;Double, Double&gt; entry : instantaneousSurvivalProbability.entrySet()) {</span>
+<span class="nc" id="L215">			final double fundingLevel = entry.getKey();</span>
+<span class="nc" id="L216">			final double survivalProbability = entry.getValue();</span>
+
+<span class="nc" id="L218">			integratedSurvivalProbability = integratedSurvivalProbability.add(</span>
+<span class="nc" id="L219">					fundingIntervalRight.cap(fundingLevel)</span>
+<span class="nc" id="L220">					.sub(fundingIntervalLeft.floor(previousFundingLevel))</span>
+<span class="nc" id="L221">					.floor(0.0)</span>
+<span class="nc" id="L222">					.mult(survivalProbability));</span>
+<span class="nc" id="L223">			previousFundingLevel = fundingLevel;</span>
+<span class="nc" id="L224">		}</span>
+<span class="nc" id="L225">		integratedSurvivalProbability = integratedSurvivalProbability.div(fundingIntervalRight.sub(fundingIntervalLeft));</span>
+
+
+<span class="nc" id="L228">		return integratedSurvivalProbability;</span>
+	}
+
+	public RandomVariable getCurrentFundingLevel() {
+<span class="fc" id="L232">		return currentCapacity;</span>
+	}
+
+	@Override
+	public Set&lt;String&gt; queryUnderlyings() {
+<span class="nc" id="L237">		return null;</span>
+	}
+
+	@Override
+	public RandomVariable getValue(double evaluationTime, TermStructureMonteCarloSimulationModel model) throws CalculationException {
+<span class="nc" id="L242">		throw new UnsupportedOperationException();</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MonteCarloProcessFromProcessModel.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.process</a> &gt; <span class="el_source">MonteCarloProcessFromProcessModel.java</span></div><h1>MonteCarloProcessFromProcessModel.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 19.01.2004
+ */
+package net.finmath.montecarlo.process;
+
+import net.finmath.montecarlo.model.ProcessModel;
+import net.finmath.stochastic.RandomVariable;
+import net.finmath.time.TimeDiscretization;
+
+/**
+ * This class is an abstract base class to implement a multi-dimensional multi-factor Ito process.
+ * The dimension is called &lt;code&gt;numberOfComponents&lt;/code&gt; here.
+ * The default for &lt;code&gt;numberOfFactors&lt;/code&gt; is 1.
+ *
+ * This base class manages the time discretization and delegation to the model.
+ *
+ * @author Christian Fries
+ * @see MonteCarloProcess The interface definition contains more details.
+ * @version 1.5
+ */
+public abstract class MonteCarloProcessFromProcessModel implements MonteCarloProcess, Cloneable {
+
+	private final ProcessModel			model;
+	private final TimeDiscretization	timeDiscretization;
+
+	/**
+	 * Create a discretization scheme / a time discrete process.
+	 *
+	 * @param timeDiscretization The time discretization used for the discretization scheme.
+	 * @param model Set the model used to generate the stochastic process. The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
+	public MonteCarloProcessFromProcessModel(final TimeDiscretization timeDiscretization, final ProcessModel model) {
+<span class="fc" id="L35">		super();</span>
+<span class="fc" id="L36">		this.timeDiscretization	= timeDiscretization;</span>
+<span class="fc" id="L37">		this.model = model;</span>
+<span class="fc" id="L38">	}</span>
+
+	public abstract Object getCloneWithModifiedSeed(int seed);
+
+	/*
+	 * Delegation to model
+	 */
+
+	/**
+	 * Get the model used to generate the stochastic process.
+	 * The model has to implement {@link net.finmath.montecarlo.model.ProcessModel}.
+	 */
+	@Override
+	public ProcessModel getModel() {
+<span class="fc" id="L52">		return model;</span>
+	}
+
+	@Override
+	public int getNumberOfComponents() {
+<span class="fc" id="L57">		return model.getNumberOfComponents();</span>
+	}
+
+	public RandomVariable[]	getInitialState() {
+<span class="fc" id="L61">		return model.getInitialState(this);</span>
+	}
+
+	public RandomVariable[]	getDrift(final int timeIndex, final RandomVariable[] realizationAtTimeIndex, final RandomVariable[] realizationPredictor) {
+<span class="fc" id="L65">		return model.getDrift(this, timeIndex, realizationAtTimeIndex, realizationPredictor);</span>
+	}
+
+	public RandomVariable[]	getFactorLoading(final int timeIndex, final int componentIndex, final RandomVariable[] realizationAtTimeIndex) {
+		// Delegate to model
+<span class="fc" id="L70">		return model.getFactorLoading(this, timeIndex, componentIndex, realizationAtTimeIndex);</span>
+	}
+
+	public RandomVariable applyStateSpaceTransform(final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+		// Delegate to model
+<span class="fc" id="L75">		return model.applyStateSpaceTransform(this, timeIndex, componentIndex, randomVariable);</span>
+	}
+
+	public RandomVariable applyStateSpaceTransformInverse(final int timeIndex, final int componentIndex, final RandomVariable randomVariable) {
+		// Delegate to model
+<span class="fc" id="L80">		return model.applyStateSpaceTransformInverse(this, timeIndex, componentIndex, randomVariable);</span>
+	}
+
+	/*
+	 * Time discretization management
+	 */
+
+	@Override
+	public TimeDiscretization getTimeDiscretization() {
+<span class="fc" id="L89">		return timeDiscretization;</span>
+	}
+
+	@Override
+	public double getTime(final int timeIndex) {
+<span class="pc bpc" id="L94" title="1 of 4 branches missed.">		if(timeIndex &lt; 0 || timeIndex &gt;= timeDiscretization.getNumberOfTimes()) {</span>
+<span class="fc" id="L95">			throw new ArrayIndexOutOfBoundsException(&quot;Index &quot; + timeIndex + &quot; for process time discretization out of bounds.&quot;);</span>
+		}
+<span class="fc" id="L97">		return timeDiscretization.getTime(timeIndex);</span>
+	}
+
+	@Override
+	public int getTimeIndex(final double time) {
+<span class="fc" id="L102">		return timeDiscretization.getTimeIndex(time);</span>
+	}
+
+	@Override
+	public abstract MonteCarloProcessFromProcessModel clone();
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

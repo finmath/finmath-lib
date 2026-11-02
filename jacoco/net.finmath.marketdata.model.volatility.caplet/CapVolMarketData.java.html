@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CapVolMarketData.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatility.caplet</a> &gt; <span class="el_source">CapVolMarketData.java</span></div><h1>CapVolMarketData.java</h1><pre class="source lang-java linenums">package net.finmath.marketdata.model.volatility.caplet;
+
+/**
+ * This class is a container for all the cap data needed to perform the caplet bootstrapping.
+ *
+ * @author Daniel Willhalm
+ * @author Christian Fries (review and fixes)
+ */
+public class CapVolMarketData {
+
+	private final CapTenorStructure capTenorStructure;
+	private final double[] expiryVectorInYears;
+	private final int[] expiryVectorInMonths;
+	private final double[] strikeVector;
+	private final double[][] capVolatilities;
+	private final double shift;
+	private final int underlyingTenorInMonths;
+	private final int tenorChangeTimeInMonths;
+	private final int underlyingTenorInMonthsBeforeChange;
+	private final String index;
+	private final String indexBeforeChange;
+	private final String discountIndex;
+
+	/**
+	 * The constructor of the cap volatility market data class.
+	 * In case the underlying tenor changes throughout the expiry dates two indexes
+	 * and tenors are submitted as parameters.
+	 *
+	 * @param shift The shift of the volatilities.
+	 * @param underlyingTenorInMonths The underlying tenor in months.
+	 * @param underlyingTenorInMonthsBeforeChange The underlying tenor in months before the tenor change.
+	 * @param capVolatilities The matrix with cap volatilities as entries.
+	 * @param expiryVectorInMonths The expiry dates given in months.
+	 * @param strikeVector The caplet strikes.
+	 * @param index The forward curve index.
+	 * @param indexBeforeChange The forward curve index before the tenor change.
+	 * @param discountIndex The discount curve index.
+	 * @param capTenorStructure Enum that determines the currency.
+	 * @param tenorChangeTimeInMonths The time in months after which the tenor changes.
+	 */
+	public CapVolMarketData(
+			final String index,
+			final String discountIndex,
+			final String indexBeforeChange,
+			final CapTenorStructure capTenorStructure,
+			final int[] expiryVectorInMonths,
+			final double[] strikeVector,
+			final double[][] capVolatilities,
+			final double shift,
+			final int underlyingTenorInMonths,
+			final int tenorChangeTimeInMonths,
+			final int underlyingTenorInMonthsBeforeChange) {
+<span class="nc" id="L53">		super();</span>
+<span class="nc" id="L54">		this.capTenorStructure = capTenorStructure;</span>
+<span class="nc" id="L55">		this.expiryVectorInMonths = expiryVectorInMonths;</span>
+<span class="nc" id="L56">		this.strikeVector = strikeVector;</span>
+<span class="nc" id="L57">		this.capVolatilities = capVolatilities;</span>
+<span class="nc" id="L58">		this.shift = shift;</span>
+<span class="nc" id="L59">		this.underlyingTenorInMonths = underlyingTenorInMonths;</span>
+<span class="nc" id="L60">		this.tenorChangeTimeInMonths = tenorChangeTimeInMonths;</span>
+<span class="nc" id="L61">		this.underlyingTenorInMonthsBeforeChange = underlyingTenorInMonthsBeforeChange;</span>
+<span class="nc" id="L62">		this.index = index;</span>
+<span class="nc" id="L63">		this.indexBeforeChange = indexBeforeChange;</span>
+<span class="nc" id="L64">		this.discountIndex = discountIndex;</span>
+
+<span class="nc bnc" id="L66" title="All 2 branches missed.">		if (this.expiryVectorInMonths.length != this.capVolatilities.length) {</span>
+<span class="nc" id="L67">			throw new IllegalArgumentException(&quot;number of maturities and matrix not compatible. Maturity dates: &quot; + this.expiryVectorInMonths.length + &quot;, Matrix rows: &quot; + this.capVolatilities[0].length);</span>
+		}
+<span class="nc bnc" id="L69" title="All 2 branches missed.">		if (this.strikeVector.length != this.capVolatilities[0].length) {</span>
+<span class="nc" id="L70">			throw new IllegalArgumentException(&quot;number of strikes and matrix not compatible. Strikes: &quot; + this.strikeVector.length + &quot;, Matrix columns: &quot; + this.capVolatilities[0].length);</span>
+		}
+
+<span class="nc" id="L73">		expiryVectorInYears = new double[this.expiryVectorInMonths.length];</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">		for (int i = 0; i &lt; this.expiryVectorInMonths.length; i++) {</span>
+<span class="nc" id="L75">			expiryVectorInYears[i] = (this.expiryVectorInMonths[i])/12.0;</span>
+		}
+<span class="nc" id="L77">	}</span>
+
+	/**
+	 * Overloaded constructor of the cap volatility market data class
+	 * that assumes no tenor change.
+	 *
+	 * @param index The forward curve index.
+	 * @param discountIndex The discount curve index.
+	 * @param capVolatilities The matrix with cap volatilities as entries.
+	 * @param expiryVectorInMonths The expiry dates given in months.
+	 * @param strikeVector The caplet strikes.
+	 * @param capTenorStructure Enum that determines the currency.
+	 * @param shift The shift of the volatilities.
+	 * @param underlyingTenorInMonths The underlying tenor in months.
+	 */
+	public CapVolMarketData(final String index, final String discountIndex, final CapTenorStructure capTenorStructure, final int[] expiryVectorInMonths, final double[] strikeVector, final double[][] capVolatilities, final double shift, final int underlyingTenorInMonths) {
+<span class="nc" id="L93">		this(index, discountIndex, null, capTenorStructure, expiryVectorInMonths, strikeVector, capVolatilities, shift, underlyingTenorInMonths, 0, underlyingTenorInMonths);</span>
+<span class="nc" id="L94">	}</span>
+
+	public double getCapVolData(final int expiry, final double strike) {
+<span class="nc" id="L97">		return capVolatilities[getRowIndex(expiry)][getColumnIndex(strike)];</span>
+	}
+
+	public double getCapVolData(final int i, final int j) {
+<span class="nc" id="L101">		return capVolatilities[i][j];</span>
+	}
+
+	public double getShift() {
+<span class="nc" id="L105">		return shift;</span>
+	}
+
+	public int getNumberOfStrikes() {
+<span class="nc" id="L109">		return strikeVector.length;</span>
+	}
+
+	public int getNumberOfExpiryDates() {
+<span class="nc" id="L113">		return expiryVectorInMonths.length;</span>
+	}
+
+	public int getMaxExpiryInMonths() {
+<span class="nc" id="L117">		return expiryVectorInMonths[expiryVectorInMonths.length-1];</span>
+	}
+
+	public double getMaxExpiryInYears() {
+<span class="nc" id="L121">		return expiryVectorInYears[expiryVectorInYears.length-1];</span>
+	}
+
+	public int getExpiryInMonths(final int i) {
+<span class="nc" id="L125">		return expiryVectorInMonths[i];</span>
+	}
+
+	public double getExpiryInYears(final int i) {
+<span class="nc" id="L129">		return expiryVectorInYears[i];</span>
+	}
+
+	public double[][] getVolMatrix() {
+<span class="nc" id="L133">		return capVolatilities;</span>
+	}
+
+	public double[] getStrikeVector() {
+<span class="nc" id="L137">		return strikeVector;</span>
+	}
+
+	public int[] getExpiryVectorInMonths() {
+<span class="nc" id="L141">		return expiryVectorInMonths;</span>
+	}
+
+	public double[] getExpiryVectorInYears() {
+<span class="nc" id="L145">		return expiryVectorInYears;</span>
+	}
+
+	public int getRowIndex(final int expiryInMonths) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">		for (int i = 0; i &lt; expiryVectorInMonths.length; i++) {</span>
+<span class="nc bnc" id="L150" title="All 2 branches missed.">			if (expiryVectorInMonths[i]==expiryInMonths) {</span>
+<span class="nc" id="L151">				return i;</span>
+			}
+		}
+<span class="nc" id="L154">		return -1;</span>
+	}
+
+	public double getStrike(final int j) {
+<span class="nc" id="L158">		return strikeVector[j];</span>
+	}
+
+	public int getColumnIndex(final double strike) {
+<span class="nc bnc" id="L162" title="All 2 branches missed.">		for (int j = 0; j &lt; strikeVector.length; j++) {</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">			if (strikeVector[j]==strike) {</span>
+<span class="nc" id="L164">				return j;</span>
+			}
+		}
+<span class="nc" id="L167">		return -1;</span>
+	}
+
+	public CapTenorStructure getCapTenorStructure() {
+<span class="nc" id="L171">		return capTenorStructure;</span>
+	}
+
+	public int getUnderlyingTenorInMonths() {
+<span class="nc" id="L175">		return underlyingTenorInMonths;</span>
+	}
+
+	public int getUnderlyingTenorInMonthsBeforeChange() {
+<span class="nc" id="L179">		return underlyingTenorInMonthsBeforeChange;</span>
+	}
+
+	public int getTenorChangeTimeInMonths() {
+<span class="nc" id="L183">		return tenorChangeTimeInMonths;</span>
+	}
+
+	public String getIndex() {
+<span class="nc" id="L187">		return index;</span>
+	}
+
+	public String getIndexBeforeChange() {
+<span class="nc" id="L191">		return indexBeforeChange;</span>
+	}
+
+	public String getDiscountIndex() {
+<span class="nc" id="L195">		return discountIndex;</span>
+	}
+
+	public void setCapVolMatrixEntry(final int i, final int j, final double newValue) {
+<span class="nc" id="L199">		capVolatilities[i][j] = newValue;</span>
+<span class="nc" id="L200">	}</span>
+
+	public static String getOffsetCodeFromIndex(final String index) {
+<span class="nc" id="L203">		final String[] split = index.split(&quot;(?&lt;=\\D)(?=\\d)&quot;);</span>
+<span class="nc" id="L204">		return split[split.length-1];</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

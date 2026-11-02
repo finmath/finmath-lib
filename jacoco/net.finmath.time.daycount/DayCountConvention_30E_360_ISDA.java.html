@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DayCountConvention_30E_360_ISDA.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.time.daycount</a> &gt; <span class="el_source">DayCountConvention_30E_360_ISDA.java</span></div><h1>DayCountConvention_30E_360_ISDA.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 07.09.2013
+ */
+
+package net.finmath.time.daycount;
+
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.time.Month;
+
+/**
+ * Implementation of 30E/360 ISDA.
+ *
+ * Calculates the day count as
+ * &lt;code&gt;
+ * 		(endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (Math.min(endDateDay,30) - Math.min(startDateDay, 30.0));
+ * &lt;/code&gt;
+ * where for endDateDay is the to 30, if endDate is not the termination date and the last day of February.
+
+ * The constructor offers a boolean to decide if endDate is treated as a termination date or not.
+ * A termination date is the endDate of the last period in a schedule.
+ *
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class DayCountConvention_30E_360_ISDA implements DayCountConvention, Serializable {
+
+	private static final long serialVersionUID = -4076488918432119303L;
+
+	private final boolean isTreatEndDateAsTerminationDate;
+
+	/**
+	 * Create a 30E/360 ISDA daycount convention.
+	 *
+	 * @param isTreatEndDateAsTerminationDate If true, the end date is treated as a termination date and that case the last day of february is &lt;i&gt;not&lt;/i&gt; treated as 30.
+	 */
+<span class="fc" id="L39">	public DayCountConvention_30E_360_ISDA(final boolean isTreatEndDateAsTerminationDate) {</span>
+<span class="fc" id="L40">		this.isTreatEndDateAsTerminationDate = isTreatEndDateAsTerminationDate;</span>
+<span class="fc" id="L41">	}</span>
+
+	/**
+	 * Create a 30E/360 ISDA daycount convention using &lt;code&gt;isTreatEndDateAsTerminationDate = false&lt;/code&gt;.
+	 */
+	public DayCountConvention_30E_360_ISDA() {
+<span class="nc" id="L47">		this(false);</span>
+<span class="nc" id="L48">	}</span>
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycount(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycount(final LocalDate startDate, final LocalDate endDate) {
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">		if(startDate.isAfter(endDate)) {</span>
+<span class="nc" id="L56">			return -getDaycount(endDate,startDate);</span>
+		}
+
+<span class="fc" id="L59">		int startDateDay 	= startDate.getDayOfMonth();</span>
+<span class="fc" id="L60">		final int startDateMonth 	= startDate.getMonthValue();</span>
+<span class="fc" id="L61">		final int startDateYear 	= startDate.getYear();</span>
+
+<span class="fc" id="L63">		int endDateDay 		= endDate.getDayOfMonth();</span>
+<span class="fc" id="L64">		final int endDateMonth 	= endDate.getMonthValue();</span>
+<span class="fc" id="L65">		final int endDateYear 	= endDate.getYear();</span>
+
+
+		// Check if we have last day of February
+<span class="fc bfc" id="L69" title="All 4 branches covered.">		final boolean isStartDateLastDayOfFebruary = (startDateMonth == Month.FEBRUARY.getValue() &amp;&amp; startDateDay == startDate.lengthOfMonth());</span>
+<span class="fc bfc" id="L70" title="All 4 branches covered.">		final boolean isEndDateLastDayOfFebruary = (endDateMonth == Month.FEBRUARY.getValue() &amp;&amp; endDateDay == endDate.lengthOfMonth());</span>
+
+		// Last day of February and 31st of a month are both treated as &quot;30&quot;.
+<span class="fc bfc" id="L73" title="All 4 branches covered.">		if(isStartDateLastDayOfFebruary || startDateDay == 31) {</span>
+<span class="fc" id="L74">			startDateDay = 30;</span>
+		}
+<span class="fc bfc" id="L76" title="All 6 branches covered.">		if((isEndDateLastDayOfFebruary &amp;&amp; !isTreatEndDateAsTerminationDate) || endDateDay == 31) {</span>
+<span class="fc" id="L77">			endDateDay = 30;</span>
+		}
+
+<span class="fc" id="L80">		return (endDateYear - startDateYear) * 360.0 + (endDateMonth - startDateMonth) * 30.0 + (endDateDay - Math.min(startDateDay, 30.0));</span>
+	}
+
+	/* (non-Javadoc)
+	 * @see net.finmath.time.daycount.DayCountConvention#getDaycountFraction(java.time.LocalDate, java.time.LocalDate)
+	 */
+	@Override
+	public double getDaycountFraction(final LocalDate startDate, final LocalDate endDate) {
+<span class="fc" id="L88">		return getDaycount(startDate, endDate) / 360.0;</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

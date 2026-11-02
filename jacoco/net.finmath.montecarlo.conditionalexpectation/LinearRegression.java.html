@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LinearRegression.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.montecarlo.conditionalexpectation</a> &gt; <span class="el_source">LinearRegression.java</span></div><h1>LinearRegression.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 26.08.2018
+ */
+package net.finmath.montecarlo.conditionalexpectation;
+
+import net.finmath.functions.LinearAlgebra;
+import net.finmath.stochastic.RandomVariable;
+
+/**
+ * Performs a linear regression on random variables implementing RandomVariable.
+ *
+ * @author Christian Fries
+ */
+public class LinearRegression {
+
+	private final RandomVariable[] basisFunctions;
+
+	/**
+	 * Create the linear regression with a set of basis functions.
+	 *
+	 * @param basisFunctions A vector of (independent) random variables to be used as basis functions.
+	 */
+	public LinearRegression(final RandomVariable[] basisFunctions) {
+<span class="fc" id="L26">		super();</span>
+<span class="fc" id="L27">		this.basisFunctions = basisFunctions;</span>
+<span class="fc" id="L28">	}</span>
+
+	/**
+	 * Get the vector of regression coefficients.
+	 *
+	 * @param value The random variable to regress.
+	 * @return The vector of regression coefficients.
+	 */
+	public double[] getRegressionCoefficients(final RandomVariable value) {
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">		if(basisFunctions.length == 0) {</span>
+<span class="nc" id="L38">			return new double[] { };</span>
+		}
+<span class="fc bfc" id="L40" title="All 2 branches covered.">		else if(basisFunctions.length == 1) {</span>
+			/*
+			 * Regression with one basis function is just a projection on that vector. &lt;b,x&gt;/&lt;b,b&gt;
+			 */
+<span class="fc" id="L44">			return new double[] { value.mult(basisFunctions[0]).getAverage() / basisFunctions[0].squared().getAverage() };</span>
+		}
+<span class="fc bfc" id="L46" title="All 2 branches covered.">		else if(basisFunctions.length == 2) {</span>
+			/*
+			 * Regression with two basis functions can be solved explicitly if determinant != 0 (otherwise we will fallback to SVD)
+			 */
+<span class="fc" id="L50">			final double a = basisFunctions[0].squared().getAverage();</span>
+<span class="fc" id="L51">			final double b = basisFunctions[0].mult(basisFunctions[1]).average().squared().doubleValue();</span>
+<span class="fc" id="L52">			final double c = b;</span>
+<span class="fc" id="L53">			final double d = basisFunctions[1].squared().getAverage();</span>
+
+<span class="fc" id="L55">			final double determinant =  (a * d - b * c);</span>
+<span class="pc bpc" id="L56" title="1 of 2 branches missed.">			if(determinant != 0) {</span>
+<span class="fc" id="L57">				final double x = value.mult(basisFunctions[0]).getAverage();</span>
+<span class="fc" id="L58">				final double y = value.mult(basisFunctions[1]).getAverage();</span>
+
+<span class="fc" id="L60">				final double alpha0 = (d * x - b * y) / determinant;</span>
+<span class="fc" id="L61">				final double alpha1 = (a * y - c * x) / determinant;</span>
+
+<span class="fc" id="L63">				return new double[] { alpha0, alpha1 };</span>
+			}
+		}
+
+		/*
+		 * General case
+		 */
+
+		// Build regression matrix
+<span class="fc" id="L72">		final double[][] BTB = new double[basisFunctions.length][basisFunctions.length];</span>
+<span class="fc bfc" id="L73" title="All 2 branches covered.">		for(int i=0; i&lt;basisFunctions.length; i++) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">			for(int j=0; j&lt;=i; j++) {</span>
+<span class="fc" id="L75">				final double covariance = basisFunctions[i].mult(basisFunctions[j]).getAverage();</span>
+<span class="fc" id="L76">				BTB[i][j] = covariance;</span>
+<span class="fc" id="L77">				BTB[j][i] = covariance;</span>
+			}
+		}
+
+<span class="fc" id="L81">		final double[] BTX = new double[basisFunctions.length];</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">		for(int i=0; i&lt;basisFunctions.length; i++) {</span>
+<span class="fc" id="L83">			final double covariance = basisFunctions[i].mult(value).getAverage();</span>
+<span class="fc" id="L84">			BTX[i] = covariance;</span>
+		}
+
+<span class="fc" id="L87">		return LinearAlgebra.solveLinearEquationLeastSquare(BTB, BTX);</span>
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

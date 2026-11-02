@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CapletVolatilities.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.marketdata.model.volatilities</a> &gt; <span class="el_source">CapletVolatilities.java</span></div><h1>CapletVolatilities.java</h1><pre class="source lang-java linenums">/*
+ * (c) Copyright Christian P. Fries, Germany. Contact: email@christian-fries.de.
+ *
+ * Created on 20.05.2005
+ */
+package net.finmath.marketdata.model.volatilities;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.StringTokenizer;
+
+import net.finmath.marketdata.model.AnalyticModel;
+import net.finmath.marketdata.model.curves.Curve;
+import net.finmath.marketdata.model.curves.CurveInterpolation;
+import net.finmath.marketdata.model.curves.DiscountCurve;
+import net.finmath.marketdata.model.curves.ForwardCurve;
+
+/**
+ * A very simple container for Caplet volatilities.
+ *
+ * It performs piecewise constant interpolation (discretization) in maturity dimension on iso-moneyness lines
+ * and uses the default interpolation from the CurveFromInterpolationPoints class in strike dimension.
+ *
+ * It allows to convert from several quoting conventions.
+ *
+ * It needs a forward curve and a discount curve. The tenor length of the Caplet is inferred
+ * from the forward curve.
+ *
+ * @TODO Need to add forward and discount curve to support implied vol.
+ * @author Christian Fries
+ * @version 1.0
+ */
+public class CapletVolatilities extends AbstractVolatilitySurface {
+
+<span class="pc" id="L44">	private final Map&lt;Double, Curve&gt;	capletVolatilities = new HashMap&lt;&gt;();</span>
+
+	private transient Double[]	maturities;
+<span class="pc" id="L47">	private transient Object		lazyInitLock = new Object();</span>
+
+	/**
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 * @param forwardCurve The underlying forward curve.
+	 * @param maturities The vector of maturities of the quotes.
+	 * @param strikes The vector of strikes of the quotes.
+	 * @param volatilities The vector of volatilities of the quotes.
+	 * @param volatilityConvention The quoting convention of the volatilities provided.
+	 * @param discountCurve The associated discount curve.
+	 */
+	public CapletVolatilities(final String name, final LocalDate referenceDate, final ForwardCurve forwardCurve,
+			final double[] maturities,
+			final double[] strikes,
+			final double[] volatilities,
+			final QuotingConvention volatilityConvention,
+			final DiscountCurve discountCurve)  {
+<span class="fc" id="L65">		super(name, referenceDate, forwardCurve, discountCurve, volatilityConvention, null);</span>
+
+<span class="pc bpc" id="L67" title="2 of 4 branches missed.">		if(maturities.length != strikes.length || maturities.length != volatilities.length) {</span>
+<span class="nc" id="L68">			throw new IllegalArgumentException(&quot;Length of vectors is not equal.&quot;);</span>
+		}
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">		for(int i=0; i&lt;volatilities.length; i++) {</span>
+<span class="fc" id="L72">			final double maturity		= maturities[i];</span>
+<span class="fc" id="L73">			final double strike		= strikes[i];</span>
+<span class="fc" id="L74">			final double volatility	= volatilities[i];</span>
+<span class="fc" id="L75">			add(maturity, strike, volatility);</span>
+		}
+<span class="fc" id="L77">	}</span>
+
+	/**
+	 * Private constructor for empty surface, to add points to it.
+	 *
+	 * @param name The name of this volatility surface.
+	 * @param referenceDate The reference date for this volatility surface, i.e., the date which defined t=0.
+	 */
+	private CapletVolatilities(final String name, final LocalDate referenceDate) {
+<span class="nc" id="L86">		super(name, referenceDate);</span>
+<span class="nc" id="L87">	}</span>
+
+	/**
+	 * @param maturity
+	 * @param strike
+	 * @param volatility
+	 */
+	private void add(final double maturity, final double strike, final double volatility) {
+<span class="fc" id="L95">		Curve curve = capletVolatilities.get(maturity);</span>
+		try {
+<span class="pc bpc" id="L97" title="1 of 2 branches missed.">			if(curve == null) {</span>
+<span class="fc" id="L98">				curve = (new CurveInterpolation.Builder()).addPoint(strike, volatility, true).build();</span>
+			} else {
+<span class="nc" id="L100">				curve = curve.getCloneBuilder().addPoint(strike, volatility, true).build();</span>
+			}
+<span class="nc" id="L102">		} catch (final CloneNotSupportedException e) {</span>
+<span class="nc" id="L103">			throw new RuntimeException(&quot;Unable to build curve.&quot;);</span>
+<span class="fc" id="L104">		}</span>
+<span class="fc" id="L105">		synchronized (lazyInitLock) {</span>
+<span class="fc" id="L106">			capletVolatilities.put(maturity, curve);</span>
+<span class="fc" id="L107">			maturities = null;</span>
+<span class="fc" id="L108">		}</span>
+<span class="fc" id="L109">	}</span>
+
+	@Override
+	public double getValue(final double maturity, final double strike, final VolatilitySurface.QuotingConvention quotingConvention) {
+<span class="nc" id="L113">		return getValue(null, maturity, strike, quotingConvention);</span>
+	}
+
+	@Override
+	public double getValue(final AnalyticModel model, final double maturity, final double strike, final VolatilitySurface.QuotingConvention quotingConvention) {
+<span class="fc bfc" id="L118" title="All 2 branches covered.">		if(maturity == 0) {</span>
+<span class="fc" id="L119">			return 0;</span>
+		}
+
+		double value;
+<span class="fc bfc" id="L123" title="All 2 branches covered.">		if(capletVolatilities.containsKey(maturity)) {</span>
+<span class="fc" id="L124">			value			= capletVolatilities.get(maturity).getValue(strike);</span>
+		}
+		else {
+<span class="fc" id="L127">			synchronized (lazyInitLock) {</span>
+<span class="fc bfc" id="L128" title="All 2 branches covered.">				if(maturities == null) {</span>
+<span class="fc" id="L129">					maturities = capletVolatilities.keySet().toArray(new Double[0]);</span>
+				}
+<span class="fc" id="L131">				Arrays.sort(maturities);</span>
+<span class="fc" id="L132">			}</span>
+
+<span class="fc" id="L134">			int maturityGreaterEqualIndex = Arrays.binarySearch(maturities, maturity);</span>
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">			if(maturityGreaterEqualIndex &lt; 0) {</span>
+<span class="fc" id="L136">				maturityGreaterEqualIndex = -maturityGreaterEqualIndex-1;</span>
+			}
+<span class="fc bfc" id="L138" title="All 2 branches covered.">			if(maturityGreaterEqualIndex &gt; maturities.length-1) {</span>
+<span class="fc" id="L139">				maturityGreaterEqualIndex = maturities.length-1;</span>
+			}
+
+<span class="fc" id="L142">			final double maturityGreaterOfEqual	= maturities[maturityGreaterEqualIndex];</span>
+
+			// @TODO Below we should trigger an exception if no forwardCurve is supplied but needed.
+			// Interpolation / extrapolation is performed on iso-moneyness lines.
+<span class="fc" id="L146">			final double adjustedStrike = getForwardCurve().getValue(model, maturityGreaterOfEqual) + (strike - getForwardCurve().getValue(model, maturity));</span>
+
+<span class="fc" id="L148">			value			= capletVolatilities.get(maturityGreaterOfEqual).getValue(adjustedStrike);</span>
+		}
+
+<span class="fc" id="L151">		return convertFromTo(model, maturity, strike, value, this.getQuotingConvention(), quotingConvention);</span>
+	}
+
+	public static AbstractVolatilitySurface fromFile(final File inputFile) throws FileNotFoundException {
+		// Read data
+
+<span class="nc" id="L157">		final ArrayList&lt;String&gt; datasets = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L158">		try(BufferedReader dataStream = new BufferedReader(new InputStreamReader(new FileInputStream(inputFile)))) {</span>
+			String line;
+<span class="nc bnc" id="L160" title="All 2 branches missed.">			while((line = dataStream.readLine()) != null) {</span>
+
+				// Ignore non caplet data
+<span class="nc bnc" id="L163" title="All 2 branches missed.">				if(!line.startsWith(&quot;caplet\t&quot;)) {</span>
+<span class="nc" id="L164">					continue;</span>
+				}
+
+<span class="nc" id="L167">				datasets.add(line);</span>
+			}
+<span class="nc" id="L169">		} catch (final IOException e) {</span>
+			// TODO Auto-generated catch block
+<span class="nc" id="L171">			e.printStackTrace();</span>
+<span class="nc" id="L172">		}</span>
+
+		// @TODO Name and reference date have to be set?!
+<span class="nc" id="L175">		final CapletVolatilities capletVolatilities = new CapletVolatilities(null, null);</span>
+
+		// Parse data
+<span class="nc bnc" id="L178" title="All 2 branches missed.">		for(int datasetIndex=0; datasetIndex&lt;datasets.size(); datasetIndex++) {</span>
+<span class="nc" id="L179">			final StringTokenizer stringTokenizer = new StringTokenizer(datasets.get(datasetIndex),&quot;\t&quot;);</span>
+
+			try {
+				// Skip identifier
+<span class="nc" id="L183">				stringTokenizer.nextToken();</span>
+<span class="nc" id="L184">				final double maturity			= Double.parseDouble(stringTokenizer.nextToken());</span>
+<span class="nc" id="L185">				final double strike			= Double.parseDouble(stringTokenizer.nextToken());</span>
+<span class="nc" id="L186">				final double capletVolatility	= Double.parseDouble(stringTokenizer.nextToken());</span>
+<span class="nc" id="L187">				capletVolatilities.add(maturity, strike, capletVolatility);</span>
+			}
+<span class="nc" id="L189">			catch(final Exception e) {</span>
+<span class="nc" id="L190">				e.printStackTrace();</span>
+<span class="nc" id="L191">			}</span>
+		}
+
+<span class="nc" id="L194">		return capletVolatilities;</span>
+	}
+
+	private void readObject(final java.io.ObjectInputStream in) throws ClassNotFoundException, IOException {
+<span class="nc" id="L198">		in.defaultReadObject();</span>
+		// initialization of transients
+<span class="nc" id="L200">		lazyInitLock = new Object();</span>
+<span class="nc" id="L201">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>

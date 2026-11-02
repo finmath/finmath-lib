@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AssetModelFourierMethodFactory.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">finmath lib</a> &gt; <a href="index.source.html" class="el_package">net.finmath.modelling.modelfactory</a> &gt; <span class="el_source">AssetModelFourierMethodFactory.java</span></div><h1>AssetModelFourierMethodFactory.java</h1><pre class="source lang-java linenums">package net.finmath.modelling.modelfactory;
+
+import net.finmath.fouriermethod.models.BlackScholesModel;
+import net.finmath.fouriermethod.models.HestonModel;
+import net.finmath.fouriermethod.models.MertonModel;
+import net.finmath.fouriermethod.models.VarianceGammaModel;
+import net.finmath.modelling.DescribedModel;
+import net.finmath.modelling.DescribedProduct;
+import net.finmath.modelling.ModelFactory;
+import net.finmath.modelling.ProductDescriptor;
+import net.finmath.modelling.descriptor.AssetModelDescriptor;
+import net.finmath.modelling.descriptor.BlackScholesModelDescriptor;
+import net.finmath.modelling.descriptor.HestonModelDescriptor;
+import net.finmath.modelling.descriptor.MertonModelDescriptor;
+import net.finmath.modelling.descriptor.VarianceGammaModelDescriptor;
+import net.finmath.modelling.productfactory.SingleAssetFourierProductFactory;
+
+/**
+ * Constructs asset models, which evaluate products via Monte-Carlo method.
+ *
+ * @author Christian Fries
+ * @author Roland Bachl
+ *
+ */
+public class AssetModelFourierMethodFactory implements ModelFactory&lt;AssetModelDescriptor&gt; {
+
+	/**
+	 * Create the factory.
+	 */
+	public AssetModelFourierMethodFactory() {
+<span class="fc" id="L31">		super();</span>
+<span class="fc" id="L32">	}</span>
+
+	@Override
+	public DescribedModel&lt;? extends AssetModelDescriptor&gt; getModelFromDescriptor(final AssetModelDescriptor descriptor) {
+
+<span class="fc bfc" id="L37" title="All 2 branches covered.">		if(descriptor instanceof BlackScholesModelDescriptor) {</span>
+<span class="fc" id="L38">			final DescribedModel&lt;BlackScholesModelDescriptor&gt; model = new BlackScholesModelFourier((BlackScholesModelDescriptor) descriptor);</span>
+<span class="fc" id="L39">			return model;</span>
+		}
+<span class="fc bfc" id="L41" title="All 2 branches covered.">		else if(descriptor instanceof HestonModelDescriptor) {</span>
+<span class="fc" id="L42">			final DescribedModel&lt;HestonModelDescriptor&gt; model = new HestonModelFourier((HestonModelDescriptor) descriptor);</span>
+<span class="fc" id="L43">			return model;</span>
+		}
+<span class="fc bfc" id="L45" title="All 2 branches covered.">		else if(descriptor instanceof MertonModelDescriptor) {</span>
+<span class="fc" id="L46">			final DescribedModel&lt;MertonModelDescriptor&gt; model = new MertonModelFourier((MertonModelDescriptor) descriptor);</span>
+<span class="fc" id="L47">			return model;</span>
+		}
+<span class="pc bpc" id="L49" title="1 of 2 branches missed.">		else if(descriptor instanceof VarianceGammaModelDescriptor) {</span>
+<span class="fc" id="L50">			final DescribedModel&lt;VarianceGammaModelDescriptor&gt; model = new VarianceGammaModelFourier((VarianceGammaModelDescriptor) descriptor);</span>
+<span class="fc" id="L51">			return model;</span>
+		}
+		else {
+<span class="nc" id="L54">			final String name = descriptor.name();</span>
+<span class="nc" id="L55">			throw new IllegalArgumentException(&quot;Unsupported product type &quot; + name);</span>
+		}
+	}
+
+
+
+
+
+	/**
+	 * A described Black-Scholes model using Fourier method for evaluation.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class BlackScholesModelFourier extends BlackScholesModel implements DescribedModel&lt;BlackScholesModelDescriptor&gt; {
+
+		private final BlackScholesModelDescriptor descriptor;
+		private final SingleAssetFourierProductFactory productFactory;
+
+
+		/**
+		 * Create a model from a model desciptor.
+		 *
+		 * @param descriptor A Black Scholes model descriptor.
+		 */
+		private BlackScholesModelFourier(final BlackScholesModelDescriptor descriptor) {
+<span class="fc" id="L82">			super(</span>
+					null,
+<span class="fc" id="L84">					descriptor.getInitialValue(),</span>
+<span class="fc" id="L85">					descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L86">					descriptor.getDiscountCurveForDiscountRate(), descriptor.getVolatility()</span>
+					);
+<span class="fc" id="L88">			this.descriptor 	= descriptor;</span>
+<span class="fc" id="L89">			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L90">		}</span>
+
+		@Override
+		public BlackScholesModelDescriptor getDescriptor() {
+<span class="nc" id="L94">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+				final ProductDescriptor productDescriptor) {
+<span class="fc" id="L100">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+
+	/**
+	 * A described Heston model using Fourier method for evaluation.
+	 *
+	 * @author Christian Fries
+	 * @author Roland Bachl
+	 *
+	 */
+	private static class HestonModelFourier extends HestonModel implements DescribedModel&lt;HestonModelDescriptor&gt; {
+
+		private final HestonModelDescriptor descriptor;
+		private final SingleAssetFourierProductFactory productFactory;
+
+		/**
+		 * Create a model from a model desciptor.
+		 *
+		 * @param descriptor A Heston model descriptor.
+		 */
+		private HestonModelFourier(final HestonModelDescriptor descriptor) {
+<span class="fc" id="L122">			super(</span>
+<span class="fc" id="L123">					descriptor.getInitialValue(),</span>
+<span class="fc" id="L124">					descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L125">					descriptor.getDiscountCurveForDiscountRate(),</span>
+<span class="fc" id="L126">					descriptor.getVolatility(),</span>
+<span class="fc" id="L127">					descriptor.getTheta(),</span>
+<span class="fc" id="L128">					descriptor.getKappa(),</span>
+<span class="fc" id="L129">					descriptor.getXi(),</span>
+<span class="fc" id="L130">					descriptor.getRho()</span>
+					);
+<span class="fc" id="L132">			this.descriptor 	= descriptor;</span>
+<span class="fc" id="L133">			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L134">		}</span>
+
+		@Override
+		public HestonModelDescriptor getDescriptor() {
+<span class="nc" id="L138">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+				final ProductDescriptor productDescriptor) {
+<span class="fc" id="L144">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+	}
+
+	/**
+	 * A described Merton Jump Diffusion model using Fourier method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class MertonModelFourier extends MertonModel implements DescribedModel&lt;MertonModelDescriptor&gt;{
+
+		private final MertonModelDescriptor descriptor;
+		private final SingleAssetFourierProductFactory productFactory;
+
+		private MertonModelFourier(final MertonModelDescriptor descriptor) {
+<span class="fc" id="L160">			super(</span>
+					null,
+<span class="fc" id="L162">					descriptor.getInitialValue(),</span>
+<span class="fc" id="L163">					descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L164">					descriptor.getDiscountCurveForDiscountRate(),</span>
+<span class="fc" id="L165">					descriptor.getVolatility(),</span>
+<span class="fc" id="L166">					descriptor.getJumpIntensity(),</span>
+<span class="fc" id="L167">					descriptor.getJumpSizeMean(), descriptor.getJumpSizeStdDev()</span>
+					);
+<span class="fc" id="L169">			this.descriptor = descriptor;</span>
+<span class="fc" id="L170">			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L171">		}</span>
+		@Override
+		public MertonModelDescriptor getDescriptor() {
+<span class="nc" id="L174">			return descriptor;</span>
+		}
+
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+				final ProductDescriptor productDescriptor) {
+<span class="fc" id="L180">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+
+	}
+
+	/**
+	 * A described Variance Gamma model using Fourier method for evaluation.
+	 *
+	 * @author Alessandro Gnoatto
+	 *
+	 */
+	private static class VarianceGammaModelFourier extends VarianceGammaModel implements DescribedModel&lt;VarianceGammaModelDescriptor&gt;{
+
+		private final VarianceGammaModelDescriptor descriptor;
+		private final SingleAssetFourierProductFactory productFactory;
+
+		private VarianceGammaModelFourier(VarianceGammaModelDescriptor descriptor) {
+<span class="fc" id="L197">			super(null,</span>
+<span class="fc" id="L198">					descriptor.getInitialValue(),</span>
+<span class="fc" id="L199">					descriptor.getDiscountCurveForForwardRate(),</span>
+<span class="fc" id="L200">					descriptor.getDiscountCurveForDiscountRate(),</span>
+<span class="fc" id="L201">					descriptor.getSigma(),</span>
+<span class="fc" id="L202">					descriptor.getTheta(),</span>
+<span class="fc" id="L203">					descriptor.getNu());</span>
+
+<span class="fc" id="L205">			this.descriptor = descriptor;</span>
+<span class="fc" id="L206">			productFactory = new SingleAssetFourierProductFactory(descriptor.getReferenceDate());</span>
+<span class="fc" id="L207">		}</span>
+
+		@Override
+		public VarianceGammaModelDescriptor getDescriptor() {
+<span class="nc" id="L211">			return descriptor;</span>
+		}
+		@Override
+		public DescribedProduct&lt;? extends ProductDescriptor&gt; getProductFromDescriptor(
+				ProductDescriptor productDescriptor) {
+<span class="fc" id="L216">			return productFactory.getProductFromDescriptor(productDescriptor);</span>
+		}
+
+	}
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.14.202510111229</span></div></body></html>
