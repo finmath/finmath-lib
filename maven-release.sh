@@ -10,9 +10,10 @@
 # single final deploy.
 #
 # Before running this script you should check the profiles via
-# 	mvn clean javadoc:javadoc checkstyle:check test -P=java-8,-java-11
+# 	mvn clean compile javadoc:javadoc checkstyle:check test -P=java-8,-java-11
 # and
-# 	mvn clean javadoc:javadoc checkstyle:check test -P=java-11,-java-8
+# 	mvn clean compile javadoc:javadoc checkstyle:check test -P=java-11,-java-8
+# Compile first so JavaDoc can read the Java 11 module descriptor after clean.
 #
 # If this script is run on a newly setup system, the following things need to be setup:
 # - .m2/settings.xml has to contain the passwords/tokens for central, github and the site

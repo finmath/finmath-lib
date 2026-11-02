@@ -26,6 +26,15 @@ To build the Java 8 classifier with the same JDK, select `java-8` and explicitly
 
 This uses the sources in `src/main/java8` and the tests in `src/test/java8`, and produces the `-java8.jar` artifact.
 
+### Release checks
+
+Run compilation, JavaDoc, Checkstyle and the full test suite for both source profiles:
+
+    mvn clean compile javadoc:javadoc checkstyle:check test -Pjava-8,-java-11
+    mvn clean compile javadoc:javadoc checkstyle:check test -Pjava-11,-java-8
+
+Compilation must precede JavaDoc after `clean`: the Java 11 build needs `target/classes/module-info.class` for the JavaDoc plugin to identify its module.
+
 ### Test coverage
 
 The optional `coverage` profile records test coverage with JaCoCo and adds a coverage report to the Maven site's **Project Reports** menu:
