@@ -5,6 +5,20 @@ finmath lib Release Notes
 
 # Release Notes
 
+## 6.1.10 (unreleased)
+
+### Parsers
+
+- Corrected maturity and tenor filtering of out-of-the-money swaption quotes.
+- Preserved custom quoting conventions and units when parsing swaption data by displacement or converting ZIP entries.
+- Closed curve CSV input streams on parsing errors and removed diagnostic output.
+- Applied the parser fixes to both the Java 11 and Java 8 source trees.
+
+### Documentation
+
+- Restored JavaDoc layout compatibility with the generating JDK while retaining finmath branding.
+- Corrected the algorithmic differentiation JavaDoc package group and updated Maven build instructions and the Java 8 dependency example.
+
 ## 6.1.9 (29.08.2026)
 
 ### General
