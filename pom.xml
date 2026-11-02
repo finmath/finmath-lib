@@ -33,7 +33,9 @@
 		<maven.source-plugin.version>3.2.1</maven.source-plugin.version>
 		<maven.site-plugin.version>3.9.1</maven.site-plugin.version>
 		<checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
-		<clover-plugin.version>4.4.1</clover-plugin.version>
+		<jacoco-plugin.version>0.8.14</jacoco-plugin.version>
+		<!-- Empty when the optional coverage profile is not active. -->
+		<jacocoArgLine />
 		<maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
 		<maven-central-publishing-maven.version>0.10.0</maven-central-publishing-maven.version>
 		<build-helper-maven-plugin.version>3.6.1</build-helper-maven-plugin.version>
@@ -238,7 +240,7 @@
 				<configuration>
 					<forkCount>1</forkCount>
 					<reuseForks>false</reuseForks>
-					<argLine>-mx6G</argLine>
+					<argLine>@{jacocoArgLine} -mx6G</argLine>
 				</configuration>
 			</plugin>
 
@@ -372,20 +374,6 @@
 					<doCheck>false</doCheck>
 					<doUpdate>false</doUpdate>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.openclover</groupId>
-				<artifactId>clover-maven-plugin</artifactId>
-				<version>${clover-plugin.version}</version>
-				<configuration>
-				</configuration>
-				<executions>
-					<execution>
-						<goals>
-							<goal>instrument</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 			<plugin>
 				<groupId>biz.aQute.bnd</groupId>
@@ -575,6 +563,47 @@
 
 	<profiles>
 		<profile>
+			<id>coverage</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco-plugin.version}</version>
+						<configuration>
+							<propertyName>jacocoArgLine</propertyName>
+							<!-- Accumulate data from Surefire's separate test JVMs. -->
+							<append>true</append>
+						</configuration>
+						<executions>
+							<execution>
+								<id>coverage-agent</id>
+								<goals>
+									<goal>prepare-agent</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<reporting>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco-plugin.version}</version>
+						<reportSets>
+							<reportSet>
+								<reports>
+									<report>report</report>
+								</reports>
+							</reportSet>
+						</reportSets>
+					</plugin>
+				</plugins>
+			</reporting>
+		</profile>
+		<profile>
 			<id>java-11</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -710,13 +739,6 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-report-plugin</artifactId>
 				<version>${maven.surefire-report-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.openclover</groupId>
-				<artifactId>clover-maven-plugin</artifactId>
-				<version>${clover-plugin.version}</version>
-				<configuration>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
