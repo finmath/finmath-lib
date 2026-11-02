@@ -28,6 +28,8 @@ This uses the sources in `src/main/java8` and the tests in `src/test/java8`, and
 
 ### Release checks
 
+The `maven-release.sh` script runs these checks for both source profiles before `release:prepare`. If either command fails, the script stops before preparing the release; otherwise, it continues with the release workflow.
+
 Run compilation, JavaDoc, Checkstyle and the full test suite for both source profiles:
 
     mvn clean compile javadoc:javadoc checkstyle:check test -Pjava-8,-java-11

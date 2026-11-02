@@ -9,11 +9,9 @@
 # deployment/bundle per deploy run, so all artifacts must be attached before the
 # single final deploy.
 #
-# Before running this script you should check the profiles via
-# 	mvn clean compile javadoc:javadoc checkstyle:check test -P=java-8,-java-11
-# and
-# 	mvn clean compile javadoc:javadoc checkstyle:check test -P=java-11,-java-8
-# Compile first so JavaDoc can read the Java 11 module descriptor after clean.
+# Before preparing the release, this script checks compilation, JavaDoc,
+# Checkstyle and the full test suite for both source profiles. Any failure stops
+# the script before release preparation.
 #
 # If this script is run on a newly setup system, the following things need to be setup:
 # - .m2/settings.xml has to contain the passwords/tokens for central, github and the site
@@ -28,8 +26,14 @@
 set -euo pipefail
 set -o verbose
 
-# Run mvn release:prepare explicitly so that you can check that release
-# preparation is successful before the final Central deployment.
+# Compile first so JavaDoc can read the Java 11 module descriptor after clean.
+echo "Checking the Java 8 source profile before release..."
+mvn clean compile javadoc:javadoc checkstyle:check test -Pjava-8,-java-11
+
+echo "Checking the Java 11 source profile before release..."
+mvn clean compile javadoc:javadoc checkstyle:check test -Pjava-11,-java-8
+
+# Prepare the release only after both source profiles pass all checks.
 mvn release:prepare
 
 # Let release:perform check out the release tag into target/checkout and verify
