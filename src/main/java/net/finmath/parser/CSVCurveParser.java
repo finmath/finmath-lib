@@ -71,11 +71,9 @@ public class CSVCurveParser {
 	 */
 	public DiscountCurve parseCSV(final File file, final String currency, final String index) throws IOException {
 
-		final InputStream stream 				= new FileInputStream(file);
-		final DiscountCurve curve	= parseStream(stream, currency, index);
-		stream.close();
-
-		return curve;
+		try(InputStream stream = new FileInputStream(file)) {
+			return parseStream(stream, currency, index);
+		}
 	}
 
 	/**
@@ -138,8 +136,6 @@ public class CSVCurveParser {
 	 * @throws IOException
 	 */
 	private DiscountCurve parseStream(final InputStream stream, final String currency, final String index) throws IOException {
-		System.out.println("Currency " + currency + "Index " + index);
-
 		LocalDate referenceDate;
 		final List<Double> times = new ArrayList<>();
 		final List<Double> rates = new ArrayList<>();
