@@ -101,9 +101,9 @@ Languages and Build
 
 The library is available for Java 11 and Java 8. We are starting to provide examples in Kotlin.
 
-The Maven build file is provide. Import the project as Maven project.
+The Maven build file is provided. Import the project as a Maven project.
 
-The default Maven profile is Java 11 without Kotlin. To enable Java 8 version select the Maven profile 'java-8'. To enable Kotlin select the Maven profile 'kotlin'.
+On JDK 11 or newer, the default Maven profile is 'java-11'. To build the Java 8 version, select 'java-8' and disable 'java-11' with `-Pjava-8,-java-11`.
 
 
 Releases
@@ -129,7 +129,7 @@ For the Java 8 version:
 
 	<groupId>net.finmath</groupId>
 	<artifactId>finmath-lib</artifactId>
-	<version>3.6.3</version>
+	<version>${project.version}</version>
 	<classifier>java8</classifier>
 
 *Note: finmath-lib Version 4 and 5 is currently not available for Java 6. For Java 6 you may try version 3.6.3 with classifier java6.*
@@ -137,11 +137,11 @@ For the Java 8 version:
 
 You may build the Java 11 version via Maven using
 
-	mvn -P java-11
+	mvn -Pjava-11,-java-8
 
 and the Java 8 version using
 
-	mvn -P java-8
+	mvn -Pjava-8,-java-11
 	
 Source code
 -------------------------------------
