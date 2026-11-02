@@ -18,6 +18,7 @@ finmath lib Release Notes
 
 - Restored JavaDoc layout compatibility with the generating JDK while retaining finmath branding.
 - Corrected the algorithmic differentiation JavaDoc package group and updated Maven build instructions and the Java 8 dependency example.
+- Corrected tree-model JavaDoc comments that prevented documentation generation for the Java 8 profile.
 
 ## 6.1.9 (29.08.2026)
 

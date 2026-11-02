@@ -36,7 +36,7 @@ public interface TreeModel extends Model {
 	 *   V_k = E^Q[ V_{k+1} | F_k ] * DF  (DF is the one-step discount factor).
 	 *
 	 * @param optionValues  RandomVariable living at level k+1.
-	 * @param timeindex     Level k to which the conditional expectation is taken (0 ≤ k < n).
+	 * @param timeindex     Level k to which the conditional expectation is taken ({@code 0 ≤ k < n}).
 	 * @return A RandomVariable at level k with length matching the number of states at k.
 	 */
 	RandomVariable getConditionalExpectationRV(RandomVariable optionValues, int timeindex);
@@ -58,7 +58,7 @@ public interface TreeModel extends Model {
 	 * binomial / trinomial recombining trees this is constant (2 / 3) and independent
 	 * of {@code stateIndex}.
 	 *
-	 * @param timeIndex  The time index k (0 ≤ k < n).
+	 * @param timeIndex  The time index k ({@code 0 ≤ k < n}).
 	 * @param stateIndex The node / state index at time k (model-defined).
 	 * @return The number of branches from that node to time k+1.
 	 */
@@ -71,7 +71,7 @@ public interface TreeModel extends Model {
 	 * Branch indices are model-defined but should be consistent with how the model
 	 * evolves the risk factor (e.g. for binomial: 0=up,1=down; for trinomial: 0=up,1=mid,2=down).
 	 *
-	 * @param timeIndex   The time index k (0 ≤ k < n).
+	 * @param timeIndex   The time index k ({@code 0 ≤ k < n}).
 	 * @param stateIndex  The node / state index at time k (model-defined).
 	 * @param branchIndex The branch index in {@code [0, getNumberOfBranches(k,i))}.
 	 * @return Transition probability to the corresponding child on level k+1.
@@ -84,7 +84,7 @@ public interface TreeModel extends Model {
 	 * One-step discount factor from time k to k+1 (applied when taking the conditional expectation).
 	 * For example, for a constant short rate r and step dt, DF = exp(-r*dt).
 	 *
-	 * @param timeIndex The time index k (0 ≤ k < n).
+	 * @param timeIndex The time index k ({@code 0 ≤ k < n}).
 	 * @return One-step discount factor DF(k,k+1).
 	 */
 	default double getOneStepDiscountFactor(int timeIndex) {
