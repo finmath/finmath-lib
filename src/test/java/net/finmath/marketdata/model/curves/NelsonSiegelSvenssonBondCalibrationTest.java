@@ -62,7 +62,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 		final double[] nssParameters = calibrateNSSCurve(parameters);
 
-		final DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", LocalDate.now(), nssParameters, 1.0);
+		final DiscountCurve discountCurve = new DiscountCurveNelsonSiegelSvensson("EUR CurveFromInterpolationPoints", REFERENCE_DAY, nssParameters, 1.0);
 		System.out.println("Calibrated parameters: " + Arrays.toString(nssParameters));
 		for(int i = 0; i < maturity.length; i++) {
 			final double discountFactor = discountCurve.getDiscountFactor(maturity[i]);
@@ -105,7 +105,7 @@ public class NelsonSiegelSvenssonBondCalibrationTest {
 
 			final LocalDate spotDate = businessdayCalendar.getRolledDate(REFERENCE_DAY, spotOffsetDays);
 			final LocalDate startDate = businessdayCalendar.getDateFromDateAndOffsetCode(spotDate, forwardStartPeriod);
-			final LocalDate maturityDate = LocalDate.now().plus(Math.round(365 * maturities[i]), ChronoUnit.DAYS);
+			final LocalDate maturityDate = REFERENCE_DAY.plus(Math.round(365 * maturities[i]), ChronoUnit.DAYS);
 
 			final Schedule schedulePay = ScheduleGenerator.createScheduleFromConventions(REFERENCE_DAY, startDate, maturityDate, ANNUAL, ACT_365, "first", "following", businessdayCalendar, -2, 0);
 
