@@ -490,7 +490,7 @@
 							</group>
 							<group>
 								<title>Algorithmic Differentiation</title>
-								<packages>net.finmath.montecarlo.automaticdifferntiation*</packages>
+								<packages>net.finmath.montecarlo.automaticdifferentiation*</packages>
 							</group>
 							<group>
 								<title>Monte-Carlo Methods</title>
