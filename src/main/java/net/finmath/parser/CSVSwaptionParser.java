@@ -263,7 +263,7 @@ public class CSVSwaptionParser {
 			if(! (tokens[1].equalsIgnoreCase(currency) && tokens[2].equalsIgnoreCase(index) && tokens[3].equalsIgnoreCase(swaptionCode) && moneyness != 0)) {
 				continue;
 			}
-			if((maturities != null && ! maturities.contains(maturity)) || (tenors != null && tenors.contains(tenor))) {
+			if((!maturities.isEmpty() && ! maturities.contains(maturity)) || (!tenors.isEmpty() && ! tenors.contains(tenor))) {
 				continue;
 			}
 
@@ -377,6 +377,7 @@ public class CSVSwaptionParser {
 		for(final String maturity : maturities) {
 			for(final String tenor : tenors) {
 				final CSVSwaptionParser partialParser = new CSVSwaptionParser(new String[] {maturity}, new String[] {tenor}, fixMetaSchedule, floatMetaSchedule);
+				partialParser.setFileQuotingConvention(fileQuotingConvention, fileQuotingUnit, fileQuotingUnitForDisplacement);
 				try(InputStream atmStream = atmZip.getInputStream(atmEntry)) {
 					try(InputStream otmStream = otmZip.getInputStream(otmEntry)) {
 						data = data.append(partialParser.parseStreams(atmStream, otmStream, referenceDate, currency, index, discountCurveName), model);
@@ -412,6 +413,7 @@ public class CSVSwaptionParser {
 
 		for(final Set<String> tenors : tenorMap.values()) {
 			final CSVSwaptionParser partialParser = new CSVSwaptionParser(maturities.toArray(new String[0]), tenors.toArray(new String[0]), fixMetaSchedule, floatMetaSchedule);
+			partialParser.setFileQuotingConvention(fileQuotingConvention, fileQuotingUnit, fileQuotingUnitForDisplacement);
 
 			lattices.add(partialParser.parseCSV(atmFile, otmFile, referenceDate, currency, index, discountCurveName));
 		}
