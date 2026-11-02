@@ -64,7 +64,6 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param callOrPutSign The sign in the payoff.
-	 * @param underlyingIndex The index of the underlying to be fetched from the model.
 	 */
 	public EuropeanOption(final double maturity, final double strike, final double callOrPutSign) {
 		super(maturity);
@@ -85,7 +84,6 @@ public class EuropeanOption extends AbstractNonPathDependentProduct {
 	 * @param maturity The maturity T in the option payoff max(S(T)-K,0)
 	 * @param strike The strike K in the option payoff max(S(T)-K,0).
 	 * @param callOrPutSign The sign in the payoff.
-	 * @param underlyingIndex The index of the underlying to be fetched from the model.
 	 */
 	public EuropeanOption(final double maturity, final double strike, final CallOrPut callOrPutSign) {
 		super(maturity);

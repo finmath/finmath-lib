@@ -25,9 +25,9 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	 * @param initialPrice, the initial price of the asset modeled by the process
 	 * @param riskFreeRate, the number r such that the value of a risk-free bond at time T is e^(rT)
 	 * @param volatility, the log-volatility of the Black-Scholes model
-	 * @param lastTime, the last time T in the time discretization 0=t_0<t_1<..<t_n=T
+	 * @param lastTime, the last time T in the time discretization {@code 0=t_0<t_1<..<t_n=T}
 	 * @param timeStep, the length t_k-t_{k-1} of the equally spaced time steps that we take for the approximating
-	 * time discretization 0=t_0<t_1<..<t_n=T
+	 * time discretization {@code 0=t_0<t_1<..<t_n=T}
 	 */
 	public CoxRossRubinsteinModel(double initialPrice, double riskFreeRate, double volatility, double lastTime, double timeStep) {
 		super(initialPrice, riskFreeRate, volatility, lastTime, timeStep);
@@ -47,7 +47,7 @@ public class CoxRossRubinsteinModel extends AbstractRecombiningTreeModel {
 	 * @param initialPrice, the initial price of the asset modeled by the process
 	 * @param riskFreeRate, the number r such that the value of a risk-free bond at time T is e^(rT)
 	 * @param volatility, the log-volatility of the Black-Scholes model
-	 * @param lastTime, the last time T in the time discretization 0=t_0<t_1<..<t_n=T
+	 * @param lastTime, the last time T in the time discretization {@code 0=t_0<t_1<..<t_n=T}
 	 * @param numberOfTimes the number of equally spaced time steps
 	 */
 	public CoxRossRubinsteinModel(double initialPrice, double riskFreeRate, double volatility, double lastTime, int numberOfTimes) {
