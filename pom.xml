@@ -438,7 +438,10 @@
 					<configuration>
 						<source>${envSource}</source>
 						<doctitle>${project.name} (${project.version}) documentation</doctitle>
-						<stylesheetfile>stylesheet.css</stylesheetfile>
+						<!-- Keep the layout CSS matched to the JDK that generates the HTML. -->
+						<addStylesheets>
+							<addStylesheet>finmath.css</addStylesheet>
+						</addStylesheets>
 						<docfilessubdirs>true</docfilessubdirs>
 						<excludePackageNames>net.finmath.montecarlo.automaticdifferentiation.backward.alternative:net.finmath.rootfinder</excludePackageNames>
 						<header>
