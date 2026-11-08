@@ -17,6 +17,7 @@ import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
 import net.finmath.finitedifference.solvers.FDMSolver;
 import net.finmath.finitedifference.solvers.ThomasSolver;
 import net.finmath.finitedifference.solvers.TridiagonalMatrix;
+import net.finmath.finitedifference.solvers.adi.ADI2DStencilBuilder.DirectionalCoefficients;
 import net.finmath.modelling.Exercise;
 
 /**
@@ -527,6 +528,15 @@ public abstract class AbstractADI2D implements FDMSolver {
 			}
 		}
 
+		// At a natural degenerate boundary the mixed term vanishes, but discounting remains.
+		for(final int j : new int[] {0, getN1() - 1}) {
+			for(int i = 1; i < getN0() - 1; i++) {
+				if(getSecondDirectionBoundaryCoefficients(time, i, j) != null) {
+					out[flatten(i, j)] = -r * u[flatten(i, j)];
+				}
+			}
+		}
+
 		return out;
 	}
 
@@ -611,6 +621,17 @@ public abstract class AbstractADI2D implements FDMSolver {
 			}
 		}
 
+		for(final int j : new int[] {0, getN1() - 1}) {
+			for(int i = 0; i < getN0(); i++) {
+				final DirectionalCoefficients c = getSecondDirectionBoundaryCoefficients(time, i, j);
+				if(c != null) {
+					out[flatten(i, j)] = c.getDiag() * u[flatten(i, j)]
+							+ (j == 0 ? c.getUpper() * u[flatten(i, 1)]
+									: c.getLower() * u[flatten(i, j - 1)]);
+				}
+			}
+		}
+
 		return out;
 	}
 
@@ -663,8 +684,8 @@ public abstract class AbstractADI2D implements FDMSolver {
 			final double lowerBoundaryValue = getLowerBoundaryValueForSecondDirection(time, i, lineRhs[0]);
 			final double upperBoundaryValue = getUpperBoundaryValueForSecondDirection(time, i, lineRhs[getN1() - 1]);
 
-			overwriteBoundaryRow(m, lineRhs, 0, lowerBoundaryValue);
-			overwriteBoundaryRow(m, lineRhs, getN1() - 1, upperBoundaryValue);
+			applySecondDirectionBoundaryRow(m, lineRhs, time, dt, i, 0, lowerBoundaryValue);
+			applySecondDirectionBoundaryRow(m, lineRhs, time, dt, i, getN1() - 1, upperBoundaryValue);
 
 			final double[] solved = ThomasSolver.solve(m.getLowerDiagonal(), m.getMainDiagonal(), m.getUpperDiagonal(), lineRhs);
 
@@ -796,6 +817,61 @@ public abstract class AbstractADI2D implements FDMSolver {
 			return condition.getValue();
 		}
 		return fallback;
+	}
+
+	/**
+	 * Retains the first-order PDE at a natural second-direction boundary where
+	 * diffusion vanishes and drift points into the state domain. For example,
+	 * the Heston variance boundary at zero still has drift kappa * theta.
+	 * Nondegenerate diffusion boundaries require a separately specified closure.
+	 *
+	 * @param time Running time.
+	 * @param firstIndex First-direction grid index.
+	 * @param boundaryIndex Lower or upper second-direction boundary index.
+	 * @return One-sided drift coefficients, or null to retain the existing boundary treatment.
+	 */
+	protected DirectionalCoefficients getSecondDirectionBoundaryCoefficients(
+			final double time, final int firstIndex, final int boundaryIndex) {
+		final boolean isLower = boundaryIndex == 0;
+		final double x0 = getX0Grid()[firstIndex];
+		final double x1 = getX1Grid()[boundaryIndex];
+		final BoundaryCondition[] conditions = isLower
+				? getModel().getBoundaryConditionsAtLowerBoundary(getProduct(), time, x0, x1)
+				: getModel().getBoundaryConditionsAtUpperBoundary(getProduct(), time, x0, x1);
+		if(conditions[1] == null || !conditions[1].isNone()) {
+			return null;
+		}
+		for(final double loading : getModel().getFactorLoading(time, x0, x1)[1]) {
+			if(loading != 0.0) {
+				return null;
+			}
+		}
+		final double drift = getModel().getDrift(time, x0, x1)[1];
+		if(isLower) {
+			if(!(drift >= 0.0)) {
+				return null;
+			}
+			final double rate = drift / (getX1Grid()[1] - x1);
+			return new DirectionalCoefficients(0.0, -rate, rate);
+		}
+		if(!(drift <= 0.0)) {
+			return null;
+		}
+		final double rate = -drift / (x1 - getX1Grid()[boundaryIndex - 1]);
+		return new DirectionalCoefficients(rate, -rate, 0.0);
+	}
+
+	private void applySecondDirectionBoundaryRow(final TridiagonalMatrix matrix, final double[] rhs,
+			final double time, final double dt, final int firstIndex, final int boundaryIndex, final double value) {
+		final DirectionalCoefficients c = getSecondDirectionBoundaryCoefficients(time, firstIndex, boundaryIndex);
+		if(c == null) {
+			overwriteBoundaryRow(matrix, rhs, boundaryIndex, value);
+		} else {
+			// Match the explicit A2 action; NONE must not replace this PDE row by an identity.
+			matrix.getLowerDiagonal()[boundaryIndex] = -getTheta() * dt * c.getLower();
+			matrix.getMainDiagonal()[boundaryIndex] = 1.0 - getTheta() * dt * c.getDiag();
+			matrix.getUpperDiagonal()[boundaryIndex] = -getTheta() * dt * c.getUpper();
+		}
 	}
 
 	protected void overwriteBoundaryRow(
