@@ -154,6 +154,20 @@ public class HestonModel implements CharacteristicFunctionModel {
 		final double logDiscountFactorForForward		= this.getLogDiscountFactorForForward(time);
 		final double logDiscountFactorForDiscounting	= this.getLogDiscountFactorForDiscounting(time);
 
+		if(xi == 0.0) {
+			// Deterministic variance: integrate theta + (volatility^2 - theta) exp(-kappa t).
+			// expm1 avoids cancellation for small kappa * time.
+			final double integratedVariance = kappa == 0.0 ? volatility * volatility * time
+					: theta * time + (volatility * volatility - theta) * (-Math.expm1(-kappa * time) / kappa);
+
+			return argument -> {
+				final Complex iargument = argument.multiply(Complex.I);
+				return iargument.multiply(iargument).subtract(iargument).multiply(0.5 * integratedVariance)
+						.add(iargument.multiply(Math.log(initialValue) - logDiscountFactorForForward))
+						.add(logDiscountFactorForDiscounting).exp();
+			};
+		}
+
 		return new CharacteristicFunction() {
 			@Override
 			public Complex apply(final Complex argument) {
