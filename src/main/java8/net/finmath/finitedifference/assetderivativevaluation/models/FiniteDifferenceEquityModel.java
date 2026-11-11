@@ -62,6 +62,22 @@ public interface FiniteDifferenceEquityModel extends FiniteDifferenceModel, Fini
 	DiscountCurve getRiskFreeCurve();
 
 	/**
+	 * Returns the rate of the local killing term {@code -r(t) V}, consistent
+	 * with the rate convention used by {@link #getDrift(double, double...)}.
+	 *
+	 * The default retains the legacy zero-rate convention of existing models.
+	 * Models supporting non-flat term structures must override it with the
+	 * instantaneous forward rate and use the same rate in their drift.
+	 *
+	 * @param time Calendar time, in year fractions.
+	 * @return Local discounting rate used by the two-dimensional ADI solver.
+	 */
+	default double getDiscountingRate(final double time) {
+		final double tSafe = Math.max(time, 1E-10);
+		return -Math.log(getRiskFreeCurve().getDiscountFactor(tSafe)) / tSafe;
+	}
+
+	/**
 	 * Returns the dividend-yield discount curve.
 	 *
 	 * <p>

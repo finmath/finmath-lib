@@ -32,11 +32,6 @@ import net.finmath.modelling.products.CallOrPut;
 public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBoundary {
 
 	/**
-	 * The epsilon.
-	 */
-	private static final double EPSILON = 1E-6;
-
-	/**
 	 * The model.
 	 */
 	private final FDMHestonModel model;
@@ -53,11 +48,10 @@ public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBounda
 	@Override
 	public BoundaryCondition[] getBoundaryConditionsAtLowerBoundary(
 			final FiniteDifferenceEquityProduct product,
-			double time,
+			final double time,
 			final double... stateVariables) {
 
 		final EuropeanOption option = (EuropeanOption) product;
-		time = Math.max(time, EPSILON);
 
 		final double stock = stateVariables.length > 0 ? stateVariables[0] : 0.0;
 
@@ -76,11 +70,10 @@ public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBounda
 	@Override
 	public BoundaryCondition[] getBoundaryConditionsAtUpperBoundary(
 			final FiniteDifferenceEquityProduct product,
-			double time,
+			final double time,
 			final double... stateVariables) {
 
 		final EuropeanOption option = (EuropeanOption) product;
-		time = Math.max(time, EPSILON);
 
 		final double S = stateVariables.length > 0 ? stateVariables[0] : 0.0;
 
@@ -102,10 +95,12 @@ public class EuropeanOptionHestonModelBoundary implements FiniteDifferenceBounda
 			final double stock) {
 
 		final double maturity = option.getMaturity();
-		final double tau = Math.max(maturity - evaluationTime, 0.0);
+		final double time = Math.min(evaluationTime, maturity);
 
-		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(tau);
-		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(tau);
+		final double discountFactorRiskFree = model.getRiskFreeCurve().getDiscountFactor(maturity)
+				/ model.getRiskFreeCurve().getDiscountFactor(time);
+		final double discountFactorDividend = model.getDividendYieldCurve().getDiscountFactor(maturity)
+				/ model.getDividendYieldCurve().getDiscountFactor(time);
 
 		final double discountedForwardLikeSpot = stock * discountFactorDividend;
 		final double discountedStrike = option.getStrike() * discountFactorRiskFree;

@@ -461,19 +461,24 @@ public abstract class AbstractADI2D implements FDMSolver {
 			final double currentTime,
 			final double dt) {
 
-		final double[] explicit = applyFullExplicitOperator(u, currentTime);
+		// Backward evolution from currentTime + dt to currentTime. Douglas
+		// uses the old-time operator in the predictor/corrections and the
+		// new-time operator in the implicit solves. Freezing both at the new
+		// time introduces an additional first-order bias for varying curves.
+		final double previousTime = currentTime + dt;
+		final double[] explicit = applyFullExplicitOperator(u, previousTime);
 		final double[] y0 = add(u, scale(explicit, dt));
 
 		applyOuterBoundaries(currentTime, y0);
 
-		final double[] a1u = applyA1Explicit(u, currentTime);
+		final double[] a1u = applyA1Explicit(u, previousTime);
 		final double[] rhs1 = subtract(y0, scale(a1u, getTheta() * dt));
 		double[] y1 = solveFirstDirectionLines(rhs1, currentTime, dt);
 		y1 = sanitize(y1);
 
 		applyOuterBoundaries(currentTime, y1);
 
-		final double[] a2u = applyA2Explicit(u, currentTime);
+		final double[] a2u = applyA2Explicit(u, previousTime);
 		final double[] rhs2 = subtract(y1, scale(a2u, getTheta() * dt));
 		double[] y2 = solveSecondDirectionLines(rhs2, currentTime, dt);
 		y2 = sanitize(y2);
@@ -492,9 +497,7 @@ public abstract class AbstractADI2D implements FDMSolver {
 
 		final double[] out = new double[getN()];
 
-		final double tSafe = Math.max(time, 1E-10);
-		final double discountFactor = getModel().getRiskFreeCurve().getDiscountFactor(tSafe);
-		final double r = -Math.log(discountFactor) / tSafe;
+		final double r = getModel().getDiscountingRate(time);
 
 		for (int j = 1; j < getN1() - 1; j++) {
 			for (int i = 1; i < getN0() - 1; i++) {
