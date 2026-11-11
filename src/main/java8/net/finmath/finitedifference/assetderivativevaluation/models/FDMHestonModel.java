@@ -5,6 +5,7 @@ import net.finmath.finitedifference.assetderivativevaluation.boundaries.FiniteDi
 import net.finmath.finitedifference.assetderivativevaluation.products.FiniteDifferenceEquityProduct;
 import net.finmath.finitedifference.boundaries.BoundaryCondition;
 import net.finmath.finitedifference.grids.SpaceTimeDiscretization;
+import net.finmath.finitedifference.utilities.DiscountCurveRates;
 import net.finmath.marketdata.model.curves.CurveInterpolation.ExtrapolationMethod;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationEntity;
 import net.finmath.marketdata.model.curves.CurveInterpolation.InterpolationMethod;
@@ -310,6 +311,11 @@ public class FDMHestonModel implements FiniteDifferenceEquityModel {
 	}
 
 	@Override
+	public double getDiscountingRate(final double time) {
+		return DiscountCurveRates.getInstantaneousForwardRate(getRiskFreeCurve(), time);
+	}
+
+	@Override
 	public DiscountCurve getDividendYieldCurve() {
 		return dividendYieldCurve;
 	}
@@ -379,16 +385,8 @@ public class FDMHestonModel implements FiniteDifferenceEquityModel {
 		// stateVariables[0]=S, stateVariables[1]=v
 		final double v = stateVariables.length > 1 ? stateVariables[1] : initialVariance;
 
-		double t = time;
-		if (t == 0) {
-			t = 0.000001;
-		}
-
-		final double rF = getRiskFreeCurve().getDiscountFactor(t);
-		final double r = -Math.log(rF) / t;
-
-		final double dY = getDividendYieldCurve().getDiscountFactor(t);
-		final double q = -Math.log(dY) / t;
+		final double r = getDiscountingRate(time);
+		final double q = DiscountCurveRates.getInstantaneousForwardRate(getDividendYieldCurve(), time);
 
 		final double mu = (r - q) * stateVariables[0];		// drift for S
 		final double muV = kappa * (thetaV - v);	// drift of the CIR
